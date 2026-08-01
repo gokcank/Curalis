@@ -18,11 +18,11 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
+        # cache: gradle (Will be re-enabled in Phase 2)
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    # - name: Grant execute permission for gradlew
+    #   run: chmod +x gradlew
       
     # Note: Replace this with `./gradlew build` once Android project is created
-    - name: Validate Gradle Wrapper
-      uses: gradle/actions/wrapper-validation@v3
+    # - name: Validate Gradle Wrapper
+    #   uses: gradle/actions/wrapper-validation@v3
