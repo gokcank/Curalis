@@ -1,6 +1,7 @@
 package com.gokcank.curalis;
 
 import com.gokcank.curalis.core.di.DatabaseModule;
+import com.gokcank.curalis.core.di.NetworkModule;
 import com.gokcank.curalis.core.di.RepositoryModule;
 import com.gokcank.curalis.core.notification.ReminderActionReceiver_GeneratedInjector;
 import com.gokcank.curalis.core.notification.ReminderReceiver_GeneratedInjector;
@@ -136,6 +137,7 @@ public final class CuralisApp_HiltComponents {
           ServiceCBuilderModule.class,
           DatabaseModule.class,
           HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
+          NetworkModule.class,
           RepositoryModule.class
       }
   )

@@ -64,6 +64,11 @@ dependencies {
     // Navigation
     implementation(libs.navigation.compose)
 
+    // Retrofit & Networking
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging)
+
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

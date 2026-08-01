@@ -8,8 +8,8 @@ import javax.annotation.processing.Generated;
  */
 @AggregatedDeps(
     components = "dagger.hilt.components.SingletonComponent",
-    entryPoints = "com.gokcank.curalis.CuralisApp_GeneratedInjector"
+    modules = "com.gokcank.curalis.core.di.NetworkModule"
 )
 @Generated("dagger.hilt.processor.internal.aggregateddeps.AggregatedDepsGenerator")
-public class _com_gokcank_curalis_CuralisApp_GeneratedInjector {
+public class _com_gokcank_curalis_core_di_NetworkModule {
 }

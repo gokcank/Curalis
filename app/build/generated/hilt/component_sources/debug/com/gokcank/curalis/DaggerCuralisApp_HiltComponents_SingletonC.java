@@ -9,6 +9,9 @@ import androidx.lifecycle.ViewModel;
 import com.gokcank.curalis.core.di.DatabaseModule_ProvideCuralisDatabaseFactory;
 import com.gokcank.curalis.core.di.DatabaseModule_ProvideMedicationDaoFactory;
 import com.gokcank.curalis.core.di.DatabaseModule_ProvideReminderDaoFactory;
+import com.gokcank.curalis.core.di.NetworkModule_ProvideOkHttpClientFactory;
+import com.gokcank.curalis.core.di.NetworkModule_ProvideOpenFdaApiFactory;
+import com.gokcank.curalis.core.di.NetworkModule_ProvideRetrofitFactory;
 import com.gokcank.curalis.core.notification.AlarmScheduler;
 import com.gokcank.curalis.core.notification.NotificationHelper;
 import com.gokcank.curalis.core.notification.ReminderActionReceiver;
@@ -18,6 +21,9 @@ import com.gokcank.curalis.core.notification.ReminderReceiver_MembersInjector;
 import com.gokcank.curalis.data.local.CuralisDatabase;
 import com.gokcank.curalis.data.local.dao.MedicationDao;
 import com.gokcank.curalis.data.local.dao.ReminderDao;
+import com.gokcank.curalis.data.provider.ProviderManager;
+import com.gokcank.curalis.data.provider.openfda.OpenFdaApi;
+import com.gokcank.curalis.data.provider.openfda.OpenFdaProvider;
 import com.gokcank.curalis.data.repository_impl.MedicationRepositoryImpl;
 import com.gokcank.curalis.data.repository_impl.ReminderRepositoryImpl;
 import com.gokcank.curalis.domain.repository.MedicationRepository;
@@ -29,6 +35,7 @@ import com.gokcank.curalis.domain.usecase.GetMedicationByIdUseCase;
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase;
 import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase;
 import com.gokcank.curalis.domain.usecase.SearchMedicationsUseCase;
+import com.gokcank.curalis.domain.usecase.SearchRemoteMedicationsUseCase;
 import com.gokcank.curalis.domain.usecase.UpdateMedicationUseCase;
 import com.gokcank.curalis.domain.usecase.ValidateMedicationUseCase;
 import com.gokcank.curalis.presentation.main.MainActivity;
@@ -64,6 +71,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
+import okhttp3.OkHttpClient;
+import retrofit2.Retrofit;
 
 @DaggerGenerated
 @Generated(
@@ -464,6 +473,10 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
       return new UpdateMedicationUseCase(singletonCImpl.bindMedicationRepositoryProvider.get());
     }
 
+    private SearchRemoteMedicationsUseCase searchRemoteMedicationsUseCase() {
+      return new SearchRemoteMedicationsUseCase(singletonCImpl.providerManagerProvider.get());
+    }
+
     private GetMedicationsUseCase getMedicationsUseCase() {
       return new GetMedicationsUseCase(singletonCImpl.bindMedicationRepositoryProvider.get());
     }
@@ -495,15 +508,15 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel = "com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel";
-
       static String com_gokcank_curalis_presentation_medication_list_MedicationListViewModel = "com.gokcank.curalis.presentation.medication.list.MedicationListViewModel";
 
-      @KeepFieldType
-      AddEditMedicationViewModel com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel2;
+      static String com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel = "com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel";
 
       @KeepFieldType
       MedicationListViewModel com_gokcank_curalis_presentation_medication_list_MedicationListViewModel2;
+
+      @KeepFieldType
+      AddEditMedicationViewModel com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -528,7 +541,7 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel 
-          return (T) new AddEditMedicationViewModel(viewModelCImpl.getMedicationByIdUseCase(), viewModelCImpl.addMedicationUseCase(), viewModelCImpl.updateMedicationUseCase(), new ValidateMedicationUseCase(), singletonCImpl.scheduleReminderUseCase(), singletonCImpl.alarmScheduler(), viewModelCImpl.savedStateHandle);
+          return (T) new AddEditMedicationViewModel(viewModelCImpl.getMedicationByIdUseCase(), viewModelCImpl.addMedicationUseCase(), viewModelCImpl.updateMedicationUseCase(), new ValidateMedicationUseCase(), singletonCImpl.scheduleReminderUseCase(), viewModelCImpl.searchRemoteMedicationsUseCase(), singletonCImpl.alarmScheduler(), viewModelCImpl.savedStateHandle);
 
           case 1: // com.gokcank.curalis.presentation.medication.list.MedicationListViewModel 
           return (T) new MedicationListViewModel(viewModelCImpl.getMedicationsUseCase(), viewModelCImpl.searchMedicationsUseCase(), viewModelCImpl.deleteMedicationUseCase());
@@ -627,6 +640,14 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
 
     private Provider<MedicationRepository> bindMedicationRepositoryProvider;
 
+    private Provider<OkHttpClient> provideOkHttpClientProvider;
+
+    private Provider<Retrofit> provideRetrofitProvider;
+
+    private Provider<OpenFdaApi> provideOpenFdaApiProvider;
+
+    private Provider<ProviderManager> providerManagerProvider;
+
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
       initialize(applicationContextModuleParam);
@@ -649,6 +670,10 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
       return new NotificationHelper(ApplicationContextModule_ProvideContextFactory.provideContext(applicationContextModule));
     }
 
+    private OpenFdaProvider openFdaProvider() {
+      return new OpenFdaProvider(provideOpenFdaApiProvider.get());
+    }
+
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
       this.provideCuralisDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<CuralisDatabase>(singletonCImpl, 2));
@@ -658,6 +683,10 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
       this.provideMedicationDaoProvider = DoubleCheck.provider(new SwitchingProvider<MedicationDao>(singletonCImpl, 4));
       this.medicationRepositoryImplProvider = new SwitchingProvider<>(singletonCImpl, 3);
       this.bindMedicationRepositoryProvider = DoubleCheck.provider((Provider) medicationRepositoryImplProvider);
+      this.provideOkHttpClientProvider = DoubleCheck.provider(new SwitchingProvider<OkHttpClient>(singletonCImpl, 8));
+      this.provideRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 7));
+      this.provideOpenFdaApiProvider = DoubleCheck.provider(new SwitchingProvider<OpenFdaApi>(singletonCImpl, 6));
+      this.providerManagerProvider = DoubleCheck.provider(new SwitchingProvider<ProviderManager>(singletonCImpl, 5));
     }
 
     @Override
@@ -730,6 +759,18 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
 
           case 4: // com.gokcank.curalis.data.local.dao.MedicationDao 
           return (T) DatabaseModule_ProvideMedicationDaoFactory.provideMedicationDao(singletonCImpl.provideCuralisDatabaseProvider.get());
+
+          case 5: // com.gokcank.curalis.data.provider.ProviderManager 
+          return (T) new ProviderManager(singletonCImpl.openFdaProvider());
+
+          case 6: // com.gokcank.curalis.data.provider.openfda.OpenFdaApi 
+          return (T) NetworkModule_ProvideOpenFdaApiFactory.provideOpenFdaApi(singletonCImpl.provideRetrofitProvider.get());
+
+          case 7: // retrofit2.Retrofit 
+          return (T) NetworkModule_ProvideRetrofitFactory.provideRetrofit(singletonCImpl.provideOkHttpClientProvider.get());
+
+          case 8: // okhttp3.OkHttpClient 
+          return (T) NetworkModule_ProvideOkHttpClientFactory.provideOkHttpClient();
 
           default: throw new AssertionError(id);
         }

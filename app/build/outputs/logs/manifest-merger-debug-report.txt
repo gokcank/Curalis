@@ -1,73 +1,73 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:2:1-39:12
-INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:2:1-39:12
-INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:2:1-39:12
-INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:2:1-39:12
-MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] /home/gokcank/.gradle/caches/transforms-4/5e192b84ed1515c1dda6d3653f72e41e/transformed/jetified-hilt-navigation-compose-1.2.0/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.hilt:hilt-navigation:1.2.0] /home/gokcank/.gradle/caches/transforms-4/ee69dc47a4930c6ae17246ca849926fa/transformed/jetified-hilt-navigation-1.2.0/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.navigation:navigation-common:2.7.7] /home/gokcank/.gradle/caches/transforms-4/1652e45bc9d5de30b4df7b1751a065ab/transformed/navigation-common-2.7.7/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.navigation:navigation-runtime:2.7.7] /home/gokcank/.gradle/caches/transforms-4/63db9a33a3e48b90ab10656c2da6ee6a/transformed/navigation-runtime-2.7.7/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/d548932c4fd4f7d19e3b20d95ab72235/transformed/navigation-common-ktx-2.7.7/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/9642f439b37dd818100dcda584af6e55/transformed/navigation-runtime-ktx-2.7.7/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.navigation:navigation-compose:2.7.7] /home/gokcank/.gradle/caches/transforms-4/411e9ef1a3e76cb1e04b0208c7bbef44/transformed/jetified-navigation-compose-2.7.7/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.material3:material3-android:1.2.1] /home/gokcank/.gradle/caches/transforms-4/53fddc2dbe00d7f1f5f7dd848c6de567/transformed/jetified-material3-release/AndroidManifest.xml:17:1-22:12
-MERGED from [com.google.dagger:hilt-android:2.51.1] /home/gokcank/.gradle/caches/transforms-4/b99fa504bece1661f90891a4446ac819/transformed/jetified-hilt-android-2.51.1/AndroidManifest.xml:16:1-19:12
-MERGED from [androidx.fragment:fragment:1.5.1] /home/gokcank/.gradle/caches/transforms-4/98ea5f3ba2eeff48f469130e36967def/transformed/fragment-1.5.1/AndroidManifest.xml:17:1-24:12
-MERGED from [androidx.loader:loader:1.0.0] /home/gokcank/.gradle/caches/transforms-4/c4ad9e85f384b86e208203e9333ad42b/transformed/loader-1.0.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.compose.material:material-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/6f57d0e381714469096a35656cf830b2/transformed/jetified-material-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.material:material-icons-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/d53133fe3abad7e98213f1033613dce6/transformed/jetified-material-icons-core-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.material:material-ripple-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/b02880be6958a80ed253de0c8af0ee7f/transformed/jetified-material-ripple-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.foundation:foundation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/69fc1de4b90209647b6f720131fc4041/transformed/jetified-foundation-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.foundation:foundation-layout-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/aebcc31d3d56702dd9aa789dabb86858/transformed/jetified-foundation-layout-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.animation:animation-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/ad9a4b88b417f8a7debf9b54168b732b/transformed/jetified-animation-core-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.animation:animation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/63d1cd887c94beeb3ec0bd3cf7d3c754/transformed/jetified-animation-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-tooling-data-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/46a7fb7e1b57ea5c3a2b955725679c78/transformed/jetified-ui-tooling-data-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-unit-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/57a4029c5ffa8098716f6560e9ce0400/transformed/jetified-ui-unit-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-geometry-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/c82c8744eeeddab777ccedc35cbb54ae/transformed/jetified-ui-geometry-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-util-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/969110c98f0cc33d8f79fdeb84388a5c/transformed/jetified-ui-util-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/1e1d9f25138a17f9137572f33e4c5de5/transformed/jetified-ui-tooling-preview-release/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.compose.ui:ui-graphics-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/e152fce4bde0cc34f9bc013a0d3dcf00/transformed/jetified-ui-graphics-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-text-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/b04be0071e1584ed4864122497e5592e/transformed/jetified-ui-text-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:17:1-35:12
-MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:17:1-35:12
-MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/db1820ff2d13ce588bdb434dc5423d44/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /home/gokcank/.gradle/caches/transforms-4/2eafb07d5f72a3221b2b54f5631ad40c/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /home/gokcank/.gradle/caches/transforms-4/5695e6e6f8179aacce9572ca5bcc38a8/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/0534129b094dca5c4e7f414d12d91bfb/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /home/gokcank/.gradle/caches/transforms-4/9c7ba01d933a6a3e3a64a3f82817bc1f/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /home/gokcank/.gradle/caches/transforms-4/91d5ff4fcd1f8659caf55f6ec6df65eb/transformed/jetified-savedstate-ktx-1.2.1/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.savedstate:savedstate:1.2.1] /home/gokcank/.gradle/caches/transforms-4/521744aed3b6059cef8c3d50204df7f8/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /home/gokcank/.gradle/caches/transforms-4/f9fd8792adbc70c231c6c389dc3bdb3f/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/gokcank/.gradle/caches/transforms-4/86650d50ac972dd0db53e153353c41d5/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/27f6839fd323c8faf7899a7d712f059a/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0] /home/gokcank/.gradle/caches/transforms-4/42a0563306661f4284457f435236b5b0/transformed/jetified-lifecycle-viewmodel-compose-2.7.0/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/1a25834e9d2ba033d81fabfe1a697c1c/transformed/jetified-ui-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/164bfda88bbec07ec897dfae9879c913/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:17:1-28:12
-MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/8ec3fab7ffdab758333fb3641f697cd6/transformed/jetified-ui-tooling-release/AndroidManifest.xml:17:1-28:12
-MERGED from [androidx.activity:activity-compose:1.9.0] /home/gokcank/.gradle/caches/transforms-4/516c6e868926e0c6b555b05e898dfcfd/transformed/jetified-activity-compose-1.9.0/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.activity:activity-ktx:1.9.0] /home/gokcank/.gradle/caches/transforms-4/4cf0cbcce33cedf8930f5d3a3584cc46/transformed/jetified-activity-ktx-1.9.0/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.activity:activity:1.9.0] /home/gokcank/.gradle/caches/transforms-4/04db9b39ed02c459ac35d2741463500f/transformed/jetified-activity-1.9.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.viewpager:viewpager:1.0.0] /home/gokcank/.gradle/caches/transforms-4/b63e382200e1019a34ce5ffec2379d93/transformed/viewpager-1.0.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.autofill:autofill:1.0.0] /home/gokcank/.gradle/caches/transforms-4/c89b533c6ee3fc6b49ec1cc699d149ad/transformed/jetified-autofill-1.0.0/AndroidManifest.xml:17:1-24:12
-MERGED from [androidx.customview:customview:1.0.0] /home/gokcank/.gradle/caches/transforms-4/5d3d43929422739e73897c3aa87f3d7f/transformed/customview-1.0.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:17:1-30:12
-MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/gokcank/.gradle/caches/transforms-4/cc67972d0492bb717e4a66d616df1301/transformed/jetified-customview-poolingcontainer-1.0.0/AndroidManifest.xml:17:1-23:12
-MERGED from [androidx.core:core-ktx:1.13.1] /home/gokcank/.gradle/caches/transforms-4/33b31b0e13a967afbbe6c59ed5b44a98/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:17:1-31:12
-MERGED from [androidx.room:room-ktx:2.6.1] /home/gokcank/.gradle/caches/transforms-4/5a1d8b80db7c264203fbd79f22350cb8/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/gokcank/.gradle/caches/transforms-4/9904e1933407b27231ea275b96e649f2/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.sqlite:sqlite:2.4.0] /home/gokcank/.gradle/caches/transforms-4/b334447a8238c093906b7b6971b69896/transformed/sqlite-2.4.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/gokcank/.gradle/caches/transforms-4/8e0a500dbfe2cdf0b5456b685dfa0e04/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.runtime:runtime-saveable-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/6779bdffd0a835571d78c91df81b6b68/transformed/jetified-runtime-saveable-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.runtime:runtime-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/035ed8c421a24df51db40d8f4be8aa3b/transformed/jetified-runtime-release/AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/519c750f319bd615837fb72569a78398/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:17:1-27:12
-MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/gokcank/.gradle/caches/transforms-4/e23d92c3bc79c786d7ba93cfd900c5ea/transformed/core-runtime-2.2.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.interpolator:interpolator:1.0.0] /home/gokcank/.gradle/caches/transforms-4/ed2d666419e6b7cb818bacf6781c17ed/transformed/interpolator-1.0.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:17:1-55:12
-MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/be569d3933edb276c3b0efdf19944475/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:17:1-33:12
-MERGED from [androidx.tracing:tracing:1.0.0] /home/gokcank/.gradle/caches/transforms-4/ede67eb7e32543b33b7b2e73c69b6093/transformed/jetified-tracing-1.0.0/AndroidManifest.xml:17:1-24:12
-MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] /home/gokcank/.gradle/caches/transforms-4/2c6bb6e767f0411499a6514079acd582/transformed/jetified-dagger-lint-aar-2.51.1/AndroidManifest.xml:16:1-19:12
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:2:1-40:12
+INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:2:1-40:12
+INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:2:1-40:12
+INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:2:1-40:12
+MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] /home/gokcank/.gradle/caches/transforms-4/6db5d92f4bf5e985b4a62f3228bb1f20/transformed/jetified-hilt-navigation-compose-1.2.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.hilt:hilt-navigation:1.2.0] /home/gokcank/.gradle/caches/transforms-4/f6d7ef322124437d06593ba504c58ec9/transformed/jetified-hilt-navigation-1.2.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-common:2.7.7] /home/gokcank/.gradle/caches/transforms-4/88d4c0b840dd6590c512c0549005aeaa/transformed/navigation-common-2.7.7/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.navigation:navigation-runtime:2.7.7] /home/gokcank/.gradle/caches/transforms-4/37fbfcedebab0658fda420c323765b35/transformed/navigation-runtime-2.7.7/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/93bfb991e7a78baa964d7f05ac7a34ad/transformed/navigation-common-ktx-2.7.7/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/1051f97bac5db293abf5edcb5a618f0a/transformed/navigation-runtime-ktx-2.7.7/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-compose:2.7.7] /home/gokcank/.gradle/caches/transforms-4/44922827643e43e16f10e18a9f09efa9/transformed/jetified-navigation-compose-2.7.7/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material3:material3-android:1.2.1] /home/gokcank/.gradle/caches/transforms-4/295ec92a4813080b778c90c1ec70010d/transformed/jetified-material3-release/AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.dagger:hilt-android:2.51.1] /home/gokcank/.gradle/caches/transforms-4/f27ed51ce2690d0d2e405b62618c6e98/transformed/jetified-hilt-android-2.51.1/AndroidManifest.xml:16:1-19:12
+MERGED from [androidx.fragment:fragment:1.5.1] /home/gokcank/.gradle/caches/transforms-4/a9d6a1dfe347ad6cf2c0b0ce858246ca/transformed/fragment-1.5.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.loader:loader:1.0.0] /home/gokcank/.gradle/caches/transforms-4/be4b9cd9b4080e3fedc3dc3ea20acf52/transformed/loader-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.material:material-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/878e1bb8de261c351e93f8b267b0ce50/transformed/jetified-material-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/07effb242dcc216da78d9a45e8a998c2/transformed/jetified-material-icons-core-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-ripple-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/2ce26a7e300b0684e0b63efe5d146325/transformed/jetified-material-ripple-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/037811f01822906fa9e7969de3b7b3b8/transformed/jetified-foundation-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/a1549a963b7b049d29e53d446fc80059/transformed/jetified-foundation-layout-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/5778ab35261a9b7c1c82f264530f0345/transformed/jetified-animation-core-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/9cb8007447b2435892ce9e231950a8fe/transformed/jetified-animation-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-tooling-data-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/91a79083cb486668d10d432ccd234a36/transformed/jetified-ui-tooling-data-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-unit-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/10510c9b1d2be4bd65bc5c5712b4d98b/transformed/jetified-ui-unit-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-geometry-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/2e35c2495ff682ad6bdb47e5d8800fb7/transformed/jetified-ui-geometry-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-util-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/be276df00b911689f80af07bf7acd757/transformed/jetified-ui-util-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/e6a0ed9bae02b71aa12d385360629273/transformed/jetified-ui-tooling-preview-release/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.ui:ui-graphics-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/5bce3bbdffbc93c5d2a4742f44f9a371/transformed/jetified-ui-graphics-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-text-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/91db94c51a82f3438cadd3f2e892fbca/transformed/jetified-ui-text-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/d19d7c7b9701ffcfa6a792edae52cd9d/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /home/gokcank/.gradle/caches/transforms-4/ba55f700f221f4c59ec717792edf1359/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /home/gokcank/.gradle/caches/transforms-4/0965090187cba72ee97990ade34ce766/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6d6fb7496038550e300e7c13f907b580/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /home/gokcank/.gradle/caches/transforms-4/55b77fb4fbde9daf732375a26f821e6a/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /home/gokcank/.gradle/caches/transforms-4/e3cd97f4a0b267603b42e932c6fc70e3/transformed/jetified-savedstate-ktx-1.2.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate:1.2.1] /home/gokcank/.gradle/caches/transforms-4/9c27dc81b3bb12dfff5040866633bc32/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /home/gokcank/.gradle/caches/transforms-4/dacfad030e55c17b236401ec4118ceb9/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/gokcank/.gradle/caches/transforms-4/74845b0b1b72c571d4d24b4df8a9d7f4/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/3c2616f84a99b9dc137f2c9a0bf605d8/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0] /home/gokcank/.gradle/caches/transforms-4/7318a5c10acbb7ae83cce2424100018a/transformed/jetified-lifecycle-viewmodel-compose-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/94e7ec04b04020727bf9bf99264e3500/transformed/jetified-ui-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/f34985009b5241fed54a5f295efb61e0/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:17:1-28:12
+MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/adcc0102d270e6f9bf2bf9831ab3967b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:17:1-28:12
+MERGED from [androidx.activity:activity-compose:1.9.0] /home/gokcank/.gradle/caches/transforms-4/d4a704f7cc1258181abca4f5404f5032/transformed/jetified-activity-compose-1.9.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity-ktx:1.9.0] /home/gokcank/.gradle/caches/transforms-4/62c18641941f190a5bdcf59efdb4c367/transformed/jetified-activity-ktx-1.9.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity:1.9.0] /home/gokcank/.gradle/caches/transforms-4/aeec49f3d818fe66a93070310573d9c9/transformed/jetified-activity-1.9.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] /home/gokcank/.gradle/caches/transforms-4/d0caaea3266aa7970483009109594c8f/transformed/viewpager-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.autofill:autofill:1.0.0] /home/gokcank/.gradle/caches/transforms-4/d46d994084d1a5eff12eeb3f12454a64/transformed/jetified-autofill-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.customview:customview:1.0.0] /home/gokcank/.gradle/caches/transforms-4/915c4071b50ba9514e3dc75b54c2a62e/transformed/customview-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/gokcank/.gradle/caches/transforms-4/cbf6c98edfafdf3fdb13f878e67090fe/transformed/jetified-customview-poolingcontainer-1.0.0/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.core:core-ktx:1.13.1] /home/gokcank/.gradle/caches/transforms-4/d3c356aa5e249032589d660b743cce2f/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.room:room-ktx:2.6.1] /home/gokcank/.gradle/caches/transforms-4/f5115ae1de2176a5dfa0e5ad06a8c3e9/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/gokcank/.gradle/caches/transforms-4/26a6c2377e4083def2c11b56cc320b34/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.sqlite:sqlite:2.4.0] /home/gokcank/.gradle/caches/transforms-4/51289fb5e73fd12ac5e2d46f675a6cc6/transformed/sqlite-2.4.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/gokcank/.gradle/caches/transforms-4/0db8988ad6a47e5989dff842ac64a24d/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/5eb2028c8651f195bae2a0e93ec8ceeb/transformed/jetified-runtime-saveable-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/cd3ca9280b813464f1410f2e8c6f9bda/transformed/jetified-runtime-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/81173cc19a90d70795c9e88687d56993/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/gokcank/.gradle/caches/transforms-4/fccbbbef74e8e24fde629cee4dfadb32/transformed/core-runtime-2.2.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] /home/gokcank/.gradle/caches/transforms-4/a1165169dc10235d6b344f7a84028649/transformed/interpolator-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:17:1-55:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/f79cb6251483f861f8681dd9722cf5a9/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.tracing:tracing:1.0.0] /home/gokcank/.gradle/caches/transforms-4/140ff87a96dbbf64d056e98e8bdbbb00/transformed/jetified-tracing-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] /home/gokcank/.gradle/caches/transforms-4/f3c61ad892796dd1d4abe37206daa44b/transformed/jetified-dagger-lint-aar-2.51.1/AndroidManifest.xml:16:1-19:12
 	package
 		INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml
 	android:versionName
@@ -78,334 +78,338 @@ MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] /home/gokcank/.gradle/cac
 		INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:2:11-69
+uses-permission#android.permission.INTERNET
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:5:5-67
+	android:name
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:5:22-64
 uses-permission#android.permission.POST_NOTIFICATIONS
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:5:5-77
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:6:5-77
 	android:name
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:5:22-74
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:6:22-74
 uses-permission#android.permission.SCHEDULE_EXACT_ALARM
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:6:5-79
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:7:5-79
 	android:name
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:6:22-76
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:7:22-76
 uses-permission#android.permission.USE_EXACT_ALARM
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:7:5-74
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:8:5-74
 	android:name
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:7:22-71
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:8:22-71
 application
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:9:5-37:19
-INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:9:5-37:19
-MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:23:5-33:19
-MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:23:5-33:19
-MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
-MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
-MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/164bfda88bbec07ec897dfae9879c913/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:22:5-26:19
-MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/164bfda88bbec07ec897dfae9879c913/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:22:5-26:19
-MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/8ec3fab7ffdab758333fb3641f697cd6/transformed/jetified-ui-tooling-release/AndroidManifest.xml:22:5-26:19
-MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/8ec3fab7ffdab758333fb3641f697cd6/transformed/jetified-ui-tooling-release/AndroidManifest.xml:22:5-26:19
-MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:28:5-89
-MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:28:5-89
-MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
-MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/519c750f319bd615837fb72569a78398/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/519c750f319bd615837fb72569a78398/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:23:5-53:19
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:23:5-53:19
-MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/be569d3933edb276c3b0efdf19944475/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
-MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/be569d3933edb276c3b0efdf19944475/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:10:5-38:19
+INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:10:5-38:19
+MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/f34985009b5241fed54a5f295efb61e0/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:22:5-26:19
+MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/f34985009b5241fed54a5f295efb61e0/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:22:5-26:19
+MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/adcc0102d270e6f9bf2bf9831ab3967b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:22:5-26:19
+MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/adcc0102d270e6f9bf2bf9831ab3967b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:22:5-26:19
+MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:28:5-89
+MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/81173cc19a90d70795c9e88687d56993/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/81173cc19a90d70795c9e88687d56993/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/f79cb6251483f861f8681dd9722cf5a9/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/f79cb6251483f861f8681dd9722cf5a9/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
 	android:extractNativeLibs
 		INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml
 	android:appComponentFactory
-		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
+		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:15:9-35
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:16:9-35
 	android:label
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:14:9-41
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:15:9-41
 	android:fullBackupContent
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:13:9-54
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:14:9-54
 	tools:targetApi
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:17:9-29
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:18:9-29
 	android:allowBackup
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:11:9-35
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:12:9-35
 	android:theme
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:16:9-45
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:17:9-45
 	android:dataExtractionRules
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:12:9-65
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:13:9-65
 	android:name
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:10:9-35
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:11:9-35
 receiver#com.gokcank.curalis.core.notification.ReminderReceiver
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:19:9-21:40
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:20:9-22:40
 	android:exported
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:21:13-37
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:22:13-37
 	android:name
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:20:13-63
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:21:13-63
 receiver#com.gokcank.curalis.core.notification.ReminderActionReceiver
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:23:9-25:40
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:24:9-26:40
 	android:exported
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:25:13-37
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:26:13-37
 	android:name
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:24:13-69
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:25:13-69
 activity#com.gokcank.curalis.presentation.main.MainActivity
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:28:9-36:20
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:29:9-37:20
 	android:exported
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:30:13-36
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:31:13-36
 	android:theme
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:31:13-49
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:32:13-49
 	android:name
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:29:13-59
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:30:13-59
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:32:13-35:29
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:33:13-36:29
 action#android.intent.action.MAIN
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:33:17-69
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:34:17-69
 	android:name
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:33:25-66
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:34:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:34:17-77
+ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:35:17-77
 	android:name
-		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:34:27-74
+		ADDED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml:35:27-74
 uses-sdk
 INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml
 INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml
-MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] /home/gokcank/.gradle/caches/transforms-4/5e192b84ed1515c1dda6d3653f72e41e/transformed/jetified-hilt-navigation-compose-1.2.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] /home/gokcank/.gradle/caches/transforms-4/5e192b84ed1515c1dda6d3653f72e41e/transformed/jetified-hilt-navigation-compose-1.2.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.hilt:hilt-navigation:1.2.0] /home/gokcank/.gradle/caches/transforms-4/ee69dc47a4930c6ae17246ca849926fa/transformed/jetified-hilt-navigation-1.2.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.hilt:hilt-navigation:1.2.0] /home/gokcank/.gradle/caches/transforms-4/ee69dc47a4930c6ae17246ca849926fa/transformed/jetified-hilt-navigation-1.2.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.navigation:navigation-common:2.7.7] /home/gokcank/.gradle/caches/transforms-4/1652e45bc9d5de30b4df7b1751a065ab/transformed/navigation-common-2.7.7/AndroidManifest.xml:20:5-44
-MERGED from [androidx.navigation:navigation-common:2.7.7] /home/gokcank/.gradle/caches/transforms-4/1652e45bc9d5de30b4df7b1751a065ab/transformed/navigation-common-2.7.7/AndroidManifest.xml:20:5-44
-MERGED from [androidx.navigation:navigation-runtime:2.7.7] /home/gokcank/.gradle/caches/transforms-4/63db9a33a3e48b90ab10656c2da6ee6a/transformed/navigation-runtime-2.7.7/AndroidManifest.xml:20:5-44
-MERGED from [androidx.navigation:navigation-runtime:2.7.7] /home/gokcank/.gradle/caches/transforms-4/63db9a33a3e48b90ab10656c2da6ee6a/transformed/navigation-runtime-2.7.7/AndroidManifest.xml:20:5-44
-MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/d548932c4fd4f7d19e3b20d95ab72235/transformed/navigation-common-ktx-2.7.7/AndroidManifest.xml:5:5-44
-MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/d548932c4fd4f7d19e3b20d95ab72235/transformed/navigation-common-ktx-2.7.7/AndroidManifest.xml:5:5-44
-MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/9642f439b37dd818100dcda584af6e55/transformed/navigation-runtime-ktx-2.7.7/AndroidManifest.xml:5:5-44
-MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/9642f439b37dd818100dcda584af6e55/transformed/navigation-runtime-ktx-2.7.7/AndroidManifest.xml:5:5-44
-MERGED from [androidx.navigation:navigation-compose:2.7.7] /home/gokcank/.gradle/caches/transforms-4/411e9ef1a3e76cb1e04b0208c7bbef44/transformed/jetified-navigation-compose-2.7.7/AndroidManifest.xml:5:5-44
-MERGED from [androidx.navigation:navigation-compose:2.7.7] /home/gokcank/.gradle/caches/transforms-4/411e9ef1a3e76cb1e04b0208c7bbef44/transformed/jetified-navigation-compose-2.7.7/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material3:material3-android:1.2.1] /home/gokcank/.gradle/caches/transforms-4/53fddc2dbe00d7f1f5f7dd848c6de567/transformed/jetified-material3-release/AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.material3:material3-android:1.2.1] /home/gokcank/.gradle/caches/transforms-4/53fddc2dbe00d7f1f5f7dd848c6de567/transformed/jetified-material3-release/AndroidManifest.xml:20:5-44
-MERGED from [com.google.dagger:hilt-android:2.51.1] /home/gokcank/.gradle/caches/transforms-4/b99fa504bece1661f90891a4446ac819/transformed/jetified-hilt-android-2.51.1/AndroidManifest.xml:18:3-42
-MERGED from [com.google.dagger:hilt-android:2.51.1] /home/gokcank/.gradle/caches/transforms-4/b99fa504bece1661f90891a4446ac819/transformed/jetified-hilt-android-2.51.1/AndroidManifest.xml:18:3-42
-MERGED from [androidx.fragment:fragment:1.5.1] /home/gokcank/.gradle/caches/transforms-4/98ea5f3ba2eeff48f469130e36967def/transformed/fragment-1.5.1/AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.fragment:fragment:1.5.1] /home/gokcank/.gradle/caches/transforms-4/98ea5f3ba2eeff48f469130e36967def/transformed/fragment-1.5.1/AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.loader:loader:1.0.0] /home/gokcank/.gradle/caches/transforms-4/c4ad9e85f384b86e208203e9333ad42b/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.loader:loader:1.0.0] /home/gokcank/.gradle/caches/transforms-4/c4ad9e85f384b86e208203e9333ad42b/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.material:material-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/6f57d0e381714469096a35656cf830b2/transformed/jetified-material-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/6f57d0e381714469096a35656cf830b2/transformed/jetified-material-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-icons-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/d53133fe3abad7e98213f1033613dce6/transformed/jetified-material-icons-core-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-icons-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/d53133fe3abad7e98213f1033613dce6/transformed/jetified-material-icons-core-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-ripple-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/b02880be6958a80ed253de0c8af0ee7f/transformed/jetified-material-ripple-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-ripple-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/b02880be6958a80ed253de0c8af0ee7f/transformed/jetified-material-ripple-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.foundation:foundation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/69fc1de4b90209647b6f720131fc4041/transformed/jetified-foundation-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.foundation:foundation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/69fc1de4b90209647b6f720131fc4041/transformed/jetified-foundation-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.foundation:foundation-layout-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/aebcc31d3d56702dd9aa789dabb86858/transformed/jetified-foundation-layout-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.foundation:foundation-layout-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/aebcc31d3d56702dd9aa789dabb86858/transformed/jetified-foundation-layout-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.animation:animation-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/ad9a4b88b417f8a7debf9b54168b732b/transformed/jetified-animation-core-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.animation:animation-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/ad9a4b88b417f8a7debf9b54168b732b/transformed/jetified-animation-core-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.animation:animation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/63d1cd887c94beeb3ec0bd3cf7d3c754/transformed/jetified-animation-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.animation:animation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/63d1cd887c94beeb3ec0bd3cf7d3c754/transformed/jetified-animation-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-tooling-data-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/46a7fb7e1b57ea5c3a2b955725679c78/transformed/jetified-ui-tooling-data-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-tooling-data-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/46a7fb7e1b57ea5c3a2b955725679c78/transformed/jetified-ui-tooling-data-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-unit-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/57a4029c5ffa8098716f6560e9ce0400/transformed/jetified-ui-unit-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-unit-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/57a4029c5ffa8098716f6560e9ce0400/transformed/jetified-ui-unit-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-geometry-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/c82c8744eeeddab777ccedc35cbb54ae/transformed/jetified-ui-geometry-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-geometry-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/c82c8744eeeddab777ccedc35cbb54ae/transformed/jetified-ui-geometry-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-util-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/969110c98f0cc33d8f79fdeb84388a5c/transformed/jetified-ui-util-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-util-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/969110c98f0cc33d8f79fdeb84388a5c/transformed/jetified-ui-util-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/1e1d9f25138a17f9137572f33e4c5de5/transformed/jetified-ui-tooling-preview-release/AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/1e1d9f25138a17f9137572f33e4c5de5/transformed/jetified-ui-tooling-preview-release/AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.ui:ui-graphics-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/e152fce4bde0cc34f9bc013a0d3dcf00/transformed/jetified-ui-graphics-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-graphics-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/e152fce4bde0cc34f9bc013a0d3dcf00/transformed/jetified-ui-graphics-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-text-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/b04be0071e1584ed4864122497e5592e/transformed/jetified-ui-text-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-text-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/b04be0071e1584ed4864122497e5592e/transformed/jetified-ui-text-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:21:5-44
-MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:21:5-44
-MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
-MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/db1820ff2d13ce588bdb434dc5423d44/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/db1820ff2d13ce588bdb434dc5423d44/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /home/gokcank/.gradle/caches/transforms-4/2eafb07d5f72a3221b2b54f5631ad40c/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /home/gokcank/.gradle/caches/transforms-4/2eafb07d5f72a3221b2b54f5631ad40c/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /home/gokcank/.gradle/caches/transforms-4/5695e6e6f8179aacce9572ca5bcc38a8/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /home/gokcank/.gradle/caches/transforms-4/5695e6e6f8179aacce9572ca5bcc38a8/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/0534129b094dca5c4e7f414d12d91bfb/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/0534129b094dca5c4e7f414d12d91bfb/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /home/gokcank/.gradle/caches/transforms-4/9c7ba01d933a6a3e3a64a3f82817bc1f/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /home/gokcank/.gradle/caches/transforms-4/9c7ba01d933a6a3e3a64a3f82817bc1f/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /home/gokcank/.gradle/caches/transforms-4/91d5ff4fcd1f8659caf55f6ec6df65eb/transformed/jetified-savedstate-ktx-1.2.1/AndroidManifest.xml:20:5-44
-MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /home/gokcank/.gradle/caches/transforms-4/91d5ff4fcd1f8659caf55f6ec6df65eb/transformed/jetified-savedstate-ktx-1.2.1/AndroidManifest.xml:20:5-44
-MERGED from [androidx.savedstate:savedstate:1.2.1] /home/gokcank/.gradle/caches/transforms-4/521744aed3b6059cef8c3d50204df7f8/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
-MERGED from [androidx.savedstate:savedstate:1.2.1] /home/gokcank/.gradle/caches/transforms-4/521744aed3b6059cef8c3d50204df7f8/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /home/gokcank/.gradle/caches/transforms-4/f9fd8792adbc70c231c6c389dc3bdb3f/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /home/gokcank/.gradle/caches/transforms-4/f9fd8792adbc70c231c6c389dc3bdb3f/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/gokcank/.gradle/caches/transforms-4/86650d50ac972dd0db53e153353c41d5/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/gokcank/.gradle/caches/transforms-4/86650d50ac972dd0db53e153353c41d5/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/27f6839fd323c8faf7899a7d712f059a/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/27f6839fd323c8faf7899a7d712f059a/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0] /home/gokcank/.gradle/caches/transforms-4/42a0563306661f4284457f435236b5b0/transformed/jetified-lifecycle-viewmodel-compose-2.7.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0] /home/gokcank/.gradle/caches/transforms-4/42a0563306661f4284457f435236b5b0/transformed/jetified-lifecycle-viewmodel-compose-2.7.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/1a25834e9d2ba033d81fabfe1a697c1c/transformed/jetified-ui-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/1a25834e9d2ba033d81fabfe1a697c1c/transformed/jetified-ui-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/164bfda88bbec07ec897dfae9879c913/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/164bfda88bbec07ec897dfae9879c913/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/8ec3fab7ffdab758333fb3641f697cd6/transformed/jetified-ui-tooling-release/AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/8ec3fab7ffdab758333fb3641f697cd6/transformed/jetified-ui-tooling-release/AndroidManifest.xml:20:5-44
-MERGED from [androidx.activity:activity-compose:1.9.0] /home/gokcank/.gradle/caches/transforms-4/516c6e868926e0c6b555b05e898dfcfd/transformed/jetified-activity-compose-1.9.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.activity:activity-compose:1.9.0] /home/gokcank/.gradle/caches/transforms-4/516c6e868926e0c6b555b05e898dfcfd/transformed/jetified-activity-compose-1.9.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.activity:activity-ktx:1.9.0] /home/gokcank/.gradle/caches/transforms-4/4cf0cbcce33cedf8930f5d3a3584cc46/transformed/jetified-activity-ktx-1.9.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.activity:activity-ktx:1.9.0] /home/gokcank/.gradle/caches/transforms-4/4cf0cbcce33cedf8930f5d3a3584cc46/transformed/jetified-activity-ktx-1.9.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.activity:activity:1.9.0] /home/gokcank/.gradle/caches/transforms-4/04db9b39ed02c459ac35d2741463500f/transformed/jetified-activity-1.9.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.activity:activity:1.9.0] /home/gokcank/.gradle/caches/transforms-4/04db9b39ed02c459ac35d2741463500f/transformed/jetified-activity-1.9.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.viewpager:viewpager:1.0.0] /home/gokcank/.gradle/caches/transforms-4/b63e382200e1019a34ce5ffec2379d93/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.viewpager:viewpager:1.0.0] /home/gokcank/.gradle/caches/transforms-4/b63e382200e1019a34ce5ffec2379d93/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.autofill:autofill:1.0.0] /home/gokcank/.gradle/caches/transforms-4/c89b533c6ee3fc6b49ec1cc699d149ad/transformed/jetified-autofill-1.0.0/AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.autofill:autofill:1.0.0] /home/gokcank/.gradle/caches/transforms-4/c89b533c6ee3fc6b49ec1cc699d149ad/transformed/jetified-autofill-1.0.0/AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.customview:customview:1.0.0] /home/gokcank/.gradle/caches/transforms-4/5d3d43929422739e73897c3aa87f3d7f/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.customview:customview:1.0.0] /home/gokcank/.gradle/caches/transforms-4/5d3d43929422739e73897c3aa87f3d7f/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:20:5-44
-MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:20:5-44
-MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/gokcank/.gradle/caches/transforms-4/cc67972d0492bb717e4a66d616df1301/transformed/jetified-customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
-MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/gokcank/.gradle/caches/transforms-4/cc67972d0492bb717e4a66d616df1301/transformed/jetified-customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
-MERGED from [androidx.core:core-ktx:1.13.1] /home/gokcank/.gradle/caches/transforms-4/33b31b0e13a967afbbe6c59ed5b44a98/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
-MERGED from [androidx.core:core-ktx:1.13.1] /home/gokcank/.gradle/caches/transforms-4/33b31b0e13a967afbbe6c59ed5b44a98/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
-MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:21:5-44
-MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:21:5-44
-MERGED from [androidx.room:room-ktx:2.6.1] /home/gokcank/.gradle/caches/transforms-4/5a1d8b80db7c264203fbd79f22350cb8/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:20:5-44
-MERGED from [androidx.room:room-ktx:2.6.1] /home/gokcank/.gradle/caches/transforms-4/5a1d8b80db7c264203fbd79f22350cb8/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:20:5-44
-MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/gokcank/.gradle/caches/transforms-4/9904e1933407b27231ea275b96e649f2/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/gokcank/.gradle/caches/transforms-4/9904e1933407b27231ea275b96e649f2/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.sqlite:sqlite:2.4.0] /home/gokcank/.gradle/caches/transforms-4/b334447a8238c093906b7b6971b69896/transformed/sqlite-2.4.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.sqlite:sqlite:2.4.0] /home/gokcank/.gradle/caches/transforms-4/b334447a8238c093906b7b6971b69896/transformed/sqlite-2.4.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/gokcank/.gradle/caches/transforms-4/8e0a500dbfe2cdf0b5456b685dfa0e04/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/gokcank/.gradle/caches/transforms-4/8e0a500dbfe2cdf0b5456b685dfa0e04/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.runtime:runtime-saveable-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/6779bdffd0a835571d78c91df81b6b68/transformed/jetified-runtime-saveable-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.runtime:runtime-saveable-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/6779bdffd0a835571d78c91df81b6b68/transformed/jetified-runtime-saveable-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.runtime:runtime-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/035ed8c421a24df51db40d8f4be8aa3b/transformed/jetified-runtime-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.runtime:runtime-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/035ed8c421a24df51db40d8f4be8aa3b/transformed/jetified-runtime-release/AndroidManifest.xml:5:5-44
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/519c750f319bd615837fb72569a78398/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/519c750f319bd615837fb72569a78398/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/gokcank/.gradle/caches/transforms-4/e23d92c3bc79c786d7ba93cfd900c5ea/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/gokcank/.gradle/caches/transforms-4/e23d92c3bc79c786d7ba93cfd900c5ea/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.interpolator:interpolator:1.0.0] /home/gokcank/.gradle/caches/transforms-4/ed2d666419e6b7cb818bacf6781c17ed/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.interpolator:interpolator:1.0.0] /home/gokcank/.gradle/caches/transforms-4/ed2d666419e6b7cb818bacf6781c17ed/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
-MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/be569d3933edb276c3b0efdf19944475/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
-MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/be569d3933edb276c3b0efdf19944475/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
-MERGED from [androidx.tracing:tracing:1.0.0] /home/gokcank/.gradle/caches/transforms-4/ede67eb7e32543b33b7b2e73c69b6093/transformed/jetified-tracing-1.0.0/AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.tracing:tracing:1.0.0] /home/gokcank/.gradle/caches/transforms-4/ede67eb7e32543b33b7b2e73c69b6093/transformed/jetified-tracing-1.0.0/AndroidManifest.xml:20:5-22:41
-MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] /home/gokcank/.gradle/caches/transforms-4/2c6bb6e767f0411499a6514079acd582/transformed/jetified-dagger-lint-aar-2.51.1/AndroidManifest.xml:18:3-42
-MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] /home/gokcank/.gradle/caches/transforms-4/2c6bb6e767f0411499a6514079acd582/transformed/jetified-dagger-lint-aar-2.51.1/AndroidManifest.xml:18:3-42
+MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] /home/gokcank/.gradle/caches/transforms-4/6db5d92f4bf5e985b4a62f3228bb1f20/transformed/jetified-hilt-navigation-compose-1.2.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] /home/gokcank/.gradle/caches/transforms-4/6db5d92f4bf5e985b4a62f3228bb1f20/transformed/jetified-hilt-navigation-compose-1.2.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.hilt:hilt-navigation:1.2.0] /home/gokcank/.gradle/caches/transforms-4/f6d7ef322124437d06593ba504c58ec9/transformed/jetified-hilt-navigation-1.2.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.hilt:hilt-navigation:1.2.0] /home/gokcank/.gradle/caches/transforms-4/f6d7ef322124437d06593ba504c58ec9/transformed/jetified-hilt-navigation-1.2.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-common:2.7.7] /home/gokcank/.gradle/caches/transforms-4/88d4c0b840dd6590c512c0549005aeaa/transformed/navigation-common-2.7.7/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-common:2.7.7] /home/gokcank/.gradle/caches/transforms-4/88d4c0b840dd6590c512c0549005aeaa/transformed/navigation-common-2.7.7/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-runtime:2.7.7] /home/gokcank/.gradle/caches/transforms-4/37fbfcedebab0658fda420c323765b35/transformed/navigation-runtime-2.7.7/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-runtime:2.7.7] /home/gokcank/.gradle/caches/transforms-4/37fbfcedebab0658fda420c323765b35/transformed/navigation-runtime-2.7.7/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/93bfb991e7a78baa964d7f05ac7a34ad/transformed/navigation-common-ktx-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/93bfb991e7a78baa964d7f05ac7a34ad/transformed/navigation-common-ktx-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/1051f97bac5db293abf5edcb5a618f0a/transformed/navigation-runtime-ktx-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.7] /home/gokcank/.gradle/caches/transforms-4/1051f97bac5db293abf5edcb5a618f0a/transformed/navigation-runtime-ktx-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-compose:2.7.7] /home/gokcank/.gradle/caches/transforms-4/44922827643e43e16f10e18a9f09efa9/transformed/jetified-navigation-compose-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-compose:2.7.7] /home/gokcank/.gradle/caches/transforms-4/44922827643e43e16f10e18a9f09efa9/transformed/jetified-navigation-compose-2.7.7/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material3:material3-android:1.2.1] /home/gokcank/.gradle/caches/transforms-4/295ec92a4813080b778c90c1ec70010d/transformed/jetified-material3-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3:material3-android:1.2.1] /home/gokcank/.gradle/caches/transforms-4/295ec92a4813080b778c90c1ec70010d/transformed/jetified-material3-release/AndroidManifest.xml:20:5-44
+MERGED from [com.google.dagger:hilt-android:2.51.1] /home/gokcank/.gradle/caches/transforms-4/f27ed51ce2690d0d2e405b62618c6e98/transformed/jetified-hilt-android-2.51.1/AndroidManifest.xml:18:3-42
+MERGED from [com.google.dagger:hilt-android:2.51.1] /home/gokcank/.gradle/caches/transforms-4/f27ed51ce2690d0d2e405b62618c6e98/transformed/jetified-hilt-android-2.51.1/AndroidManifest.xml:18:3-42
+MERGED from [androidx.fragment:fragment:1.5.1] /home/gokcank/.gradle/caches/transforms-4/a9d6a1dfe347ad6cf2c0b0ce858246ca/transformed/fragment-1.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.5.1] /home/gokcank/.gradle/caches/transforms-4/a9d6a1dfe347ad6cf2c0b0ce858246ca/transformed/fragment-1.5.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.loader:loader:1.0.0] /home/gokcank/.gradle/caches/transforms-4/be4b9cd9b4080e3fedc3dc3ea20acf52/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /home/gokcank/.gradle/caches/transforms-4/be4b9cd9b4080e3fedc3dc3ea20acf52/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material:material-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/878e1bb8de261c351e93f8b267b0ce50/transformed/jetified-material-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/878e1bb8de261c351e93f8b267b0ce50/transformed/jetified-material-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/07effb242dcc216da78d9a45e8a998c2/transformed/jetified-material-icons-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/07effb242dcc216da78d9a45e8a998c2/transformed/jetified-material-icons-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/2ce26a7e300b0684e0b63efe5d146325/transformed/jetified-material-ripple-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/2ce26a7e300b0684e0b63efe5d146325/transformed/jetified-material-ripple-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/037811f01822906fa9e7969de3b7b3b8/transformed/jetified-foundation-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/037811f01822906fa9e7969de3b7b3b8/transformed/jetified-foundation-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/a1549a963b7b049d29e53d446fc80059/transformed/jetified-foundation-layout-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/a1549a963b7b049d29e53d446fc80059/transformed/jetified-foundation-layout-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/5778ab35261a9b7c1c82f264530f0345/transformed/jetified-animation-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/5778ab35261a9b7c1c82f264530f0345/transformed/jetified-animation-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/9cb8007447b2435892ce9e231950a8fe/transformed/jetified-animation-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/9cb8007447b2435892ce9e231950a8fe/transformed/jetified-animation-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-data-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/91a79083cb486668d10d432ccd234a36/transformed/jetified-ui-tooling-data-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-data-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/91a79083cb486668d10d432ccd234a36/transformed/jetified-ui-tooling-data-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/10510c9b1d2be4bd65bc5c5712b4d98b/transformed/jetified-ui-unit-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/10510c9b1d2be4bd65bc5c5712b4d98b/transformed/jetified-ui-unit-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/2e35c2495ff682ad6bdb47e5d8800fb7/transformed/jetified-ui-geometry-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/2e35c2495ff682ad6bdb47e5d8800fb7/transformed/jetified-ui-geometry-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/be276df00b911689f80af07bf7acd757/transformed/jetified-ui-util-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/be276df00b911689f80af07bf7acd757/transformed/jetified-ui-util-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/e6a0ed9bae02b71aa12d385360629273/transformed/jetified-ui-tooling-preview-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/e6a0ed9bae02b71aa12d385360629273/transformed/jetified-ui-tooling-preview-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/5bce3bbdffbc93c5d2a4742f44f9a371/transformed/jetified-ui-graphics-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/5bce3bbdffbc93c5d2a4742f44f9a371/transformed/jetified-ui-graphics-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/91db94c51a82f3438cadd3f2e892fbca/transformed/jetified-ui-text-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/91db94c51a82f3438cadd3f2e892fbca/transformed/jetified-ui-text-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/d19d7c7b9701ffcfa6a792edae52cd9d/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/d19d7c7b9701ffcfa6a792edae52cd9d/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /home/gokcank/.gradle/caches/transforms-4/ba55f700f221f4c59ec717792edf1359/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /home/gokcank/.gradle/caches/transforms-4/ba55f700f221f4c59ec717792edf1359/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /home/gokcank/.gradle/caches/transforms-4/0965090187cba72ee97990ade34ce766/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /home/gokcank/.gradle/caches/transforms-4/0965090187cba72ee97990ade34ce766/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6d6fb7496038550e300e7c13f907b580/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6d6fb7496038550e300e7c13f907b580/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /home/gokcank/.gradle/caches/transforms-4/55b77fb4fbde9daf732375a26f821e6a/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /home/gokcank/.gradle/caches/transforms-4/55b77fb4fbde9daf732375a26f821e6a/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /home/gokcank/.gradle/caches/transforms-4/e3cd97f4a0b267603b42e932c6fc70e3/transformed/jetified-savedstate-ktx-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /home/gokcank/.gradle/caches/transforms-4/e3cd97f4a0b267603b42e932c6fc70e3/transformed/jetified-savedstate-ktx-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] /home/gokcank/.gradle/caches/transforms-4/9c27dc81b3bb12dfff5040866633bc32/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] /home/gokcank/.gradle/caches/transforms-4/9c27dc81b3bb12dfff5040866633bc32/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /home/gokcank/.gradle/caches/transforms-4/dacfad030e55c17b236401ec4118ceb9/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /home/gokcank/.gradle/caches/transforms-4/dacfad030e55c17b236401ec4118ceb9/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/gokcank/.gradle/caches/transforms-4/74845b0b1b72c571d4d24b4df8a9d7f4/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/gokcank/.gradle/caches/transforms-4/74845b0b1b72c571d4d24b4df8a9d7f4/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/3c2616f84a99b9dc137f2c9a0bf605d8/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/gokcank/.gradle/caches/transforms-4/3c2616f84a99b9dc137f2c9a0bf605d8/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0] /home/gokcank/.gradle/caches/transforms-4/7318a5c10acbb7ae83cce2424100018a/transformed/jetified-lifecycle-viewmodel-compose-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0] /home/gokcank/.gradle/caches/transforms-4/7318a5c10acbb7ae83cce2424100018a/transformed/jetified-lifecycle-viewmodel-compose-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/94e7ec04b04020727bf9bf99264e3500/transformed/jetified-ui-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/94e7ec04b04020727bf9bf99264e3500/transformed/jetified-ui-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/f34985009b5241fed54a5f295efb61e0/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/f34985009b5241fed54a5f295efb61e0/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/adcc0102d270e6f9bf2bf9831ab3967b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/adcc0102d270e6f9bf2bf9831ab3967b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity-compose:1.9.0] /home/gokcank/.gradle/caches/transforms-4/d4a704f7cc1258181abca4f5404f5032/transformed/jetified-activity-compose-1.9.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-compose:1.9.0] /home/gokcank/.gradle/caches/transforms-4/d4a704f7cc1258181abca4f5404f5032/transformed/jetified-activity-compose-1.9.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.9.0] /home/gokcank/.gradle/caches/transforms-4/62c18641941f190a5bdcf59efdb4c367/transformed/jetified-activity-ktx-1.9.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.9.0] /home/gokcank/.gradle/caches/transforms-4/62c18641941f190a5bdcf59efdb4c367/transformed/jetified-activity-ktx-1.9.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity:1.9.0] /home/gokcank/.gradle/caches/transforms-4/aeec49f3d818fe66a93070310573d9c9/transformed/jetified-activity-1.9.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.9.0] /home/gokcank/.gradle/caches/transforms-4/aeec49f3d818fe66a93070310573d9c9/transformed/jetified-activity-1.9.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /home/gokcank/.gradle/caches/transforms-4/d0caaea3266aa7970483009109594c8f/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /home/gokcank/.gradle/caches/transforms-4/d0caaea3266aa7970483009109594c8f/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.autofill:autofill:1.0.0] /home/gokcank/.gradle/caches/transforms-4/d46d994084d1a5eff12eeb3f12454a64/transformed/jetified-autofill-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.autofill:autofill:1.0.0] /home/gokcank/.gradle/caches/transforms-4/d46d994084d1a5eff12eeb3f12454a64/transformed/jetified-autofill-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview:1.0.0] /home/gokcank/.gradle/caches/transforms-4/915c4071b50ba9514e3dc75b54c2a62e/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] /home/gokcank/.gradle/caches/transforms-4/915c4071b50ba9514e3dc75b54c2a62e/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/gokcank/.gradle/caches/transforms-4/cbf6c98edfafdf3fdb13f878e67090fe/transformed/jetified-customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/gokcank/.gradle/caches/transforms-4/cbf6c98edfafdf3fdb13f878e67090fe/transformed/jetified-customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.core:core-ktx:1.13.1] /home/gokcank/.gradle/caches/transforms-4/d3c356aa5e249032589d660b743cce2f/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.13.1] /home/gokcank/.gradle/caches/transforms-4/d3c356aa5e249032589d660b743cce2f/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-ktx:2.6.1] /home/gokcank/.gradle/caches/transforms-4/f5115ae1de2176a5dfa0e5ad06a8c3e9/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.room:room-ktx:2.6.1] /home/gokcank/.gradle/caches/transforms-4/f5115ae1de2176a5dfa0e5ad06a8c3e9/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/gokcank/.gradle/caches/transforms-4/26a6c2377e4083def2c11b56cc320b34/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /home/gokcank/.gradle/caches/transforms-4/26a6c2377e4083def2c11b56cc320b34/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite:2.4.0] /home/gokcank/.gradle/caches/transforms-4/51289fb5e73fd12ac5e2d46f675a6cc6/transformed/sqlite-2.4.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite:2.4.0] /home/gokcank/.gradle/caches/transforms-4/51289fb5e73fd12ac5e2d46f675a6cc6/transformed/sqlite-2.4.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/gokcank/.gradle/caches/transforms-4/0db8988ad6a47e5989dff842ac64a24d/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/gokcank/.gradle/caches/transforms-4/0db8988ad6a47e5989dff842ac64a24d/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/5eb2028c8651f195bae2a0e93ec8ceeb/transformed/jetified-runtime-saveable-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/5eb2028c8651f195bae2a0e93ec8ceeb/transformed/jetified-runtime-saveable-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/cd3ca9280b813464f1410f2e8c6f9bda/transformed/jetified-runtime-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/cd3ca9280b813464f1410f2e8c6f9bda/transformed/jetified-runtime-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/81173cc19a90d70795c9e88687d56993/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gokcank/.gradle/caches/transforms-4/81173cc19a90d70795c9e88687d56993/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/gokcank/.gradle/caches/transforms-4/fccbbbef74e8e24fde629cee4dfadb32/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/gokcank/.gradle/caches/transforms-4/fccbbbef74e8e24fde629cee4dfadb32/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /home/gokcank/.gradle/caches/transforms-4/a1165169dc10235d6b344f7a84028649/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /home/gokcank/.gradle/caches/transforms-4/a1165169dc10235d6b344f7a84028649/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/f79cb6251483f861f8681dd9722cf5a9/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/f79cb6251483f861f8681dd9722cf5a9/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.tracing:tracing:1.0.0] /home/gokcank/.gradle/caches/transforms-4/140ff87a96dbbf64d056e98e8bdbbb00/transformed/jetified-tracing-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.tracing:tracing:1.0.0] /home/gokcank/.gradle/caches/transforms-4/140ff87a96dbbf64d056e98e8bdbbb00/transformed/jetified-tracing-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] /home/gokcank/.gradle/caches/transforms-4/f3c61ad892796dd1d4abe37206daa44b/transformed/jetified-dagger-lint-aar-2.51.1/AndroidManifest.xml:18:3-42
+MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] /home/gokcank/.gradle/caches/transforms-4/f3c61ad892796dd1d4abe37206daa44b/transformed/jetified-dagger-lint-aar-2.51.1/AndroidManifest.xml:18:3-42
 	android:targetSdkVersion
 		INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml
 	android:minSdkVersion
 		INJECTED from /home/gokcank/projects/android/com.gokcank.curalis/app/src/main/AndroidManifest.xml
 provider#androidx.startup.InitializationProvider
-ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/be569d3933edb276c3b0efdf19944475/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
-MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/be569d3933edb276c3b0efdf19944475/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/f79cb6251483f861f8681dd9722cf5a9/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/gokcank/.gradle/caches/transforms-4/f79cb6251483f861f8681dd9722cf5a9/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
 	tools:node
-		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:28:13-31
+		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:28:13-31
 	android:authorities
-		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:26:13-68
+		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:26:13-68
 	android:exported
-		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:27:13-37
+		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:27:13-37
 	android:name
-		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:25:13-67
+		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:25:13-67
 meta-data#androidx.emoji2.text.EmojiCompatInitializer
-ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
 	android:value
-		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:31:17-49
+		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:31:17-49
 	android:name
-		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/e1da6cb942f20997fa2b4834f770b82c/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:30:17-75
+		ADDED from [androidx.emoji2:emoji2:1.3.0] /home/gokcank/.gradle/caches/transforms-4/337d86da76c94a8ac4d29de59b414327/transformed/jetified-emoji2-1.3.0/AndroidManifest.xml:30:17-75
 meta-data#androidx.lifecycle.ProcessLifecycleInitializer
-ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
 	android:value
-		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
 	android:name
-		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/6714b46e405b80756f70237659c5150f/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/gokcank/.gradle/caches/transforms-4/a5c20021e29e5636d4d5c44e4395e332/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
 activity#androidx.activity.ComponentActivity
-ADDED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/164bfda88bbec07ec897dfae9879c913/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:23:9-25:39
+ADDED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/f34985009b5241fed54a5f295efb61e0/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:23:9-25:39
 	android:exported
-		ADDED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/164bfda88bbec07ec897dfae9879c913/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:25:13-36
+		ADDED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/f34985009b5241fed54a5f295efb61e0/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:25:13-36
 	android:name
-		ADDED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/164bfda88bbec07ec897dfae9879c913/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:24:13-63
+		ADDED from [androidx.compose.ui:ui-test-manifest:1.6.6] /home/gokcank/.gradle/caches/transforms-4/f34985009b5241fed54a5f295efb61e0/transformed/jetified-ui-test-manifest-1.6.6/AndroidManifest.xml:24:13-63
 activity#androidx.compose.ui.tooling.PreviewActivity
-ADDED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/8ec3fab7ffdab758333fb3641f697cd6/transformed/jetified-ui-tooling-release/AndroidManifest.xml:23:9-25:39
+ADDED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/adcc0102d270e6f9bf2bf9831ab3967b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:23:9-25:39
 	android:exported
-		ADDED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/8ec3fab7ffdab758333fb3641f697cd6/transformed/jetified-ui-tooling-release/AndroidManifest.xml:25:13-36
+		ADDED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/adcc0102d270e6f9bf2bf9831ab3967b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:25:13-36
 	android:name
-		ADDED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/8ec3fab7ffdab758333fb3641f697cd6/transformed/jetified-ui-tooling-release/AndroidManifest.xml:24:13-71
+		ADDED from [androidx.compose.ui:ui-tooling-android:1.6.6] /home/gokcank/.gradle/caches/transforms-4/adcc0102d270e6f9bf2bf9831ab3967b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:24:13-71
 permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
-ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
+ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
 	android:protectionLevel
-		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
+		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
 	android:name
-		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
+		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
 permission#com.gokcank.curalis.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
-ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
+ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
 	android:protectionLevel
-		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
+		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
 	android:name
-		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
+		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
 uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
-ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
+ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
 	android:name
-		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
+		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
 uses-permission#com.gokcank.curalis.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
-ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
+ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
 	android:name
-		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/ea74b1479e7dd3f1918837fa12357757/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
+		ADDED from [androidx.core:core:1.13.1] /home/gokcank/.gradle/caches/transforms-4/675396c250928ea8e8715e5cc65b3d79/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
 service#androidx.room.MultiInstanceInvalidationService
-ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
+ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
 	android:exported
-		ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
+		ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
 	tools:ignore
-		ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:28:13-60
+		ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:28:13-60
 	android:directBootAware
-		ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
+		ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
 	android:name
-		ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/27971a18dca7401b40989df1a2069403/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
+		ADDED from [androidx.room:room-runtime:2.6.1] /home/gokcank/.gradle/caches/transforms-4/721922c2052dcc94f543ce368d2f0b90/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
 meta-data#androidx.profileinstaller.ProfileInstallerInitializer
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
 	android:value
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
 receiver#androidx.profileinstaller.ProfileInstallReceiver
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
 	android:enabled
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
 	android:exported
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
 	android:permission
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
 	android:directBootAware
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
 intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
 action#androidx.profileinstaller.action.INSTALL_PROFILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
 intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
 action#androidx.profileinstaller.action.SKIP_FILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
 intent-filter#action:name:androidx.profileinstaller.action.SAVE_PROFILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
 action#androidx.profileinstaller.action.SAVE_PROFILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
 intent-filter#action:name:androidx.profileinstaller.action.BENCHMARK_OPERATION
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
 action#androidx.profileinstaller.action.BENCHMARK_OPERATION
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/ed7cfcb65b9efbf40283161bcf1a72ac/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/gokcank/.gradle/caches/transforms-4/083e3fab86cee824f16c4f07ef2f0442/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:25-92

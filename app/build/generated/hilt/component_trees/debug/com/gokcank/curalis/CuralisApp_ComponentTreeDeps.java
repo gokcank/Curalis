@@ -19,6 +19,7 @@ import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_andro
 import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_components_SingletonComponent;
 import hilt_aggregated_deps._com_gokcank_curalis_CuralisApp_GeneratedInjector;
 import hilt_aggregated_deps._com_gokcank_curalis_core_di_DatabaseModule;
+import hilt_aggregated_deps._com_gokcank_curalis_core_di_NetworkModule;
 import hilt_aggregated_deps._com_gokcank_curalis_core_di_RepositoryModule;
 import hilt_aggregated_deps._com_gokcank_curalis_core_notification_ReminderActionReceiver_GeneratedInjector;
 import hilt_aggregated_deps._com_gokcank_curalis_core_notification_ReminderReceiver_GeneratedInjector;
@@ -69,6 +70,7 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_Ac
     aggregatedDeps = {
         _com_gokcank_curalis_CuralisApp_GeneratedInjector.class,
         _com_gokcank_curalis_core_di_DatabaseModule.class,
+        _com_gokcank_curalis_core_di_NetworkModule.class,
         _com_gokcank_curalis_core_di_RepositoryModule.class,
         _com_gokcank_curalis_core_notification_ReminderActionReceiver_GeneratedInjector.class,
         _com_gokcank_curalis_core_notification_ReminderReceiver_GeneratedInjector.class,
