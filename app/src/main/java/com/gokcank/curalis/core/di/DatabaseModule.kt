@@ -21,12 +21,20 @@ object DatabaseModule {
             app,
             CuralisDatabase::class.java,
             CuralisDatabase.DATABASE_NAME
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides
     @Singleton
     fun provideMedicationDao(db: CuralisDatabase): MedicationDao {
         return db.medicationDao
+    }
+
+    @Provides
+    @Singleton
+    fun provideReminderDao(db: CuralisDatabase): com.gokcank.curalis.data.local.dao.ReminderDao {
+        return db.reminderDao
     }
 }

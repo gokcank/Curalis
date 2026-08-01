@@ -17,4 +17,10 @@ abstract class RepositoryModule {
     abstract fun bindMedicationRepository(
         medicationRepositoryImpl: MedicationRepositoryImpl
     ): MedicationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReminderRepository(
+        reminderRepositoryImpl: com.gokcank.curalis.data.repository_impl.ReminderRepositoryImpl
+    ): com.gokcank.curalis.domain.repository.ReminderRepository
 }

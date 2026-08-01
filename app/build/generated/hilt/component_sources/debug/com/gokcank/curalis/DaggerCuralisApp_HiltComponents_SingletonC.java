@@ -8,14 +8,26 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import com.gokcank.curalis.core.di.DatabaseModule_ProvideCuralisDatabaseFactory;
 import com.gokcank.curalis.core.di.DatabaseModule_ProvideMedicationDaoFactory;
+import com.gokcank.curalis.core.di.DatabaseModule_ProvideReminderDaoFactory;
+import com.gokcank.curalis.core.notification.AlarmScheduler;
+import com.gokcank.curalis.core.notification.NotificationHelper;
+import com.gokcank.curalis.core.notification.ReminderActionReceiver;
+import com.gokcank.curalis.core.notification.ReminderActionReceiver_MembersInjector;
+import com.gokcank.curalis.core.notification.ReminderReceiver;
+import com.gokcank.curalis.core.notification.ReminderReceiver_MembersInjector;
 import com.gokcank.curalis.data.local.CuralisDatabase;
 import com.gokcank.curalis.data.local.dao.MedicationDao;
+import com.gokcank.curalis.data.local.dao.ReminderDao;
 import com.gokcank.curalis.data.repository_impl.MedicationRepositoryImpl;
+import com.gokcank.curalis.data.repository_impl.ReminderRepositoryImpl;
 import com.gokcank.curalis.domain.repository.MedicationRepository;
+import com.gokcank.curalis.domain.repository.ReminderRepository;
+import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase;
 import com.gokcank.curalis.domain.usecase.AddMedicationUseCase;
 import com.gokcank.curalis.domain.usecase.DeleteMedicationUseCase;
 import com.gokcank.curalis.domain.usecase.GetMedicationByIdUseCase;
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase;
+import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase;
 import com.gokcank.curalis.domain.usecase.SearchMedicationsUseCase;
 import com.gokcank.curalis.domain.usecase.UpdateMedicationUseCase;
 import com.gokcank.curalis.domain.usecase.ValidateMedicationUseCase;
@@ -39,6 +51,7 @@ import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_Li
 import dagger.hilt.android.internal.managers.SavedStateHandleHolder;
 import dagger.hilt.android.internal.modules.ApplicationContextModule;
 import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideApplicationFactory;
+import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
 import dagger.internal.IdentifierNameString;
@@ -404,15 +417,15 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_gokcank_curalis_presentation_medication_list_MedicationListViewModel = "com.gokcank.curalis.presentation.medication.list.MedicationListViewModel";
-
       static String com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel = "com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel";
 
-      @KeepFieldType
-      MedicationListViewModel com_gokcank_curalis_presentation_medication_list_MedicationListViewModel2;
+      static String com_gokcank_curalis_presentation_medication_list_MedicationListViewModel = "com.gokcank.curalis.presentation.medication.list.MedicationListViewModel";
 
       @KeepFieldType
       AddEditMedicationViewModel com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel2;
+
+      @KeepFieldType
+      MedicationListViewModel com_gokcank_curalis_presentation_medication_list_MedicationListViewModel2;
     }
   }
 
@@ -482,15 +495,15 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_gokcank_curalis_presentation_medication_list_MedicationListViewModel = "com.gokcank.curalis.presentation.medication.list.MedicationListViewModel";
-
       static String com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel = "com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel";
 
-      @KeepFieldType
-      MedicationListViewModel com_gokcank_curalis_presentation_medication_list_MedicationListViewModel2;
+      static String com_gokcank_curalis_presentation_medication_list_MedicationListViewModel = "com.gokcank.curalis.presentation.medication.list.MedicationListViewModel";
 
       @KeepFieldType
       AddEditMedicationViewModel com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel2;
+
+      @KeepFieldType
+      MedicationListViewModel com_gokcank_curalis_presentation_medication_list_MedicationListViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -515,7 +528,7 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel 
-          return (T) new AddEditMedicationViewModel(viewModelCImpl.getMedicationByIdUseCase(), viewModelCImpl.addMedicationUseCase(), viewModelCImpl.updateMedicationUseCase(), new ValidateMedicationUseCase(), viewModelCImpl.savedStateHandle);
+          return (T) new AddEditMedicationViewModel(viewModelCImpl.getMedicationByIdUseCase(), viewModelCImpl.addMedicationUseCase(), viewModelCImpl.updateMedicationUseCase(), new ValidateMedicationUseCase(), singletonCImpl.scheduleReminderUseCase(), singletonCImpl.alarmScheduler(), viewModelCImpl.savedStateHandle);
 
           case 1: // com.gokcank.curalis.presentation.medication.list.MedicationListViewModel 
           return (T) new MedicationListViewModel(viewModelCImpl.getMedicationsUseCase(), viewModelCImpl.searchMedicationsUseCase(), viewModelCImpl.deleteMedicationUseCase());
@@ -602,6 +615,12 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
 
     private Provider<CuralisDatabase> provideCuralisDatabaseProvider;
 
+    private Provider<ReminderDao> provideReminderDaoProvider;
+
+    private Provider<ReminderRepositoryImpl> reminderRepositoryImplProvider;
+
+    private Provider<ReminderRepository> bindReminderRepositoryProvider;
+
     private Provider<MedicationDao> provideMedicationDaoProvider;
 
     private Provider<MedicationRepositoryImpl> medicationRepositoryImplProvider;
@@ -614,16 +633,45 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
 
     }
 
+    private AcknowledgeReminderUseCase acknowledgeReminderUseCase() {
+      return new AcknowledgeReminderUseCase(bindReminderRepositoryProvider.get());
+    }
+
+    private ScheduleReminderUseCase scheduleReminderUseCase() {
+      return new ScheduleReminderUseCase(bindReminderRepositoryProvider.get());
+    }
+
+    private AlarmScheduler alarmScheduler() {
+      return new AlarmScheduler(ApplicationContextModule_ProvideContextFactory.provideContext(applicationContextModule));
+    }
+
+    private NotificationHelper notificationHelper() {
+      return new NotificationHelper(ApplicationContextModule_ProvideContextFactory.provideContext(applicationContextModule));
+    }
+
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
       this.provideCuralisDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<CuralisDatabase>(singletonCImpl, 2));
-      this.provideMedicationDaoProvider = DoubleCheck.provider(new SwitchingProvider<MedicationDao>(singletonCImpl, 1));
-      this.medicationRepositoryImplProvider = new SwitchingProvider<>(singletonCImpl, 0);
+      this.provideReminderDaoProvider = DoubleCheck.provider(new SwitchingProvider<ReminderDao>(singletonCImpl, 1));
+      this.reminderRepositoryImplProvider = new SwitchingProvider<>(singletonCImpl, 0);
+      this.bindReminderRepositoryProvider = DoubleCheck.provider((Provider) reminderRepositoryImplProvider);
+      this.provideMedicationDaoProvider = DoubleCheck.provider(new SwitchingProvider<MedicationDao>(singletonCImpl, 4));
+      this.medicationRepositoryImplProvider = new SwitchingProvider<>(singletonCImpl, 3);
       this.bindMedicationRepositoryProvider = DoubleCheck.provider((Provider) medicationRepositoryImplProvider);
     }
 
     @Override
     public void injectCuralisApp(CuralisApp curalisApp) {
+    }
+
+    @Override
+    public void injectReminderActionReceiver(ReminderActionReceiver reminderActionReceiver) {
+      injectReminderActionReceiver2(reminderActionReceiver);
+    }
+
+    @Override
+    public void injectReminderReceiver(ReminderReceiver reminderReceiver) {
+      injectReminderReceiver2(reminderReceiver);
     }
 
     @Override
@@ -641,6 +689,19 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
       return new ServiceCBuilder(singletonCImpl);
     }
 
+    private ReminderActionReceiver injectReminderActionReceiver2(ReminderActionReceiver instance) {
+      ReminderActionReceiver_MembersInjector.injectAcknowledgeReminderUseCase(instance, acknowledgeReminderUseCase());
+      ReminderActionReceiver_MembersInjector.injectScheduleReminderUseCase(instance, scheduleReminderUseCase());
+      ReminderActionReceiver_MembersInjector.injectAlarmScheduler(instance, alarmScheduler());
+      ReminderActionReceiver_MembersInjector.injectNotificationHelper(instance, notificationHelper());
+      return instance;
+    }
+
+    private ReminderReceiver injectReminderReceiver2(ReminderReceiver instance) {
+      ReminderReceiver_MembersInjector.injectNotificationHelper(instance, notificationHelper());
+      return instance;
+    }
+
     private static final class SwitchingProvider<T> implements Provider<T> {
       private final SingletonCImpl singletonCImpl;
 
@@ -655,14 +716,20 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.gokcank.curalis.data.repository_impl.MedicationRepositoryImpl 
-          return (T) new MedicationRepositoryImpl(singletonCImpl.provideMedicationDaoProvider.get());
+          case 0: // com.gokcank.curalis.data.repository_impl.ReminderRepositoryImpl 
+          return (T) new ReminderRepositoryImpl(singletonCImpl.provideReminderDaoProvider.get());
 
-          case 1: // com.gokcank.curalis.data.local.dao.MedicationDao 
-          return (T) DatabaseModule_ProvideMedicationDaoFactory.provideMedicationDao(singletonCImpl.provideCuralisDatabaseProvider.get());
+          case 1: // com.gokcank.curalis.data.local.dao.ReminderDao 
+          return (T) DatabaseModule_ProvideReminderDaoFactory.provideReminderDao(singletonCImpl.provideCuralisDatabaseProvider.get());
 
           case 2: // com.gokcank.curalis.data.local.CuralisDatabase 
           return (T) DatabaseModule_ProvideCuralisDatabaseFactory.provideCuralisDatabase(ApplicationContextModule_ProvideApplicationFactory.provideApplication(singletonCImpl.applicationContextModule));
+
+          case 3: // com.gokcank.curalis.data.repository_impl.MedicationRepositoryImpl 
+          return (T) new MedicationRepositoryImpl(singletonCImpl.provideMedicationDaoProvider.get());
+
+          case 4: // com.gokcank.curalis.data.local.dao.MedicationDao 
+          return (T) DatabaseModule_ProvideMedicationDaoFactory.provideMedicationDao(singletonCImpl.provideCuralisDatabaseProvider.get());
 
           default: throw new AssertionError(id);
         }

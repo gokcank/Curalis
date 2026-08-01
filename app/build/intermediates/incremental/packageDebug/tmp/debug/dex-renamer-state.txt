@@ -1,4 +1,4 @@
-#Sat Aug 01 23:53:25 TRT 2026
+#Sun Aug 02 01:57:10 TRT 2026
 base.0=/home/gokcank/projects/android/com.gokcank.curalis/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
 base.1=/home/gokcank/projects/android/com.gokcank.curalis/app/build/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
 base.10=/home/gokcank/projects/android/com.gokcank.curalis/app/build/intermediates/dex/debug/mergeProjectDexDebug/2/classes.dex

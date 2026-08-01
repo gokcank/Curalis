@@ -35,9 +35,20 @@ fun AddEditMedicationScreen(
     val name by viewModel.medicationName.collectAsState()
     val dosage by viewModel.medicationDosage.collectAsState()
     val unit by viewModel.medicationUnit.collectAsState()
+    val reminderMinutes by viewModel.reminderMinutes.collectAsState()
     val error by viewModel.errorMessage.collectAsState()
 
+    // Android 13+ Notification Permission Request
+    val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
+        onResult = { /* Permission result handling */ }
+    )
+
     LaunchedEffect(key1 = true) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+        
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is AddEditMedicationViewModel.UiEvent.SaveSuccess -> {
@@ -91,6 +102,15 @@ fun AddEditMedicationScreen(
                 value = unit,
                 onValueChange = viewModel::onUnitChange,
                 label = { Text("Unit (e.g. mg)") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = reminderMinutes,
+                onValueChange = viewModel::onReminderMinutesChange,
+                label = { Text("Set Reminder (in minutes from now)") },
                 modifier = Modifier.fillMaxWidth()
             )
             

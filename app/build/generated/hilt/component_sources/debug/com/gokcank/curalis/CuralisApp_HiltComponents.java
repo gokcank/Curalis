@@ -2,6 +2,8 @@ package com.gokcank.curalis;
 
 import com.gokcank.curalis.core.di.DatabaseModule;
 import com.gokcank.curalis.core.di.RepositoryModule;
+import com.gokcank.curalis.core.notification.ReminderActionReceiver_GeneratedInjector;
+import com.gokcank.curalis.core.notification.ReminderReceiver_GeneratedInjector;
 import com.gokcank.curalis.presentation.main.MainActivity_GeneratedInjector;
 import com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel_HiltModules;
 import com.gokcank.curalis.presentation.medication.list.MedicationListViewModel_HiltModules;
@@ -139,6 +141,8 @@ public final class CuralisApp_HiltComponents {
   )
   @Singleton
   public abstract static class SingletonC implements CuralisApp_GeneratedInjector,
+      ReminderActionReceiver_GeneratedInjector,
+      ReminderReceiver_GeneratedInjector,
       FragmentGetContextFix.FragmentGetContextFixEntryPoint,
       HiltWrapper_ActivityRetainedComponentManager_ActivityRetainedComponentBuilderEntryPoint,
       ServiceComponentManager.ServiceComponentBuilderEntryPoint,

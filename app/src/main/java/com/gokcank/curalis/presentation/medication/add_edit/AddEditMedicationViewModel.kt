@@ -3,9 +3,12 @@ package com.gokcank.curalis.presentation.medication.add_edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.domain.model.Medication
+import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.usecase.AddMedicationUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationByIdUseCase
+import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import com.gokcank.curalis.domain.usecase.UpdateMedicationUseCase
 import com.gokcank.curalis.domain.usecase.ValidateMedicationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +25,8 @@ class AddEditMedicationViewModel @Inject constructor(
     private val addMedicationUseCase: AddMedicationUseCase,
     private val updateMedicationUseCase: UpdateMedicationUseCase,
     private val validateMedicationUseCase: ValidateMedicationUseCase,
+    private val scheduleReminderUseCase: ScheduleReminderUseCase,
+    private val alarmScheduler: AlarmScheduler,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -33,6 +38,9 @@ class AddEditMedicationViewModel @Inject constructor(
 
     private val _medicationUnit = MutableStateFlow("")
     val medicationUnit = _medicationUnit.asStateFlow()
+
+    private val _reminderMinutes = MutableStateFlow<String>("") // Minute offset for testing/reminder
+    val reminderMinutes = _reminderMinutes.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage = _errorMessage.asStateFlow()
@@ -72,6 +80,10 @@ class AddEditMedicationViewModel @Inject constructor(
         _medicationUnit.value = unit
     }
 
+    fun onReminderMinutesChange(minutes: String) {
+        _reminderMinutes.value = minutes
+    }
+
     fun saveMedication() {
         viewModelScope.launch {
             if (!validateMedicationUseCase(_medicationName.value)) {
@@ -79,8 +91,9 @@ class AddEditMedicationViewModel @Inject constructor(
                 return@launch
             }
             
+            val medicationId = currentMedicationId ?: java.util.UUID.randomUUID().toString()
             val medication = Medication(
-                id = currentMedicationId ?: java.util.UUID.randomUUID().toString(),
+                id = medicationId,
                 name = _medicationName.value,
                 dosage = _medicationDosage.value.takeIf { it.isNotBlank() },
                 unit = _medicationUnit.value.takeIf { it.isNotBlank() }
@@ -91,6 +104,19 @@ class AddEditMedicationViewModel @Inject constructor(
             } else {
                 addMedicationUseCase(medication)
             }
+
+            // Schedule reminder if reminderMinutes is specified
+            val mins = _reminderMinutes.value.toLongOrNull()
+            if (mins != null && mins > 0) {
+                val triggerTime = System.currentTimeMillis() + (mins * 60 * 1000)
+                val reminder = Reminder(
+                    medicationId = medicationId,
+                    timeInMillis = triggerTime
+                )
+                scheduleReminderUseCase(reminder)
+                alarmScheduler.schedule(reminder, medication.name)
+            }
+
             _eventFlow.emit(UiEvent.SaveSuccess)
         }
     }
