@@ -77,7 +77,7 @@ Branch names should be short, descriptive, and lowercase.
 
 Development should progress in small, self-contained increments.
 
-After completing a meaningful unit of work, AI should automatically create a Git commit and then recommend pushing before proceeding.
+After completing a meaningful unit of work, AI should automatically create a Git commit and then recommend pushing before proceeding. AI must NEVER automatically execute `git push`.
 
 Examples include:
 
