@@ -6,7 +6,24 @@ import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
+import com.gokcank.curalis.core.di.DatabaseModule_ProvideCuralisDatabaseFactory;
+import com.gokcank.curalis.core.di.DatabaseModule_ProvideMedicationDaoFactory;
+import com.gokcank.curalis.data.local.CuralisDatabase;
+import com.gokcank.curalis.data.local.dao.MedicationDao;
+import com.gokcank.curalis.data.repository_impl.MedicationRepositoryImpl;
+import com.gokcank.curalis.domain.repository.MedicationRepository;
+import com.gokcank.curalis.domain.usecase.AddMedicationUseCase;
+import com.gokcank.curalis.domain.usecase.DeleteMedicationUseCase;
+import com.gokcank.curalis.domain.usecase.GetMedicationByIdUseCase;
+import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase;
+import com.gokcank.curalis.domain.usecase.SearchMedicationsUseCase;
+import com.gokcank.curalis.domain.usecase.UpdateMedicationUseCase;
+import com.gokcank.curalis.domain.usecase.ValidateMedicationUseCase;
 import com.gokcank.curalis.presentation.main.MainActivity;
+import com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel;
+import com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel_HiltModules;
+import com.gokcank.curalis.presentation.medication.list.MedicationListViewModel;
+import com.gokcank.curalis.presentation.medication.list.MedicationListViewModel_HiltModules;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.internal.builders.ActivityComponentBuilder;
@@ -21,14 +38,19 @@ import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories_Internal
 import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory;
 import dagger.hilt.android.internal.managers.SavedStateHandleHolder;
 import dagger.hilt.android.internal.modules.ApplicationContextModule;
+import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideApplicationFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
+import dagger.internal.IdentifierNameString;
+import dagger.internal.KeepFieldType;
+import dagger.internal.LazyClassKeyMap;
+import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
+import dagger.internal.Provider;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @DaggerGenerated
 @Generated(
@@ -50,25 +72,20 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
     return new Builder();
   }
 
-  public static CuralisApp_HiltComponents.SingletonC create() {
-    return new Builder().build();
-  }
-
   public static final class Builder {
+    private ApplicationContextModule applicationContextModule;
+
     private Builder() {
     }
 
-    /**
-     * @deprecated This module is declared, but an instance is not used in the component. This method is a no-op. For more, see https://dagger.dev/unused-modules.
-     */
-    @Deprecated
     public Builder applicationContextModule(ApplicationContextModule applicationContextModule) {
-      Preconditions.checkNotNull(applicationContextModule);
+      this.applicationContextModule = Preconditions.checkNotNull(applicationContextModule);
       return this;
     }
 
     public CuralisApp_HiltComponents.SingletonC build() {
-      return new SingletonCImpl();
+      Preconditions.checkBuilderRequirement(applicationContextModule, ApplicationContextModule.class);
+      return new SingletonCImpl(applicationContextModule);
     }
   }
 
@@ -362,12 +379,12 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
 
     @Override
     public DefaultViewModelFactories.InternalFactoryFactory getHiltInternalFactoryFactory() {
-      return DefaultViewModelFactories_InternalFactoryFactory_Factory.newInstance(Collections.<Class<?>, Boolean>emptyMap(), new ViewModelCBuilder(singletonCImpl, activityRetainedCImpl));
+      return DefaultViewModelFactories_InternalFactoryFactory_Factory.newInstance(getViewModelKeys(), new ViewModelCBuilder(singletonCImpl, activityRetainedCImpl));
     }
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
-      return Collections.<Class<?>, Boolean>emptyMap();
+      return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(2).put(LazyClassKeyProvider.com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel, AddEditMedicationViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_gokcank_curalis_presentation_medication_list_MedicationListViewModel, MedicationListViewModel_HiltModules.KeyModule.provide()).build());
     }
 
     @Override
@@ -384,32 +401,128 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
     public ViewComponentBuilder viewComponentBuilder() {
       return new ViewCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
     }
+
+    @IdentifierNameString
+    private static final class LazyClassKeyProvider {
+      static String com_gokcank_curalis_presentation_medication_list_MedicationListViewModel = "com.gokcank.curalis.presentation.medication.list.MedicationListViewModel";
+
+      static String com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel = "com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel";
+
+      @KeepFieldType
+      MedicationListViewModel com_gokcank_curalis_presentation_medication_list_MedicationListViewModel2;
+
+      @KeepFieldType
+      AddEditMedicationViewModel com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel2;
+    }
   }
 
   private static final class ViewModelCImpl extends CuralisApp_HiltComponents.ViewModelC {
+    private final SavedStateHandle savedStateHandle;
+
     private final SingletonCImpl singletonCImpl;
 
     private final ActivityRetainedCImpl activityRetainedCImpl;
 
     private final ViewModelCImpl viewModelCImpl = this;
 
+    private Provider<AddEditMedicationViewModel> addEditMedicationViewModelProvider;
+
+    private Provider<MedicationListViewModel> medicationListViewModelProvider;
+
     private ViewModelCImpl(SingletonCImpl singletonCImpl,
         ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
         ViewModelLifecycle viewModelLifecycleParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
-
+      this.savedStateHandle = savedStateHandleParam;
+      initialize(savedStateHandleParam, viewModelLifecycleParam);
 
     }
 
+    private GetMedicationByIdUseCase getMedicationByIdUseCase() {
+      return new GetMedicationByIdUseCase(singletonCImpl.bindMedicationRepositoryProvider.get());
+    }
+
+    private AddMedicationUseCase addMedicationUseCase() {
+      return new AddMedicationUseCase(singletonCImpl.bindMedicationRepositoryProvider.get());
+    }
+
+    private UpdateMedicationUseCase updateMedicationUseCase() {
+      return new UpdateMedicationUseCase(singletonCImpl.bindMedicationRepositoryProvider.get());
+    }
+
+    private GetMedicationsUseCase getMedicationsUseCase() {
+      return new GetMedicationsUseCase(singletonCImpl.bindMedicationRepositoryProvider.get());
+    }
+
+    private SearchMedicationsUseCase searchMedicationsUseCase() {
+      return new SearchMedicationsUseCase(singletonCImpl.bindMedicationRepositoryProvider.get());
+    }
+
+    private DeleteMedicationUseCase deleteMedicationUseCase() {
+      return new DeleteMedicationUseCase(singletonCImpl.bindMedicationRepositoryProvider.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final SavedStateHandle savedStateHandleParam,
+        final ViewModelLifecycle viewModelLifecycleParam) {
+      this.addEditMedicationViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.medicationListViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+    }
+
     @Override
-    public Map<Class<?>, Provider<ViewModel>> getHiltViewModelMap() {
-      return Collections.<Class<?>, Provider<ViewModel>>emptyMap();
+    public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(2).put(LazyClassKeyProvider.com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel, ((Provider) addEditMedicationViewModelProvider)).put(LazyClassKeyProvider.com_gokcank_curalis_presentation_medication_list_MedicationListViewModel, ((Provider) medicationListViewModelProvider)).build());
     }
 
     @Override
     public Map<Class<?>, Object> getHiltViewModelAssistedMap() {
       return Collections.<Class<?>, Object>emptyMap();
+    }
+
+    @IdentifierNameString
+    private static final class LazyClassKeyProvider {
+      static String com_gokcank_curalis_presentation_medication_list_MedicationListViewModel = "com.gokcank.curalis.presentation.medication.list.MedicationListViewModel";
+
+      static String com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel = "com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel";
+
+      @KeepFieldType
+      MedicationListViewModel com_gokcank_curalis_presentation_medication_list_MedicationListViewModel2;
+
+      @KeepFieldType
+      AddEditMedicationViewModel com_gokcank_curalis_presentation_medication_add_edit_AddEditMedicationViewModel2;
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final ActivityRetainedCImpl activityRetainedCImpl;
+
+      private final ViewModelCImpl viewModelCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+          ViewModelCImpl viewModelCImpl, int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.activityRetainedCImpl = activityRetainedCImpl;
+        this.viewModelCImpl = viewModelCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel 
+          return (T) new AddEditMedicationViewModel(viewModelCImpl.getMedicationByIdUseCase(), viewModelCImpl.addMedicationUseCase(), viewModelCImpl.updateMedicationUseCase(), new ValidateMedicationUseCase(), viewModelCImpl.savedStateHandle);
+
+          case 1: // com.gokcank.curalis.presentation.medication.list.MedicationListViewModel 
+          return (T) new MedicationListViewModel(viewModelCImpl.getMedicationsUseCase(), viewModelCImpl.searchMedicationsUseCase(), viewModelCImpl.deleteMedicationUseCase());
+
+          default: throw new AssertionError(id);
+        }
+      }
     }
   }
 
@@ -418,7 +531,7 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
 
     private final ActivityRetainedCImpl activityRetainedCImpl = this;
 
-    private dagger.internal.Provider<ActivityRetainedLifecycle> provideActivityRetainedLifecycleProvider;
+    private Provider<ActivityRetainedLifecycle> provideActivityRetainedLifecycleProvider;
 
     private ActivityRetainedCImpl(SingletonCImpl singletonCImpl,
         SavedStateHandleHolder savedStateHandleHolderParam) {
@@ -443,7 +556,7 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
       return provideActivityRetainedLifecycleProvider.get();
     }
 
-    private static final class SwitchingProvider<T> implements dagger.internal.Provider<T> {
+    private static final class SwitchingProvider<T> implements Provider<T> {
       private final SingletonCImpl singletonCImpl;
 
       private final ActivityRetainedCImpl activityRetainedCImpl;
@@ -483,11 +596,30 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
   }
 
   private static final class SingletonCImpl extends CuralisApp_HiltComponents.SingletonC {
+    private final ApplicationContextModule applicationContextModule;
+
     private final SingletonCImpl singletonCImpl = this;
 
-    private SingletonCImpl() {
+    private Provider<CuralisDatabase> provideCuralisDatabaseProvider;
 
+    private Provider<MedicationDao> provideMedicationDaoProvider;
 
+    private Provider<MedicationRepositoryImpl> medicationRepositoryImplProvider;
+
+    private Provider<MedicationRepository> bindMedicationRepositoryProvider;
+
+    private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
+      this.applicationContextModule = applicationContextModuleParam;
+      initialize(applicationContextModuleParam);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final ApplicationContextModule applicationContextModuleParam) {
+      this.provideCuralisDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<CuralisDatabase>(singletonCImpl, 2));
+      this.provideMedicationDaoProvider = DoubleCheck.provider(new SwitchingProvider<MedicationDao>(singletonCImpl, 1));
+      this.medicationRepositoryImplProvider = new SwitchingProvider<>(singletonCImpl, 0);
+      this.bindMedicationRepositoryProvider = DoubleCheck.provider((Provider) medicationRepositoryImplProvider);
     }
 
     @Override
@@ -507,6 +639,34 @@ public final class DaggerCuralisApp_HiltComponents_SingletonC {
     @Override
     public ServiceComponentBuilder serviceComponentBuilder() {
       return new ServiceCBuilder(singletonCImpl);
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final SingletonCImpl singletonCImpl;
+
+      private final int id;
+
+      SwitchingProvider(SingletonCImpl singletonCImpl, int id) {
+        this.singletonCImpl = singletonCImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // com.gokcank.curalis.data.repository_impl.MedicationRepositoryImpl 
+          return (T) new MedicationRepositoryImpl(singletonCImpl.provideMedicationDaoProvider.get());
+
+          case 1: // com.gokcank.curalis.data.local.dao.MedicationDao 
+          return (T) DatabaseModule_ProvideMedicationDaoFactory.provideMedicationDao(singletonCImpl.provideCuralisDatabaseProvider.get());
+
+          case 2: // com.gokcank.curalis.data.local.CuralisDatabase 
+          return (T) DatabaseModule_ProvideCuralisDatabaseFactory.provideCuralisDatabase(ApplicationContextModule_ProvideApplicationFactory.provideApplication(singletonCImpl.applicationContextModule));
+
+          default: throw new AssertionError(id);
+        }
+      }
     }
   }
 }

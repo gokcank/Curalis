@@ -1,6 +1,10 @@
 package com.gokcank.curalis;
 
+import com.gokcank.curalis.core.di.DatabaseModule;
+import com.gokcank.curalis.core.di.RepositoryModule;
 import com.gokcank.curalis.presentation.main.MainActivity_GeneratedInjector;
+import com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel_HiltModules;
+import com.gokcank.curalis.presentation.medication.list.MedicationListViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -128,7 +132,9 @@ public final class CuralisApp_HiltComponents {
           ApplicationContextModule.class,
           ActivityRetainedCBuilderModule.class,
           ServiceCBuilderModule.class,
-          HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class
+          DatabaseModule.class,
+          HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
+          RepositoryModule.class
       }
   )
   @Singleton
@@ -151,10 +157,12 @@ public final class CuralisApp_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AddEditMedicationViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
-          HiltWrapper_SavedStateHandleModule.class
+          HiltWrapper_SavedStateHandleModule.class,
+          MedicationListViewModel_HiltModules.KeyModule.class
       }
   )
   @ActivityRetainedScoped
@@ -189,7 +197,11 @@ public final class CuralisApp_HiltComponents {
   }
 
   @Subcomponent(
-      modules = HiltWrapper_HiltViewModelFactory_ViewModelModule.class
+      modules = {
+          AddEditMedicationViewModel_HiltModules.BindsModule.class,
+          HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
+          MedicationListViewModel_HiltModules.BindsModule.class
+      }
   )
   @ViewModelScoped
   public abstract static class ViewModelC implements ViewModelComponent,
