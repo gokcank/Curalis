@@ -47,6 +47,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.activity.compose.BackHandler
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import android.app.Activity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
@@ -67,6 +75,35 @@ fun HomeScreen(
     onNavigateToAbout: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showExitDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    BackHandler {
+        showExitDialog = true
+    }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = { Text(stringResource(R.string.exit_confirmation_title)) },
+            text = { Text(stringResource(R.string.exit_confirmation_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitDialog = false
+                        (context as? Activity)?.finish()
+                    }
+                ) {
+                    Text(stringResource(R.string.exit), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -107,80 +144,15 @@ fun HomeScreen(
         ) {
             val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
-            // Programmatic Vector Medical Background (100% Noise-Free)
-            val lineColor = MaterialTheme.colorScheme.primary.copy(alpha = if (isDark) 0.15f else 0.08f)
-
-            androidx.compose.foundation.Canvas(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                val width = size.width
-                val height = size.height
-
-                // Soft Ambient Radial Gradient
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            lineColor.copy(alpha = if (isDark) 0.12f else 0.06f),
-                            Color.Transparent
-                        ),
-                        center = androidx.compose.ui.geometry.Offset(width * 0.5f, height * 0.35f),
-                        radius = width * 0.8f
-                    )
-                )
-
-                // ECG Pulse Wave Path 1
-                val ecgPath1 = Path().apply {
-                    moveTo(0f, height * 0.38f)
-                    lineTo(width * 0.2f, height * 0.38f)
-                    lineTo(width * 0.25f, height * 0.34f)
-                    lineTo(width * 0.3f, height * 0.42f)
-                    lineTo(width * 0.35f, height * 0.26f) // Peak
-                    lineTo(width * 0.4f, height * 0.44f)
-                    lineTo(width * 0.44f, height * 0.38f)
-                    lineTo(width, height * 0.38f)
-                }
-                drawPath(
-                    path = ecgPath1,
-                    color = lineColor,
-                    style = Stroke(width = 3.dp.toPx())
-                )
-
-                // ECG Pulse Wave Path 2 (Lower)
-                val ecgPath2 = Path().apply {
-                    moveTo(0f, height * 0.72f)
-                    lineTo(width * 0.55f, height * 0.72f)
-                    lineTo(width * 0.6f, height * 0.69f)
-                    lineTo(width * 0.64f, height * 0.75f)
-                    lineTo(width * 0.68f, height * 0.61f) // Peak
-                    lineTo(width * 0.73f, height * 0.76f)
-                    lineTo(width * 0.77f, height * 0.72f)
-                    lineTo(width, height * 0.72f)
-                }
-                drawPath(
-                    path = ecgPath2,
-                    color = lineColor.copy(alpha = if (isDark) 0.1f else 0.05f),
-                    style = Stroke(width = 2.dp.toPx())
-                )
-
-                // Decorative Medical Molecules / Circles
-                drawCircle(
-                    color = lineColor,
-                    radius = 40.dp.toPx(),
-                    center = androidx.compose.ui.geometry.Offset(width * 0.82f, height * 0.22f),
-                    style = Stroke(width = 1.5.dp.toPx())
-                )
-                drawCircle(
-                    color = lineColor,
-                    radius = 20.dp.toPx(),
-                    center = androidx.compose.ui.geometry.Offset(width * 0.82f, height * 0.22f)
-                )
-                drawCircle(
-                    color = lineColor.copy(alpha = 0.5f),
-                    radius = 16.dp.toPx(),
-                    center = androidx.compose.ui.geometry.Offset(width * 0.15f, height * 0.6f),
-                    style = Stroke(width = 1.dp.toPx())
-                )
-            }
+            Image(
+                painter = painterResource(
+                    if (isDark) R.drawable.bg_home_watermark_dark else R.drawable.bg_home_watermark
+                ),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.CenterEnd
+            )
 
             // Content
             Column(

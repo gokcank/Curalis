@@ -38,6 +38,17 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VitalListScreen(
@@ -47,6 +58,30 @@ fun VitalListScreen(
 ) {
     val vitals by viewModel.vitals.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
+    var vitalToDelete by remember { mutableStateOf<Vital?>(null) }
+
+    vitalToDelete?.let { vital ->
+        AlertDialog(
+            onDismissRequest = { vitalToDelete = null },
+            title = { Text(stringResource(R.string.delete_vital_title)) },
+            text = { Text(stringResource(R.string.delete_vital_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteVital(vital)
+                        vitalToDelete = null
+                    }
+                ) {
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { vitalToDelete = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -114,7 +149,10 @@ fun VitalListScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(vitals) { vital ->
-                        VitalItem(vital = vital)
+                        VitalItem(
+                            vital = vital,
+                            onDelete = { vitalToDelete = vital }
+                        )
                     }
                 }
             }
@@ -122,9 +160,11 @@ fun VitalListScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VitalItem(
-    vital: Vital
+    vital: Vital,
+    onDelete: () -> Unit
 ) {
     val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
     val dateString = dateFormat.format(Date(vital.timeInMillis))
@@ -136,7 +176,12 @@ fun VitalItem(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {},
+                onLongClick = onDelete
+            )
     ) {
         Row(
             modifier = Modifier
@@ -145,7 +190,10 @@ fun VitalItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = null,
@@ -157,11 +205,17 @@ fun VitalItem(
                     Text(text = dateString, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            Text(
-                text = valueText,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = valueText,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(onClick = onDelete) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
+                }
+            }
         }
     }
 }

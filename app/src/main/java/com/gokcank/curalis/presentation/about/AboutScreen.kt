@@ -70,6 +70,12 @@ fun AboutScreen(
                     text = stringResource(R.string.developer, "gokcank"),
                     style = MaterialTheme.typography.bodyLarge
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.database_date_label, com.gokcank.curalis.data.local.CuralisDatabase.DATABASE_DATE),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 val uriHandler = LocalUriHandler.current

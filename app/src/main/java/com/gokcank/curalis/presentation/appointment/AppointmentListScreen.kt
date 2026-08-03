@@ -35,6 +35,17 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppointmentListScreen(
@@ -44,6 +55,30 @@ fun AppointmentListScreen(
     onNavigateBack: () -> Unit
 ) {
     val appointments by viewModel.appointments.collectAsState()
+    var appointmentToDelete by remember { mutableStateOf<Appointment?>(null) }
+
+    appointmentToDelete?.let { appt ->
+        AlertDialog(
+            onDismissRequest = { appointmentToDelete = null },
+            title = { Text(stringResource(R.string.delete_appointment_title)) },
+            text = { Text(stringResource(R.string.delete_appointment_message, appt.title)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteAppointment(appt)
+                        appointmentToDelete = null
+                    }
+                ) {
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { appointmentToDelete = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -86,7 +121,8 @@ fun AppointmentListScreen(
                 items(appointments) { appointment ->
                     AppointmentItem(
                         appointment = appointment,
-                        onClick = { onAppointmentClick(appointment.id) }
+                        onClick = { onAppointmentClick(appointment.id) },
+                        onDelete = { appointmentToDelete = appointment }
                     )
                 }
             }
@@ -94,18 +130,23 @@ fun AppointmentListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppointmentItem(
     appointment: Appointment,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
     val dateString = dateFormat.format(Date(appointment.timeInMillis))
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onDelete
+            )
     ) {
         Row(
             modifier = Modifier
@@ -119,12 +160,16 @@ fun AppointmentItem(
                 modifier = Modifier.padding(end = 16.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = appointment.title, style = MaterialTheme.typography.titleMedium)
                 Text(text = dateString, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
                 if (!appointment.location.isNullOrBlank()) {
                     Text(text = appointment.location, style = MaterialTheme.typography.bodySmall)
                 }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(onClick = onDelete) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
             }
         }
     }

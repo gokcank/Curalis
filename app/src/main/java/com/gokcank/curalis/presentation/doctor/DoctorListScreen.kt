@@ -32,6 +32,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Doctor
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoctorListScreen(
@@ -41,6 +52,30 @@ fun DoctorListScreen(
     onNavigateBack: () -> Unit
 ) {
     val doctors by viewModel.doctors.collectAsState()
+    var doctorToDelete by remember { mutableStateOf<Doctor?>(null) }
+
+    doctorToDelete?.let { doctor ->
+        AlertDialog(
+            onDismissRequest = { doctorToDelete = null },
+            title = { Text(stringResource(R.string.delete_doctor_title)) },
+            text = { Text(stringResource(R.string.delete_doctor_message, doctor.name)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteDoctor(doctor)
+                        doctorToDelete = null
+                    }
+                ) {
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { doctorToDelete = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -83,7 +118,8 @@ fun DoctorListScreen(
                 items(doctors) { doctor ->
                     DoctorItem(
                         doctor = doctor,
-                        onClick = { onDoctorClick(doctor.id) }
+                        onClick = { onDoctorClick(doctor.id) },
+                        onDelete = { doctorToDelete = doctor }
                     )
                 }
             }
@@ -91,15 +127,20 @@ fun DoctorListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DoctorItem(
     doctor: Doctor,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDelete: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onDelete
+            )
     ) {
         Row(
             modifier = Modifier
@@ -113,11 +154,15 @@ fun DoctorItem(
                 modifier = Modifier.padding(end = 16.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = doctor.name, style = MaterialTheme.typography.titleMedium)
                 if (!doctor.specialty.isNullOrBlank()) {
                     Text(text = doctor.specialty, style = MaterialTheme.typography.bodyMedium)
                 }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(onClick = onDelete) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
             }
         }
     }

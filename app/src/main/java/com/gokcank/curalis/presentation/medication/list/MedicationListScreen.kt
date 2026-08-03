@@ -36,6 +36,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Medication
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicationListScreen(
@@ -45,6 +53,30 @@ fun MedicationListScreen(
 ) {
     val medications by viewModel.medications.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    var medicationToDelete by remember { mutableStateOf<Medication?>(null) }
+
+    medicationToDelete?.let { med ->
+        AlertDialog(
+            onDismissRequest = { medicationToDelete = null },
+            title = { Text(stringResource(R.string.delete_medication_title)) },
+            text = { Text(stringResource(R.string.delete_medication_message, med.name)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteMedication(med)
+                        medicationToDelete = null
+                    }
+                ) {
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { medicationToDelete = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -89,7 +121,7 @@ fun MedicationListScreen(
                         MedicationItem(
                             medication = medication,
                             onClick = { onNavigateToAddEdit(medication.id) },
-                            onDelete = { viewModel.deleteMedication(medication) }
+                            onDelete = { medicationToDelete = medication }
                         )
                     }
                 }
@@ -98,6 +130,7 @@ fun MedicationListScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MedicationItem(
     medication: Medication,
@@ -108,7 +141,10 @@ fun MedicationItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onClick() }
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onDelete
+            )
     ) {
         Row(
             modifier = Modifier
