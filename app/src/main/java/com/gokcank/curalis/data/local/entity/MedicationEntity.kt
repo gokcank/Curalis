@@ -13,5 +13,8 @@ data class MedicationEntity(
     val form: String?,
     val dosage: String?,
     val unit: String?,
-    val notes: String?
+    val notes: String?,
+    val frequencyType: String = "DAILY", // DAILY, SPECIFIC_DAYS, INTERVAL, AS_NEEDED
+    val intervalDays: Int? = null,
+    val startDate: Long = System.currentTimeMillis()
 )

@@ -12,7 +12,10 @@ fun MedicationEntity.toDomain(): Medication {
         form = form,
         dosage = dosage,
         unit = unit,
-        notes = notes
+        notes = notes,
+        frequencyType = com.gokcank.curalis.domain.model.FrequencyType.valueOf(frequencyType),
+        intervalDays = intervalDays,
+        startDate = startDate
     )
 }
 
@@ -25,6 +28,9 @@ fun Medication.toEntity(): MedicationEntity {
         form = form,
         dosage = dosage,
         unit = unit,
-        notes = notes
+        notes = notes,
+        frequencyType = frequencyType.name,
+        intervalDays = intervalDays,
+        startDate = startDate
     )
 }

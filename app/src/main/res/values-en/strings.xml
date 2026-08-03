@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General -->
+    <string name="app_name">Curalis</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="add">Add</string>
+    <string name="edit">Edit</string>
+    <string name="back">Back</string>
+    <string name="delete">Delete</string>
+    <string name="unknown">Unknown</string>
+    <string name="time">Time</string>
+    <string name="date">Date</string>
+    <string name="optional">Optional</string>
+    <string name="all">All</string>
+
+    <!-- Dashboard / Home -->
+    <string name="greeting_morning">Good Morning ☀️</string>
+    <string name="greeting_day">Good Afternoon 🌤️</string>
+    <string name="greeting_evening">Good Evening 🌙</string>
+    <string name="greeting_night">Good Night 🌟</string>
+    <string name="dashboard_title_medications">Medications</string>
+    <string name="dashboard_title_doctors">Doctors</string>
+    <string name="dashboard_title_appointments">Appointments</string>
+    <string name="dashboard_title_vitals">Vitals</string>
+    <string name="next_medication">Next Medication</string>
+    <string name="upcoming_appointment">Upcoming Appointment</string>
+    <string name="daily_progress">Daily Progress</string>
+    <string name="medication_tracking">Med Tracker</string>
+
+    <!-- Medications -->
+    <string name="my_medications">My Medications</string>
+    <string name="add_medication">Save Medication</string>
+    <string name="edit_medication">Edit Medication</string>
+    <string name="medication_name">Medication Name * (Type to search API)</string>
+    <string name="medication_dosage">Dosage (e.g. 500)</string>
+    <string name="active_ingredient">Active Ingredient</string>
+    <string name="form">Form (Tablet, Syrup)</string>
+    <string name="frequency">Frequency</string>
+    <string name="no_medications_found">No medications added yet.</string>
+    <string name="daily_reminder">Daily Reminder</string>
+    <string name="set_reminder_time">Set Reminder Time</string>
+    <string name="suggestions_from_openfda">Suggestions from OpenFDA:</string>
+    <string name="notification_title">Medication Time</string>
+    <string name="notification_text_medication">Medication: %1$s</string>
+    <string name="notification_action_take">Take Now</string>
+    <string name="notification_action_snooze">Snooze (10m)</string>
+    <string name="notification_action_skip">Skip</string>
+    <string name="notification_channel_name">Medication Reminders</string>
+    <string name="notification_channel_desc">Sends a notification when it is time to take your medication</string>
+    <string name="ok">OK</string>
+    
+    <!-- Doctors -->
+    <string name="my_doctors">My Doctors</string>
+    <string name="add_doctor">Add Doctor</string>
+    <string name="edit_doctor">Doctor Details</string>
+    <string name="doctor_name">Doctor Name</string>
+    <string name="doctor_specialty">Specialty</string>
+    <string name="doctor_phone">Phone Number</string>
+    <string name="doctor_hospital">Hospital/Clinic</string>
+    <string name="email_address">Email Address</string>
+    <string name="no_doctors_found">No doctors added yet.</string>
+
+    <!-- Appointments -->
+    <string name="my_appointments">My Appointments</string>
+    <string name="add_appointment">Add Appointment</string>
+    <string name="edit_appointment">Appointment Details</string>
+    <string name="appointment_title">Appointment Title (e.g. Checkup)</string>
+    <string name="select_doctor">Select Doctor</string>
+    <string name="appointment_location">Location (Hospital, Room)</string>
+    <string name="appointment_notes">Notes</string>
+    <string name="no_appointments_found">No appointments added yet.</string>
+
+    <!-- Vitals -->
+    <string name="my_vitals">My Vitals</string>
+    <string name="add_vital">Add Vital</string>
+    <string name="vital_type">Vital Type</string>
+    <string name="vital_value">Value</string>
+    <string name="vital_unit">Unit</string>
+    <string name="no_vitals_found">No vitals added yet.</string>
+    <string name="vital_blood_pressure">Blood Pressure (Sys/Dia)</string>
+    <string name="vital_blood_sugar">Blood Sugar</string>
+    <string name="vital_heart_rate">Heart Rate</string>
+    <string name="vital_weight">Weight</string>
+    <string name="vital_temperature">Temperature</string>
+    <string name="vital_type_blood_pressure_short">Pressure</string>
+    <string name="vital_type_blood_sugar_short">Sugar</string>
+    <string name="vital_type_heart_rate_short">Pulse</string>
+    <string name="vital_type_weight_short">Weight</string>
+    <string name="vital_type_temperature_short">Temp.</string>
+    <string name="vital_systolic">Systolic (Upper)</string>
+    <string name="vital_diastolic">Diastolic (Lower)</string>
+    <string name="vital_unit_label">Unit: %1$s</string>
+    <string name="notes_optional">Notes (Optional)</string>
+
+    <!-- Settings & About -->
+    <string name="settings">Settings</string>
+    <string name="appearance">Appearance</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="dark_mode_desc">Switch app theme to dark colors</string>
+    <string name="language">Dil / Language</string>
+    <string name="language_desc">Change app language (Türkçe, English)</string>
+    <string name="about">About</string>
+    <string name="app_version">Curalis %1$s (Closed Beta)</string>
+    <string name="developer">Developer: %1$s</string>
+    <string name="view_on_github">View on GitHub</string>
+</resources>

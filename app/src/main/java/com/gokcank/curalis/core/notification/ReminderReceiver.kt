@@ -15,7 +15,8 @@ class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val reminderId = intent?.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: return
         val medicationName = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_NAME) ?: "Medication"
+        val medicationId = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_ID) ?: ""
 
-        notificationHelper.showReminderNotification(reminderId, medicationName)
+        notificationHelper.showReminderNotification(reminderId, medicationName, medicationId)
     }
 }

@@ -29,4 +29,22 @@ interface MedicationDao {
 
     @Delete
     suspend fun deleteMedication(medication: MedicationEntity)
+
+    @Query("SELECT * FROM medication_days WHERE medicationId = :medicationId")
+    fun getMedicationDays(medicationId: String): Flow<List<com.gokcank.curalis.data.local.entity.MedicationDaysEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMedicationDays(days: List<com.gokcank.curalis.data.local.entity.MedicationDaysEntity>)
+
+    @Query("DELETE FROM medication_days WHERE medicationId = :medicationId")
+    suspend fun deleteMedicationDays(medicationId: String)
+
+    @Query("SELECT * FROM medication_times WHERE medicationId = :medicationId")
+    fun getMedicationTimes(medicationId: String): Flow<List<com.gokcank.curalis.data.local.entity.MedicationTimeEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMedicationTimes(times: List<com.gokcank.curalis.data.local.entity.MedicationTimeEntity>)
+
+    @Query("DELETE FROM medication_times WHERE medicationId = :medicationId")
+    suspend fun deleteMedicationTimes(medicationId: String)
 }

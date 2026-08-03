@@ -50,9 +50,10 @@ class ReminderActionReceiver : BroadcastReceiver() {
                         
                         // Schedule a new alarm for 10 minutes later
                         val medicationName = intent.getStringExtra(NotificationHelper.EXTRA_MEDICATION_NAME) ?: "Medication"
+                        val medicationId = intent.getStringExtra(NotificationHelper.EXTRA_MEDICATION_ID) ?: ""
                         val snoozeTime = System.currentTimeMillis() + (10 * 60 * 1000) // 10 minutes
                         val newReminder = Reminder(
-                            medicationId = "", // Not strictly needed for snooze broadcast
+                            medicationId = medicationId,
                             timeInMillis = snoozeTime,
                             state = ReminderState.SCHEDULED
                         )

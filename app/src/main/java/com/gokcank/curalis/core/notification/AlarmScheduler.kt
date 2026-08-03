@@ -18,6 +18,7 @@ class AlarmScheduler @Inject constructor(
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra(EXTRA_REMINDER_ID, reminder.id)
             putExtra(EXTRA_MEDICATION_NAME, medicationName)
+            putExtra(EXTRA_MEDICATION_ID, reminder.medicationId)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -28,18 +29,21 @@ class AlarmScheduler @Inject constructor(
         )
 
         // Allow while idle for maximum reliability (Doze mode compatibility)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                reminder.timeInMillis,
-                pendingIntent
-            )
-        } else {
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                reminder.timeInMillis,
-                pendingIntent
-            )
+        // Only schedule if the time is in the future
+        if (reminder.timeInMillis > System.currentTimeMillis()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    reminder.timeInMillis,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    reminder.timeInMillis,
+                    pendingIntent
+                )
+            }
         }
     }
 
@@ -57,5 +61,6 @@ class AlarmScheduler @Inject constructor(
     companion object {
         const val EXTRA_REMINDER_ID = "extra_reminder_id"
         const val EXTRA_MEDICATION_NAME = "extra_medication_name"
+        const val EXTRA_MEDICATION_ID = "extra_medication_id"
     }
 }

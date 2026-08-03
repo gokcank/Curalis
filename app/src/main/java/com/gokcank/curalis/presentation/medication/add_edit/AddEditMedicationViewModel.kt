@@ -67,6 +67,9 @@ class AddEditMedicationViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     private var currentMedicationId: String? = null
+    val isEditMode: Boolean
+        get() = currentMedicationId != null
+
     private var searchJob: Job? = null
 
     init {

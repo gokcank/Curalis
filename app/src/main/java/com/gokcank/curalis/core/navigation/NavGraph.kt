@@ -8,6 +8,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationScreen
 import com.gokcank.curalis.presentation.medication.list.MedicationListScreen
+import com.gokcank.curalis.presentation.home.HomeScreen
+import com.gokcank.curalis.presentation.settings.SettingsScreen
+import com.gokcank.curalis.presentation.about.AboutScreen
+import com.gokcank.curalis.presentation.doctor.DoctorListScreen
+import com.gokcank.curalis.presentation.doctor.AddEditDoctorScreen
+import com.gokcank.curalis.presentation.appointment.AppointmentListScreen
+import com.gokcank.curalis.presentation.appointment.AddEditAppointmentScreen
+import com.gokcank.curalis.presentation.vital.VitalListScreen
+import com.gokcank.curalis.presentation.vital.AddEditVitalScreen
 
 @Composable
 fun NavGraph() {
@@ -15,13 +24,33 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.MedicationList.route
+        startDestination = Screen.Home.route
     ) {
+        composable(route = Screen.Home.route) {
+            HomeScreen(
+                onNavigateToMedications = { navController.navigate(Screen.MedicationList.route) },
+                onNavigateToDoctors = { navController.navigate(Screen.DoctorList.route) },
+                onNavigateToAppointments = { navController.navigate(Screen.AppointmentList.route) },
+                onNavigateToVitals = { navController.navigate(Screen.VitalList.route) },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                onNavigateToAbout = { navController.navigate(Screen.About.route) }
+            )
+        }
+        
+        composable(route = Screen.Settings.route) {
+            SettingsScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        
+        composable(route = Screen.About.route) {
+            AboutScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
         composable(route = Screen.MedicationList.route) {
             MedicationListScreen(
                 onNavigateToAddEdit = { medicationId ->
                     navController.navigate(Screen.AddEditMedication.passMedicationId(medicationId))
-                }
+                },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable(
@@ -38,6 +67,54 @@ fun NavGraph() {
                     navController.popBackStack()
                 }
             )
+        }
+
+        // Doctors
+        composable(route = Screen.DoctorList.route) {
+            DoctorListScreen(
+                onAddDoctorClick = { navController.navigate(Screen.AddEditDoctor.route) },
+                onDoctorClick = { doctorId -> 
+                    navController.navigate(Screen.AddEditDoctor.passDoctorId(doctorId))
+                },
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Screen.AddEditDoctor.route,
+            arguments = listOf(navArgument("doctorId") { type = NavType.StringType; nullable = true })
+        ) {
+            AddEditDoctorScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        // Appointments
+        composable(route = Screen.AppointmentList.route) {
+            AppointmentListScreen(
+                onAddAppointmentClick = { navController.navigate(Screen.AddEditAppointment.route) },
+                onAppointmentClick = { appointmentId -> 
+                    navController.navigate(Screen.AddEditAppointment.passAppointmentId(appointmentId))
+                },
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Screen.AddEditAppointment.route,
+            arguments = listOf(navArgument("appointmentId") { type = NavType.StringType; nullable = true })
+        ) {
+            AddEditAppointmentScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        // Vitals
+        composable(route = Screen.VitalList.route) {
+            VitalListScreen(
+                onAddVitalClick = { navController.navigate(Screen.AddEditVital.route) },
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Screen.AddEditVital.route,
+            arguments = listOf(navArgument("vitalId") { type = NavType.StringType; nullable = true })
+        ) {
+            AddEditVitalScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

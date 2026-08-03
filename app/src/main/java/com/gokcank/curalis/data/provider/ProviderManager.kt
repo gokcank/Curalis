@@ -1,15 +1,15 @@
 package com.gokcank.curalis.data.provider
 
-import com.gokcank.curalis.data.provider.openfda.OpenFdaProvider
+import com.gokcank.curalis.data.provider.local.LocalMedicationProvider
 import com.gokcank.curalis.domain.model.ProviderMedication
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ProviderManager @Inject constructor(
-    private val openFdaProvider: OpenFdaProvider
+    private val localMedicationProvider: LocalMedicationProvider
 ) {
-    private val providers: List<MedicationProvider> = listOf(openFdaProvider)
+    private val providers: List<MedicationProvider> = listOf(localMedicationProvider)
 
     suspend fun searchAllProviders(query: String): List<ProviderMedication> {
         if (query.length < 2) return emptyList()

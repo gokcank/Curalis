@@ -26,4 +26,7 @@ interface ReminderDao {
 
     @Query("SELECT * FROM reminders WHERE medicationId = :medicationId ORDER BY timeInMillis ASC")
     fun getRemindersForMedication(medicationId: String): Flow<List<ReminderEntity>>
+
+    @Query("SELECT * FROM reminders WHERE timeInMillis >= :start AND timeInMillis <= :end ORDER BY timeInMillis ASC")
+    fun getRemindersBetweenDates(start: Long, end: Long): Flow<List<ReminderEntity>>
 }

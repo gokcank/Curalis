@@ -25,11 +25,11 @@ private val LightColorScheme = lightColorScheme(
 private val DarkColorScheme = darkColorScheme(
     primary = Primary,
     secondary = Secondary,
-    background = Color(0xFF121212),
-    surface = Color(0xFF1E1E1E),
+    background = Color(0xFF0A0A0A), // Much darker, almost black
+    surface = Color(0xFF1A1A1A), // Slightly lighter for cards
     onPrimary = OnPrimary,
-    onBackground = Color(0xFFE0E0E0),
-    onSurface = Color(0xFFE0E0E0)
+    onBackground = Color(0xFFFFFFFF), // Brighter white text
+    onSurface = Color(0xFFFFFFFF)
 )
 
 @Composable

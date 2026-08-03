@@ -23,4 +23,22 @@ abstract class RepositoryModule {
     abstract fun bindReminderRepository(
         reminderRepositoryImpl: com.gokcank.curalis.data.repository_impl.ReminderRepositoryImpl
     ): com.gokcank.curalis.domain.repository.ReminderRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDoctorRepository(
+        doctorRepositoryImpl: com.gokcank.curalis.data.repository.DoctorRepositoryImpl
+    ): com.gokcank.curalis.domain.repository.DoctorRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAppointmentRepository(
+        appointmentRepositoryImpl: com.gokcank.curalis.data.repository.AppointmentRepositoryImpl
+    ): com.gokcank.curalis.domain.repository.AppointmentRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindVitalRepository(
+        vitalRepositoryImpl: com.gokcank.curalis.data.repository.VitalRepositoryImpl
+    ): com.gokcank.curalis.domain.repository.VitalRepository
 }

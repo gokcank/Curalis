@@ -34,4 +34,10 @@ class ReminderRepositoryImpl @Inject constructor(
             entities.map { it.toDomain() }
         }
     }
+
+    override fun getRemindersBetweenDates(start: Long, end: Long): Flow<List<Reminder>> {
+        return dao.getRemindersBetweenDates(start, end).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
 }

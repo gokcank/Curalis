@@ -24,6 +24,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,9 +45,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.ProviderMedication
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Calendar
@@ -90,10 +94,10 @@ fun AddEditMedicationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Save Medication") },
+                title = { Text(stringResource(if (viewModel.isEditMode) R.string.edit_medication else R.string.add_medication)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -110,7 +114,7 @@ fun AddEditMedicationScreen(
                 OutlinedTextField(
                     value = name,
                     onValueChange = viewModel::onNameChange,
-                    label = { Text("Medication Name * (Type to search API)") },
+                    label = { Text(stringResource(R.string.medication_name)) },
                     trailingIcon = {
                         if (isSearching) {
                             CircularProgressIndicator(modifier = Modifier.width(20.dp))
@@ -135,7 +139,7 @@ fun AddEditMedicationScreen(
                 ) {
                     Column {
                         Text(
-                            text = "Suggestions from OpenFDA:",
+                            text = stringResource(R.string.suggestions_from_openfda),
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier.padding(8.dp)
                         )
@@ -154,7 +158,7 @@ fun AddEditMedicationScreen(
             OutlinedTextField(
                 value = activeIngredient,
                 onValueChange = viewModel::onActiveIngredientChange,
-                label = { Text("Active Ingredient") },
+                label = { Text(stringResource(R.string.active_ingredient)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -164,14 +168,14 @@ fun AddEditMedicationScreen(
                 OutlinedTextField(
                     value = form,
                     onValueChange = viewModel::onFormChange,
-                    label = { Text("Form (Tablet, Syrup)") },
+                    label = { Text(stringResource(R.string.form)) },
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 OutlinedTextField(
                     value = dosage,
                     onValueChange = viewModel::onDosageChange,
-                    label = { Text("Dosage (e.g. 500)") },
+                    label = { Text(stringResource(R.string.medication_dosage)) },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -179,7 +183,7 @@ fun AddEditMedicationScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Reminder TimePicker Button Section
-            Text(text = "Daily Reminder", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.daily_reminder), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -190,18 +194,18 @@ fun AddEditMedicationScreen(
                     onClick = { showTimePicker = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(imageVector = Icons.Default.Notifications, contentDescription = "Time")
+                    Icon(imageVector = Icons.Default.Notifications, contentDescription = stringResource(R.string.time))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = reminderTime?.let { (h, m) ->
                             String.format("%02d:%02d", h, m)
-                        } ?: "Set Reminder Time"
+                        } ?: stringResource(R.string.set_reminder_time)
                     )
                 }
 
                 if (reminderTime != null) {
                     IconButton(onClick = viewModel::clearReminderTime) {
-                        Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
+                        Icon(imageVector = Icons.Default.Clear, contentDescription = stringResource(R.string.delete))
                     }
                 }
             }
@@ -210,9 +214,10 @@ fun AddEditMedicationScreen(
 
             Button(
                 onClick = viewModel::saveMedication,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Save Medication")
+                Text(stringResource(R.string.add_medication))
             }
         }
     }
@@ -235,7 +240,7 @@ fun AddEditMedicationScreen(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "Select Reminder Time", style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(R.string.set_reminder_time), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     TimePicker(state = timePickerState)
@@ -246,7 +251,7 @@ fun AddEditMedicationScreen(
                             onClick = { showTimePicker = false },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
@@ -259,7 +264,7 @@ fun AddEditMedicationScreen(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("OK")
+                            Text(stringResource(R.string.ok))
                         }
                     }
                 }

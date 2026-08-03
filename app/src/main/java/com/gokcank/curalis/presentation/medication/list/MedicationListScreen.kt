@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
@@ -30,13 +31,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Medication
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicationListScreen(
     onNavigateToAddEdit: (String?) -> Unit,
+    onNavigateBack: () -> Unit,
     viewModel: MedicationListViewModel = hiltViewModel()
 ) {
     val medications by viewModel.medications.collectAsState()
@@ -44,11 +48,18 @@ fun MedicationListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("My Medications") })
+            TopAppBar(
+                title = { Text(stringResource(R.string.my_medications)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                    }
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { onNavigateToAddEdit(null) }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Medication")
+                Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add))
             }
         }
     ) { innerPadding ->
@@ -62,13 +73,13 @@ fun MedicationListScreen(
                 value = searchQuery,
                 onValueChange = viewModel::onSearchQueryChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search by name, barcode...") },
+                placeholder = { Text(stringResource(R.string.medication_name)) },
                 singleLine = true
             )
             
             if (medications.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No medications found. Tap + to add one.")
+                    Text(stringResource(R.string.no_medications_found))
                 }
             } else {
                 LazyColumn(
@@ -117,7 +128,7 @@ fun MedicationItem(
             }
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = onDelete) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+                Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
             }
         }
     }
