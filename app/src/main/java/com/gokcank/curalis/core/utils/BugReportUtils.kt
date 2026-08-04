@@ -1,10 +1,13 @@
 package com.gokcank.curalis.core.utils
 
 import android.content.Context
+import android.net.Uri
 import android.os.Build
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 
 object BugReportUtils {
@@ -49,5 +52,25 @@ object BugReportUtils {
             logBuilder.append("Log okunamadı: ${e.localizedMessage}")
         }
         logBuilder.toString()
+    }
+
+    suspend fun getLogcatFileUri(context: Context, lines: Int = 200): Uri? = withContext(Dispatchers.IO) {
+        try {
+            val logsDir = File(context.cacheDir, "logs")
+            if (!logsDir.exists()) {
+                logsDir.mkdirs()
+            }
+            val logFile = File(logsDir, "logcat.txt")
+            val logContent = getLogcat(lines)
+            logFile.writeText(logContent)
+
+            FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                logFile
+            )
+        } catch (e: Exception) {
+            null
+        }
     }
 }

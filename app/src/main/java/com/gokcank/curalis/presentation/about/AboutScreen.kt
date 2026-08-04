@@ -115,25 +115,28 @@ fun AboutScreen(
                 OutlinedButton(
                     onClick = {
                         coroutineScope.launch {
-                            val logcat = BugReportUtils.getLogcat(200)
+                            val logcatUri = BugReportUtils.getLogcatFileUri(context, 200)
                             val emailBody = String.format(
                                 bugReportBodyTemplate,
                                 deviceModel,
                                 osVersion,
                                 apiLevel,
-                                appVersion,
-                                logcat
+                                appVersion
                             )
 
-                            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                data = Uri.parse("mailto:")
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "message/rfc822"
                                 putExtra(Intent.EXTRA_EMAIL, arrayOf("destek.gokcank@gmail.com"))
                                 putExtra(Intent.EXTRA_SUBJECT, bugReportSubject)
                                 putExtra(Intent.EXTRA_TEXT, emailBody)
+                                logcatUri?.let { uri ->
+                                    putExtra(Intent.EXTRA_STREAM, uri)
+                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                }
                             }
                             
                             try {
-                                context.startActivity(intent)
+                                context.startActivity(Intent.createChooser(intent, bugReportSubject))
                             } catch (e: Exception) {
                                 Toast.makeText(context, "E-posta uygulaması bulunamadı.", Toast.LENGTH_SHORT).show()
                             }
