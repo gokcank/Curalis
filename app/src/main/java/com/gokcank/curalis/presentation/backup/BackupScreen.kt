@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +20,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.Scope
+import com.google.api.services.drive.DriveScopes
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -42,6 +47,28 @@ fun BackupScreen(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let { viewModel.importDataFromUri(context, it) }
+    }
+
+    // Google Sign-In setup
+    val gso = remember {
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestScopes(Scope(DriveScopes.DRIVE_APPDATA))
+            .build()
+    }
+    val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
+    var signedInAccount by remember { mutableStateOf(GoogleSignIn.getLastSignedInAccount(context)) }
+
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+            signedInAccount = account
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -171,13 +198,80 @@ fun BackupScreen(
                 }
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Text(
-                text = "Not: Google Drive otomatik yedekleme özelliği ilerleyen güncellemelerde eklenecektir.",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Google Drive Section
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = Icons.Default.Sync, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Google Drive (Otomatik)",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Text(
+                        text = "Drive'da sadece Curalis'in görebileceği gizli bir klasöre yedekleme yapar. Telefon değiştirseniz bile verileriniz aynı hesapla anında geri gelir.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                    if (signedInAccount == null) {
+                        Button(
+                            onClick = { googleSignInLauncher.launch(googleSignInClient.signInIntent) },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                        ) {
+                            Text("Google ile Giriş Yap")
+                        }
+                    } else {
+                        Text(
+                            text = "Bağlı Hesap: ${signedInAccount?.email ?: "Bilinmiyor"}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = { signedInAccount?.let { viewModel.uploadToGoogleDrive(context, it) } },
+                                modifier = Modifier.weight(1f),
+                                enabled = uiState !is BackupUiState.Loading,
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                            ) {
+                                Text("Drive'a Yedekle")
+                            }
+                            OutlinedButton(
+                                onClick = { signedInAccount?.let { viewModel.downloadFromGoogleDrive(context, it) } },
+                                modifier = Modifier.weight(1f),
+                                enabled = uiState !is BackupUiState.Loading
+                            ) {
+                                Text("Drive'dan Yükle")
+                            }
+                        }
+                        TextButton(
+                            onClick = {
+                                googleSignInClient.signOut().addOnCompleteListener {
+                                    signedInAccount = null
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Çıkış Yap")
+                        }
+                    }
+                }
+            }
         }
     }
 }

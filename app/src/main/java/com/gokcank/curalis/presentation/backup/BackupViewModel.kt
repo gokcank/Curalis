@@ -76,6 +76,50 @@ class BackupViewModel @Inject constructor(
             }
         }
     }
+
+    fun uploadToGoogleDrive(context: Context, account: com.google.android.gms.auth.api.signin.GoogleSignInAccount) {
+        viewModelScope.launch {
+            _uiState.value = BackupUiState.Loading("Google Drive'a yedekleniyor...")
+            try {
+                val jsonString = backupManager.exportData()
+                val driveManager = com.gokcank.curalis.data.backup.GoogleDriveManager(context, account)
+                
+                val success = driveManager.uploadBackupToDrive(jsonString, "curalis_drive_backup.json")
+                if (success) {
+                    _uiState.value = BackupUiState.Success("Veriler Google Drive'a başarıyla yedeklendi.")
+                } else {
+                    _uiState.value = BackupUiState.Error("Google Drive yedeklemesi başarısız oldu.")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uiState.value = BackupUiState.Error("Hata: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun downloadFromGoogleDrive(context: Context, account: com.google.android.gms.auth.api.signin.GoogleSignInAccount) {
+        viewModelScope.launch {
+            _uiState.value = BackupUiState.Loading("Google Drive'dan geri yükleniyor...")
+            try {
+                val driveManager = com.gokcank.curalis.data.backup.GoogleDriveManager(context, account)
+                val jsonString = driveManager.downloadBackupFromDrive("curalis_drive_backup.json")
+                
+                if (!jsonString.isNullOrBlank()) {
+                    val success = backupManager.importData(jsonString)
+                    if (success) {
+                        _uiState.value = BackupUiState.Success("Google Drive yedeği başarıyla yüklendi.")
+                    } else {
+                        _uiState.value = BackupUiState.Error("Geri yükleme başarısız oldu. Dosya bozuk olabilir.")
+                    }
+                } else {
+                    _uiState.value = BackupUiState.Error("Google Drive'da yedek bulunamadı.")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uiState.value = BackupUiState.Error("Hata: ${e.localizedMessage}")
+            }
+        }
+    }
 }
 
 sealed class BackupUiState {
