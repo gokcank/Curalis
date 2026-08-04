@@ -10,6 +10,7 @@ import com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationScr
 import com.gokcank.curalis.presentation.medication.list.MedicationListScreen
 import com.gokcank.curalis.presentation.home.HomeScreen
 import com.gokcank.curalis.presentation.settings.SettingsScreen
+import com.gokcank.curalis.presentation.backup.BackupScreen
 import com.gokcank.curalis.presentation.about.AboutScreen
 import com.gokcank.curalis.presentation.doctor.DoctorListScreen
 import com.gokcank.curalis.presentation.doctor.AddEditDoctorScreen
@@ -38,7 +39,14 @@ fun NavGraph() {
         }
         
         composable(route = Screen.Settings.route) {
-            SettingsScreen(onNavigateBack = { navController.popBackStack() })
+            SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToBackup = { navController.navigate(Screen.Backup.route) }
+            )
+        }
+        
+        composable(route = Screen.Backup.route) {
+            BackupScreen(onNavigateBack = { navController.popBackStack() })
         }
         
         composable(route = Screen.About.route) {
