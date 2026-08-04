@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -124,19 +125,19 @@ fun AboutScreen(
                                 appVersion
                             )
 
-                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                type = "message/rfc822"
-                                putExtra(Intent.EXTRA_EMAIL, arrayOf("destek.gokcank@gmail.com"))
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = Uri.parse("mailto:destek.gokcank@gmail.com")
                                 putExtra(Intent.EXTRA_SUBJECT, bugReportSubject)
                                 putExtra(Intent.EXTRA_TEXT, emailBody)
                                 logcatUri?.let { uri ->
                                     putExtra(Intent.EXTRA_STREAM, uri)
+                                    clipData = ClipData.newRawUri("logcat", uri)
                                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                 }
                             }
                             
                             try {
-                                context.startActivity(Intent.createChooser(intent, bugReportSubject))
+                                context.startActivity(intent)
                             } catch (e: Exception) {
                                 Toast.makeText(context, "E-posta uygulaması bulunamadı.", Toast.LENGTH_SHORT).show()
                             }
