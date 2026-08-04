@@ -32,6 +32,7 @@ abstract class CuralisDatabase : RoomDatabase() {
     abstract val doctorDao: com.gokcank.curalis.data.local.dao.DoctorDao
     abstract val appointmentDao: com.gokcank.curalis.data.local.dao.AppointmentDao
     abstract val vitalDao: com.gokcank.curalis.data.local.dao.VitalDao
+    abstract val backupDao: com.gokcank.curalis.data.local.dao.BackupDao
     
     companion object {
         const val DATABASE_NAME = "curalis_db"

@@ -41,4 +41,10 @@ abstract class RepositoryModule {
     abstract fun bindVitalRepository(
         vitalRepositoryImpl: com.gokcank.curalis.data.repository.VitalRepositoryImpl
     ): com.gokcank.curalis.domain.repository.VitalRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBackupManager(
+        localBackupManager: com.gokcank.curalis.data.backup.LocalBackupManager
+    ): com.gokcank.curalis.domain.repository.BackupManager
 }
