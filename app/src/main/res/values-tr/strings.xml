@@ -108,6 +108,7 @@
 
     <!-- Bug Report -->
     <string name="bug_report">HATA BİLDİR</string>
+    <string name="bug_report_subject">HATA BİLDİRİMİ</string>
     <string name="bug_report_body">Merhaba,\n\nUygulama ile ilgili bir sorun yaşıyorum.\n\n--- Sistem Bilgileri ---\nModel: %1$s\nOS Sürümü: %2$s\nAPI: %3$s\nCuralis Sürümü: %4$s</string>
     <!-- Exit Confirmation -->
     <string name="exit_confirmation_title">Uygulamadan Çıkış</string>

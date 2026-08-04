@@ -95,7 +95,7 @@ fun AboutScreen(
                 val context = LocalContext.current
                 val coroutineScope = rememberCoroutineScope()
                 
-                val bugReportSubject = stringResource(R.string.bug_report)
+                val bugReportSubject = stringResource(R.string.bug_report_subject)
                 val bugReportBodyTemplate = stringResource(R.string.bug_report_body)
                 val appVersion = BugReportUtils.getAppVersion(context)
                 val deviceModel = BugReportUtils.getDeviceModel()
@@ -125,8 +125,10 @@ fun AboutScreen(
                                 appVersion
                             )
 
+                            val mailtoUri = Uri.parse("mailto:destek.gokcank@gmail.com?subject=${Uri.encode(bugReportSubject)}")
+
                             val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                data = Uri.parse("mailto:destek.gokcank@gmail.com")
+                                data = mailtoUri
                                 putExtra(Intent.EXTRA_SUBJECT, bugReportSubject)
                                 putExtra(Intent.EXTRA_TEXT, emailBody)
                                 logcatUri?.let { uri ->
