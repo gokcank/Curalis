@@ -27,8 +27,20 @@ import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import kotlinx.coroutines.launch
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.utils.BugReportUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,6 +91,15 @@ fun AboutScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 val uriHandler = LocalUriHandler.current
+                val context = LocalContext.current
+                val coroutineScope = rememberCoroutineScope()
+                
+                val bugReportSubject = stringResource(R.string.bug_report)
+                val bugReportBodyTemplate = stringResource(R.string.bug_report_body)
+                val appVersion = BugReportUtils.getAppVersion(context)
+                val deviceModel = BugReportUtils.getDeviceModel()
+                val osVersion = BugReportUtils.getOsVersion()
+                val apiLevel = BugReportUtils.getApiLevel()
                 
                 Icon(
                     painter = painterResource(id = R.drawable.ic_github),
@@ -88,6 +109,42 @@ fun AboutScreen(
                         .clickable { uriHandler.openUri("https://github.com/gokcank/Curalis") },
                     tint = MaterialTheme.colorScheme.onSurface
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            val logcat = BugReportUtils.getLogcat(200)
+                            val emailBody = String.format(
+                                bugReportBodyTemplate,
+                                deviceModel,
+                                osVersion,
+                                apiLevel,
+                                appVersion,
+                                logcat
+                            )
+
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = Uri.parse("mailto:")
+                                putExtra(Intent.EXTRA_EMAIL, arrayOf("destek.gokcank@gmail.com"))
+                                putExtra(Intent.EXTRA_SUBJECT, bugReportSubject)
+                                putExtra(Intent.EXTRA_TEXT, emailBody)
+                            }
+                            
+                            try {
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "E-posta uygulaması bulunamadı.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 32.dp).fillMaxWidth()
+                ) {
+                    Icon(imageVector = Icons.Default.Warning, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = stringResource(R.string.bug_report))
+                }
             }
         }
     }
