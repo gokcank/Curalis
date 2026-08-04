@@ -123,4 +123,10 @@
     <string name="delete_appointment_message">Are you sure you want to delete "%1$s"?</string>
     <string name="delete_vital_title">Delete Vital</string>
     <string name="delete_vital_message">Are you sure you want to delete this vital record?</string>
+    <!-- Backup -->
+    <string name="backup_restore_title">Backup &amp; Restore</string>
+    <string name="backup_local_export">Export to Device</string>
+    <string name="backup_local_import">Restore from Device</string>
+    <string name="backup_google_drive">Google Drive Backup</string>
+    <string name="google_signin_error_oauth">Google Sign-In Error: OAuth SHA-1 configuration required (Error Code: %1$d).</string>
 </resources>

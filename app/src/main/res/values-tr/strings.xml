@@ -124,4 +124,10 @@
     <string name="delete_appointment_message">"%1$s" randevusunu silmek istediğinize emin misiniz?</string>
     <string name="delete_vital_title">Ölçümü Sil</string>
     <string name="delete_vital_message">Bu ölçüm kaydını silmek istediğinize emin misiniz?</string>
+    <!-- Backup -->
+    <string name="backup_restore_title">Yedekleme &amp; Geri Yükleme</string>
+    <string name="backup_local_export">Cihaza Yedekle</string>
+    <string name="backup_local_import">Yedekten Geri Yükle</string>
+    <string name="backup_google_drive">Google Drive Yedekleme</string>
+    <string name="google_signin_error_oauth">Google Giriş Hatası: OAuth SHA-1 yapılandırması gerekli (Hata Kodu: %1$d).</string>
 </resources>
