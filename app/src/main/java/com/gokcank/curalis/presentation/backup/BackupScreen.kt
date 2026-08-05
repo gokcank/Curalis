@@ -61,11 +61,6 @@ fun BackupScreen(
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .requestScopes(Scope(DriveScopes.DRIVE_APPDATA))
-            .apply {
-                if (BuildConfig.WEB_CLIENT_ID.isNotBlank()) {
-                    requestIdToken(BuildConfig.WEB_CLIENT_ID)
-                }
-            }
             .build()
     }
     val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
