@@ -230,6 +230,51 @@ public final class ReminderDao_Impl implements ReminderDao {
     });
   }
 
+  @Override
+  public Flow<List<ReminderEntity>> getRemindersBetweenDates(final long start, final long end) {
+    final String _sql = "SELECT * FROM reminders WHERE timeInMillis >= ? AND timeInMillis <= ? ORDER BY timeInMillis ASC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, start);
+    _argIndex = 2;
+    _statement.bindLong(_argIndex, end);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"reminders"}, new Callable<List<ReminderEntity>>() {
+      @Override
+      @NonNull
+      public List<ReminderEntity> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfMedicationId = CursorUtil.getColumnIndexOrThrow(_cursor, "medicationId");
+          final int _cursorIndexOfTimeInMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "timeInMillis");
+          final int _cursorIndexOfState = CursorUtil.getColumnIndexOrThrow(_cursor, "state");
+          final List<ReminderEntity> _result = new ArrayList<ReminderEntity>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final ReminderEntity _item;
+            final String _tmpId;
+            _tmpId = _cursor.getString(_cursorIndexOfId);
+            final String _tmpMedicationId;
+            _tmpMedicationId = _cursor.getString(_cursorIndexOfMedicationId);
+            final long _tmpTimeInMillis;
+            _tmpTimeInMillis = _cursor.getLong(_cursorIndexOfTimeInMillis);
+            final String _tmpState;
+            _tmpState = _cursor.getString(_cursorIndexOfState);
+            _item = new ReminderEntity(_tmpId,_tmpMedicationId,_tmpTimeInMillis,_tmpState);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
   @NonNull
   public static List<Class<?>> getRequiredConverters() {
     return Collections.emptyList();

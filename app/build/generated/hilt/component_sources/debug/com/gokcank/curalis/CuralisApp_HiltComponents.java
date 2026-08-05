@@ -1,13 +1,21 @@
 package com.gokcank.curalis;
 
+import com.gokcank.curalis.core.di.AppModule;
 import com.gokcank.curalis.core.di.DatabaseModule;
-import com.gokcank.curalis.core.di.NetworkModule;
 import com.gokcank.curalis.core.di.RepositoryModule;
 import com.gokcank.curalis.core.notification.ReminderActionReceiver_GeneratedInjector;
 import com.gokcank.curalis.core.notification.ReminderReceiver_GeneratedInjector;
+import com.gokcank.curalis.presentation.appointment.AddEditAppointmentViewModel_HiltModules;
+import com.gokcank.curalis.presentation.appointment.AppointmentListViewModel_HiltModules;
+import com.gokcank.curalis.presentation.backup.BackupViewModel_HiltModules;
+import com.gokcank.curalis.presentation.doctor.AddEditDoctorViewModel_HiltModules;
+import com.gokcank.curalis.presentation.doctor.DoctorListViewModel_HiltModules;
+import com.gokcank.curalis.presentation.home.HomeViewModel_HiltModules;
 import com.gokcank.curalis.presentation.main.MainActivity_GeneratedInjector;
 import com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationViewModel_HiltModules;
 import com.gokcank.curalis.presentation.medication.list.MedicationListViewModel_HiltModules;
+import com.gokcank.curalis.presentation.vital.AddEditVitalViewModel_HiltModules;
+import com.gokcank.curalis.presentation.vital.VitalListViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -132,12 +140,12 @@ public final class CuralisApp_HiltComponents {
 
   @Component(
       modules = {
+          AppModule.class,
           ApplicationContextModule.class,
           ActivityRetainedCBuilderModule.class,
           ServiceCBuilderModule.class,
           DatabaseModule.class,
           HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
-          NetworkModule.class,
           RepositoryModule.class
       }
   )
@@ -163,12 +171,20 @@ public final class CuralisApp_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AddEditAppointmentViewModel_HiltModules.KeyModule.class,
+          AddEditDoctorViewModel_HiltModules.KeyModule.class,
           AddEditMedicationViewModel_HiltModules.KeyModule.class,
+          AddEditVitalViewModel_HiltModules.KeyModule.class,
+          AppointmentListViewModel_HiltModules.KeyModule.class,
+          BackupViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
+          DoctorListViewModel_HiltModules.KeyModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HiltWrapper_SavedStateHandleModule.class,
-          MedicationListViewModel_HiltModules.KeyModule.class
+          HomeViewModel_HiltModules.KeyModule.class,
+          MedicationListViewModel_HiltModules.KeyModule.class,
+          VitalListViewModel_HiltModules.KeyModule.class
       }
   )
   @ActivityRetainedScoped
@@ -204,9 +220,17 @@ public final class CuralisApp_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AddEditAppointmentViewModel_HiltModules.BindsModule.class,
+          AddEditDoctorViewModel_HiltModules.BindsModule.class,
           AddEditMedicationViewModel_HiltModules.BindsModule.class,
+          AddEditVitalViewModel_HiltModules.BindsModule.class,
+          AppointmentListViewModel_HiltModules.BindsModule.class,
+          BackupViewModel_HiltModules.BindsModule.class,
+          DoctorListViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
-          MedicationListViewModel_HiltModules.BindsModule.class
+          HomeViewModel_HiltModules.BindsModule.class,
+          MedicationListViewModel_HiltModules.BindsModule.class,
+          VitalListViewModel_HiltModules.BindsModule.class
       }
   )
   @ViewModelScoped

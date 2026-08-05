@@ -1,6 +1,6 @@
 package com.gokcank.curalis.data.provider;
 
-import com.gokcank.curalis.data.provider.openfda.OpenFdaProvider;
+import com.gokcank.curalis.data.provider.local.LocalMedicationProvider;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -23,22 +23,23 @@ import javax.inject.Provider;
     "cast"
 })
 public final class ProviderManager_Factory implements Factory<ProviderManager> {
-  private final Provider<OpenFdaProvider> openFdaProvider;
+  private final Provider<LocalMedicationProvider> localMedicationProvider;
 
-  public ProviderManager_Factory(Provider<OpenFdaProvider> openFdaProvider) {
-    this.openFdaProvider = openFdaProvider;
+  public ProviderManager_Factory(Provider<LocalMedicationProvider> localMedicationProvider) {
+    this.localMedicationProvider = localMedicationProvider;
   }
 
   @Override
   public ProviderManager get() {
-    return newInstance(openFdaProvider.get());
+    return newInstance(localMedicationProvider.get());
   }
 
-  public static ProviderManager_Factory create(Provider<OpenFdaProvider> openFdaProvider) {
-    return new ProviderManager_Factory(openFdaProvider);
+  public static ProviderManager_Factory create(
+      Provider<LocalMedicationProvider> localMedicationProvider) {
+    return new ProviderManager_Factory(localMedicationProvider);
   }
 
-  public static ProviderManager newInstance(OpenFdaProvider openFdaProvider) {
-    return new ProviderManager(openFdaProvider);
+  public static ProviderManager newInstance(LocalMedicationProvider localMedicationProvider) {
+    return new ProviderManager(localMedicationProvider);
   }
 }

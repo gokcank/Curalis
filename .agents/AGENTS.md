@@ -274,6 +274,16 @@ Never guess.
 
 ---
 
+# Development Environment & Tooling
+
+The user develops strictly using **Antigravity IDE** powered by **Gemini** (NOT Android Studio GUI).
+
+Never refer to Android Studio GUI features, menus, or IDE buttons.
+
+Always use CLI tools (`./gradlew`, `adb`, shell scripts) and Antigravity IDE capabilities for building, testing, running, and managing the project.
+
+---
+
 # Goal
 
 Produce software that remains:
@@ -314,3 +324,14 @@ If an architectural decision is required, implementation should pause until:
 2. The ADR is reviewed.
 3. The ADR is accepted.
 4. Implementation continues.
+
+---
+
+# Strict Anti-Bundling and Git Guardrails
+
+> [!CAUTION]
+> **AI BEHAVIORAL OVERRIDE:** The agent's natural tendency to bundle Git commands is strictly forbidden.
+
+1. **NEVER bundle `git push`:** If the user commands a commit (e.g., "commit it", "commiti sen yap"), the agent must execute ONLY the commit operation. Do not chain `&& git push`. The word "commit" NEVER grants permission to push.
+2. **Push requires explicit command:** The agent must only execute a push if the user explicitly types the word "push" in their request.
+3. **Do not skip review phases:** If an implementation plan defines a "Pause for Review" step, the agent must completely stop execution. A user command regarding the *mechanics* of the next step (e.g., "you do the commit") does NOT constitute approval of the code. The agent must still wait for explicit code approval (e.g., "code looks good, commit it") before executing the commit.

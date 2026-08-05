@@ -1,5 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Eve gidiş yolunu göster"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Yukarı git"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Diğer seçenekler"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Bitti"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Tümünü göster"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Bir uygulama seçin"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"KAPAT"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"AÇ"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"sil"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Üst Karakter+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"boşluk"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menü+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Ara…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Sorguyu temizle"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Arama sorgusu"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Ara"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Sorguyu gönder"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Sesli arama"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Şununla paylaş:"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g> ile paylaş"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Daralt"</string>
+    <string name="about">Hakkında</string>
+    <string name="active_ingredient">Etken Madde</string>
+    <string name="add">Ekle</string>
+    <string name="add_appointment">Randevu Ekle</string>
+    <string name="add_doctor">Doktor Ekle</string>
+    <string name="add_medication">İlaç Ekle / Kaydet</string>
+    <string name="add_vital">Yeni Ölçüm Ekle</string>
+    <string name="all">Tümü</string>
+    <string name="app_name">Curalis</string>
+    <string name="app_version">Curalis %1$s (Kapalı Beta)</string>
+    <string name="appearance">Görünüm</string>
+    <string name="appointment_location">Konum (Hastane, Oda)</string>
+    <string name="appointment_notes">Notlar</string>
+    <string name="appointment_title">Randevu Başlığı (Örn: Kardiyoloji Kontrolü)</string>
+    <string name="back">Geri Dön</string>
+    <string name="backup_google_drive">Google Drive Yedekleme</string>
+    <string name="backup_local_export">Cihaza Yedekle</string>
+    <string name="backup_local_import">Yedekten Geri Yükle</string>
+    <string name="backup_restore_title">Yedekleme &amp; Geri Yükleme</string>
+    <string name="bug_report">HATA BİLDİR</string>
+    <string name="bug_report_body">Merhaba,\n\nUygulama ile ilgili bir sorun yaşıyorum.\n\n--- Sistem Bilgileri ---\nModel: %1$s\nOS Sürümü: %2$s\nAPI: %3$s\nCuralis Sürümü: %4$s</string>
+    <string name="bug_report_subject">HATA BİLDİRİMİ</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Yanıtla"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Reddet"</string>
@@ -7,13 +56,73 @@
     <string msgid="6107532579223922871" name="call_notification_incoming_text">"Gelen arama"</string>
     <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Devam eden arama"</string>
     <string msgid="59049573811482460" name="call_notification_screening_text">"Gelen arama süzülüyor"</string>
+    <string name="cancel">İptal</string>
     <string msgid="406453423630273620" name="close_drawer">"Gezinme menüsünü kapat"</string>
     <string msgid="7573152094250666567" name="close_sheet">"Sayfayı kapat"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Etkinleştir</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">Google Play hizmetlerini etkinleştirmezseniz %1$s çalışmaz.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play hizmetlerini etkinleştirin</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">Yükle</string>
+    <string name="common_google_play_services_install_text">%1$s, şu anda cihazınızda bulunmayan Google Play hizmetleri olmadan çalışmaz.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Google Play hizmetlerini edinin</string>
+    <string name="common_google_play_services_notification_channel_name">Google Play hizmetlerinin kullanılabilirliği</string>
+    <string name="common_google_play_services_notification_ticker">Google Play Hizmetleri hatası</string>
+    <string name="common_google_play_services_unknown_issue">%1$s, Google Play hizmetleriyle ilgili sorun yaşıyor. Lütfen tekrar deneyin.</string>
+    <string name="common_google_play_services_unsupported_text">%1$s, Google Play hizmetleri olmadan çalışmaz ve bu hizmetler cihazınız tarafından desteklenmiyor.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Güncelle</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">Google Play hizmetlerini güncellemezseniz %1$s çalışmayacak.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Google Play hizmetlerini güncelleyin</string>
+    <string name="common_google_play_services_updating_text">%1$s, şu anda güncellenmekte olan Google Play hizmetleri olmadan çalışmaz.</string>
+    <string name="common_google_play_services_wear_update_text">Google Play hizmetlerinin yeni sürümü gerekiyor. Kendisini kısa süre içinde güncelleyecektir.</string>
+    <string name="common_open_on_phone">Telefonda aç</string>
+    <string name="common_signin_button_text">Oturum aç</string>
+    <string name="common_signin_button_text_long">Google\'da oturum aç</string>
+    <string name="daily_progress">Günlük İlerleme</string>
+    <string name="daily_reminder">Günlük Hatırlatıcı</string>
+    <string name="dark_mode">Karanlık Mod</string>
+    <string name="dark_mode_desc">Uygulamanın temasını koyu renklere çevirir</string>
+    <string name="dashboard_title_appointments">Randevular</string>
+    <string name="dashboard_title_doctors">Doktorlar</string>
+    <string name="dashboard_title_medications">İlaçlar</string>
+    <string name="dashboard_title_vitals">Ölçümler</string>
+    <string name="database_date_label">Veritabanı Tarihi: %1$s</string>
+    <string name="date">Tarih</string>
     <string msgid="8038256446254964252" name="default_error_message">"Geçersiz giriş"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Pop-up Pencere"</string>
+    <string name="delete">Sil</string>
+    <string name="delete_appointment_message">"%1$s" randevusunu silmek istediğinize emin misiniz?</string>
+    <string name="delete_appointment_title">Randevuyu Sil</string>
+    <string name="delete_doctor_message">"%1$s" doktorunu silmek istediğinize emin misiniz?</string>
+    <string name="delete_doctor_title">Doktoru Sil</string>
+    <string name="delete_medication_message">"%1$s" ilacını silmek istediğinize emin misiniz?</string>
+    <string name="delete_medication_title">İlacı Sil</string>
+    <string name="delete_vital_message">Bu ölçüm kaydını silmek istediğinize emin misiniz?</string>
+    <string name="delete_vital_title">Ölçümü Sil</string>
+    <string name="developer">Geliştirici: %1$s</string>
+    <string name="doctor_hospital">Hastane/Klinik</string>
+    <string name="doctor_name">Doktorun Adı</string>
+    <string name="doctor_phone">Telefon Numarası</string>
+    <string name="doctor_specialty">Uzmanlık Alanı</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Açılır menü"</string>
+    <string name="edit">Düzenle</string>
+    <string name="edit_appointment">Randevu Bilgileri</string>
+    <string name="edit_doctor">Doktor Bilgileri</string>
+    <string name="edit_medication">İlacı Düzenle</string>
+    <string name="email_address">E-Posta Adresi</string>
+    <string name="exit">Çıkış</string>
+    <string name="exit_confirmation_message">Uygulamadan çıkmak istediğinize emin misiniz?</string>
+    <string name="exit_confirmation_title">Uygulamadan Çıkış</string>
+    <string name="form">Form (Tablet, Şurup vb.)</string>
+    <string name="frequency">Sıklık</string>
+    <string name="google_signin_error_oauth">Google Giriş Hatası: OAuth SHA-1 yapılandırması gerekli (Hata Kodu: %1$d).</string>
+    <string name="greeting_day">İyi Günler 🌤️</string>
+    <string name="greeting_evening">İyi Akşamlar 🌙</string>
+    <string name="greeting_morning">Günaydın ☀️</string>
+    <string name="greeting_night">İyi Geceler 🌟</string>
     <string msgid="6827826412747255547" name="in_progress">"Devam ediyor"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Kısmi olarak kontrol edildi"</string>
+    <string name="language">Dil / Language</string>
+    <string name="language_desc">Uygulama dilini değiştirir (Türkçe, English)</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Alt sayfayı daralt"</string>
     <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Alt sayfayı kapat"</string>
     <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Sürükleme tutamacı"</string>
@@ -70,17 +179,65 @@
     <string msgid="6616362054113087709" name="m3c_time_picker_pm">"ÖS"</string>
     <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Araç ipucunu göster"</string>
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"İpucu"</string>
+    <string name="medication_dosage">Dozaj (Örn: 500)</string>
+    <string name="medication_name">İlaç Adı * (API\'de ara)</string>
+    <string name="medication_tracking">İlaç Takibi</string>
+    <string name="my_appointments">Randevularım</string>
+    <string name="my_doctors">Doktorlarım</string>
+    <string name="my_medications">İlaçlarım</string>
+    <string name="my_vitals">Fiziksel Ölçümler</string>
     <string msgid="542007171693138492" name="navigation_menu">"Gezinme menüsü"</string>
+    <string name="next_medication">Sıradaki İlaç</string>
+    <string name="no_appointments_found">Henüz hiç randevu eklemediniz.</string>
+    <string name="no_doctors_found">Henüz hiç doktor eklemediniz.</string>
+    <string name="no_medications_found">Henüz hiç ilaç eklemediniz.</string>
+    <string name="no_vitals_found">Henüz hiç ölçüm eklemediniz.</string>
     <string msgid="6610465462668679431" name="not_selected">"Seçili değil"</string>
+    <string name="notes_optional">Notlar (Opsiyonel)</string>
+    <string name="notification_action_skip">Atla</string>
+    <string name="notification_action_snooze">Ertele (10dk)</string>
+    <string name="notification_action_take">Şimdi Al</string>
+    <string name="notification_channel_desc">İlaç zamanı geldiğinde bildirim gönderir</string>
+    <string name="notification_channel_name">İlaç Hatırlatıcıları</string>
+    <string name="notification_text_medication">İlaç: %1$s</string>
+    <string name="notification_title">İlaç Vakti</string>
     <string msgid="875452955155264703" name="off">"Kapalı"</string>
+    <string name="ok">Tamam</string>
     <string msgid="8655164131929253426" name="on">"Açık"</string>
+    <string name="optional">İsteğe Bağlı</string>
     <string msgid="5941395253238309765" name="range_end">"Aralık sonu"</string>
     <string msgid="7097486360902471446" name="range_start">"Aralık başlangıcı"</string>
+    <string name="save">Kaydet</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Ara"</string>
+    <string name="select_doctor">Doktor Seçin</string>
     <string msgid="6043586758067023" name="selected">"Seçili"</string>
+    <string name="set_reminder_time">Hatırlatıcı Saati Seç</string>
+    <string name="settings">Ayarlar</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string name="suggestions_from_openfda">OpenFDA\'dan Öneriler:</string>
     <string msgid="2561197295334830845" name="switch_role">"Anahtar"</string>
     <string msgid="1672349317127674378" name="tab">"Sekme"</string>
     <string msgid="5946805113151406391" name="template_percent">"Yüzde <ns1:g id="PERCENTAGE">%1$d</ns1:g>."</string>
+    <string name="time">Saat</string>
     <string msgid="3765533235322692011" name="tooltip_description">"ipucu"</string>
     <string msgid="3124740595719787496" name="tooltip_label">"ipucunu göster"</string>
+    <string name="unknown">Bilinmeyen</string>
+    <string name="upcoming_appointment">Yaklaşan Randevu</string>
+    <string name="view_on_github">GitHub\'da Görüntüle</string>
+    <string name="vital_blood_pressure">Tansiyon (Sistolik/Diyastolik)</string>
+    <string name="vital_blood_sugar">Kan Şekeri</string>
+    <string name="vital_diastolic">Küçük Tansiyon (Diyastolik)</string>
+    <string name="vital_heart_rate">Nabız</string>
+    <string name="vital_systolic">Büyük Tansiyon (Sistolik)</string>
+    <string name="vital_temperature">Vücut Isısı</string>
+    <string name="vital_type">Ölçüm Türü</string>
+    <string name="vital_type_blood_pressure_short">Tansiyon</string>
+    <string name="vital_type_blood_sugar_short">Kan Şekeri</string>
+    <string name="vital_type_heart_rate_short">Nabız</string>
+    <string name="vital_type_temperature_short">Ateş</string>
+    <string name="vital_type_weight_short">Kilo</string>
+    <string name="vital_unit">Birim</string>
+    <string name="vital_unit_label">Birim: %1$s</string>
+    <string name="vital_value">Değer</string>
+    <string name="vital_weight">Kilo</string>
 </resources>
