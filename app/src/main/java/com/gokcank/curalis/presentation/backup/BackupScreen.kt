@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Save
@@ -17,13 +17,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gokcank.curalis.BuildConfig
+import com.gokcank.curalis.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
 import com.google.api.services.drive.DriveScopes
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -36,6 +40,7 @@ fun BackupScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
@@ -49,11 +54,18 @@ fun BackupScreen(
         uri?.let { viewModel.importDataFromUri(context, it) }
     }
 
+    val coroutineScope = rememberCoroutineScope()
+
     // Google Sign-In setup
     val gso = remember {
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .requestScopes(Scope(DriveScopes.DRIVE_APPDATA))
+            .apply {
+                if (BuildConfig.WEB_CLIENT_ID.isNotBlank()) {
+                    requestIdToken(BuildConfig.WEB_CLIENT_ID)
+                }
+            }
             .build()
     }
     val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
@@ -66,12 +78,22 @@ fun BackupScreen(
         try {
             val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
             signedInAccount = account
+        } catch (e: com.google.android.gms.common.api.ApiException) {
+            val errorMsg = if (e.statusCode == 10) {
+                context.getString(R.string.google_signin_error_oauth, e.statusCode)
+            } else {
+                "Google Giriş Hatası: ${e.statusCode} - ${e.localizedMessage ?: "Bilinmeyen hata"}"
+            }
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(errorMsg)
+            }
         } catch (e: Exception) {
-            e.printStackTrace()
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar("Giriş sırasında hata oluştu: ${e.localizedMessage}")
+            }
         }
     }
 
-    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState) {
         when (uiState) {
@@ -90,10 +112,10 @@ fun BackupScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Yedekleme & Geri Yükleme") },
+                title = { Text(stringResource(R.string.backup_restore_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Geri")
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
