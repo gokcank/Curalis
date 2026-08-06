@@ -3,6 +3,7 @@ package com.gokcank.curalis.data.mapper
 import com.gokcank.curalis.data.local.entity.MedicationEntity
 import com.gokcank.curalis.data.local.entity.MedicationTimeEntity
 import com.gokcank.curalis.domain.model.FrequencyType
+import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.MedicationTime
@@ -24,6 +25,8 @@ fun MedicationEntity.toDomain(times: List<MedicationTime> = emptyList()): Medica
         dosage = dosage,
         unit = unit,
         notes = notes,
+        mealInstruction = MealInstruction.fromString(mealInstruction),
+        expiryDate = expiryDate,
         frequencyType = freqType,
         intervalDays = intervalDays,
         activeDays = activeDays,
@@ -48,6 +51,8 @@ fun Medication.toEntity(): MedicationEntity {
         dosage = dosage,
         unit = unit,
         notes = notes,
+        mealInstruction = mealInstruction.name,
+        expiryDate = expiryDate,
         frequencyType = frequencyType.name,
         intervalDays = intervalDays,
         activeDays = activeDays,

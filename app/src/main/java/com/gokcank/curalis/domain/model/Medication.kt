@@ -12,6 +12,8 @@ data class Medication(
     val dosage: String? = null,
     val unit: String? = null,
     val notes: String? = null,
+    val mealInstruction: MealInstruction = MealInstruction.DOES_NOT_MATTER,
+    val expiryDate: Long? = null,
     val frequencyType: FrequencyType = FrequencyType.DAILY,
     val intervalDays: Int? = null,
     val specificDays: List<Int> = emptyList(), // 1=Mon, 7=Sun

@@ -15,6 +15,8 @@ data class MedicationEntity(
     val dosage: String?,
     val unit: String?,
     val notes: String?,
+    val mealInstruction: String = "DOES_NOT_MATTER",
+    val expiryDate: Long? = null,
     val frequencyType: String = "DAILY", // DAILY, SPECIFIC_DAYS, INTERVAL, AS_NEEDED
     val intervalDays: Int? = null,
     val activeDays: Int? = null,

@@ -23,7 +23,7 @@ import com.gokcank.curalis.data.local.entity.VitalEntity
         AppointmentEntity::class,
         VitalEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class CuralisDatabase : RoomDatabase() {
@@ -36,6 +36,6 @@ abstract class CuralisDatabase : RoomDatabase() {
     
     companion object {
         const val DATABASE_NAME = "curalis_db"
-        const val DATABASE_DATE = "31.07.2026"
+        const val DATABASE_DATE = "06.08.2026"
     }
 }
