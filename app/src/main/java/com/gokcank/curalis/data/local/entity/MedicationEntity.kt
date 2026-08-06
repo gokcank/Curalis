@@ -11,10 +11,17 @@ data class MedicationEntity(
     val barcode: String?,
     val activeIngredient: String?,
     val form: String?,
+    val formType: String = "PILL",
     val dosage: String?,
     val unit: String?,
     val notes: String?,
     val frequencyType: String = "DAILY", // DAILY, SPECIFIC_DAYS, INTERVAL, AS_NEEDED
     val intervalDays: Int? = null,
-    val startDate: Long = System.currentTimeMillis()
+    val activeDays: Int? = null,
+    val restDays: Int? = null,
+    val startDate: Long = System.currentTimeMillis(),
+    val initialStock: Int? = null,
+    val currentStock: Int? = null,
+    val refillThreshold: Int? = null,
+    val isRefillReminderEnabled: Boolean = false
 )
