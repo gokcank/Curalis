@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.gokcank.curalis.domain.model.Appointment
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Reminder
@@ -79,6 +80,43 @@ class AlarmScheduler @Inject constructor(
                 alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
                     nextTriggerMillis,
+                    pendingIntent
+                )
+            }
+        }
+    }
+
+    fun scheduleAppointmentReminder(appointment: Appointment) {
+        val intent = Intent(context, ReminderReceiver::class.java).apply {
+            putExtra(EXTRA_REMINDER_ID, appointment.id)
+            putExtra(EXTRA_MEDICATION_NAME, "📅 Randevu: ${appointment.title}")
+            putExtra(EXTRA_MEDICATION_ID, appointment.doctorId ?: "")
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            appointment.id.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val reminderTime = if (appointment.timeInMillis - (60 * 60 * 1000) > System.currentTimeMillis()) {
+            appointment.timeInMillis - (60 * 60 * 1000)
+        } else {
+            appointment.timeInMillis
+        }
+
+        if (reminderTime > System.currentTimeMillis()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    reminderTime,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    reminderTime,
                     pendingIntent
                 )
             }

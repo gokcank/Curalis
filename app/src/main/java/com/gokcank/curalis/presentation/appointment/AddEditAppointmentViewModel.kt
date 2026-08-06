@@ -3,6 +3,7 @@ package com.gokcank.curalis.presentation.appointment
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.domain.model.Appointment
 import com.gokcank.curalis.domain.usecase.AppointmentUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditAppointmentViewModel @Inject constructor(
     private val appointmentUseCases: AppointmentUseCases,
+    private val alarmScheduler: AlarmScheduler,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -25,12 +27,15 @@ class AddEditAppointmentViewModel @Inject constructor(
 
     private val _location = MutableStateFlow("")
     val location = _location.asStateFlow()
-    
+
     private val _notes = MutableStateFlow("")
     val notes = _notes.asStateFlow()
-    
+
     private val _timeInMillis = MutableStateFlow(System.currentTimeMillis())
     val timeInMillis = _timeInMillis.asStateFlow()
+
+    private val _selectedDoctorId = MutableStateFlow<String?>(null)
+    val selectedDoctorId = _selectedDoctorId.asStateFlow()
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -50,6 +55,7 @@ class AddEditAppointmentViewModel @Inject constructor(
                             _location.value = it.location ?: ""
                             _notes.value = it.notes ?: ""
                             _timeInMillis.value = it.timeInMillis
+                            _selectedDoctorId.value = it.doctorId
                         }
                     }
                 }
@@ -64,13 +70,17 @@ class AddEditAppointmentViewModel @Inject constructor(
     fun onLocationChange(location: String) {
         _location.value = location
     }
-    
+
     fun onNotesChange(notes: String) {
         _notes.value = notes
     }
 
     fun onTimeChange(time: Long) {
         _timeInMillis.value = time
+    }
+
+    fun onDoctorSelected(doctorId: String?) {
+        _selectedDoctorId.value = doctorId
     }
 
     fun saveAppointment() {
@@ -87,7 +97,7 @@ class AddEditAppointmentViewModel @Inject constructor(
                 location = _location.value.takeIf { it.isNotBlank() },
                 notes = _notes.value.takeIf { it.isNotBlank() },
                 timeInMillis = _timeInMillis.value,
-                doctorId = null // Doctor selection can be added later
+                doctorId = _selectedDoctorId.value
             )
 
             if (currentAppointmentId != null) {
@@ -95,6 +105,10 @@ class AddEditAppointmentViewModel @Inject constructor(
             } else {
                 appointmentUseCases.addAppointment(appointment)
             }
+
+            // Schedule appointment notification
+            alarmScheduler.scheduleAppointmentReminder(appointment)
+
             _eventFlow.emit(UiEvent.SaveSuccess)
         }
     }
