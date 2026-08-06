@@ -23,7 +23,7 @@ import com.gokcank.curalis.data.local.entity.VitalEntity
         AppointmentEntity::class,
         VitalEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class CuralisDatabase : RoomDatabase() {
