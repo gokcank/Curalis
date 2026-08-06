@@ -128,4 +128,21 @@
     <string name="backup_local_import">Yedekten Geri Yükle</string>
     <string name="backup_google_drive">Google Drive Yedekleme</string>
     <string name="google_signin_error_oauth">Google Giriş Hatası: OAuth SHA-1 yapılandırması gerekli (Hata Kodu: %1$d).</string>
+
+    <!-- Medication Revision Strings -->
+    <string name="medication_form">İlaç Formu / Türü</string>
+    <string name="freq_daily">Her Gün</string>
+    <string name="freq_specific_days">Haftanın Belirli Günleri</string>
+    <string name="freq_interval">X Günde Bir</string>
+    <string name="freq_as_needed">İhtiyaç Halinde (PRN)</string>
+    <string name="interval_days_label">Kaç Günde Bir?</string>
+    <string name="reminder_times">Hatırlatıcı Saatleri</string>
+    <string name="add_reminder_time">Hatırlatıcı Saati Ekle (+)</string>
+    <string name="dose_amount">Doz Miktarı (Örn: 1 Tablet)</string>
+    <string name="stock_tracking">Kutu / Stok Takibi</string>
+    <string name="enable_stock_tracking">Stok Takibi Yapılsın mı?</string>
+    <string name="current_stock">Mevcut Stok Miktarı</string>
+    <string name="refill_threshold">Yenileme Uyarı Eşiği</string>
+    <string name="remaining_stock">Kalan: %1$d Doz</string>
+    <string name="low_stock_warning">Stok Azalıyor!</string>
 </resources>

@@ -129,4 +129,21 @@
     <string name="backup_local_import">Restore from Device</string>
     <string name="backup_google_drive">Google Drive Backup</string>
     <string name="google_signin_error_oauth">Google Sign-In Error: OAuth SHA-1 configuration required (Error Code: %1$d).</string>
+
+    <!-- Medication Revision Strings -->
+    <string name="medication_form">Medication Form / Type</string>
+    <string name="freq_daily">Every Day</string>
+    <string name="freq_specific_days">Specific Days of Week</string>
+    <string name="freq_interval">Every N Days</string>
+    <string name="freq_as_needed">As Needed (PRN)</string>
+    <string name="interval_days_label">Every How Many Days?</string>
+    <string name="reminder_times">Reminder Times</string>
+    <string name="add_reminder_time">Add Reminder Time (+)</string>
+    <string name="dose_amount">Dose Amount (e.g. 1 Tablet)</string>
+    <string name="stock_tracking">Refill / Stock Tracking</string>
+    <string name="enable_stock_tracking">Enable Stock Tracking?</string>
+    <string name="current_stock">Current Stock Count</string>
+    <string name="refill_threshold">Refill Warning Threshold</string>
+    <string name="remaining_stock">Remaining: %1$d Doses</string>
+    <string name="low_stock_warning">Low Stock!</string>
 </resources>
