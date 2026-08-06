@@ -347,12 +347,14 @@ If an architectural decision is required, implementation should pause until:
 
 # Package Execution & Commitment Workflow
 
-0. **Mandatory Package & Item Structure:** All future implementation plans MUST be explicitly structured into numbered **Packages (Paketler)** and distinct sub-task **Items (Maddeler)**.
-1. **Item-by-Item Local Commit:** When working on an approved plan separated into Packages and Items:
+0. **Mandatory Package & Item Hierarchy:** All implementation plans MUST be structured into main **Packages (Paketler - Main Sections)** and sub-task **Items (Maddeler - Sub-elements)**.
+1. **Item-by-Item Local Commit:** 
    - Implement one single item at a time.
    - Verify the build cleanly (`./gradlew assembleDebug` or test).
    - Perform ONLY the local `git commit` for that completed item (NEVER `git push`).
-2. **Package Completion, Emulator Testing & User Push:** At the end of completing ALL items in a Package:
-   - Perform a full commit and build audit (`git log`, `./gradlew test assembleDebug`).
-   - Install the debug APK onto the Android Emulator (`./gradlew installDebug`), launch the app, and run live visual/functional emulator tests.
+2. **Package Completion & Emulator Test Approval:**
+   - At the end of completing ALL items in a Package, STOP and explicitly request the user's approval to run emulator tests (e.g., *"Paket X'in tüm maddeleri tamamlandı. Emülatör canlı testlerine geçmemi onaylıyor musunuz?"*).
+   - Do NOT run emulator tests without explicit user consent.
+3. **Emulator Testing & Package Push:**
+   - Upon user approval for emulator testing, install the debug APK on the Android Emulator (`./gradlew installDebug`), launch the app, and run live visual/functional emulator tests.
    - Report the completed Package and test results to the user so the user can review and execute `git push` for the entire package.
