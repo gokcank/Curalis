@@ -123,6 +123,36 @@ class AlarmScheduler @Inject constructor(
         }
     }
 
+    fun scheduleMissedDoseCheck(reminderId: String, medicationId: String, delayMinutes: Int = 30) {
+        val intent = Intent(context, MissedDoseCheckReceiver::class.java).apply {
+            putExtra(EXTRA_REMINDER_ID, reminderId)
+            putExtra(EXTRA_MEDICATION_ID, medicationId)
+        }
+
+        val requestCode = (reminderId + "_missed").hashCode()
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val triggerAtMillis = System.currentTimeMillis() + (delayMinutes * 60 * 1000L)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerAtMillis,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                triggerAtMillis,
+                pendingIntent
+            )
+        }
+    }
+
     fun cancel(reminderId: String) {
         val intent = Intent(context, ReminderReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(

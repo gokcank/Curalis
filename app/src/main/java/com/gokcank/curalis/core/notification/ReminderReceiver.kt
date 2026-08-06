@@ -12,11 +12,18 @@ class ReminderReceiver : BroadcastReceiver() {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
+    @Inject
+    lateinit var alarmScheduler: AlarmScheduler
+
     override fun onReceive(context: Context?, intent: Intent?) {
         val reminderId = intent?.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: return
         val medicationName = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_NAME) ?: "Medication"
         val medicationId = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_ID) ?: ""
 
         notificationHelper.showReminderNotification(reminderId, medicationName, medicationId)
+
+        if (medicationId.isNotBlank()) {
+            alarmScheduler.scheduleMissedDoseCheck(reminderId, medicationId, 30)
+        }
     }
 }

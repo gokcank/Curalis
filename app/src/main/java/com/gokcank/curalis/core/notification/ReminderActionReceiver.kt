@@ -83,10 +83,11 @@ class ReminderActionReceiver : BroadcastReceiver() {
                     }
 
                     NotificationHelper.ACTION_SNOOZE -> {
+                        val snoozeMinutes = intent.getIntExtra(NotificationHelper.EXTRA_SNOOZE_MINUTES, 10)
                         acknowledgeReminderUseCase(reminderId, ReminderState.SNOOZED)
 
-                        // 10 dakika sonra tekrar çalacak Erteleme (Snooze) alarmı
-                        val snoozeTime = System.currentTimeMillis() + (10 * 60 * 1000)
+                        // Dinamik Erteleme (Snooze) alarmı (Örn: 5, 10, 15, 30, 60 dk)
+                        val snoozeTime = System.currentTimeMillis() + (snoozeMinutes * 60 * 1000L)
                         val newReminder = Reminder(
                             medicationId = medicationId,
                             timeInMillis = snoozeTime,

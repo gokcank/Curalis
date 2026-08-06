@@ -8,13 +8,17 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.gokcank.curalis.R
+import com.gokcank.curalis.presentation.alarm.AlarmFullScreenActivity
 import com.gokcank.curalis.presentation.main.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class NotificationHelper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -36,12 +40,26 @@ class NotificationHelper @Inject constructor(
         }
     }
 
-    fun showReminderNotification(reminderId: String, medicationName: String, medicationId: String) {
+    fun showReminderNotification(reminderId: String, medicationName: String, medicationId: String = "") {
         val contentIntent = Intent(context, MainActivity::class.java)
         val contentPendingIntent = PendingIntent.getActivity(
             context,
             reminderId.hashCode(),
             contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // FullScreen LockScreen Activity Intent
+        val fullScreenIntent = Intent(context, AlarmFullScreenActivity::class.java).apply {
+            putExtra(AlarmScheduler.EXTRA_REMINDER_ID, reminderId)
+            putExtra(AlarmScheduler.EXTRA_MEDICATION_NAME, medicationName)
+            putExtra(AlarmScheduler.EXTRA_MEDICATION_ID, medicationId)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val fullScreenPendingIntent = PendingIntent.getActivity(
+            context,
+            (reminderId + "_fullscreen").hashCode(),
+            fullScreenIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -65,6 +83,7 @@ class NotificationHelper @Inject constructor(
             putExtra(EXTRA_REMINDER_ID, reminderId)
             putExtra(EXTRA_MEDICATION_NAME, medicationName)
             putExtra(EXTRA_MEDICATION_ID, medicationId)
+            putExtra(EXTRA_SNOOZE_MINUTES, 10)
         }
         val snoozePendingIntent = PendingIntent.getBroadcast(
             context,
@@ -92,11 +111,25 @@ class NotificationHelper @Inject constructor(
             .setContentTitle(context.getString(R.string.notification_title))
             .setContentText(context.getString(R.string.notification_text_medication, medicationName))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setFullScreenIntent(fullScreenPendingIntent, true)
             .setAutoCancel(true)
             .setContentIntent(contentPendingIntent)
-            .addAction(0, context.getString(R.string.notification_action_take), takenPendingIntent)
-            .addAction(0, context.getString(R.string.notification_action_snooze), snoozePendingIntent)
-            .addAction(0, context.getString(R.string.notification_action_skip), skipPendingIntent)
+            .addAction(
+                android.R.drawable.ic_menu_save,
+                context.getString(R.string.notification_action_take),
+                takenPendingIntent
+            )
+            .addAction(
+                android.R.drawable.ic_popup_sync,
+                context.getString(R.string.notification_action_snooze),
+                snoozePendingIntent
+            )
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                context.getString(R.string.notification_action_skip),
+                skipPendingIntent
+            )
 
         notificationManager.notify(reminderId.hashCode(), builder.build())
     }
@@ -133,5 +166,6 @@ class NotificationHelper @Inject constructor(
         const val EXTRA_REMINDER_ID = "extra_reminder_id"
         const val EXTRA_MEDICATION_NAME = "extra_medication_name"
         const val EXTRA_MEDICATION_ID = "extra_medication_id"
+        const val EXTRA_SNOOZE_MINUTES = "extra_snooze_minutes"
     }
 }
