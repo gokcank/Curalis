@@ -335,3 +335,24 @@ If an architectural decision is required, implementation should pause until:
 1. **NEVER bundle `git push`:** If the user commands a commit (e.g., "commit it", "commiti sen yap"), the agent must execute ONLY the commit operation. Do not chain `&& git push`. The word "commit" NEVER grants permission to push.
 2. **Push requires explicit command:** The agent must only execute a push if the user explicitly types the word "push" in their request.
 3. **Do not skip review phases:** If an implementation plan defines a "Pause for Review" step, the agent must completely stop execution. A user command regarding the *mechanics* of the next step (e.g., "you do the commit") does NOT constitute approval of the code. The agent must still wait for explicit code approval (e.g., "code looks good, commit it") before executing the commit.
+
+---
+
+# Medisafe Architecture & Feature Benchmarking & Anonymity Guardrails
+
+1. **Internal Benchmark Only:** Whenever proposing features, UI layouts, database models, or workflows in internal developer chat, reference Medisafe's decompiled architecture as an engineering benchmark ("Bak Medisafe'de de böyleydi...").
+2. **Zero External Attribution in Code & UI (Strict Anonymity):** NEVER include "Medisafe" or any third-party app name/brand in codebase files (`.kt`, `.xml`, `build.gradle.kts`), Javadocs, code comments, UI strings, commit messages, or public app documentation. All Curalis implementations, designs, and code structures must remain 100% original, unique, clean, and proprietary to Curalis.
+
+---
+
+# Package Execution & Commitment Workflow
+
+0. **Mandatory Package & Item Structure:** All future implementation plans MUST be explicitly structured into numbered **Packages (Paketler)** and distinct sub-task **Items (Maddeler)**.
+1. **Item-by-Item Local Commit:** When working on an approved plan separated into Packages and Items:
+   - Implement one single item at a time.
+   - Verify the build cleanly (`./gradlew assembleDebug` or test).
+   - Perform ONLY the local `git commit` for that completed item (NEVER `git push`).
+2. **Package Completion, Emulator Testing & User Push:** At the end of completing ALL items in a Package:
+   - Perform a full commit and build audit (`git log`, `./gradlew test assembleDebug`).
+   - Install the debug APK onto the Android Emulator (`./gradlew installDebug`), launch the app, and run live visual/functional emulator tests.
+   - Report the completed Package and test results to the user so the user can review and execute `git push` for the entire package.
