@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.utils.PdfReportGenerator
 import com.gokcank.curalis.domain.model.FrequencyType
+import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.Medication
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -245,6 +246,20 @@ fun MedicationItem(
                                 text = "⏰ $timesStr",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
+                    if (medication.mealInstruction != MealInstruction.DOES_NOT_MATTER) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surface
+                        ) {
+                            Text(
+                                text = "${medication.mealInstruction.iconEmoji} ${medication.mealInstruction.displayNameTr}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }

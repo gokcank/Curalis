@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.domain.model.FrequencyType
+import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.MedicationTime
@@ -54,6 +55,15 @@ class AddEditMedicationViewModel @Inject constructor(
 
     private val _medicationUnit = MutableStateFlow("")
     val medicationUnit = _medicationUnit.asStateFlow()
+
+    private val _mealInstruction = MutableStateFlow(MealInstruction.DOES_NOT_MATTER)
+    val mealInstruction = _mealInstruction.asStateFlow()
+
+    private val _medicationNotes = MutableStateFlow("")
+    val medicationNotes = _medicationNotes.asStateFlow()
+
+    private val _expiryDate = MutableStateFlow<Long?>(null)
+    val expiryDate = _expiryDate.asStateFlow()
 
     private val _frequencyType = MutableStateFlow(FrequencyType.DAILY)
     val frequencyType = _frequencyType.asStateFlow()
@@ -106,6 +116,9 @@ class AddEditMedicationViewModel @Inject constructor(
                             _formType.value = it.formType
                             _medicationDosage.value = it.dosage ?: ""
                             _medicationUnit.value = it.unit ?: ""
+                            _mealInstruction.value = it.mealInstruction
+                            _medicationNotes.value = it.notes ?: ""
+                            _expiryDate.value = it.expiryDate
                             _frequencyType.value = it.frequencyType
                             _intervalDays.value = (it.intervalDays ?: 2).toString()
                             _specificDays.value = it.specificDays
@@ -160,6 +173,18 @@ class AddEditMedicationViewModel @Inject constructor(
 
     fun onUnitChange(unit: String) {
         _medicationUnit.value = unit
+    }
+
+    fun onMealInstructionChange(instruction: MealInstruction) {
+        _mealInstruction.value = instruction
+    }
+
+    fun onNotesChange(notes: String) {
+        _medicationNotes.value = notes
+    }
+
+    fun onExpiryDateChange(timestamp: Long?) {
+        _expiryDate.value = timestamp
     }
 
     fun onFrequencyTypeChange(type: FrequencyType) {
@@ -226,6 +251,9 @@ class AddEditMedicationViewModel @Inject constructor(
                 formType = _formType.value,
                 dosage = _medicationDosage.value.takeIf { it.isNotBlank() },
                 unit = _medicationUnit.value.takeIf { it.isNotBlank() },
+                notes = _medicationNotes.value.takeIf { it.isNotBlank() },
+                mealInstruction = _mealInstruction.value,
+                expiryDate = _expiryDate.value,
                 frequencyType = _frequencyType.value,
                 intervalDays = if (_frequencyType.value == FrequencyType.INTERVAL) parsedInterval else null,
                 specificDays = if (_frequencyType.value == FrequencyType.SPECIFIC_DAYS) _specificDays.value else emptyList(),
