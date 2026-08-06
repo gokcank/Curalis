@@ -5,11 +5,13 @@ import android.content.Context
 import android.content.Intent
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
 import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +25,9 @@ class ReminderActionReceiver : BroadcastReceiver() {
     lateinit var scheduleReminderUseCase: ScheduleReminderUseCase
 
     @Inject
+    lateinit var medicationRepository: MedicationRepository
+
+    @Inject
     lateinit var alarmScheduler: AlarmScheduler
 
     @Inject
@@ -31,6 +36,8 @@ class ReminderActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val reminderId = intent?.getStringExtra(NotificationHelper.EXTRA_REMINDER_ID) ?: return
         val action = intent.action ?: return
+        val medicationId = intent.getStringExtra(NotificationHelper.EXTRA_MEDICATION_ID) ?: ""
+        val medicationName = intent.getStringExtra(NotificationHelper.EXTRA_MEDICATION_NAME) ?: "İlaç"
 
         val pendingResult = goAsync()
 
@@ -41,17 +48,45 @@ class ReminderActionReceiver : BroadcastReceiver() {
                 when (action) {
                     NotificationHelper.ACTION_TAKEN -> {
                         acknowledgeReminderUseCase(reminderId, ReminderState.TAKEN)
+
+                        // Otomatik Stok Düşümü ve Kritik Stok Bildirimi
+                        if (medicationId.isNotBlank()) {
+                            val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
+                            medication?.let { med ->
+                                val currentStock = med.currentStock
+                                if (currentStock != null && currentStock > 0) {
+                                    val newStock = currentStock - 1
+                                    val updatedMedication = med.copy(currentStock = newStock)
+                                    medicationRepository.updateMedication(updatedMedication)
+
+                                    if (med.isRefillReminderEnabled && newStock <= (med.refillThreshold ?: 5)) {
+                                        notificationHelper.showRefillWarningNotification(med.name, newStock)
+                                    }
+
+                                    alarmScheduler.scheduleMedicationAlarms(updatedMedication)
+                                } else {
+                                    alarmScheduler.scheduleMedicationAlarms(med)
+                                }
+                            }
+                        }
                     }
+
                     NotificationHelper.ACTION_SKIP -> {
                         acknowledgeReminderUseCase(reminderId, ReminderState.SKIPPED)
+
+                        if (medicationId.isNotBlank()) {
+                            val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
+                            medication?.let { med ->
+                                alarmScheduler.scheduleMedicationAlarms(med)
+                            }
+                        }
                     }
+
                     NotificationHelper.ACTION_SNOOZE -> {
                         acknowledgeReminderUseCase(reminderId, ReminderState.SNOOZED)
-                        
-                        // Schedule a new alarm for 10 minutes later
-                        val medicationName = intent.getStringExtra(NotificationHelper.EXTRA_MEDICATION_NAME) ?: "Medication"
-                        val medicationId = intent.getStringExtra(NotificationHelper.EXTRA_MEDICATION_ID) ?: ""
-                        val snoozeTime = System.currentTimeMillis() + (10 * 60 * 1000) // 10 minutes
+
+                        // 10 dakika sonra tekrar çalacak Erteleme (Snooze) alarmı
+                        val snoozeTime = System.currentTimeMillis() + (10 * 60 * 1000)
                         val newReminder = Reminder(
                             medicationId = medicationId,
                             timeInMillis = snoozeTime,

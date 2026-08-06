@@ -49,6 +49,8 @@ class NotificationHelper @Inject constructor(
         val takenIntent = Intent(context, ReminderActionReceiver::class.java).apply {
             action = ACTION_TAKEN
             putExtra(EXTRA_REMINDER_ID, reminderId)
+            putExtra(EXTRA_MEDICATION_ID, medicationId)
+            putExtra(EXTRA_MEDICATION_NAME, medicationName)
         }
         val takenPendingIntent = PendingIntent.getBroadcast(
             context,
@@ -75,6 +77,8 @@ class NotificationHelper @Inject constructor(
         val skipIntent = Intent(context, ReminderActionReceiver::class.java).apply {
             action = ACTION_SKIP
             putExtra(EXTRA_REMINDER_ID, reminderId)
+            putExtra(EXTRA_MEDICATION_ID, medicationId)
+            putExtra(EXTRA_MEDICATION_NAME, medicationName)
         }
         val skipPendingIntent = PendingIntent.getBroadcast(
             context,
@@ -95,6 +99,26 @@ class NotificationHelper @Inject constructor(
             .addAction(0, context.getString(R.string.notification_action_skip), skipPendingIntent)
 
         notificationManager.notify(reminderId.hashCode(), builder.build())
+    }
+
+    fun showRefillWarningNotification(medicationName: String, remainingStock: Int) {
+        val contentIntent = Intent(context, MainActivity::class.java)
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            medicationName.hashCode(),
+            contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle("⚠️ Stok Azalıyor!")
+            .setContentText("$medicationName ilacınız bitmek üzere! Kalan: $remainingStock doz. Reçetenizi yenilemeyi unutmayın.")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
+
+        notificationManager.notify((medicationName + "_refill").hashCode(), builder.build())
     }
 
     fun dismissNotification(reminderId: String) {
