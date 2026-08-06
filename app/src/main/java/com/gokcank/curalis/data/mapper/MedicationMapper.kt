@@ -1,11 +1,13 @@
 package com.gokcank.curalis.data.mapper
 
 import com.gokcank.curalis.data.local.entity.MedicationEntity
+import com.gokcank.curalis.data.local.entity.MedicationTimeEntity
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
+import com.gokcank.curalis.domain.model.MedicationTime
 
-fun MedicationEntity.toDomain(): Medication {
+fun MedicationEntity.toDomain(times: List<MedicationTime> = emptyList()): Medication {
     val freqType = try {
         FrequencyType.valueOf(frequencyType)
     } catch (e: Exception) {
@@ -30,7 +32,8 @@ fun MedicationEntity.toDomain(): Medication {
         initialStock = initialStock,
         currentStock = currentStock,
         refillThreshold = refillThreshold,
-        isRefillReminderEnabled = isRefillReminderEnabled
+        isRefillReminderEnabled = isRefillReminderEnabled,
+        times = times
     )
 }
 
@@ -54,5 +57,24 @@ fun Medication.toEntity(): MedicationEntity {
         currentStock = currentStock,
         refillThreshold = refillThreshold,
         isRefillReminderEnabled = isRefillReminderEnabled
+    )
+}
+
+fun MedicationTimeEntity.toDomain(): MedicationTime {
+    return MedicationTime(
+        id = id,
+        hour = hour,
+        minute = minute,
+        dose = dose
+    )
+}
+
+fun MedicationTime.toEntity(medicationId: String): MedicationTimeEntity {
+    return MedicationTimeEntity(
+        id = id,
+        medicationId = medicationId,
+        hour = hour,
+        minute = minute,
+        dose = dose
     )
 }

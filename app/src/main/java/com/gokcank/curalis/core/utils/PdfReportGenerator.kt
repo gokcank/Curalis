@@ -1,11 +1,14 @@
 package com.gokcank.curalis.core.utils
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import android.net.Uri
+import androidx.core.content.FileProvider
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Vital
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -140,5 +143,24 @@ class PdfReportGenerator @Inject constructor(
         pdfDocument.close()
 
         return reportFile
+    }
+
+    fun shareReport(context: Context, medications: List<Medication>, vitals: List<Vital> = emptyList()) {
+        try {
+            val pdfFile = generateHealthReportPdf(medications, vitals)
+            val contentUri: Uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                pdfFile
+            )
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_STREAM, contentUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(Intent.createChooser(shareIntent, "Curalis Sağlık Raporu (PDF)"))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

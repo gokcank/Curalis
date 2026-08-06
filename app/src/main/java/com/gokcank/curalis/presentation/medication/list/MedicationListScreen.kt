@@ -45,12 +45,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.utils.PdfReportGenerator
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.Medication
 
@@ -64,6 +66,8 @@ fun MedicationListScreen(
     val medications by viewModel.medications.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     var medicationToDelete by remember { mutableStateOf<Medication?>(null) }
+    val context = LocalContext.current
+    val pdfReportGenerator = remember { PdfReportGenerator(context) }
 
     medicationToDelete?.let { med ->
         AlertDialog(
@@ -95,6 +99,13 @@ fun MedicationListScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        pdfReportGenerator.shareReport(context, medications)
+                    }) {
+                        Text("📄 PDF Rapor", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             )
@@ -165,7 +176,6 @@ fun MedicationItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Renkli İlaç Formu İkon Rozeti (💊, 🧪, 💉 vb.)
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
@@ -182,13 +192,11 @@ fun MedicationItem(
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                // İlaç Adı
                 Text(
                     text = medication.name,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
 
-                // Etkin Madde & Dozaj
                 val dosageStr = listOfNotNull(medication.dosage, medication.unit).joinToString(" ")
                 val subtitleParts = listOfNotNull(
                     medication.activeIngredient.takeIf { !it.isNullOrBlank() },
@@ -206,12 +214,10 @@ fun MedicationItem(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // Rozetler Satırı (Saatler, Sıklık, Stok)
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    // Saatler Rozeti
                     if (medication.times.isNotEmpty()) {
                         val timesStr = medication.times.joinToString(", ") {
                             String.format("%02d:%02d", it.hour, it.minute)
@@ -229,7 +235,6 @@ fun MedicationItem(
                         }
                     }
 
-                    // Sıklık Etiketi
                     val freqText = when (medication.frequencyType) {
                         FrequencyType.DAILY -> "Her Gün"
                         FrequencyType.SPECIFIC_DAYS -> "Belirli Günler"
@@ -248,7 +253,6 @@ fun MedicationItem(
                         )
                     }
 
-                    // Kutu / Stok Rozeti & Uyarısı
                     medication.currentStock?.let { stock ->
                         if (medication.isRefillReminderEnabled) {
                             val isLowStock = stock <= (medication.refillThreshold ?: 5)

@@ -56,6 +56,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import android.app.Activity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.gokcank.curalis.core.utils.PdfReportGenerator
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import java.text.SimpleDateFormat
@@ -119,6 +121,17 @@ fun HomeScreen(
                     containerColor = Color.Transparent
                 ),
                 actions = {
+                    IconButton(onClick = {
+                        val pdfReportGenerator = PdfReportGenerator(context)
+                        pdfReportGenerator.shareReport(context, emptyList())
+                    }) {
+                        Text(
+                            text = "📄 PDF Rapor",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             Icons.Default.Settings, 
