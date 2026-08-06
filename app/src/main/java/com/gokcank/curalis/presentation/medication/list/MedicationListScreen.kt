@@ -1,21 +1,31 @@
 package com.gokcank.curalis.presentation.medication.list
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -23,26 +33,26 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.gokcank.curalis.R
-import com.gokcank.curalis.domain.model.Medication
-
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.gokcank.curalis.R
+import com.gokcank.curalis.domain.model.FrequencyType
+import com.gokcank.curalis.domain.model.Medication
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,8 +109,9 @@ fun MedicationListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
+            Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = viewModel::onSearchQueryChange,
@@ -115,7 +126,8 @@ fun MedicationListScreen(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(top = 16.dp)
+                    modifier = Modifier.fillMaxSize().padding(top = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(medications) { medication ->
                         MedicationItem(
@@ -130,7 +142,7 @@ fun MedicationListScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun MedicationItem(
     medication: Medication,
@@ -140,11 +152,12 @@ fun MedicationItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onDelete
-            )
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(
             modifier = Modifier
@@ -152,19 +165,118 @@ fun MedicationItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = medication.name, style = MaterialTheme.typography.titleMedium)
-                if (!medication.activeIngredient.isNullOrBlank()) {
-                    Text(text = medication.activeIngredient, style = MaterialTheme.typography.bodySmall)
-                }
-                val dosageStr = listOfNotNull(medication.dosage, medication.unit).joinToString(" ")
-                if (dosageStr.isNotBlank()) {
-                    Text(text = dosageStr, style = MaterialTheme.typography.bodyMedium)
+            // Renkli İlaç Formu İkon Rozeti (💊, 🧪, 💉 vb.)
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = medication.formType.iconEmoji,
+                        fontSize = 24.sp
+                    )
                 }
             }
-            Spacer(modifier = Modifier.width(8.dp))
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                // İlaç Adı
+                Text(
+                    text = medication.name,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+
+                // Etkin Madde & Dozaj
+                val dosageStr = listOfNotNull(medication.dosage, medication.unit).joinToString(" ")
+                val subtitleParts = listOfNotNull(
+                    medication.activeIngredient.takeIf { !it.isNullOrBlank() },
+                    dosageStr.takeIf { it.isNotBlank() },
+                    medication.formType.displayNameTr
+                ).joinToString(" • ")
+
+                if (subtitleParts.isNotBlank()) {
+                    Text(
+                        text = subtitleParts,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Rozetler Satırı (Saatler, Sıklık, Stok)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    // Saatler Rozeti
+                    if (medication.times.isNotEmpty()) {
+                        val timesStr = medication.times.joinToString(", ") {
+                            String.format("%02d:%02d", it.hour, it.minute)
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer
+                        ) {
+                            Text(
+                                text = "⏰ $timesStr",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
+                    // Sıklık Etiketi
+                    val freqText = when (medication.frequencyType) {
+                        FrequencyType.DAILY -> "Her Gün"
+                        FrequencyType.SPECIFIC_DAYS -> "Belirli Günler"
+                        FrequencyType.INTERVAL -> "${medication.intervalDays ?: 2} Günde 1"
+                        FrequencyType.AS_NEEDED -> "İhtiyaç Halinde"
+                    }
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.tertiaryContainer
+                    ) {
+                        Text(
+                            text = "🗓️ $freqText",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+
+                    // Kutu / Stok Rozeti & Uyarısı
+                    medication.currentStock?.let { stock ->
+                        if (medication.isRefillReminderEnabled) {
+                            val isLowStock = stock <= (medication.refillThreshold ?: 5)
+                            val stockColor = if (isLowStock) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface
+                            val textColor = if (isLowStock) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface
+
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = stockColor
+                            ) {
+                                Text(
+                                    text = if (isLowStock) "⚠️ Stok Azalıyor! ($stock)" else "📦 Kalan: $stock",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = if (isLowStock) FontWeight.Bold else FontWeight.Normal),
+                                    color = textColor,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             IconButton(onClick = onDelete) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete),
+                    tint = MaterialTheme.colorScheme.outline
+                )
             }
         }
     }
