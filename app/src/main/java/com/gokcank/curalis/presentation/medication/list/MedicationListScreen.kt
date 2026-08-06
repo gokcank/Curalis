@@ -102,10 +102,25 @@ fun MedicationListScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        pdfReportGenerator.shareReport(context, medications)
-                    }) {
-                        Text("📄 PDF Rapor", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                    Surface(
+                        onClick = {
+                            pdfReportGenerator.shareReport(context, medications)
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "📄 PDF Rapor",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                     }
                 }
             )

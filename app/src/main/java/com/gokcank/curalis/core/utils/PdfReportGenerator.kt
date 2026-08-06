@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Vital
@@ -157,10 +158,16 @@ class PdfReportGenerator @Inject constructor(
                 type = "application/pdf"
                 putExtra(Intent.EXTRA_STREAM, contentUri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            context.startActivity(Intent.createChooser(shareIntent, "Curalis Sağlık Raporu (PDF)"))
+            val chooser = Intent.createChooser(shareIntent, "Curalis Sağlık Raporu (PDF)").apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(chooser)
+            Toast.makeText(context, "📄 PDF Sağlık Raporu oluşturuldu", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
+            Toast.makeText(context, "Hata: PDF raporu açılamadı", Toast.LENGTH_SHORT).show()
         }
     }
 }

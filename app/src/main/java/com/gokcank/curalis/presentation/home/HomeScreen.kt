@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -121,16 +122,26 @@ fun HomeScreen(
                     containerColor = Color.Transparent
                 ),
                 actions = {
-                    IconButton(onClick = {
-                        val pdfReportGenerator = PdfReportGenerator(context)
-                        pdfReportGenerator.shareReport(context, emptyList())
-                    }) {
-                        Text(
-                            text = "📄 PDF Rapor",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                    Surface(
+                        onClick = {
+                            val pdfReportGenerator = PdfReportGenerator(context)
+                            pdfReportGenerator.shareReport(context, emptyList())
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.padding(end = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "📄 PDF Rapor",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                     }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
