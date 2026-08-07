@@ -59,6 +59,20 @@ class AddEditMedicationViewModel @Inject constructor(
     private val _mealInstruction = MutableStateFlow(MealInstruction.DOES_NOT_MATTER)
     val mealInstruction = _mealInstruction.asStateFlow()
 
+    private val _colorHex = MutableStateFlow("#1E88E5")
+    val colorHex = _colorHex.asStateFlow()
+
+    private val _iconShape = MutableStateFlow("PILL")
+    val iconShape = _iconShape.asStateFlow()
+
+    fun onColorSelected(colorHex: String) {
+        _colorHex.value = colorHex
+    }
+
+    fun onIconShapeSelected(shape: String) {
+        _iconShape.value = shape
+    }
+
     private val _medicationNotes = MutableStateFlow("")
     val medicationNotes = _medicationNotes.asStateFlow()
 
@@ -114,6 +128,8 @@ class AddEditMedicationViewModel @Inject constructor(
                             _medicationName.value = it.name
                             _activeIngredient.value = it.activeIngredient ?: ""
                             _formType.value = it.formType
+                            _colorHex.value = it.colorHex
+                            _iconShape.value = it.iconShape
                             _medicationDosage.value = it.dosage ?: ""
                             _medicationUnit.value = it.unit ?: ""
                             _mealInstruction.value = it.mealInstruction
@@ -249,6 +265,8 @@ class AddEditMedicationViewModel @Inject constructor(
                 activeIngredient = _activeIngredient.value.takeIf { it.isNotBlank() },
                 form = _formType.value.displayNameTr,
                 formType = _formType.value,
+                colorHex = _colorHex.value,
+                iconShape = _iconShape.value,
                 dosage = _medicationDosage.value.takeIf { it.isNotBlank() },
                 unit = _medicationUnit.value.takeIf { it.isNotBlank() },
                 notes = _medicationNotes.value.takeIf { it.isNotBlank() },

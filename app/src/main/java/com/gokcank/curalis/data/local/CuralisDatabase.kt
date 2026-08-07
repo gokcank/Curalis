@@ -2,15 +2,18 @@ package com.gokcank.curalis.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.gokcank.curalis.data.local.dao.AppointmentDao
+import com.gokcank.curalis.data.local.dao.BackupDao
+import com.gokcank.curalis.data.local.dao.DoctorDao
 import com.gokcank.curalis.data.local.dao.MedicationDao
 import com.gokcank.curalis.data.local.dao.ReminderDao
-import com.gokcank.curalis.data.local.entity.MedicationEntity
-import com.gokcank.curalis.data.local.entity.ReminderEntity
-
-import com.gokcank.curalis.data.local.entity.MedicationDaysEntity
-import com.gokcank.curalis.data.local.entity.MedicationTimeEntity
-import com.gokcank.curalis.data.local.entity.DoctorEntity
+import com.gokcank.curalis.data.local.dao.VitalDao
 import com.gokcank.curalis.data.local.entity.AppointmentEntity
+import com.gokcank.curalis.data.local.entity.DoctorEntity
+import com.gokcank.curalis.data.local.entity.MedicationDaysEntity
+import com.gokcank.curalis.data.local.entity.MedicationEntity
+import com.gokcank.curalis.data.local.entity.MedicationTimeEntity
+import com.gokcank.curalis.data.local.entity.ReminderEntity
 import com.gokcank.curalis.data.local.entity.VitalEntity
 
 @Database(
@@ -23,19 +26,19 @@ import com.gokcank.curalis.data.local.entity.VitalEntity
         AppointmentEntity::class,
         VitalEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class CuralisDatabase : RoomDatabase() {
     abstract val medicationDao: MedicationDao
     abstract val reminderDao: ReminderDao
-    abstract val doctorDao: com.gokcank.curalis.data.local.dao.DoctorDao
-    abstract val appointmentDao: com.gokcank.curalis.data.local.dao.AppointmentDao
-    abstract val vitalDao: com.gokcank.curalis.data.local.dao.VitalDao
-    abstract val backupDao: com.gokcank.curalis.data.local.dao.BackupDao
+    abstract val doctorDao: DoctorDao
+    abstract val appointmentDao: AppointmentDao
+    abstract val vitalDao: VitalDao
+    abstract val backupDao: BackupDao
     
     companion object {
         const val DATABASE_NAME = "curalis_db"
-        const val DATABASE_DATE = "06.08.2026"
+        const val DATABASE_DATE = "07.08.2026"
     }
 }

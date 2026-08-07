@@ -1,9 +1,9 @@
 package com.gokcank.curalis.presentation.medication.add_edit
 
-import android.app.DatePickerDialog
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -15,22 +15,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -45,6 +46,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,8 +57,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -82,6 +86,7 @@ fun AddEditMedicationScreen(
     val name by viewModel.medicationName.collectAsState()
     val activeIngredient by viewModel.activeIngredient.collectAsState()
     val selectedFormType by viewModel.formType.collectAsState()
+    val colorHex by viewModel.colorHex.collectAsState()
     val dosage by viewModel.medicationDosage.collectAsState()
     val unit by viewModel.medicationUnit.collectAsState()
     val mealInstruction by viewModel.mealInstruction.collectAsState()
@@ -99,8 +104,8 @@ fun AddEditMedicationScreen(
     val error by viewModel.errorMessage.collectAsState()
 
     var showTimePickerDialog by remember { mutableStateOf(false) }
-    var pendingDoseText by remember { mutableStateOf("") }
     var isUnitDropdownExpanded by remember { mutableStateOf(false) }
+    var showDatePickerDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
@@ -113,7 +118,9 @@ fun AddEditMedicationScreen(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
 
+    LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is AddEditMedicationViewModel.UiEvent.SaveSuccess -> {
@@ -126,10 +133,18 @@ fun AddEditMedicationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(if (viewModel.isEditMode) R.string.edit_medication else R.string.add_medication)) },
+                title = {
+                    Text(
+                        if (viewModel.isEditMode) stringResource(R.string.edit_medication)
+                        else stringResource(R.string.add_medication)
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 }
             )
@@ -139,50 +154,52 @@ fun AddEditMedicationScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+                .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            error?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
 
-            // 1. İlaç Adı ve Otomatik Tamamlama
+            // 1. İlaç Adı ve Autocomplete Arama
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = viewModel::onNameChange,
-                    label = { Text(stringResource(R.string.medication_name)) },
+                    label = { Text(stringResource(R.string.medication_name) + " * (API'de ara)") },
+                    modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         if (isSearching) {
-                            CircularProgressIndicator(modifier = Modifier.width(20.dp))
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp))
                         }
-                    },
-                    isError = error != null,
-                    modifier = Modifier.fillMaxWidth()
+                    }
                 )
-            }
 
-            if (error != null) {
-                Text(text = error!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
-
-            // Öneriler Listesi
-            if (suggestions.isNotEmpty()) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.suggestions_from_openfda),
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                        suggestions.take(4).forEach { suggestion ->
-                            SuggestionItem(
-                                suggestion = suggestion,
-                                onClick = { viewModel.onSuggestionSelected(suggestion) }
+                if (suggestions.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 60.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(
+                                text = "Önerilen Sağlık Bakanlığı / RxNorm İlaçları:",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(4.dp)
                             )
+                            suggestions.take(4).forEach { suggestion ->
+                                SuggestionItem(
+                                    suggestion = suggestion,
+                                    onClick = { viewModel.onSuggestionSelected(suggestion) }
+                                )
+                            }
                         }
                     }
                 }
@@ -219,6 +236,41 @@ fun AddEditMedicationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // 2.5 İlaç Renk Seçici (Color Picker)
+            Text(text = "İlaç Renk Vurgusu", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            val colorOptions = listOf(
+                "#1E88E5", // Mavi
+                "#43A047", // Yeşil
+                "#E53935", // Kırmızı
+                "#8E24AA", // Mor
+                "#FB8C00", // Turuncu
+                "#00ACC1", // Turkuaz
+                "#D81B60"  // Pembe
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                colorOptions.forEach { hex ->
+                    val color = Color(android.graphics.Color.parseColor(hex))
+                    val isSelected = colorHex.equals(hex, ignoreCase = true)
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(color = color, shape = CircleShape)
+                            .clickable { viewModel.onColorSelected(hex) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isSelected) {
+                            Text("✓", color = Color.White, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // 3. Doz & Birim Miktarı (Dropdown + Manuel Giriş)
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -248,7 +300,7 @@ fun AddEditMedicationScreen(
                         onDismissRequest = { isUnitDropdownExpanded = false }
                     ) {
                         DosageUnit.ALL_UNITS.forEach { unitOption ->
-                            DropdownMenuItem(
+                            androidx.compose.material3.DropdownMenuItem(
                                 text = { Text(unitOption) },
                                 onClick = {
                                     viewModel.onUnitChange(unitOption)
@@ -262,7 +314,7 @@ fun AddEditMedicationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 4. Yemek Talimatı Seçici (Aç / Tok / Yemekle / Fark Etmez)
+            // 3.5 Yemek Talimatı (Aç Karnına / Yemekle / Tok Karnına / Fark Etmez)
             Text(text = "Yemek Talimatı", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
@@ -275,51 +327,46 @@ fun AddEditMedicationScreen(
                     FilterChip(
                         selected = mealInstruction == instruction,
                         onClick = { viewModel.onMealInstructionChange(instruction) },
-                        label = { Text("${instruction.iconEmoji} ${instruction.displayNameTr}") }
+                        label = { Text(instruction.displayNameTr) }
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 5. Kullanım Sıklığı (Frequency)
-            Text(text = stringResource(R.string.frequency), style = MaterialTheme.typography.titleMedium)
+            // 4. Sıklık / Periyot Seçimi
+            Text(text = "İlaç Sıklığı / Kullanım Periyodu", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilterChip(
-                    selected = frequencyType == FrequencyType.DAILY,
-                    onClick = { viewModel.onFrequencyTypeChange(FrequencyType.DAILY) },
-                    label = { Text(stringResource(R.string.freq_daily)) }
-                )
-                FilterChip(
-                    selected = frequencyType == FrequencyType.SPECIFIC_DAYS,
-                    onClick = { viewModel.onFrequencyTypeChange(FrequencyType.SPECIFIC_DAYS) },
-                    label = { Text(stringResource(R.string.freq_specific_days)) }
-                )
-                FilterChip(
-                    selected = frequencyType == FrequencyType.INTERVAL,
-                    onClick = { viewModel.onFrequencyTypeChange(FrequencyType.INTERVAL) },
-                    label = { Text(stringResource(R.string.freq_interval)) }
-                )
-                FilterChip(
-                    selected = frequencyType == FrequencyType.AS_NEEDED,
-                    onClick = { viewModel.onFrequencyTypeChange(FrequencyType.AS_NEEDED) },
-                    label = { Text(stringResource(R.string.freq_as_needed)) }
-                )
+                FrequencyType.entries.forEach { type ->
+                    FilterChip(
+                        selected = frequencyType == type,
+                        onClick = { viewModel.onFrequencyTypeChange(type) },
+                        label = {
+                            val text = when (type) {
+                                FrequencyType.DAILY -> "Her Gün"
+                                FrequencyType.SPECIFIC_DAYS -> "Haftanın Belirli Günleri"
+                                FrequencyType.INTERVAL -> "X Günde Bir"
+                                FrequencyType.AS_NEEDED -> "İhtiyaç Halinde (PRN)"
+                            }
+                            Text(text)
+                        }
+                    )
+                }
             }
 
+            // Periyot detay seçicileri
             if (frequencyType == FrequencyType.INTERVAL) {
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = intervalDays,
                     onValueChange = viewModel::onIntervalDaysChange,
-                    label = { Text(stringResource(R.string.interval_days_label)) },
+                    label = { Text("Kaç günde bir alınacak?") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -327,16 +374,19 @@ fun AddEditMedicationScreen(
 
             if (frequencyType == FrequencyType.SPECIFIC_DAYS) {
                 Spacer(modifier = Modifier.height(8.dp))
-                val daysOfWeek = listOf("Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz")
+                Text("Gün Seçimi:", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(4.dp))
+                val daysOfWeekNames = listOf("Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz")
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    daysOfWeek.forEachIndexed { index, dayName ->
-                        val dayIndex = index + 1
+                    daysOfWeekNames.forEachIndexed { index, dayName ->
+                        val dayNumber = index + 1
+                        val isSelected = specificDays.contains(dayNumber)
                         FilterChip(
-                            selected = specificDays.contains(dayIndex),
-                            onClick = { viewModel.toggleSpecificDay(dayIndex) },
+                            selected = isSelected,
+                            onClick = { viewModel.toggleSpecificDay(dayNumber) },
                             label = { Text(dayName) }
                         )
                     }
@@ -345,12 +395,12 @@ fun AddEditMedicationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 6. Hatırlatıcı Saatleri (Çoklu Saat + Özel Dozaj)
+            // 5. Hatırlatıcı Saatleri Ekleme
             if (frequencyType != FrequencyType.AS_NEEDED) {
-                Text(text = stringResource(R.string.reminder_times), style = MaterialTheme.typography.titleMedium)
+                Text(text = "Hatırlatıcı Saatleri", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                medicationTimes.forEach { timeItem ->
+                medicationTimes.forEach { time ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -364,15 +414,10 @@ fun AddEditMedicationScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Notifications, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                val formattedTime = String.format("%02d:%02d", timeItem.hour, timeItem.minute)
-                                val doseInfo = timeItem.dose?.let { " ($it)" } ?: ""
-                                Text(text = "$formattedTime$doseInfo", style = MaterialTheme.typography.bodyLarge)
-                            }
-                            IconButton(onClick = { viewModel.removeMedicationTime(timeItem.id) }) {
-                                Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.delete))
+                            val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", time.hour, time.minute)
+                            Text(text = "⏰ $formattedTime ${time.dose?.let { "• Doz: $it" } ?: ""}", style = MaterialTheme.typography.bodyLarge)
+                            IconButton(onClick = { viewModel.removeMedicationTime(time.id) }) {
+                                Icon(Icons.Default.Delete, contentDescription = "Sil", tint = MaterialTheme.colorScheme.error)
                             }
                         }
                     }
@@ -391,16 +436,15 @@ fun AddEditMedicationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 7. Stok Takibi ve Yenileme Uyarısı
-            Text(text = stringResource(R.string.stock_tracking), style = MaterialTheme.typography.titleMedium)
+            // 6. Kutu / Stok Takibi (Stok Bitmeye Yakın Uyarı Bildirimi)
+            Text(text = "Kutu / Stok Takibi", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = stringResource(R.string.enable_stock_tracking))
+                Text("Stok Takibi Yapılsın mı?")
                 Switch(
                     checked = isRefillEnabled,
                     onCheckedChange = viewModel::onRefillToggle
@@ -413,7 +457,7 @@ fun AddEditMedicationScreen(
                     OutlinedTextField(
                         value = currentStock,
                         onValueChange = viewModel::onCurrentStockChange,
-                        label = { Text(stringResource(R.string.current_stock)) },
+                        label = { Text("Mevcut Stok (Kutu/Tablet)") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
@@ -421,7 +465,7 @@ fun AddEditMedicationScreen(
                     OutlinedTextField(
                         value = refillThreshold,
                         onValueChange = viewModel::onRefillThresholdChange,
-                        label = { Text(stringResource(R.string.refill_threshold)) },
+                        label = { Text("Kritik Stok Uyarısı") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
@@ -430,36 +474,18 @@ fun AddEditMedicationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 8. Son Kullanma Tarihi ve Özel Notlar
+            // 7. Ek Bilgiler & Son Kullanma Tarihi
             Text(text = "Ek Bilgiler & Son Kullanma Tarihi", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            val formattedExpiry = expiryDate?.let {
-                SimpleDateFormat("dd MMMM yyyy", Locale("tr")).format(Date(it))
-            } ?: "Belirtilmedi (Tıkla ve Seç)"
-
             OutlinedButton(
-                onClick = {
-                    val cal = Calendar.getInstance()
-                    expiryDate?.let { cal.timeInMillis = it }
-                    DatePickerDialog(
-                        context,
-                        { _, year, month, dayOfMonth ->
-                            val selectedCal = Calendar.getInstance().apply {
-                                set(year, month, dayOfMonth)
-                            }
-                            viewModel.onExpiryDateChange(selectedCal.timeInMillis)
-                        },
-                        cal.get(Calendar.YEAR),
-                        cal.get(Calendar.MONTH),
-                        cal.get(Calendar.DAY_OF_MONTH)
-                    ).show()
-                },
+                onClick = { showDatePickerDialog = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.DateRange, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Son Kullanma Tarihi: $formattedExpiry")
+                val formattedExpiry = expiryDate?.let {
+                    SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(it))
+                } ?: "Son Kullanma Tarihi Seçin (Opsiyonel)"
+                Text("📅 $formattedExpiry")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -467,33 +493,88 @@ fun AddEditMedicationScreen(
             OutlinedTextField(
                 value = medicationNotes,
                 onValueChange = viewModel::onNotesChange,
-                label = { Text("Serbest Not / Özel Talimatlar") },
-                placeholder = { Text("Örn: Bol su ile yutulmalı") },
+                label = { Text("İlaç Notları / Açıklama") },
+                placeholder = { Text("Serin ve kuru yerde saklayınız.") },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Save Button
             Button(
                 onClick = viewModel::saveMedication,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
             ) {
-                Text(stringResource(R.string.save))
+                Text(
+                    if (viewModel.isEditMode) "Güncelle"
+                    else stringResource(R.string.save)
+                )
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 
+    // Time Picker Dialog
     if (showTimePickerDialog) {
-        TimeSelectionDialog(
-            onDismiss = { showTimePickerDialog = false },
-            onTimeSelected = { hour, minute, dose ->
-                viewModel.addMedicationTime(hour, minute, dose)
-                showTimePickerDialog = false
+        val timePickerState = rememberTimePickerState(initialHour = 8, initialMinute = 0, is24Hour = true)
+        Dialog(onDismissRequest = { showTimePickerDialog = false }) {
+            Card(
+                modifier = Modifier.padding(16.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Hatırlatıcı Saati Seçin", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TimePicker(state = timePickerState)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        OutlinedButton(onClick = { showTimePickerDialog = false }) {
+                            Text("İptal")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = {
+                            viewModel.addMedicationTime(timePickerState.hour, timePickerState.minute)
+                            showTimePickerDialog = false
+                        }) {
+                            Text("Ekle")
+                        }
+                    }
+                }
             }
-        )
+        }
+    }
+
+    // Date Picker Dialog (Son Kullanma Tarihi)
+    if (showDatePickerDialog) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showDatePickerDialog = false },
+            confirmButton = {
+                Button(onClick = {
+                    datePickerState.selectedDateMillis?.let {
+                        viewModel.onExpiryDateChange(it)
+                    }
+                    showDatePickerDialog = false
+                }) {
+                    Text("Tamam")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDatePickerDialog = false }) {
+                    Text("İptal")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
     }
 }
 
@@ -502,83 +583,27 @@ fun SuggestionItem(
     suggestion: ProviderMedication,
     onClick: () -> Unit
 ) {
-    Row(
+    Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Column {
-            Text(text = suggestion.name, style = MaterialTheme.typography.bodyMedium)
-            if (!suggestion.activeIngredient.isNullOrBlank()) {
-                Text(
-                    text = suggestion.activeIngredient,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TimeSelectionDialog(
-    onDismiss: () -> Unit,
-    onTimeSelected: (hour: Int, minute: Int, dose: String?) -> Unit
-) {
-    val currentTime = Calendar.getInstance()
-    val timePickerState = rememberTimePickerState(
-        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-        initialMinute = currentTime.get(Calendar.MINUTE),
-        is24Hour = true
-    )
-    var doseText by remember { mutableStateOf("") }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Saat & Doz Seçin", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(16.dp))
-
-                TimePicker(state = timePickerState)
-
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = doseText,
-                    onValueChange = { doseText = it },
-                    label = { Text("Özel Dozaj Miktarı (İsteğe Bağlı)") },
-                    placeholder = { Text("Örn: 1 Tablet veya 10 ml") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    OutlinedButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            onTimeSelected(timePickerState.hour, timePickerState.minute, doseText)
-                        }
-                    ) {
-                        Text("Ekle")
-                    }
+            Column {
+                Text(text = suggestion.name, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                suggestion.activeIngredient?.let {
+                    Text(text = "Etken Madde: $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
                 }
             }
+            Text(text = suggestion.form ?: "İlaç", style = MaterialTheme.typography.labelSmall)
         }
     }
 }

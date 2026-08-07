@@ -12,6 +12,8 @@ data class MedicationEntity(
     val activeIngredient: String?,
     val form: String?,
     val formType: String = "PILL",
+    val colorHex: String = "#1E88E5",
+    val iconShape: String = "PILL",
     val dosage: String?,
     val unit: String?,
     val notes: String?,

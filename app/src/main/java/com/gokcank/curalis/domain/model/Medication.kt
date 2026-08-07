@@ -9,6 +9,8 @@ data class Medication(
     val activeIngredient: String? = null,
     val form: String? = null,
     val formType: MedicationForm = MedicationForm.PILL,
+    val colorHex: String = "#1E88E5",
+    val iconShape: String = "PILL",
     val dosage: String? = null,
     val unit: String? = null,
     val notes: String? = null,
