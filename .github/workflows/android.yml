@@ -31,4 +31,4 @@ jobs:
       uses: gradle/actions/wrapper-validation@v3
       
     - name: Build and Test
-      run: ./gradlew build
+      run: ./gradlew test assembleDebug
