@@ -36,4 +36,5 @@ sealed class Screen(val route: String) {
     
     data object Calendar : Screen("calendar_screen")
     data object DailyTimeline : Screen("daily_timeline_screen")
+    data object Analytics : Screen("analytics_screen")
 }

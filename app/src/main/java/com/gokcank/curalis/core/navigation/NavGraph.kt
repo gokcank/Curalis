@@ -137,5 +137,23 @@ fun NavGraph() {
         ) {
             AddEditVitalScreen(onNavigateBack = { navController.popBackStack() })
         }
+
+        // Calendar, Timeline & Analytics
+        composable(route = Screen.Calendar.route) {
+            com.gokcank.curalis.presentation.calendar.AdherenceCalendarScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToAnalytics = { navController.navigate(Screen.Analytics.route) }
+            )
+        }
+        composable(route = Screen.DailyTimeline.route) {
+            com.gokcank.curalis.presentation.timeline.DailyTimelineScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(route = Screen.Analytics.route) {
+            com.gokcank.curalis.presentation.analytics.AdherenceAnalyticsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
     }
 }

@@ -60,6 +60,7 @@ import java.util.Locale
 @Composable
 fun AdherenceCalendarScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToAnalytics: () -> Unit = {},
     viewModel: AdherenceCalendarViewModel = hiltViewModel()
 ) {
     val currentYearMonth by viewModel.currentYearMonth.collectAsState()
@@ -74,6 +75,21 @@ fun AdherenceCalendarScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                    }
+                },
+                actions = {
+                    Surface(
+                        onClick = onNavigateToAnalytics,
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text(
+                            text = "📊 Analizler",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                        )
                     }
                 }
             )
