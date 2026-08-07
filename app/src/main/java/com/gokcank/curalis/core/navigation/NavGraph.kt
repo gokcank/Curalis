@@ -33,8 +33,15 @@ fun NavGraph() {
                 onNavigateToDoctors = { navController.navigate(Screen.DoctorList.route) },
                 onNavigateToAppointments = { navController.navigate(Screen.AppointmentList.route) },
                 onNavigateToVitals = { navController.navigate(Screen.VitalList.route) },
+                onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
                 onNavigateToAbout = { navController.navigate(Screen.About.route) }
+            )
+        }
+        
+        composable(route = Screen.Calendar.route) {
+            com.gokcank.curalis.presentation.calendar.AdherenceCalendarScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         

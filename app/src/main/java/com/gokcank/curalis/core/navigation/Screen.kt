@@ -33,4 +33,6 @@ sealed class Screen(val route: String) {
             return "add_edit_vital_screen?vitalId=$vitalId"
         }
     }
+    
+    data object Calendar : Screen("calendar_screen")
 }

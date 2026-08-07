@@ -74,6 +74,7 @@ fun HomeScreen(
     onNavigateToDoctors: () -> Unit,
     onNavigateToAppointments: () -> Unit,
     onNavigateToVitals: () -> Unit,
+    onNavigateToCalendar: () -> Unit = {},
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit
 ) {
@@ -142,6 +143,13 @@ fun HomeScreen(
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
+                    }
+                    IconButton(onClick = onNavigateToCalendar) {
+                        Icon(
+                            androidx.compose.material.icons.Icons.Default.DateRange, 
+                            contentDescription = "Takvim",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
