@@ -45,6 +45,12 @@ fun NavGraph() {
             )
         }
         
+        composable(route = Screen.DailyTimeline.route) {
+            com.gokcank.curalis.presentation.timeline.DailyTimelineScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
         composable(route = Screen.Settings.route) {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
