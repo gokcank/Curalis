@@ -3,12 +3,14 @@ package com.gokcank.curalis.presentation.medication.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.domain.model.Medication
+import com.gokcank.curalis.domain.model.Reminder
+import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.usecase.DeleteMedicationUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
+import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import com.gokcank.curalis.domain.usecase.SearchMedicationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +23,8 @@ import javax.inject.Inject
 class MedicationListViewModel @Inject constructor(
     private val getMedicationsUseCase: GetMedicationsUseCase,
     private val searchMedicationsUseCase: SearchMedicationsUseCase,
-    private val deleteMedicationUseCase: DeleteMedicationUseCase
+    private val deleteMedicationUseCase: DeleteMedicationUseCase,
+    private val scheduleReminderUseCase: ScheduleReminderUseCase
 ) : ViewModel() {
 
     private val _medications = MutableStateFlow<List<Medication>>(emptyList())
@@ -48,6 +51,17 @@ class MedicationListViewModel @Inject constructor(
     fun deleteMedication(medication: Medication) {
         viewModelScope.launch {
             deleteMedicationUseCase(medication)
+        }
+    }
+
+    fun takeDose(medicationId: String) {
+        viewModelScope.launch {
+            val reminder = Reminder(
+                medicationId = medicationId,
+                timeInMillis = System.currentTimeMillis(),
+                state = ReminderState.TAKEN
+            )
+            scheduleReminderUseCase(reminder)
         }
     }
 

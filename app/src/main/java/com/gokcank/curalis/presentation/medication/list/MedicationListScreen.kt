@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -174,6 +175,7 @@ fun MedicationListScreen(
                         MedicationItem(
                             medication = medication,
                             onClick = { onNavigateToAddEdit(medication.id) },
+                            onTakeDose = { viewModel.takeDose(medication.id) },
                             onDelete = { medicationToDelete = medication }
                         )
                     }
@@ -188,6 +190,7 @@ fun MedicationListScreen(
 fun MedicationItem(
     medication: Medication,
     onClick: () -> Unit,
+    onTakeDose: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
@@ -322,6 +325,16 @@ fun MedicationItem(
                             }
                         }
                     }
+                }
+            }
+
+            if (medication.frequencyType == FrequencyType.AS_NEEDED) {
+                IconButton(onClick = onTakeDose) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Şimdi Al",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
 
