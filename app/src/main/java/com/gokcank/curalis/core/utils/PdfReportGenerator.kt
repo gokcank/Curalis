@@ -11,8 +11,13 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.gokcank.curalis.domain.model.Medication
+import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.model.Vital
+import com.gokcank.curalis.domain.repository.MedicationRepository
+import com.gokcank.curalis.domain.repository.ReminderRepository
+import com.gokcank.curalis.domain.repository.VitalRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.firstOrNull
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -21,10 +26,56 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@dagger.hilt.EntryPoint
+@dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
+interface PdfReportGeneratorEntryPoint {
+    fun pdfReportGenerator(): PdfReportGenerator
+}
+
 @Singleton
 class PdfReportGenerator @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val medicationRepository: MedicationRepository,
+    private val vitalRepository: VitalRepository,
+    private val reminderRepository: ReminderRepository
 ) {
+
+    suspend fun generateAndShareReport(activityContext: Context) {
+        try {
+            val medications = medicationRepository.getAllMedications().firstOrNull() ?: emptyList()
+            val vitals = vitalRepository.getAllVitals().firstOrNull() ?: emptyList()
+
+            val now = System.currentTimeMillis()
+            val monthStart = now - (30L * 24 * 3600 * 1000)
+            val monthReminders = reminderRepository.getRemindersBetweenDates(monthStart, now).firstOrNull() ?: emptyList()
+
+            val takenCount = monthReminders.count { it.state == ReminderState.TAKEN }
+            val skippedCount = monthReminders.count { it.state == ReminderState.SKIPPED }
+            val missedCount = monthReminders.count { it.state == ReminderState.MISSED }
+
+            val pdfFile = generateHealthReportPdf(medications, vitals, takenCount, skippedCount, missedCount)
+
+            val contentUri: Uri = FileProvider.getUriForFile(
+                activityContext,
+                "${activityContext.packageName}.fileprovider",
+                pdfFile
+            )
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_STREAM, contentUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            val chooser = Intent.createChooser(shareIntent, "Curalis Sağlık Raporu (PDF)").apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            activityContext.startActivity(chooser)
+            Toast.makeText(activityContext, "📄 PDF Sağlık Raporu oluşturuldu", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(activityContext, "Hata: PDF raporu açılamadı", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     fun generateHealthReportPdf(
         medications: List<Medication>,
@@ -144,30 +195,5 @@ class PdfReportGenerator @Inject constructor(
         pdfDocument.close()
 
         return reportFile
-    }
-
-    fun shareReport(context: Context, medications: List<Medication>, vitals: List<Vital> = emptyList()) {
-        try {
-            val pdfFile = generateHealthReportPdf(medications, vitals)
-            val contentUri: Uri = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                pdfFile
-            )
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/pdf"
-                putExtra(Intent.EXTRA_STREAM, contentUri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            val chooser = Intent.createChooser(shareIntent, "Curalis Sağlık Raporu (PDF)").apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(chooser)
-            Toast.makeText(context, "📄 PDF Sağlık Raporu oluşturuldu", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(context, "Hata: PDF raporu açılamadı", Toast.LENGTH_SHORT).show()
-        }
     }
 }

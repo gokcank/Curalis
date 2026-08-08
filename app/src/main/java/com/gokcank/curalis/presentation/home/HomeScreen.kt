@@ -36,6 +36,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.gokcank.curalis.core.utils.PdfReportGeneratorEntryPoint
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -80,7 +82,15 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showExitDialog by remember { mutableStateOf(false) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
     val context = LocalContext.current
+    val pdfReportGenerator = remember {
+        val entryPoint = dagger.hilt.android.EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            PdfReportGeneratorEntryPoint::class.java
+        )
+        entryPoint.pdfReportGenerator()
+    }
 
     BackHandler {
         showExitDialog = true
@@ -125,8 +135,9 @@ fun HomeScreen(
                 actions = {
                     Surface(
                         onClick = {
-                            val pdfReportGenerator = PdfReportGenerator(context)
-                            pdfReportGenerator.shareReport(context, emptyList())
+                            scope.launch {
+                                pdfReportGenerator.generateAndShareReport(context)
+                            }
                         },
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.primaryContainer,

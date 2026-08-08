@@ -37,6 +37,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.rememberCoroutineScope
+import com.gokcank.curalis.core.utils.PdfReportGeneratorEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -68,8 +72,15 @@ fun MedicationListScreen(
     val medications by viewModel.medications.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     var medicationToDelete by remember { mutableStateOf<Medication?>(null) }
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val pdfReportGenerator = remember { PdfReportGenerator(context) }
+    val pdfReportGenerator = remember {
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            PdfReportGeneratorEntryPoint::class.java
+        )
+        entryPoint.pdfReportGenerator()
+    }
 
     medicationToDelete?.let { med ->
         AlertDialog(
@@ -106,7 +117,9 @@ fun MedicationListScreen(
                 actions = {
                     Surface(
                         onClick = {
-                            pdfReportGenerator.shareReport(context, medications)
+                            scope.launch {
+                                pdfReportGenerator.generateAndShareReport(context)
+                            }
                         },
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.primaryContainer,
