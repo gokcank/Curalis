@@ -96,6 +96,35 @@ class ReminderActionReceiver : BroadcastReceiver() {
                         scheduleReminderUseCase(newReminder)
                         alarmScheduler.schedule(newReminder, medicationName)
                     }
+
+                    NotificationHelper.ACTION_TAKE_ALL -> {
+                        val reminderIds = intent.getStringArrayExtra(NotificationHelper.EXTRA_REMINDER_IDS)?.toList() ?: emptyList()
+                        val medicationIds = intent.getStringArrayExtra(NotificationHelper.EXTRA_MEDICATION_IDS)?.toList() ?: emptyList()
+
+                        reminderIds.forEachIndexed { index, remId ->
+                            acknowledgeReminderUseCase(remId, ReminderState.TAKEN)
+                            val medId = medicationIds.getOrNull(index) ?: ""
+                            if (medId.isNotBlank()) {
+                                val medication = medicationRepository.getMedicationById(medId).firstOrNull()
+                                medication?.let { med ->
+                                    val currentStock = med.currentStock
+                                    if (currentStock != null && currentStock > 0) {
+                                        val newStock = currentStock - 1
+                                        val updatedMedication = med.copy(currentStock = newStock)
+                                        medicationRepository.updateMedication(updatedMedication)
+
+                                        if (med.isRefillReminderEnabled && newStock <= (med.refillThreshold ?: 5)) {
+                                            notificationHelper.showRefillWarningNotification(med.name, newStock)
+                                        }
+
+                                        alarmScheduler.scheduleMedicationAlarms(updatedMedication)
+                                    } else {
+                                        alarmScheduler.scheduleMedicationAlarms(med)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             } finally {
                 pendingResult.finish()

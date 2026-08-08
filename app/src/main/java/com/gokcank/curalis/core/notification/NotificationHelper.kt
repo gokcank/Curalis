@@ -158,14 +158,66 @@ class NotificationHelper @Inject constructor(
         notificationManager.cancel(reminderId.hashCode())
     }
 
+    fun showGroupedReminderNotification(
+        reminderIds: List<String>,
+        medicationNames: List<String>,
+        medicationIds: List<String>
+    ) {
+        if (reminderIds.isEmpty() || medicationNames.isEmpty()) return
+
+        val contentIntent = Intent(context, MainActivity::class.java)
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            reminderIds.hashCode(),
+            contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val joinedNames = medicationNames.joinToString(", ")
+        val groupTitle = "💊 ${medicationNames.size} İlaç Saatiniz Geldi!"
+        val groupText = "Alınacak İlaçlar: $joinedNames"
+
+        val takeAllIntent = Intent(context, ReminderActionReceiver::class.java).apply {
+            action = ACTION_TAKE_ALL
+            putExtra(EXTRA_REMINDER_IDS, reminderIds.toTypedArray())
+            putExtra(EXTRA_MEDICATION_IDS, medicationIds.toTypedArray())
+        }
+        val takeAllPendingIntent = PendingIntent.getBroadcast(
+            context,
+            reminderIds.hashCode(),
+            takeAllIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle(groupTitle)
+            .setContentText(groupText)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(groupText))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
+            .addAction(
+                android.R.drawable.ic_menu_save,
+                "✅ Hepsini Aldım",
+                takeAllPendingIntent
+            )
+
+        notificationManager.notify(reminderIds.hashCode(), builder.build())
+    }
+
     companion object {
         const val CHANNEL_ID = "medication_reminders_channel"
         const val ACTION_TAKEN = "com.gokcank.curalis.ACTION_TAKEN"
         const val ACTION_SNOOZE = "com.gokcank.curalis.ACTION_SNOOZE"
         const val ACTION_SKIP = "com.gokcank.curalis.ACTION_SKIP"
+        const val ACTION_TAKE_ALL = "com.gokcank.curalis.ACTION_TAKE_ALL"
         const val EXTRA_REMINDER_ID = "extra_reminder_id"
+        const val EXTRA_REMINDER_IDS = "extra_reminder_ids"
         const val EXTRA_MEDICATION_NAME = "extra_medication_name"
         const val EXTRA_MEDICATION_ID = "extra_medication_id"
+        const val EXTRA_MEDICATION_IDS = "extra_medication_ids"
         const val EXTRA_SNOOZE_MINUTES = "extra_snooze_minutes"
     }
 }
