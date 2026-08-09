@@ -5,13 +5,11 @@
     <string name="cancel">İptal</string>
     <string name="save">Kaydet</string>
     <string name="add">Ekle</string>
-    <string name="edit">Düzenle</string>
     <string name="back">Geri Dön</string>
     <string name="delete">Sil</string>
     <string name="unknown">Bilinmeyen</string>
     <string name="time">Saat</string>
     <string name="date">Tarih</string>
-    <string name="optional">İsteğe Bağlı</string>
     <string name="all">Tümü</string>
 
     <!-- Dashboard / Home -->
@@ -35,12 +33,7 @@
     <string name="medication_name">İlaç Adı * (API\'de ara)</string>
     <string name="medication_dosage">Dozaj (Örn: 500)</string>
     <string name="active_ingredient">Etken Madde</string>
-    <string name="form">Form (Tablet, Şurup vb.)</string>
-    <string name="frequency">Sıklık</string>
     <string name="no_medications_found">Henüz hiç ilaç eklemediniz.</string>
-    <string name="daily_reminder">Günlük Hatırlatıcı</string>
-    <string name="set_reminder_time">Hatırlatıcı Saati Seç</string>
-    <string name="suggestions_from_openfda">OpenFDA\'dan Öneriler:</string>
     <string name="notification_title">İlaç Vakti</string>
     <string name="notification_text_medication">İlaç: %1$s</string>
     <string name="notification_action_take">Şimdi Al</string>
@@ -48,8 +41,12 @@
     <string name="notification_action_skip">Atla</string>
     <string name="notification_channel_name">İlaç Hatırlatıcıları</string>
     <string name="notification_channel_desc">İlaç zamanı geldiğinde bildirim gönderir</string>
+    <string name="notification_channel_name_silent">İlaç Hatırlatıcıları (Sessiz Saatler)</string>
+    <string name="notification_channel_desc_silent">Sessiz saatler içinde gelen ilaç hatırlatıcıları; ses ve titreşim içermez</string>
+    <string name="notification_channel_name_refill">Stok Uyarıları</string>
+    <string name="notification_channel_desc_refill">İlaç stoğunuz azaldığında bildirim gönderir</string>
     <string name="ok">Tamam</string>
-    
+
     <!-- Doctors -->
     <string name="my_doctors">Doktorlarım</string>
     <string name="add_doctor">Doktor Ekle</string>
@@ -66,9 +63,10 @@
     <string name="add_appointment">Randevu Ekle</string>
     <string name="edit_appointment">Randevu Bilgileri</string>
     <string name="appointment_title">Randevu Başlığı (Örn: Kardiyoloji Kontrolü)</string>
-    <string name="select_doctor">Doktor Seçin</string>
     <string name="appointment_location">Konum (Hastane, Oda)</string>
     <string name="appointment_notes">Notlar</string>
+    <string name="appointment_doctor">Doktor</string>
+    <string name="appointment_doctor_none">Doktor seçilmedi</string>
     <string name="no_appointments_found">Henüz hiç randevu eklemediniz.</string>
 
     <!-- Vitals -->
@@ -76,13 +74,7 @@
     <string name="add_vital">Yeni Ölçüm Ekle</string>
     <string name="vital_type">Ölçüm Türü</string>
     <string name="vital_value">Değer</string>
-    <string name="vital_unit">Birim</string>
     <string name="no_vitals_found">Henüz hiç ölçüm eklemediniz.</string>
-    <string name="vital_blood_pressure">Tansiyon (Sistolik/Diyastolik)</string>
-    <string name="vital_blood_sugar">Kan Şekeri</string>
-    <string name="vital_heart_rate">Nabız</string>
-    <string name="vital_weight">Kilo</string>
-    <string name="vital_temperature">Vücut Isısı</string>
     <string name="vital_type_blood_pressure_short">Tansiyon</string>
     <string name="vital_type_blood_sugar_short">Kan Şekeri</string>
     <string name="vital_type_heart_rate_short">Nabız</string>
@@ -96,20 +88,30 @@
     <!-- Settings & About -->
     <string name="settings">Ayarlar</string>
     <string name="appearance">Görünüm</string>
-    <string name="dark_mode">Karanlık Mod</string>
-    <string name="dark_mode_desc">Uygulamanın temasını koyu renklere çevirir</string>
+    <string name="theme_mode">Tema</string>
+    <string name="theme_mode_desc">Uygulamanın açık mı koyu mu görüneceğini seçin</string>
+    <string name="theme_follow_system">Sistem</string>
+    <string name="theme_light">Açık</string>
+    <string name="theme_dark">Koyu</string>
     <string name="language">Dil / Language</string>
     <string name="language_desc">Uygulama dilini değiştirir (Türkçe, English)</string>
     <string name="about">Hakkında</string>
     <string name="app_version">Curalis %1$s (Kapalı Beta)</string>
     <string name="developer">Geliştirici: %1$s</string>
-    <string name="view_on_github">GitHub\'da Görüntüle</string>
     <string name="database_date_label">TİTCK Veritabanı Tarihi: %1$s</string>
 
     <!-- Bug Report -->
     <string name="bug_report">HATA BİLDİR</string>
     <string name="bug_report_subject">HATA BİLDİRİMİ</string>
     <string name="bug_report_body">Merhaba,\n\nUygulama ile ilgili bir sorun yaşıyorum.\n\n--- Sistem Bilgileri ---\nModel: %1$s\nOS Sürümü: %2$s\nAPI: %3$s\nCuralis Sürümü: %4$s</string>
+
+    <!-- Medical & Privacy -->
+    <string name="medical_disclaimer_title">Tıbbi Uyarı</string>
+    <string name="medical_disclaimer_body">Curalis bir ilaç hatırlatma ve takip aracıdır; tıbbi tavsiye, teşhis veya tedavi hizmeti sunmaz. İlaçlarınızla ilgili tüm kararları mutlaka doktorunuza veya eczacınıza danışarak alın. Acil bir durumda uygulamayı değil 112\'yi arayın.</string>
+    <string name="privacy_policy_button">Gizlilik Politikası ve KVKK Aydınlatma Metni</string>
+    <string name="privacy_policy_title">Gizlilik Politikası ve KVKK Aydınlatma Metni</string>
+    <string name="privacy_policy_body">Curalis, girdiğiniz tüm ilaç, randevu, doktor ve ölçüm bilgilerini yalnızca cihazınızın yerel veritabanında saklar. Bu veriler, siz açıkça bir yedekleme işlemi başlatmadığınız sürece cihazınızdan dışarı çıkmaz.\n\nİlaç arama önerileri, cihazınıza önceden yüklenmiş yerel bir veritabanından (T.C. Sağlık Bakanlığı TİTCK ilaç listesi) okunur; bu aramalar için internete istek gönderilmez.\n\nYedekleme özelliğini kullanırsanız: Yerel yedekler, sizin belirlediğiniz bir şifreyle şifrelenerek seçtiğiniz konuma kaydedilir. Google Drive yedekleri de aynı şekilde şifrelenip yalnızca kendi Google hesabınızın uygulamaya özel, gizli klasörüne yüklenir; geliştirici bu verilere erişemez.\n\nUygulama reklam, analitik/izleme kütüphanesi veya üçüncü taraf veri paylaşımı içermez. Verileriniz üzerinde tam kontrol sizdedir: Ayarlar üzerinden dilediğiniz zaman dışa aktarabilir veya uygulamayı kaldırarak tüm yerel verileri silebilirsiniz.\n\n6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında işlenen kişisel sağlık verileriniz yalnızca sizin cihazınızda, sizin kontrolünüzde tutulur; veri sorumlusu sıfatıyla geliştirici tarafından herhangi bir sunucuda saklanmaz veya işlenmez.</string>
+
     <!-- Exit Confirmation -->
     <string name="exit_confirmation_title">Uygulamadan Çıkış</string>
     <string name="exit_confirmation_message">Uygulamadan çıkmak istediğinize emin misiniz?</string>
@@ -126,25 +128,8 @@
     <string name="delete_vital_message">Bu ölçüm kaydını silmek istediğinize emin misiniz?</string>
     <!-- Backup -->
     <string name="backup_restore_title">Yedekleme &amp; Geri Yükleme</string>
-    <string name="backup_local_export">Cihaza Yedekle</string>
-    <string name="backup_local_import">Yedekten Geri Yükle</string>
-    <string name="backup_google_drive">Google Drive Yedekleme</string>
     <string name="google_signin_error_oauth">Google Giriş Hatası: OAuth SHA-1 yapılandırması gerekli (Hata Kodu: %1$d).</string>
 
     <!-- Medication Revision Strings -->
     <string name="medication_form">İlaç Formu / Türü</string>
-    <string name="freq_daily">Her Gün</string>
-    <string name="freq_specific_days">Haftanın Belirli Günleri</string>
-    <string name="freq_interval">X Günde Bir</string>
-    <string name="freq_as_needed">İhtiyaç Halinde (PRN)</string>
-    <string name="interval_days_label">Kaç Günde Bir?</string>
-    <string name="reminder_times">Hatırlatıcı Saatleri</string>
-    <string name="add_reminder_time">Hatırlatıcı Saati Ekle (+)</string>
-    <string name="dose_amount">Doz Miktarı (Örn: 1 Tablet)</string>
-    <string name="stock_tracking">Kutu / Stok Takibi</string>
-    <string name="enable_stock_tracking">Stok Takibi Yapılsın mı?</string>
-    <string name="current_stock">Mevcut Stok Miktarı</string>
-    <string name="refill_threshold">Yenileme Uyarı Eşiği</string>
-    <string name="remaining_stock">Kalan: %1$d Doz</string>
-    <string name="low_stock_warning">Stok Azalıyor!</string>
 </resources>
