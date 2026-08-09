@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.13.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.2)" variant="all" version="8.13.2">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        return String.format(&quot;%02d:%02d&quot;, h, m)"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/notificationsettings/NotificationSettingsScreen.kt"
+            line="56"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="OldTargetApi"
+        message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
+        errorLine1="        targetSdk = 35"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="25"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `localeConfig` is only used in API level 33 and higher (current min is 31)"
+        errorLine1="        android:localeConfig=&quot;@xml/locales_config&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="23"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="    val dateFormat = SimpleDateFormat(&quot;dd MMM yyyy, HH:mm&quot;, Locale.getDefault())"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/appointment/AddEditAppointmentScreen.kt"
+            line="75"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="                            val formattedTime = String.format(Locale.getDefault(), &quot;%02d:%02d&quot;, time.hour, time.minute)"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/medication/addedit/AddEditMedicationScreen.kt"
+            line="522"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="                    val formattedTime = SimpleDateFormat(&quot;HH:mm&quot;, Locale.getDefault()).format(Date(item.reminder.timeInMillis))"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/calendar/AdherenceCalendarScreen.kt"
+            line="328"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="    val dateFormat = SimpleDateFormat(&quot;dd MMM yyyy, HH:mm&quot;, Locale.getDefault())"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/appointment/AppointmentListScreen.kt"
+            line="146"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="            String.format(Locale.getDefault(), &quot;%02d:00 – %02d:00&quot;, slot.startHour, slot.endHour),"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/timeline/DailyTimelineScreen.kt"
+            line="176"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="    val formattedTime = SimpleDateFormat(&quot;HH:mm&quot;, Locale.getDefault()).format(Date(item.reminder.timeInMillis))"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/timeline/DailyTimelineScreen.kt"
+            line="190"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="                val dateFormat = SimpleDateFormat(&quot;d MMMM EEEE&quot;, java.util.Locale.getDefault())"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/home/HomeScreen.kt"
+            line="206"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="                            val timeStr = SimpleDateFormat(&quot;HH:mm&quot;, Locale.getDefault()).format(Date(reminder.timeInMillis))"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/home/HomeScreen.kt"
+            line="231"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="                                val dateStr = SimpleDateFormat(&quot;dd MMM HH:mm&quot;, Locale.getDefault()).format(Date(appt.timeInMillis))"
+        errorLine2="                                                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/home/HomeScreen.kt"
+            line="242"
+            column="80"/>
+    </issue>
+
+    <issue
+        id="NonObservableLocale"
+        message="Reading locale in a non-observable way in a composable function"
+        errorLine1="    val dateFormat = SimpleDateFormat(&quot;dd MMM yyyy, HH:mm&quot;, Locale.getDefault())"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/vital/VitalListScreen.kt"
+            line="190"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="AndroidGradlePluginVersion"
+        message="A newer version of Gradle than 8.13 is available: 8.14.5"
+        errorLine1="distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-bin.zip"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/wrapper/gradle-wrapper.properties"
+            line="3"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="AndroidGradlePluginVersion"
+        message="A newer version of com.android.application than 8.13.2 is available: 9.3.1"
+        errorLine1="agp = &quot;8.13.2&quot;"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="2"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.core:core-ktx than 1.18.0 is available: 1.19.0"
+        errorLine1="coreKtx = &quot;1.18.0&quot;"
+        errorLine2="          ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="4"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.10.0 is available: 2.11.0"
+        errorLine1="lifecycleRuntimeKtx = &quot;2.10.0&quot;"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="8"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.activity:activity-compose than 1.12.4 is available: 1.13.0"
+        errorLine1="activityCompose = &quot;1.12.4&quot;"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="9"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-navigation-compose than 1.3.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.3.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="12"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.devtools.ksp than 2.1.20-2.0.1 is available: 2.3.10"
+        errorLine1="ksp = &quot;2.1.20-2.0.1&quot;"
+        errorLine2="      ~~~~~~~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="15"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.jetbrains.kotlin.android than 2.1.20 is available: 2.4.10"
+        errorLine1="kotlin = &quot;2.1.20&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="3"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.jetbrains.kotlin.plugin.compose than 2.1.20 is available: 2.4.10"
+        errorLine1="kotlin = &quot;2.1.20&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="3"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.google.dagger.hilt.android than 2.58 is available: 2.60.1"
+        errorLine1="hilt = &quot;2.58&quot;"
+        errorLine2="       ~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="11"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.google.dagger:hilt-android than 2.58 is available: 2.60.1"
+        errorLine1="hilt = &quot;2.58&quot;"
+        errorLine2="       ~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="11"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.google.dagger:hilt-android-compiler than 2.58 is available: 2.60.1"
+        errorLine1="hilt = &quot;2.58&quot;"
+        errorLine2="       ~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="11"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.squareup.retrofit2:converter-gson than 2.12.0 is available: 3.0.0"
+        errorLine1="retrofit = &quot;2.12.0&quot;"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="16"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.squareup.retrofit2:retrofit than 2.12.0 is available: 3.0.0"
+        errorLine1="retrofit = &quot;2.12.0&quot;"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="16"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.squareup.okhttp3:logging-interceptor than 4.12.0 is available: 5.4.0"
+        errorLine1="okhttp = &quot;4.12.0&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="18"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.google.api-client:google-api-client-android than 1.35.2 is available: 2.9.0"
+        errorLine1="googleApiClient = &quot;1.35.2&quot;"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="$HOME/projects/android/com.gokcank.curalis/gradle/libs.versions.toml"
+            line="20"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="LocalContextGetResourceValueCall"
+        message="Querying resource values using LocalContext.current"
+        errorLine1="                context.getString(R.string.google_signin_error_oauth, e.statusCode)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/backup/BackupScreen.kt"
+            line="90"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="TrustAllX509TrustManager"
+        message="`checkClientTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
+        <location
+            file="$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.http-client/google-http-client/1.45.2/b9002e4d0e0d55a9af5e391bcc2458b5562397/google-http-client-1.45.2.jar"/>
+    </issue>
+
+    <issue
+        id="TrustAllX509TrustManager"
+        message="`checkServerTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
+        <location
+            file="$GRADLE_USER_HOME/caches/modules-2/files-2.1/com.google.http-client/google-http-client/1.45.2/b9002e4d0e0d55a9af5e391bcc2458b5562397/google-http-client-1.45.2.jar"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 26"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/notification/AlarmScheduler.kt"
+            line="40"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 26"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/notification/NotificationHelper.kt"
+            line="31"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="IconLauncherShape"
+        message="Launcher icon used as round icon did not have a circular shape">
+        <location
+            file="src/main/res/mipmap-hdpi/ic_launcher_round.png"/>
+    </issue>
+
+    <issue
+        id="IconLauncherShape"
+        message="Launcher icon used as round icon did not have a circular shape">
+        <location
+            file="src/main/res/mipmap-mdpi/ic_launcher_round.png"/>
+    </issue>
+
+    <issue
+        id="IconLauncherShape"
+        message="Launcher icon used as round icon did not have a circular shape">
+        <location
+            file="src/main/res/mipmap-xhdpi/ic_launcher_round.png"/>
+    </issue>
+
+    <issue
+        id="IconLauncherShape"
+        message="Launcher icon used as round icon did not have a circular shape">
+        <location
+            file="src/main/res/mipmap-xxhdpi/ic_launcher_round.png"/>
+    </issue>
+
+    <issue
+        id="IconLauncherShape"
+        message="Launcher icon used as round icon did not have a circular shape">
+        <location
+            file="src/main/res/mipmap-xxxhdpi/ic_launcher_round.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_launcher.png, ic_launcher_round.png">
+        <location
+            file="src/main/res/mipmap-hdpi/ic_launcher_round.png"/>
+        <location
+            file="src/main/res/mipmap-hdpi/ic_launcher.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_launcher.png, ic_launcher_round.png">
+        <location
+            file="src/main/res/mipmap-mdpi/ic_launcher_round.png"/>
+        <location
+            file="src/main/res/mipmap-mdpi/ic_launcher.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_launcher.png, ic_launcher_round.png">
+        <location
+            file="src/main/res/mipmap-xhdpi/ic_launcher_round.png"/>
+        <location
+            file="src/main/res/mipmap-xhdpi/ic_launcher.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_launcher.png, ic_launcher_round.png">
+        <location
+            file="src/main/res/mipmap-xxhdpi/ic_launcher_round.png"/>
+        <location
+            file="src/main/res/mipmap-xxhdpi/ic_launcher.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: ic_launcher.png, ic_launcher_round.png">
+        <location
+            file="src/main/res/mipmap-xxxhdpi/ic_launcher_round.png"/>
+        <location
+            file="src/main/res/mipmap-xxxhdpi/ic_launcher.png"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="                            val mailtoUri = Uri.parse(&quot;mailto:destek.gokcank@gmail.com?subject=${Uri.encode(bugReportSubject)}&quot;)"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/about/AboutScreen.kt"
+            line="188"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toColorInt` instead?"
+        errorLine1="                    val color = Color(android.graphics.Color.parseColor(hex))"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/medication/addedit/AddEditMedicationScreen.kt"
+            line="318"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toColorInt` instead?"
+        errorLine1="        runCatching { Color(android.graphics.Color.parseColor(stat.medication.colorHex)) }"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/analytics/AdherenceAnalyticsScreen.kt"
+            line="278"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toColorInt` instead?"
+        errorLine1="                Color(android.graphics.Color.parseColor(medication.colorHex))"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/medication/list/MedicationListScreen.kt"
+            line="254"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        set(value) = prefs.edit().putBoolean(KEY_HIDE_LOCK_SCREEN, value).apply()"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/notification/NotificationPreferences.kt"
+            line="22"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        set(value) = prefs.edit().putBoolean(KEY_QUIET_ENABLED, value).apply()"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/notification/NotificationPreferences.kt"
+            line="26"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        set(value) = prefs.edit().putInt(KEY_QUIET_START, value).apply()"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/notification/NotificationPreferences.kt"
+            line="31"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        set(value) = prefs.edit().putInt(KEY_QUIET_END, value).apply()"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/notification/NotificationPreferences.kt"
+            line="35"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX function `createBitmap` instead?"
+        errorLine1="                    val bitmap = Bitmap.createBitmap(page.width * 2, page.height * 2, Bitmap.Config.ARGB_8888)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/presentation/components/PdfPreviewDialog.kt"
+            line="120"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toColorInt` instead?"
+        errorLine1="            color = Color.parseColor(&quot;#006A6A&quot;)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/utils/PdfReportGenerator.kt"
+            line="96"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toColorInt` instead?"
+        errorLine1="            color = Color.parseColor(&quot;#006A6A&quot;)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/utils/PdfReportGenerator.kt"
+            line="96"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs.edit().putBoolean(KEY_IS_DARK_MODE, isDark).apply()"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/theme/ThemeController.kt"
+            line="22"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs.edit().remove(KEY_IS_DARK_MODE).apply()"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/gokcank/curalis/core/theme/ThemeController.kt"
+            line="27"
+            column="9"/>
+    </issue>
+
+</issues>

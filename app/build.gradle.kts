@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.jetbrainsKotlinCompose)
     alias(libs.plugins.hiltAndroid)
     alias(libs.plugins.ksp)
 }
@@ -16,7 +17,7 @@ val webClientId = localProperties.getProperty("WEB_CLIENT_ID") ?: ""
 
 android {
     namespace = "com.gokcank.curalis"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.gokcank.curalis"
@@ -53,15 +54,22 @@ android {
         compose = true
         buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.11"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/INDEX.LIST"
         }
     }
+    lint {
+        abortOnError = true
+        checkReleaseBuilds = true
+        baseline = file("lint-baseline.xml")
+    }
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
@@ -74,7 +82,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.material.icons.extended)
     
     // Navigation
     implementation(libs.navigation.compose)
@@ -99,7 +107,12 @@ dependencies {
     implementation(libs.google.api.client.android)
     implementation(libs.google.api.services.drive)
 
+    // Barcode Scanning
+    implementation(libs.play.services.code.scanner)
+
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
