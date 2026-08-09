@@ -1,4 +1,4 @@
-package com.gokcank.curalis.presentation.medication.add_edit
+package com.gokcank.curalis.presentation.medication.addedit
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -11,8 +11,12 @@ import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.MedicationTime
 import com.gokcank.curalis.domain.model.ProviderMedication
 import com.gokcank.curalis.domain.model.Reminder
+import com.gokcank.curalis.domain.model.StockChangeReason
+import com.gokcank.curalis.domain.model.StockHistoryEntry
+import com.gokcank.curalis.domain.repository.StockHistoryRepository
 import com.gokcank.curalis.domain.usecase.AddMedicationUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationByIdUseCase
+import com.gokcank.curalis.domain.usecase.GetRemindersForMedicationUseCase
 import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import com.gokcank.curalis.domain.usecase.SearchRemoteMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.UpdateMedicationUseCase
@@ -24,6 +28,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.UUID
@@ -36,13 +41,19 @@ class AddEditMedicationViewModel @Inject constructor(
     private val updateMedicationUseCase: UpdateMedicationUseCase,
     private val validateMedicationUseCase: ValidateMedicationUseCase,
     private val scheduleReminderUseCase: ScheduleReminderUseCase,
+    private val getRemindersForMedicationUseCase: GetRemindersForMedicationUseCase,
     private val searchRemoteMedicationsUseCase: SearchRemoteMedicationsUseCase,
     private val alarmScheduler: AlarmScheduler,
+    private val stockHistoryRepository: StockHistoryRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _medicationName = MutableStateFlow("")
     val medicationName = _medicationName.asStateFlow()
+
+    // Kullanıcı bu ilacı resmi öneri listesinden mi seçti, yoksa elle mi girdi.
+    private val _isVerifiedSource = MutableStateFlow(false)
+    val isVerifiedSource = _isVerifiedSource.asStateFlow()
 
     private val _activeIngredient = MutableStateFlow("")
     val activeIngredient = _activeIngredient.asStateFlow()
@@ -52,6 +63,9 @@ class AddEditMedicationViewModel @Inject constructor(
 
     private val _medicationDosage = MutableStateFlow("")
     val medicationDosage = _medicationDosage.asStateFlow()
+
+    private val _barcode = MutableStateFlow("")
+    val barcode = _barcode.asStateFlow()
 
     private val _medicationUnit = MutableStateFlow("")
     val medicationUnit = _medicationUnit.asStateFlow()
@@ -85,6 +99,12 @@ class AddEditMedicationViewModel @Inject constructor(
     private val _intervalDays = MutableStateFlow("2")
     val intervalDays = _intervalDays.asStateFlow()
 
+    private val _activeDays = MutableStateFlow("21")
+    val activeDays = _activeDays.asStateFlow()
+
+    private val _restDays = MutableStateFlow("7")
+    val restDays = _restDays.asStateFlow()
+
     private val _specificDays = MutableStateFlow<List<Int>>(emptyList())
     val specificDays = _specificDays.asStateFlow()
 
@@ -116,31 +136,45 @@ class AddEditMedicationViewModel @Inject constructor(
     val isEditMode: Boolean
         get() = currentMedicationId != null
 
+    private var originalMedication: Medication? = null
     private var searchJob: Job? = null
+
+    private val _stockHistory = MutableStateFlow<List<StockHistoryEntry>>(emptyList())
+    val stockHistory = _stockHistory.asStateFlow()
 
     init {
         savedStateHandle.get<String>("medicationId")?.let { medicationId ->
             if (medicationId.isNotBlank()) {
                 viewModelScope.launch {
+                    stockHistoryRepository.getHistoryForMedication(medicationId).collect {
+                        _stockHistory.value = it
+                    }
+                }
+                viewModelScope.launch {
                     getMedicationByIdUseCase(medicationId).collect { medication ->
                         medication?.let {
                             currentMedicationId = it.id
+                            originalMedication = it
                             _medicationName.value = it.name
                             _activeIngredient.value = it.activeIngredient ?: ""
                             _formType.value = it.formType
                             _colorHex.value = it.colorHex
                             _iconShape.value = it.iconShape
                             _medicationDosage.value = it.dosage ?: ""
+                            _barcode.value = it.barcode ?: ""
                             _medicationUnit.value = it.unit ?: ""
                             _mealInstruction.value = it.mealInstruction
                             _medicationNotes.value = it.notes ?: ""
                             _expiryDate.value = it.expiryDate
                             _frequencyType.value = it.frequencyType
                             _intervalDays.value = (it.intervalDays ?: 2).toString()
+                            _activeDays.value = (it.activeDays ?: 21).toString()
+                            _restDays.value = (it.restDays ?: 7).toString()
                             _specificDays.value = it.specificDays
                             _isRefillEnabled.value = it.isRefillReminderEnabled
                             _currentStock.value = it.currentStock?.toString() ?: ""
                             _refillThreshold.value = (it.refillThreshold ?: 5).toString()
+                            _isVerifiedSource.value = it.isVerifiedSource
                             _medicationTimes.value = it.times
                         }
                     }
@@ -152,14 +186,21 @@ class AddEditMedicationViewModel @Inject constructor(
     fun onNameChange(name: String) {
         _medicationName.value = name
         _errorMessage.value = null
+        // Kullanıcı ismi elle değiştiriyor; artık resmi öneriyle birebir eşleştiği garanti değil.
+        _isVerifiedSource.value = false
 
         searchJob?.cancel()
         if (name.length >= 2) {
             searchJob = viewModelScope.launch {
                 delay(300)
                 _isSearching.value = true
-                _suggestions.value = searchRemoteMedicationsUseCase(name)
-                _isSearching.value = false
+                try {
+                    _suggestions.value = searchRemoteMedicationsUseCase(name)
+                } catch (e: Exception) {
+                    _suggestions.value = emptyList()
+                } finally {
+                    _isSearching.value = false
+                }
             }
         } else {
             _suggestions.value = emptyList()
@@ -172,6 +213,7 @@ class AddEditMedicationViewModel @Inject constructor(
         if (!suggestion.dosage.isNullOrBlank()) {
             _medicationDosage.value = suggestion.dosage
         }
+        _isVerifiedSource.value = true
         _suggestions.value = emptyList()
     }
 
@@ -185,6 +227,10 @@ class AddEditMedicationViewModel @Inject constructor(
 
     fun onDosageChange(dosage: String) {
         _medicationDosage.value = dosage
+    }
+
+    fun onBarcodeChange(code: String) {
+        _barcode.value = code
     }
 
     fun onUnitChange(unit: String) {
@@ -209,6 +255,14 @@ class AddEditMedicationViewModel @Inject constructor(
 
     fun onIntervalDaysChange(days: String) {
         _intervalDays.value = days.filter { it.isDigit() }
+    }
+
+    fun onActiveDaysChange(days: String) {
+        _activeDays.value = days.filter { it.isDigit() }
+    }
+
+    fun onRestDaysChange(days: String) {
+        _restDays.value = days.filter { it.isDigit() }
     }
 
     fun toggleSpecificDay(day: Int) {
@@ -254,61 +308,100 @@ class AddEditMedicationViewModel @Inject constructor(
                 return@launch
             }
 
-            val medicationId = currentMedicationId ?: UUID.randomUUID().toString()
-            val parsedStock = _currentStock.value.toIntOrNull()
-            val parsedThreshold = _refillThreshold.value.toIntOrNull() ?: 5
-            val parsedInterval = _intervalDays.value.toIntOrNull() ?: 2
+            try {
+                val medicationId = currentMedicationId ?: UUID.randomUUID().toString()
+                val parsedStock = _currentStock.value.toIntOrNull()
+                val parsedThreshold = _refillThreshold.value.toIntOrNull() ?: 5
+                val parsedInterval = _intervalDays.value.toIntOrNull() ?: 2
+                val parsedActiveDays = _activeDays.value.toIntOrNull() ?: 21
+                val parsedRestDays = _restDays.value.toIntOrNull() ?: 7
 
-            val medication = Medication(
-                id = medicationId,
-                name = _medicationName.value,
-                activeIngredient = _activeIngredient.value.takeIf { it.isNotBlank() },
-                form = _formType.value.displayNameTr,
-                formType = _formType.value,
-                colorHex = _colorHex.value,
-                iconShape = _iconShape.value,
-                dosage = _medicationDosage.value.takeIf { it.isNotBlank() },
-                unit = _medicationUnit.value.takeIf { it.isNotBlank() },
-                notes = _medicationNotes.value.takeIf { it.isNotBlank() },
-                mealInstruction = _mealInstruction.value,
-                expiryDate = _expiryDate.value,
-                frequencyType = _frequencyType.value,
-                intervalDays = if (_frequencyType.value == FrequencyType.INTERVAL) parsedInterval else null,
-                specificDays = if (_frequencyType.value == FrequencyType.SPECIFIC_DAYS) _specificDays.value else emptyList(),
-                initialStock = parsedStock,
-                currentStock = parsedStock,
-                refillThreshold = parsedThreshold,
-                isRefillReminderEnabled = _isRefillEnabled.value,
-                times = _medicationTimes.value
-            )
+                val medication = Medication(
+                    id = medicationId,
+                    name = _medicationName.value,
+                    barcode = _barcode.value.takeIf { it.isNotBlank() },
+                    activeIngredient = _activeIngredient.value.takeIf { it.isNotBlank() },
+                    form = _formType.value.displayNameTr,
+                    formType = _formType.value,
+                    colorHex = _colorHex.value,
+                    iconShape = _iconShape.value,
+                    dosage = _medicationDosage.value.takeIf { it.isNotBlank() },
+                    unit = _medicationUnit.value.takeIf { it.isNotBlank() },
+                    notes = _medicationNotes.value.takeIf { it.isNotBlank() },
+                    mealInstruction = _mealInstruction.value,
+                    expiryDate = _expiryDate.value,
+                    frequencyType = _frequencyType.value,
+                    intervalDays = if (_frequencyType.value == FrequencyType.INTERVAL) parsedInterval else null,
+                    specificDays = if (_frequencyType.value == FrequencyType.SPECIFIC_DAYS) _specificDays.value else emptyList(),
+                    activeDays = if (_frequencyType.value == FrequencyType.CYCLIC) parsedActiveDays else null,
+                    restDays = if (_frequencyType.value == FrequencyType.CYCLIC) parsedRestDays else null,
+                    initialStock = parsedStock,
+                    currentStock = parsedStock,
+                    refillThreshold = parsedThreshold,
+                    isRefillReminderEnabled = _isRefillEnabled.value,
+                    isVerifiedSource = _isVerifiedSource.value,
+                    times = _medicationTimes.value
+                )
 
-            if (currentMedicationId != null) {
-                updateMedicationUseCase(medication)
-            } else {
-                addMedicationUseCase(medication)
-            }
+                // Bu ilaca ait önceden kurulmuş tüm alarmları iptal et (düzenlemede
+                // eski saatler/eski kayıtlar sistemde asılı kalmasın diye).
+                getRemindersForMedicationUseCase(medicationId).firstOrNull()?.forEach { existingReminder ->
+                    alarmScheduler.cancel(existingReminder.id)
+                }
+                originalMedication?.let { old -> alarmScheduler.cancelMedicationAlarms(old) }
 
-            // Schedule alarms for all configured times
-            _medicationTimes.value.forEach { medTime ->
-                val calendar = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, medTime.hour)
-                    set(Calendar.MINUTE, medTime.minute)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                    if (timeInMillis <= System.currentTimeMillis()) {
-                        add(Calendar.DAY_OF_YEAR, 1)
+                if (currentMedicationId != null) {
+                    // Kullanıcı stoğu elle değiştirdiyse (yeni kutu girdi, düzeltme yaptı vb.)
+                    // bunu da geçmişe kaydet — daha önce stok her düzenlemede sessizce
+                    // üzerine yazılıyordu.
+                    val oldStock = originalMedication?.currentStock
+                    if (oldStock != parsedStock) {
+                        stockHistoryRepository.logChange(
+                            StockHistoryEntry(
+                                medicationId = medicationId,
+                                previousStock = oldStock,
+                                newStock = parsedStock,
+                                reason = if (parsedStock != null && oldStock != null && parsedStock > oldStock) {
+                                    StockChangeReason.REFILL
+                                } else {
+                                    StockChangeReason.MANUAL_EDIT
+                                }
+                            )
+                        )
                     }
+                    updateMedicationUseCase(medication)
+                } else {
+                    addMedicationUseCase(medication)
                 }
 
-                val reminder = Reminder(
-                    medicationId = medicationId,
-                    timeInMillis = calendar.timeInMillis
-                )
-                scheduleReminderUseCase(reminder)
-                alarmScheduler.schedule(reminder, medication.name)
-            }
+                // Schedule alarms for all configured times
+                _medicationTimes.value.forEach { medTime ->
+                    val calendar = Calendar.getInstance().apply {
+                        set(Calendar.HOUR_OF_DAY, medTime.hour)
+                        set(Calendar.MINUTE, medTime.minute)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                        if (timeInMillis <= System.currentTimeMillis()) {
+                            add(Calendar.DAY_OF_YEAR, 1)
+                        }
+                    }
 
-            _eventFlow.emit(UiEvent.SaveSuccess)
+                    val reminder = Reminder(
+                        medicationId = medicationId,
+                        timeInMillis = calendar.timeInMillis
+                    )
+                    scheduleReminderUseCase(reminder)
+                    alarmScheduler.schedule(reminder, medication.name)
+                }
+
+                if (!alarmScheduler.canScheduleExactAlarms()) {
+                    _errorMessage.value = "İlaç kaydedildi ancak tam zamanlı alarm izni verilmediği için hatırlatıcılar tetiklenmeyebilir. Lütfen sistem ayarlarından izni açın."
+                }
+
+                _eventFlow.emit(UiEvent.SaveSuccess)
+            } catch (e: Exception) {
+                _errorMessage.value = "İlaç kaydedilirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}"
+            }
         }
     }
 

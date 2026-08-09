@@ -1,4 +1,4 @@
-package com.gokcank.curalis.data.repository_impl
+package com.gokcank.curalis.data.repository
 
 import com.gokcank.curalis.data.local.dao.ReminderDao
 import com.gokcank.curalis.data.mapper.toDomain

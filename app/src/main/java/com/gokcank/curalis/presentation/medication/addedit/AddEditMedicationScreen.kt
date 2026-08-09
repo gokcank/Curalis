@@ -1,4 +1,4 @@
-package com.gokcank.curalis.presentation.medication.add_edit
+package com.gokcank.curalis.presentation.medication.addedit
 
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,7 +25,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,6 +46,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -60,12 +67,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.MedicationAccentColors
+import com.gokcank.curalis.domain.model.StockChangeReason
+import com.gokcank.curalis.presentation.components.icon
 import com.gokcank.curalis.domain.model.DosageUnit
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.MealInstruction
@@ -95,6 +107,8 @@ fun AddEditMedicationScreen(
     val frequencyType by viewModel.frequencyType.collectAsState()
     val intervalDays by viewModel.intervalDays.collectAsState()
     val specificDays by viewModel.specificDays.collectAsState()
+    val activeDays by viewModel.activeDays.collectAsState()
+    val restDays by viewModel.restDays.collectAsState()
     val isRefillEnabled by viewModel.isRefillEnabled.collectAsState()
     val currentStock by viewModel.currentStock.collectAsState()
     val refillThreshold by viewModel.refillThreshold.collectAsState()
@@ -102,6 +116,7 @@ fun AddEditMedicationScreen(
     val suggestions by viewModel.suggestions.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
     val error by viewModel.errorMessage.collectAsState()
+    val isVerifiedSource by viewModel.isVerifiedSource.collectAsState()
 
     var showTimePickerDialog by remember { mutableStateOf(false) }
     var isUnitDropdownExpanded by remember { mutableStateOf(false) }
@@ -170,7 +185,8 @@ fun AddEditMedicationScreen(
                 OutlinedTextField(
                     value = name,
                     onValueChange = viewModel::onNameChange,
-                    label = { Text(stringResource(R.string.medication_name) + " * (API'de ara)") },
+                    label = { Text(stringResource(R.string.medication_name) + " *") },
+                    supportingText = { Text("Yazdıkça resmî ilaç listesinde aranır") },
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         if (isSearching) {
@@ -205,6 +221,23 @@ fun AddEditMedicationScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (isVerifiedSource) Icons.Default.CheckCircle else Icons.Default.Edit,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = if (isVerifiedSource) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = if (isVerifiedSource) "Sağlık Bakanlığı/RxNorm kaynağından doğrulandı" else "Elle girildi, doğrulanmış kaynaktan değil",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isVerifiedSource) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
@@ -214,9 +247,40 @@ fun AddEditMedicationScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Barkod: kutunun üzerindeki barkodu okutarak veya elle girerek kaydedilir.
+            // TİTCK yerel veritabanında barkod eşlemesi bulunmadığı için otomatik ilaç
+            // eşleştirmesi yapılmaz; yalnızca kullanıcının kendi kutusunu tanımasına yarar.
+            val barcode by viewModel.barcode.collectAsState()
+            val barcodeScanner = remember { com.google.mlkit.vision.codescanner.GmsBarcodeScanning.getClient(context) }
+            var barcodeError by remember { mutableStateOf<String?>(null) }
+
+            OutlinedTextField(
+                value = barcode,
+                onValueChange = viewModel::onBarcodeChange,
+                label = { Text("Barkod (Opsiyonel)") },
+                supportingText = barcodeError?.let { { Text(it) } },
+                trailingIcon = {
+                    IconButton(onClick = {
+                        barcodeError = null
+                        barcodeScanner.startScan()
+                            .addOnSuccessListener { result ->
+                                viewModel.onBarcodeChange(result.rawValue ?: "")
+                            }
+                            .addOnFailureListener {
+                                barcodeError = "Barkod okunamadı, elle girebilirsiniz."
+                            }
+                    }) {
+                        Icon(imageVector = Icons.Default.QrCodeScanner, contentDescription = "Barkod Tara")
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 2. İlaç Formu / Türü Seçici (💊, 🧪, 💉 vb.)
+            // 2. İlaç Formu / Türü Seçici
             Text(text = stringResource(R.string.medication_form), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
@@ -229,7 +293,14 @@ fun AddEditMedicationScreen(
                     FilterChip(
                         selected = selectedFormType == form,
                         onClick = { viewModel.onFormTypeChange(form) },
-                        label = { Text("${form.iconEmoji} ${form.displayNameTr}") }
+                        label = { Text(form.displayNameTr) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = form.icon(),
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     )
                 }
             }
@@ -239,31 +310,30 @@ fun AddEditMedicationScreen(
             // 2.5 İlaç Renk Seçici (Color Picker)
             Text(text = "İlaç Renk Vurgusu", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
-            val colorOptions = listOf(
-                "#1E88E5", // Mavi
-                "#43A047", // Yeşil
-                "#E53935", // Kırmızı
-                "#8E24AA", // Mor
-                "#FB8C00", // Turuncu
-                "#00ACC1", // Turkuaz
-                "#D81B60"  // Pembe
-            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                colorOptions.forEach { hex ->
+                MedicationAccentColors.forEach { hex ->
                     val color = Color(android.graphics.Color.parseColor(hex))
                     val isSelected = colorHex.equals(hex, ignoreCase = true)
                     Box(
                         modifier = Modifier
                             .size(36.dp)
                             .background(color = color, shape = CircleShape)
-                            .clickable { viewModel.onColorSelected(hex) },
+                            .clickable { viewModel.onColorSelected(hex) }
+                            .semantics {
+                                contentDescription = if (isSelected) "Seçili renk" else "Renk seçeneği"
+                            },
                         contentAlignment = Alignment.Center
                     ) {
                         if (isSelected) {
-                            Text("✓", color = Color.White, fontWeight = FontWeight.Bold)
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
                     }
                 }
@@ -327,7 +397,14 @@ fun AddEditMedicationScreen(
                     FilterChip(
                         selected = mealInstruction == instruction,
                         onClick = { viewModel.onMealInstructionChange(instruction) },
-                        label = { Text(instruction.displayNameTr) }
+                        label = { Text(instruction.displayNameTr) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = instruction.icon(),
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     )
                 }
             }
@@ -352,6 +429,7 @@ fun AddEditMedicationScreen(
                                 FrequencyType.DAILY -> "Her Gün"
                                 FrequencyType.SPECIFIC_DAYS -> "Haftanın Belirli Günleri"
                                 FrequencyType.INTERVAL -> "X Günde Bir"
+                                FrequencyType.CYCLIC -> "Döngüsel (Kullan / Ara Ver)"
                                 FrequencyType.AS_NEEDED -> "İhtiyaç Halinde (PRN)"
                             }
                             Text(text)
@@ -369,6 +447,33 @@ fun AddEditMedicationScreen(
                     label = { Text("Kaç günde bir alınacak?") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (frequencyType == FrequencyType.CYCLIC) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = activeDays,
+                        onValueChange = viewModel::onActiveDaysChange,
+                        label = { Text("Kaç gün kullanılacak?") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = restDays,
+                        onValueChange = viewModel::onRestDaysChange,
+                        label = { Text("Kaç gün ara verilecek?") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Text(
+                    "Örn: 21 gün kullan, 7 gün ara ver — döngü başlangıç tarihinden itibaren tekrarlanır.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
 
@@ -415,7 +520,19 @@ fun AddEditMedicationScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", time.hour, time.minute)
-                            Text(text = "⏰ $formattedTime ${time.dose?.let { "• Doz: $it" } ?: ""}", style = MaterialTheme.typography.bodyLarge)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Schedule,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = formattedTime + (time.dose?.let { " • Doz: $it" } ?: ""),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
                             IconButton(onClick = { viewModel.removeMedicationTime(time.id) }) {
                                 Icon(Icons.Default.Delete, contentDescription = "Sil", tint = MaterialTheme.colorScheme.error)
                             }
@@ -470,6 +587,42 @@ fun AddEditMedicationScreen(
                         modifier = Modifier.weight(1f)
                     )
                 }
+
+                if (viewModel.isEditMode) {
+                    val stockHistory by viewModel.stockHistory.collectAsState()
+                    var showStockHistory by remember { mutableStateOf(false) }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(onClick = { showStockHistory = !showStockHistory }) {
+                        Text(if (showStockHistory) "Stok Geçmişini Gizle" else "Stok Geçmişini Göster (${stockHistory.size})")
+                    }
+                    if (showStockHistory) {
+                        if (stockHistory.isEmpty()) {
+                            Text(
+                                "Henüz bir stok değişikliği kaydedilmedi.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            val dateFormat = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                stockHistory.forEach { entry ->
+                                    val reasonText = when (entry.reason) {
+                                        StockChangeReason.DOSE_TAKEN -> "Doz alındı"
+                                        StockChangeReason.MANUAL_EDIT -> "Elle düzenlendi"
+                                        StockChangeReason.REFILL -> "Stok eklendi"
+                                    }
+                                    Text(
+                                        text = "${dateFormat.format(Date(entry.timestamp))} — $reasonText: " +
+                                            "${entry.previousStock ?: "-"} → ${entry.newStock ?: "-"}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -482,10 +635,16 @@ fun AddEditMedicationScreen(
                 onClick = { showDatePickerDialog = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Icon(
+                    imageVector = Icons.Default.Event,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 val formattedExpiry = expiryDate?.let {
                     SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(it))
                 } ?: "Son Kullanma Tarihi Seçin (Opsiyonel)"
-                Text("📅 $formattedExpiry")
+                Text(formattedExpiry)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
