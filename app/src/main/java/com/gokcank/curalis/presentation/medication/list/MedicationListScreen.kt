@@ -24,6 +24,15 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.Medication
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,6 +43,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -43,6 +54,7 @@ import com.gokcank.curalis.core.utils.PdfReportGeneratorEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,10 +70,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.LocalCuralisColors
 import com.gokcank.curalis.core.utils.PdfReportGenerator
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.Medication
+import com.gokcank.curalis.presentation.components.EmptyState
+import com.gokcank.curalis.presentation.components.InfoChip
+import com.gokcank.curalis.presentation.components.NoResultsState
+import com.gokcank.curalis.presentation.components.icon
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,6 +93,13 @@ fun MedicationListScreen(
     var medicationToDelete by remember { mutableStateOf<Medication?>(null) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.errorFlow.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
     val pdfReportGenerator = remember {
         val entryPoint = EntryPointAccessors.fromApplication(
             context.applicationContext,
@@ -82,6 +107,7 @@ fun MedicationListScreen(
         )
         entryPoint.pdfReportGenerator()
     }
+    var pdfPreviewFile by remember { mutableStateOf<java.io.File?>(null) }
 
     medicationToDelete?.let { med ->
         AlertDialog(
@@ -107,6 +133,7 @@ fun MedicationListScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.my_medications)) },
@@ -116,27 +143,17 @@ fun MedicationListScreen(
                     }
                 },
                 actions = {
-                    Surface(
+                    IconButton(
                         onClick = {
                             scope.launch {
-                                pdfReportGenerator.generateAndShareReport(context)
+                                pdfPreviewFile = pdfReportGenerator.generateReport()
                             }
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = "📄 PDF Rapor",
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
                         }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Description,
+                            contentDescription = "PDF rapor oluştur"
+                        )
                     }
                 }
             )
@@ -164,7 +181,23 @@ fun MedicationListScreen(
             
             if (medications.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.no_medications_found))
+                    if (searchQuery.isNotBlank()) {
+                        // Kayıtlar var, yalnızca arama eşleşmedi: "hiç ilaç eklemediniz"
+                        // demek yanlış bilgi olurdu.
+                        NoResultsState(
+                            icon = Icons.Default.Search,
+                            query = searchQuery,
+                            onClearSearch = { viewModel.onSearchQueryChange("") }
+                        )
+                    } else {
+                        EmptyState(
+                            icon = Icons.Default.Medication,
+                            title = stringResource(R.string.no_medications_found),
+                            description = "Eklediğiniz ilaçlar burada listelenir ve hatırlatıcıları buradan yönetilir.",
+                            actionLabel = stringResource(R.string.add_medication),
+                            onAction = { onNavigateToAddEdit(null) }
+                        )
+                    }
                 }
             } else {
                 LazyColumn(
@@ -182,6 +215,14 @@ fun MedicationListScreen(
                 }
             }
         }
+    }
+
+    pdfPreviewFile?.let { file ->
+        com.gokcank.curalis.presentation.components.PdfPreviewDialog(
+            file = file,
+            onDismiss = { pdfPreviewFile = null },
+            onShare = { pdfReportGenerator.shareReport(context, file) }
+        )
     }
 }
 
@@ -221,9 +262,11 @@ fun MedicationItem(
                 modifier = Modifier.size(48.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = medication.formType.iconEmoji,
-                        fontSize = 24.sp
+                    Icon(
+                        imageVector = medication.formType.icon(),
+                        contentDescription = medication.formType.displayNameTr,
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
@@ -257,72 +300,60 @@ fun MedicationItem(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
+                    InfoChip(
+                        icon = if (medication.isVerifiedSource) Icons.Default.Verified else Icons.Default.Edit,
+                        text = if (medication.isVerifiedSource) "Doğrulanmış Kaynak" else "Elle Girildi",
+                        containerColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
                     if (medication.times.isNotEmpty()) {
                         val timesStr = medication.times.joinToString(", ") {
-                            String.format("%02d:%02d", it.hour, it.minute)
+                            String.format(Locale.getDefault(), "%02d:%02d", it.hour, it.minute)
                         }
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.secondaryContainer
-                        ) {
-                            Text(
-                                text = "⏰ $timesStr",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
+                        InfoChip(
+                            icon = Icons.Default.Schedule,
+                            text = timesStr,
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
                     }
 
                     if (medication.mealInstruction != MealInstruction.DOES_NOT_MATTER) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.surface
-                        ) {
-                            Text(
-                                text = "${medication.mealInstruction.iconEmoji} ${medication.mealInstruction.displayNameTr}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
+                        InfoChip(
+                            icon = medication.mealInstruction.icon(),
+                            text = medication.mealInstruction.displayNameTr,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
 
                     val freqText = when (medication.frequencyType) {
                         FrequencyType.DAILY -> "Her Gün"
                         FrequencyType.SPECIFIC_DAYS -> "Belirli Günler"
                         FrequencyType.INTERVAL -> "${medication.intervalDays ?: 2} Günde 1"
+                        FrequencyType.CYCLIC -> "${medication.activeDays ?: 21}/${medication.restDays ?: 7} Döngü"
                         FrequencyType.AS_NEEDED -> "İhtiyaç Halinde"
                     }
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.tertiaryContainer
-                    ) {
-                        Text(
-                            text = "🗓️ $freqText",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
+                    InfoChip(
+                        icon = Icons.Default.Event,
+                        text = freqText,
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
 
                     medication.currentStock?.let { stock ->
                         if (medication.isRefillReminderEnabled) {
                             val isLowStock = stock <= (medication.refillThreshold ?: 5)
-                            val stockColor = if (isLowStock) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface
-                            val textColor = if (isLowStock) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface
-
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = stockColor
-                            ) {
-                                Text(
-                                    text = if (isLowStock) "⚠️ Stok Azalıyor! ($stock)" else "📦 Kalan: $stock",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = if (isLowStock) FontWeight.Bold else FontWeight.Normal),
-                                    color = textColor,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
-                            }
+                            // Düşük stok bir hata değil, dikkat gerektiren bir durumdur:
+                            // design-system.md Error rengini sıradan dikkat için yasaklıyor.
+                            val semantic = LocalCuralisColors.current
+                            InfoChip(
+                                icon = if (isLowStock) Icons.Default.Warning else Icons.Default.Inventory2,
+                                text = if (isLowStock) "Stok azalıyor: $stock" else "Kalan: $stock",
+                                containerColor = if (isLowStock) semantic.warningContainer else MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = if (isLowStock) semantic.onWarningContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }

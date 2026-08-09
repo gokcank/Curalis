@@ -3,9 +3,24 @@ package com.gokcank.curalis.domain.usecase
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationTime
+import java.time.Instant
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 
 object FrequencyCalculator {
+
+    /**
+     * İki zaman damgası arasındaki takvim gün farkını, yaz saati geçişlerinde bazı günlerin
+     * 23 veya 25 saat sürebildiğini hesaba katarak hesaplar. Sabit "milisaniye / (24*60*60*1000)"
+     * bölmesi DST geçişlerinde günü bir kaydırabilir.
+     */
+    private fun calendarDaysBetween(startMillis: Long, endMillis: Long): Int {
+        val zone = ZoneId.systemDefault()
+        val startDate = Instant.ofEpochMilli(startMillis).atZone(zone).toLocalDate()
+        val endDate = Instant.ofEpochMilli(endMillis).atZone(zone).toLocalDate()
+        return ChronoUnit.DAYS.between(startDate, endDate).toInt()
+    }
 
     fun calculateNextTriggerTime(
         medication: Medication,
@@ -40,8 +55,7 @@ object FrequencyCalculator {
                     set(Calendar.MILLISECOND, 0)
                 }
 
-                val diffMillis = targetCal.timeInMillis - startCal.timeInMillis
-                val diffDays = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
+                val diffDays = calendarDaysBetween(startCal.timeInMillis, targetCal.timeInMillis)
 
                 var targetDaysFromStart = if (diffDays <= 0) 0 else diffDays
                 val remainder = targetDaysFromStart % interval
@@ -87,6 +101,36 @@ object FrequencyCalculator {
                     attempts++
                 }
                 targetCal.timeInMillis
+            }
+
+            FrequencyType.CYCLIC -> {
+                val activeDays = (medication.activeDays ?: 21).coerceAtLeast(1)
+                val restDays = (medication.restDays ?: 7).coerceAtLeast(0)
+                val cycleLength = activeDays + restDays
+                val startCal = Calendar.getInstance().apply {
+                    timeInMillis = medication.startDate
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+
+                var searchCal = targetCal.clone() as Calendar
+                if (searchCal.timeInMillis <= fromMillis) {
+                    searchCal.add(Calendar.DAY_OF_YEAR, 1)
+                }
+
+                var attempts = 0
+                while (attempts < cycleLength) {
+                    val diffDays = calendarDaysBetween(startCal.timeInMillis, searchCal.timeInMillis)
+                    val dayInCycle = if (diffDays >= 0) diffDays % cycleLength else cycleLength + (diffDays % cycleLength)
+                    if (dayInCycle < activeDays) {
+                        return searchCal.timeInMillis
+                    }
+                    searchCal.add(Calendar.DAY_OF_YEAR, 1)
+                    attempts++
+                }
+                null
             }
 
             FrequencyType.AS_NEEDED -> null

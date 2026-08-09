@@ -3,9 +3,13 @@ package com.gokcank.curalis.core.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.model.StockChangeReason
+import com.gokcank.curalis.domain.model.StockHistoryEntry
 import com.gokcank.curalis.domain.repository.MedicationRepository
+import com.gokcank.curalis.domain.repository.StockHistoryRepository
 import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
 import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +37,9 @@ class ReminderActionReceiver : BroadcastReceiver() {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
+    @Inject
+    lateinit var stockHistoryRepository: StockHistoryRepository
+
     override fun onReceive(context: Context?, intent: Intent?) {
         val reminderId = intent?.getStringExtra(NotificationHelper.EXTRA_REMINDER_ID) ?: return
         val action = intent.action ?: return
@@ -58,6 +65,14 @@ class ReminderActionReceiver : BroadcastReceiver() {
                                     val newStock = currentStock - 1
                                     val updatedMedication = med.copy(currentStock = newStock)
                                     medicationRepository.updateMedication(updatedMedication)
+                                    stockHistoryRepository.logChange(
+                                        StockHistoryEntry(
+                                            medicationId = med.id,
+                                            previousStock = currentStock,
+                                            newStock = newStock,
+                                            reason = StockChangeReason.DOSE_TAKEN
+                                        )
+                                    )
 
                                     if (med.isRefillReminderEnabled && newStock <= (med.refillThreshold ?: 5)) {
                                         notificationHelper.showRefillWarningNotification(med.name, newStock)
@@ -112,6 +127,14 @@ class ReminderActionReceiver : BroadcastReceiver() {
                                         val newStock = currentStock - 1
                                         val updatedMedication = med.copy(currentStock = newStock)
                                         medicationRepository.updateMedication(updatedMedication)
+                                        stockHistoryRepository.logChange(
+                                            StockHistoryEntry(
+                                                medicationId = med.id,
+                                                previousStock = currentStock,
+                                                newStock = newStock,
+                                                reason = StockChangeReason.DOSE_TAKEN
+                                            )
+                                        )
 
                                         if (med.isRefillReminderEnabled && newStock <= (med.refillThreshold ?: 5)) {
                                             notificationHelper.showRefillWarningNotification(med.name, newStock)
@@ -126,9 +149,15 @@ class ReminderActionReceiver : BroadcastReceiver() {
                         }
                     }
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Bildirim eylemi işlenirken hata oluştu: $action", e)
             } finally {
                 pendingResult.finish()
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "ReminderActionReceiver"
     }
 }

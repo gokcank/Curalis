@@ -19,6 +19,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -98,7 +99,7 @@ fun AddEditVitalScreen(
             ) {
                 OutlinedTextField(
                     readOnly = true,
-                    value = stringResource(selectedType.stringRes),
+                    value = stringResource(selectedType.displayNameRes()),
                     onValueChange = { },
                     label = { Text(stringResource(R.string.vital_type)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -111,7 +112,7 @@ fun AddEditVitalScreen(
                 ) {
                     VitalType.values().forEach { type ->
                         DropdownMenuItem(
-                            text = { Text(stringResource(type.stringRes)) },
+                            text = { Text(stringResource(type.displayNameRes())) },
                             onClick = {
                                 viewModel.onTypeSelected(type)
                                 expanded = false
@@ -143,6 +144,8 @@ fun AddEditVitalScreen(
                 }
                 Text(
                     text = stringResource(R.string.vital_unit_label, selectedType.defaultUnit),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp)
                 )
             } else {
@@ -155,6 +158,8 @@ fun AddEditVitalScreen(
                 )
                 Text(
                     text = stringResource(R.string.vital_unit_label, selectedType.defaultUnit),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }

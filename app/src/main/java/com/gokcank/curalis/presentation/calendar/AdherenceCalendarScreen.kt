@@ -1,6 +1,7 @@
 package com.gokcank.curalis.presentation.calendar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,13 +45,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
-import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.core.theme.LocalCuralisColors
+import com.gokcank.curalis.presentation.components.EmptyState
+import com.gokcank.curalis.presentation.components.ReminderStateBadge
+import com.gokcank.curalis.presentation.components.icon
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.YearMonth
@@ -78,17 +86,10 @@ fun AdherenceCalendarScreen(
                     }
                 },
                 actions = {
-                    Surface(
-                        onClick = onNavigateToAnalytics,
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Text(
-                            text = "📊 Analizler",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                    IconButton(onClick = onNavigateToAnalytics) {
+                        Icon(
+                            imageVector = Icons.Default.BarChart,
+                            contentDescription = "Analizler"
                         )
                     }
                 }
@@ -129,21 +130,18 @@ fun AdherenceCalendarScreen(
 
             // 4. Selected Day Dosage History Section
             Text(
-                text = "📅 ${selectedDate.dayOfMonth} ${selectedDate.month.getDisplayName(TextStyle.FULL, Locale("tr"))} ${selectedDate.year} - Doz Kayıtları",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                text = "${selectedDate.dayOfMonth} ${selectedDate.month.getDisplayName(TextStyle.FULL, Locale("tr"))} ${selectedDate.year} — Doz Kayıtları",
+                style = MaterialTheme.typography.titleMedium
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             if (selectedDayReminders.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Bu tarihe ait kayıtlı ilaç dozu bulunmamaktadır.", color = MaterialTheme.colorScheme.outline)
-                }
+                EmptyState(
+                    icon = Icons.Default.EventBusy,
+                    title = "Bu gün için doz kaydı yok",
+                    description = "Seçtiğiniz tarihte planlanmış bir ilaç dozu bulunmuyor. Başka bir gün seçebilirsiniz."
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -236,14 +234,26 @@ fun CalendarGrid(
             if (date == null) {
                 Spacer(modifier = Modifier.aspectRatio(1f))
             } else {
-                val status = dayStatusMap[date] ?: DayAdherenceStatus.FUTURE_OR_EMPTY
+                val status = dayStatusMap[date] ?: DayAdherenceStatus.FUTURE
                 val isSelected = date == selectedDate
+                val semantic = LocalCuralisColors.current
 
+                // Renk tek başına bilgi taşımaz (design-system.md "Color Independence"):
+                // her durum ayrıca bir işaret ve içerik açıklamasıyla birlikte gelir.
                 val (bgColor, textColor) = when (status) {
-                    DayAdherenceStatus.PERFECT -> Color(0xFF2E7D32) to Color.White   // 🟢 Green
-                    DayAdherenceStatus.PARTIAL -> Color(0xFFF57F17) to Color.White   // 🟡 Yellow
-                    DayAdherenceStatus.MISSED -> Color(0xFFC62828) to Color.White    // 🔴 Red
-                    DayAdherenceStatus.FUTURE_OR_EMPTY -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
+                    DayAdherenceStatus.PERFECT -> semantic.successContainer to semantic.onSuccessContainer
+                    DayAdherenceStatus.PARTIAL -> semantic.warningContainer to semantic.onWarningContainer
+                    DayAdherenceStatus.MISSED -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+                    DayAdherenceStatus.NO_DOSES -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
+                    DayAdherenceStatus.FUTURE -> Color.Transparent to MaterialTheme.colorScheme.onSurfaceVariant
+                }
+
+                val statusDescription = when (status) {
+                    DayAdherenceStatus.PERFECT -> "tüm dozlar alındı"
+                    DayAdherenceStatus.PARTIAL -> "dozların bir kısmı alındı"
+                    DayAdherenceStatus.MISSED -> "kaçırılan doz var"
+                    DayAdherenceStatus.NO_DOSES -> "planlanmış doz yok"
+                    DayAdherenceStatus.FUTURE -> "gelecek tarih"
                 }
 
                 Box(
@@ -253,7 +263,15 @@ fun CalendarGrid(
                             color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else bgColor,
                             shape = CircleShape
                         )
-                        .clickable { onDateSelected(date) },
+                        .then(
+                            if (status == DayAdherenceStatus.FUTURE && !isSelected) {
+                                Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                            } else Modifier
+                        )
+                        .clickable { onDateSelected(date) }
+                        .semantics {
+                            contentDescription = "${date.dayOfMonth}: $statusDescription"
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -281,51 +299,47 @@ fun DailyReminderCard(item: DailyReminderItem) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
                 Surface(
                     shape = CircleShape,
                     color = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier.size(40.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text(item.medicationFormEmoji, fontSize = 20.sp)
+                        Icon(
+                            imageVector = item.medicationForm.icon(),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
                         text = item.medicationName,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     val formattedTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(item.reminder.timeInMillis))
+                    val dosageSuffix = item.dosageInfo.takeIf { it.isNotBlank() }?.let { " • $it" } ?: ""
                     Text(
-                        text = "⏰ Saat $formattedTime ${item.dosageInfo.takeIf { it.isNotBlank() }?.let { "• $it" } ?: ""}",
+                        text = "Saat $formattedTime$dosageSuffix",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
 
-            val (badgeText, badgeBg, badgeFg) = when (item.reminder.state) {
-                ReminderState.TAKEN -> Triple("✅ Alındı", Color(0xFFE8F5E9), Color(0xFF2E7D32))
-                ReminderState.SKIPPED -> Triple("❌ Atlandı", Color(0xFFFFF3E0), Color(0xFFE65100))
-                ReminderState.MISSED -> Triple("⚠️ Kaçırıldı", Color(0xFFFFEBEE), Color(0xFFC62828))
-                ReminderState.SNOOZED -> Triple("⏱️ Ertelendi", Color(0xFFE3F2FD), Color(0xFF1565C0))
-                ReminderState.CANCELLED -> Triple("🚫 İptal", Color(0xFFEEEEEE), Color(0xFF757575))
-                else -> Triple("🕒 Planlandı", Color(0xFFF5F5F5), Color(0xFF616161))
-            }
+            Spacer(modifier = Modifier.width(8.dp))
 
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = badgeBg
-            ) {
-                Text(
-                    text = badgeText,
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                    color = badgeFg,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                )
-            }
+            ReminderStateBadge(state = item.reminder.state)
         }
     }
 }

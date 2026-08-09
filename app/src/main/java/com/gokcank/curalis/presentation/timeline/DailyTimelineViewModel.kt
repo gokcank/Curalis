@@ -22,11 +22,11 @@ import java.time.LocalDate
 import java.util.Calendar
 import javax.inject.Inject
 
-enum class TimeSlot(val title: String, val emoji: String, val startHour: Int, val endHour: Int) {
-    MORNING("Sabah", "🌅", 6, 12),
-    AFTERNOON("Öğle", "☀️", 12, 18),
-    EVENING("Akşam", "🌆", 18, 24),
-    NIGHT("Gece", "🌙", 0, 6)
+enum class TimeSlot(val title: String, val startHour: Int, val endHour: Int) {
+    MORNING("Sabah", 6, 12),
+    AFTERNOON("Öğle", 12, 18),
+    EVENING("Akşam", 18, 24),
+    NIGHT("Gece", 0, 6)
 }
 
 data class TimelineItem(

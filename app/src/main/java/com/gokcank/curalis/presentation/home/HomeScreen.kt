@@ -1,6 +1,5 @@
 package com.gokcank.curalis.presentation.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +15,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
@@ -44,10 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.activity.compose.BackHandler
@@ -77,6 +74,7 @@ fun HomeScreen(
     onNavigateToAppointments: () -> Unit,
     onNavigateToVitals: () -> Unit,
     onNavigateToCalendar: () -> Unit = {},
+    onNavigateToDailyTimeline: () -> Unit = {},
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit
 ) {
@@ -91,6 +89,7 @@ fun HomeScreen(
         )
         entryPoint.pdfReportGenerator()
     }
+    var pdfPreviewFile by remember { mutableStateOf<java.io.File?>(null) }
 
     BackHandler {
         showExitDialog = true
@@ -133,31 +132,22 @@ fun HomeScreen(
                     containerColor = Color.Transparent
                 ),
                 actions = {
-                    Surface(
+                    IconButton(
                         onClick = {
                             scope.launch {
-                                pdfReportGenerator.generateAndShareReport(context)
+                                pdfPreviewFile = pdfReportGenerator.generateReport()
                             }
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.padding(end = 4.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = "📄 PDF Rapor",
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
                         }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Description,
+                            contentDescription = "PDF rapor oluştur",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                     IconButton(onClick = onNavigateToCalendar) {
                         Icon(
-                            androidx.compose.material.icons.Icons.Default.DateRange, 
+                            Icons.Default.DateRange,
                             contentDescription = "Takvim",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
@@ -183,20 +173,18 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(
+                    // Tam ekran dekoratif stok görsel yerine temanın kendi renklerinden
+                    // türeyen çok hafif bir zemin. design-system.md: dekorasyon bilgiyle
+                    // yarışmamalı ve okunabilirliği düşürmemeli.
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                            MaterialTheme.colorScheme.background
+                        )
+                    )
+                )
         ) {
-            val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
-
-            Image(
-                painter = painterResource(
-                    if (isDark) R.drawable.bg_home_watermark_dark else R.drawable.bg_home_watermark
-                ),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.CenterEnd
-            )
-
             // Content
             Column(
                 modifier = Modifier
@@ -244,7 +232,8 @@ fun HomeScreen(
                             SummaryCard(
                                 title = stringResource(R.string.next_medication),
                                 content = "${med?.name ?: stringResource(R.string.unknown)} - $timeStr",
-                                icon = Icons.AutoMirrored.Outlined.List
+                                icon = Icons.AutoMirrored.Outlined.List,
+                                onClick = onNavigateToDailyTimeline
                             )
                         }
                         
@@ -262,6 +251,7 @@ fun HomeScreen(
                         // Daily Progress
                         if (uiState.dailyProgress > 0f || uiState.nextMedication != null) {
                             Card(
+                                onClick = onNavigateToDailyTimeline,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(16.dp),
                                 colors = CardDefaults.cardColors(
@@ -340,6 +330,14 @@ fun HomeScreen(
             }
         }
     }
+
+    pdfPreviewFile?.let { file ->
+        com.gokcank.curalis.presentation.components.PdfPreviewDialog(
+            file = file,
+            onDismiss = { pdfPreviewFile = null },
+            onShare = { pdfReportGenerator.shareReport(context, file) }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -381,9 +379,11 @@ fun DashboardCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SummaryCard(title: String, content: String, icon: ImageVector) {
+fun SummaryCard(title: String, content: String, icon: ImageVector, onClick: (() -> Unit)? = null) {
     Card(
+        onClick = onClick ?: {},
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(

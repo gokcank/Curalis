@@ -1,0 +1,60 @@
+package com.gokcank.curalis.core.notification
+
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Calendar
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * Bildirim/hatırlatıcı ile ilgili kullanıcı tercihlerini saklar (kilit ekranı gizliliği,
+ * sessiz saatler). DataStore yerine basit SharedPreferences kullanılıyor; bu tercihler
+ * küçük ve senkron okunması gereken tercihler (bildirim oluşturulurken kullanılıyor).
+ */
+@Singleton
+class NotificationPreferences @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+    private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    var hideMedicationNameOnLockScreen: Boolean
+        get() = prefs.getBoolean(KEY_HIDE_LOCK_SCREEN, false)
+        set(value) = prefs.edit().putBoolean(KEY_HIDE_LOCK_SCREEN, value).apply()
+
+    var quietHoursEnabled: Boolean
+        get() = prefs.getBoolean(KEY_QUIET_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_QUIET_ENABLED, value).apply()
+
+    /** Gece yarısından itibaren geçen dakika (0-1439). */
+    var quietHoursStartMinutes: Int
+        get() = prefs.getInt(KEY_QUIET_START, DEFAULT_QUIET_START)
+        set(value) = prefs.edit().putInt(KEY_QUIET_START, value).apply()
+
+    var quietHoursEndMinutes: Int
+        get() = prefs.getInt(KEY_QUIET_END, DEFAULT_QUIET_END)
+        set(value) = prefs.edit().putInt(KEY_QUIET_END, value).apply()
+
+    fun isWithinQuietHours(): Boolean {
+        if (!quietHoursEnabled) return false
+        val now = Calendar.getInstance()
+        val nowMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+        val start = quietHoursStartMinutes
+        val end = quietHoursEndMinutes
+        return if (start <= end) {
+            nowMinutes in start until end
+        } else {
+            // Gece yarısını aşan aralık (örn. 22:00 - 07:00)
+            nowMinutes >= start || nowMinutes < end
+        }
+    }
+
+    companion object {
+        private const val PREFS_NAME = "curalis_notification_prefs"
+        private const val KEY_HIDE_LOCK_SCREEN = "hide_medication_name_lock_screen"
+        private const val KEY_QUIET_ENABLED = "quiet_hours_enabled"
+        private const val KEY_QUIET_START = "quiet_hours_start_minutes"
+        private const val KEY_QUIET_END = "quiet_hours_end_minutes"
+        const val DEFAULT_QUIET_START = 22 * 60 // 22:00
+        const val DEFAULT_QUIET_END = 7 * 60 // 07:00
+    }
+}

@@ -38,6 +38,7 @@ fun MedicationEntity.toDomain(times: List<MedicationTime> = emptyList()): Medica
         currentStock = currentStock,
         refillThreshold = refillThreshold,
         isRefillReminderEnabled = isRefillReminderEnabled,
+        isVerifiedSource = isVerifiedSource,
         times = times
     )
 }
@@ -65,7 +66,8 @@ fun Medication.toEntity(): MedicationEntity {
         initialStock = initialStock,
         currentStock = currentStock,
         refillThreshold = refillThreshold,
-        isRefillReminderEnabled = isRefillReminderEnabled
+        isRefillReminderEnabled = isRefillReminderEnabled,
+        isVerifiedSource = isVerifiedSource
     )
 }
 

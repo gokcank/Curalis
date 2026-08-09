@@ -1,20 +1,20 @@
 package com.gokcank.curalis.domain.model
 
-enum class DosageUnit(val displayNameTr: String) {
-    TABLET("Tablet"),
-    KAPSUL("Kapsül"),
-    ML("mL"),
-    DAMLA("Damla"),
-    AMPUL("Ampul"),
-    OLCEK("Ölçek"),
-    SPREY("Sprey Dozu"),
-    POMAT("Sürüm"),
-    YAMA("Bant/Yama"),
-    KUTU("Kutu"),
-    MG("mg"),
-    MCG("mcg"),
-    GRAM("g"),
-    IU("IU");
+enum class DosageUnit(val displayNameTr: String, val displayNameEn: String) {
+    TABLET("Tablet", "Tablet"),
+    KAPSUL("Kapsül", "Capsule"),
+    ML("mL", "mL"),
+    DAMLA("Damla", "Drop"),
+    AMPUL("Ampul", "Ampule"),
+    OLCEK("Ölçek", "Spoon"),
+    SPREY("Sprey Dozu", "Spray"),
+    POMAT("Sürüm", "Application"),
+    YAMA("Bant/Yama", "Patch"),
+    KUTU("Kutu", "Box"),
+    MG("mg", "mg"),
+    MCG("mcg", "mcg"),
+    GRAM("g", "g"),
+    IU("IU", "IU");
 
     companion object {
         val ALL_UNITS = values().map { it.displayNameTr }

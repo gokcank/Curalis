@@ -1,6 +1,7 @@
 package com.gokcank.curalis.presentation.doctor
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,10 +28,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Doctor
+import com.gokcank.curalis.presentation.components.EmptyState
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -95,16 +98,18 @@ fun DoctorListScreen(
         }
     ) { padding ->
         if (doctors.isEmpty()) {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = stringResource(R.string.no_doctors_found),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                EmptyState(
+                    icon = Icons.Default.Person,
+                    title = stringResource(R.string.no_doctors_found),
+                    description = "Doktorlarınızı kaydederseniz randevularınızı onlarla ilişkilendirebilirsiniz.",
+                    actionLabel = stringResource(R.string.add_doctor),
+                    onAction = onAddDoctorClick
                 )
             }
         } else {
@@ -155,9 +160,20 @@ fun DoctorItem(
                 tint = MaterialTheme.colorScheme.primary
             )
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = doctor.name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = doctor.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 if (!doctor.specialty.isNullOrBlank()) {
-                    Text(text = doctor.specialty, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = doctor.specialty,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
             Spacer(modifier = Modifier.width(8.dp))

@@ -42,16 +42,28 @@ fun BackupScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Bekleyen şifre isteyen işlem: hangi eylemin şifre girildikten sonra çalıştırılacağını tutar.
+    var pendingPasswordAction by remember { mutableStateOf<PendingPasswordAction?>(null) }
+    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
+    var pendingLocalExportPassword by remember { mutableStateOf<String?>(null) }
+
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
     ) { uri: Uri? ->
-        uri?.let { viewModel.exportDataToUri(context, it) }
+        val password = pendingLocalExportPassword
+        if (uri != null && password != null) {
+            viewModel.exportDataToUri(context, uri, password)
+        }
+        pendingLocalExportPassword = null
     }
 
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
-        uri?.let { viewModel.importDataFromUri(context, it) }
+        if (uri != null) {
+            pendingImportUri = uri
+            pendingPasswordAction = PendingPasswordAction.RestoreLocal
+        }
     }
 
     val coroutineScope = rememberCoroutineScope()
@@ -155,10 +167,7 @@ fun BackupScreen(
                         style = MaterialTheme.typography.bodySmall
                     )
                     Button(
-                        onClick = {
-                            val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date())
-                            exportLauncher.launch("curalis_backup_$timeStamp.json")
-                        },
+                        onClick = { pendingPasswordAction = PendingPasswordAction.BackupLocal },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = uiState !is BackupUiState.Loading
                     ) {
@@ -238,7 +247,7 @@ fun BackupScreen(
                         )
                     }
                     Text(
-                        text = "Drive'da sadece Curalis'in görebileceği gizli bir klasöre yedekleme yapar. Telefon değiştirseniz bile verileriniz aynı hesapla anında geri gelir.",
+                        text = "Drive'da sadece Curalis'in görebileceği gizli bir klasöre, belirlediğiniz şifreyle şifrelenmiş olarak yedekleme yapar. Telefon değiştirseniz bile aynı hesap ve şifreyle verileriniz geri gelir.",
                         style = MaterialTheme.typography.bodySmall
                     )
 
@@ -261,7 +270,7 @@ fun BackupScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Button(
-                                onClick = { signedInAccount?.let { viewModel.uploadToGoogleDrive(context, it) } },
+                                onClick = { pendingPasswordAction = PendingPasswordAction.BackupDrive },
                                 modifier = Modifier.weight(1f),
                                 enabled = uiState !is BackupUiState.Loading,
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
@@ -269,7 +278,7 @@ fun BackupScreen(
                                 Text("Drive'a Yedekle")
                             }
                             OutlinedButton(
-                                onClick = { signedInAccount?.let { viewModel.downloadFromGoogleDrive(context, it) } },
+                                onClick = { pendingPasswordAction = PendingPasswordAction.RestoreDrive },
                                 modifier = Modifier.weight(1f),
                                 enabled = uiState !is BackupUiState.Loading
                             ) {
@@ -291,4 +300,107 @@ fun BackupScreen(
             }
         }
     }
+
+    pendingPasswordAction?.let { action ->
+        val isSettingPassword = action is PendingPasswordAction.BackupLocal || action is PendingPasswordAction.BackupDrive
+        BackupPasswordDialog(
+            isSettingPassword = isSettingPassword,
+            onDismiss = {
+                pendingPasswordAction = null
+                pendingImportUri = null
+            },
+            onConfirm = { password ->
+                when (action) {
+                    PendingPasswordAction.BackupLocal -> {
+                        pendingLocalExportPassword = password
+                        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date())
+                        exportLauncher.launch("curalis_backup_$timeStamp.json")
+                    }
+                    PendingPasswordAction.RestoreLocal -> {
+                        pendingImportUri?.let { uri -> viewModel.importDataFromUri(context, uri, password) }
+                        pendingImportUri = null
+                    }
+                    PendingPasswordAction.BackupDrive -> {
+                        signedInAccount?.let { viewModel.uploadToGoogleDrive(it, password) }
+                    }
+                    PendingPasswordAction.RestoreDrive -> {
+                        signedInAccount?.let { viewModel.downloadFromGoogleDrive(it, password) }
+                    }
+                }
+                pendingPasswordAction = null
+            }
+        )
+    }
+}
+
+private sealed class PendingPasswordAction {
+    data object BackupLocal : PendingPasswordAction()
+    data object RestoreLocal : PendingPasswordAction()
+    data object BackupDrive : PendingPasswordAction()
+    data object RestoreDrive : PendingPasswordAction()
+}
+
+@Composable
+private fun BackupPasswordDialog(
+    isSettingPassword: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(if (isSettingPassword) "Yedekleme Şifresi Belirleyin" else "Yedekleme Şifresini Girin")
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (isSettingPassword) {
+                    Text(
+                        text = "Bu yedek, girdiğiniz şifreyle şifrelenecek. Şifreyi unutursanız yedeği geri yükleyemezsiniz.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it; error = null },
+                    label = { Text("Şifre") },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (isSettingPassword) {
+                    OutlinedTextField(
+                        value = confirmPassword,
+                        onValueChange = { confirmPassword = it; error = null },
+                        label = { Text("Şifre (Tekrar)") },
+                        visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                error?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                when {
+                    password.length < 4 -> error = "Şifre en az 4 karakter olmalı."
+                    isSettingPassword && password != confirmPassword -> error = "Şifreler eşleşmiyor."
+                    else -> onConfirm(password)
+                }
+            }) {
+                Text("Onayla")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("İptal")
+            }
+        }
+    )
 }

@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.gokcank.curalis.presentation.medication.add_edit.AddEditMedicationScreen
+import com.gokcank.curalis.presentation.medication.addedit.AddEditMedicationScreen
 import com.gokcank.curalis.presentation.medication.list.MedicationListScreen
 import com.gokcank.curalis.presentation.home.HomeScreen
 import com.gokcank.curalis.presentation.settings.SettingsScreen
@@ -34,30 +34,26 @@ fun NavGraph() {
                 onNavigateToAppointments = { navController.navigate(Screen.AppointmentList.route) },
                 onNavigateToVitals = { navController.navigate(Screen.VitalList.route) },
                 onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) },
+                onNavigateToDailyTimeline = { navController.navigate(Screen.DailyTimeline.route) },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
                 onNavigateToAbout = { navController.navigate(Screen.About.route) }
             )
         }
-        
-        composable(route = Screen.Calendar.route) {
-            com.gokcank.curalis.presentation.calendar.AdherenceCalendarScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
-        
-        composable(route = Screen.DailyTimeline.route) {
-            com.gokcank.curalis.presentation.timeline.DailyTimelineScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
-        
+
         composable(route = Screen.Settings.route) {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToBackup = { navController.navigate(Screen.Backup.route) }
+                onNavigateToBackup = { navController.navigate(Screen.Backup.route) },
+                onNavigateToNotificationSettings = { navController.navigate(Screen.NotificationSettings.route) }
             )
         }
-        
+
+        composable(route = Screen.NotificationSettings.route) {
+            com.gokcank.curalis.presentation.notificationsettings.NotificationSettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
         composable(route = Screen.Backup.route) {
             BackupScreen(onNavigateBack = { navController.popBackStack() })
         }

@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Warning
@@ -36,13 +37,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gokcank.curalis.core.theme.LocalCuralisColors
+import com.gokcank.curalis.presentation.components.EmptyState
+import com.gokcank.curalis.presentation.components.icon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -136,13 +142,19 @@ fun AdherenceAnalyticsScreen(
                                     label = "Alınan",
                                     value = uiState.takenWeeklyDoses.toString(),
                                     icon = Icons.Default.CheckCircle,
-                                    tint = Color(0xFF43A047)
+                                    tint = LocalCuralisColors.current.success
                                 )
                                 StatBadge(
-                                    label = "Atlanan",
+                                    label = "Alınmayan",
                                     value = uiState.missedWeeklyDoses.toString(),
+                                    // Kaçırılan doz bir uygulama hatası değil; Error rengi
+                                    // burada kullanılmaz (design-system.md).
                                     icon = Icons.Default.Warning,
-                                    tint = Color(0xFFE53935)
+                                    tint = if (uiState.missedWeeklyDoses > 0) {
+                                        LocalCuralisColors.current.warning
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
                                 )
                             }
                         }
@@ -160,16 +172,11 @@ fun AdherenceAnalyticsScreen(
 
                 if (uiState.medicationStats.isEmpty()) {
                     item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                        ) {
-                            Text(
-                                text = "Henüz kayıtlı ilaç veya doz geçmişi bulunmuyor.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
+                        EmptyState(
+                            icon = Icons.Default.BarChart,
+                            title = "Henüz analiz edilecek veri yok",
+                            description = "İlaç ekleyip dozlarınızı işaretlemeye başladığınızda uyum istatistikleriniz burada görünecek."
+                        )
                     }
                 } else {
                     items(uiState.medicationStats) { stat ->
@@ -184,7 +191,7 @@ fun AdherenceAnalyticsScreen(
 @Composable
 fun AdherencePercentageCard(
     title: String,
-    percentage: Int,
+    percentage: Int?,
     subtitle: String,
     modifier: Modifier = Modifier,
     color: Color
@@ -200,29 +207,50 @@ fun AdherencePercentageCard(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "%$percentage",
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                color = color
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            LinearProgressIndicator(
-                progress = { percentage / 100f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp),
-                color = color,
-                trackColor = color.copy(alpha = 0.2f)
-            )
+            if (percentage == null) {
+                // Hiç sonuçlanmış doz yok: boş bir çubuk ve sahte bir yüzde göstermek yerine
+                // durumu açıkça söylüyoruz (design-system.md "Empty Visualizations").
+                Text(
+                    text = "—",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Henüz veri yok",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                Text(
+                    text = "%$percentage",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = color,
+                    maxLines = 1,
+                    softWrap = false
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                LinearProgressIndicator(
+                    progress = { percentage / 100f },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp),
+                    color = color,
+                    trackColor = MaterialTheme.colorScheme.outlineVariant
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -245,10 +273,17 @@ fun StatBadge(
 
 @Composable
 fun MedicationStatCard(stat: MedicationStat) {
-    val badgeColor = try {
-        Color(android.graphics.Color.parseColor(stat.medication.colorHex))
-    } catch (e: Exception) {
-        MaterialTheme.colorScheme.primary
+    val fallbackColor = MaterialTheme.colorScheme.primary
+    val badgeColor = remember(stat.medication.colorHex, fallbackColor) {
+        runCatching { Color(android.graphics.Color.parseColor(stat.medication.colorHex)) }
+            .getOrDefault(fallbackColor)
+    }
+    val semantic = LocalCuralisColors.current
+    // Düşük uyum bir hata değil, dikkat çekilmesi gereken bir durumdur.
+    val rateColor = when {
+        stat.adherencePercentage == null -> MaterialTheme.colorScheme.onSurfaceVariant
+        stat.adherencePercentage >= 80 -> semantic.success
+        else -> semantic.warning
     }
 
     Card(
@@ -268,7 +303,12 @@ fun MedicationStatCard(stat: MedicationStat) {
                 modifier = Modifier.size(44.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text(stat.medication.formType.iconEmoji, fontSize = 22.sp)
+                    Icon(
+                        imageVector = stat.medication.formType.icon(),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
                 }
             }
 
@@ -277,37 +317,50 @@ fun MedicationStatCard(stat: MedicationStat) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = stat.medication.name,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f, fill = false),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "%${stat.adherencePercentage}",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = if (stat.adherencePercentage >= 80) Color(0xFF43A047) else Color(0xFFE53935)
+                        text = stat.adherencePercentage?.let { "%$it" } ?: "—",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = rateColor,
+                        maxLines = 1,
+                        softWrap = false
                     )
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                LinearProgressIndicator(
-                    progress = { stat.adherencePercentage / 100f },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(6.dp),
-                    color = if (stat.adherencePercentage >= 80) Color(0xFF43A047) else Color(0xFFE53935),
-                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "Alınan: ${stat.takenDoses} / Toplam: ${stat.totalDoses} (${stat.missedDoses} Atlandı)",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                )
+                if (stat.adherencePercentage != null) {
+                    LinearProgressIndicator(
+                        progress = { stat.adherencePercentage / 100f },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp),
+                        color = rateColor,
+                        trackColor = MaterialTheme.colorScheme.outlineVariant
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Alınan ${stat.takenDoses} / ${stat.totalDoses} doz • ${stat.missedDoses} alınmadı",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Text(
+                        text = "Bu ilaç için henüz sonuçlanmış doz kaydı yok",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }

@@ -8,10 +8,20 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import javax.inject.Inject
+
+/** Hilt bu fabrikayı enjekte eder; hesap yalnızca kullanıcı giriş yaptığında elde edilen bir
+ * çalışma zamanı değeri olduğu için [GoogleDriveManager]'ın kendisi enjekte edilemez. */
+class GoogleDriveManagerFactory @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+    fun create(account: GoogleSignInAccount): GoogleDriveManager = GoogleDriveManager(context, account)
+}
 
 class GoogleDriveManager(private val context: Context, private val account: GoogleSignInAccount) {
 

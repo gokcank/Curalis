@@ -11,7 +11,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.Switch
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -32,19 +32,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
-import com.gokcank.curalis.core.theme.ThemeController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToBackup: () -> Unit
+    onNavigateToBackup: () -> Unit,
+    onNavigateToNotificationSettings: () -> Unit = {},
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
     Scaffold(
         topBar = {
@@ -58,8 +59,7 @@ fun SettingsScreen(
             )
         }
     ) { padding ->
-        val context = LocalContext.current
-        val isDarkMode by ThemeController.isDarkMode.collectAsState()
+        val isDarkMode by viewModel.isDarkMode.collectAsState()
         
         Column(
             modifier = Modifier
@@ -74,26 +74,39 @@ fun SettingsScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.dark_mode), style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        stringResource(R.string.dark_mode_desc), 
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.theme_mode), style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    stringResource(R.string.theme_mode_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.padding(vertical = 4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChip(
+                        selected = isDarkMode == null,
+                        onClick = { viewModel.resetThemeToSystem() },
+                        label = { Text(stringResource(R.string.theme_follow_system)) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    FilterChip(
+                        selected = isDarkMode == false,
+                        onClick = { viewModel.setDarkMode(false) },
+                        label = { Text(stringResource(R.string.theme_light)) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    FilterChip(
+                        selected = isDarkMode == true,
+                        onClick = { viewModel.setDarkMode(true) },
+                        label = { Text(stringResource(R.string.theme_dark)) },
+                        modifier = Modifier.weight(1f)
                     )
                 }
-                
-                Switch(
-                    checked = isDarkMode ?: androidx.compose.foundation.isSystemInDarkTheme(),
-                    onCheckedChange = { checked ->
-                        ThemeController.setDarkMode(context, checked)
-                    }
-                )
             }
             
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
@@ -147,6 +160,40 @@ fun SettingsScreen(
                             }
                         )
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = "Bildirimler",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Bildirim ve Hatırlatıcı Ayarları", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "Sessiz saatler, kilit ekranı gizliliği ve bildirim kategorileri",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Button(
+                    onClick = onNavigateToNotificationSettings,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text("Yönet")
                 }
             }
 

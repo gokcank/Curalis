@@ -20,12 +20,14 @@ data class MedicationStat(
     val totalDoses: Int,
     val takenDoses: Int,
     val missedDoses: Int,
-    val adherencePercentage: Int
+    /** Hiç doz kaydı yoksa null; "veri yok" ile "%0 uyum" farklı şeylerdir. */
+    val adherencePercentage: Int?
 )
 
 data class AdherenceAnalyticsUiState(
-    val weeklyAdherenceRate: Int = 0,
-    val monthlyAdherenceRate: Int = 0,
+    /** Değerlendirilecek doz yoksa null. Sıfır dozdan "%100 uyum" üretmek yanıltıcıdır. */
+    val weeklyAdherenceRate: Int? = null,
+    val monthlyAdherenceRate: Int? = null,
     val totalWeeklyDoses: Int = 0,
     val takenWeeklyDoses: Int = 0,
     val missedWeeklyDoses: Int = 0,
@@ -71,23 +73,30 @@ class AdherenceAnalyticsViewModel @Inject constructor(
                 val weekReminders = monthReminders.filter { it.timeInMillis >= weekStart }
 
                 // Weekly stats
-                val totalWeekly = weekReminders.size
-                val takenWeekly = weekReminders.count { it.state == ReminderState.TAKEN }
-                val missedWeekly = weekReminders.count { it.state == ReminderState.MISSED || it.state == ReminderState.SKIPPED }
-                val weeklyPercentage = if (totalWeekly > 0) (takenWeekly * 100) / totalWeekly else 100
+                // Uyum oranı yalnızca sonuçlanmış (alınmış/atlanmış/kaçırılmış) dozlar üzerinden
+                // hesaplanır; henüz saati gelmemiş dozlar oranı haksız yere düşürmemeli.
+                fun isResolved(state: ReminderState) =
+                    state == ReminderState.TAKEN || state == ReminderState.SKIPPED || state == ReminderState.MISSED
+
+                val resolvedWeekly = weekReminders.filter { isResolved(it.state) }
+                val totalWeekly = resolvedWeekly.size
+                val takenWeekly = resolvedWeekly.count { it.state == ReminderState.TAKEN }
+                val missedWeekly = resolvedWeekly.count { it.state == ReminderState.MISSED || it.state == ReminderState.SKIPPED }
+                val weeklyPercentage = if (totalWeekly > 0) (takenWeekly * 100) / totalWeekly else null
 
                 // Monthly stats
-                val totalMonthly = monthReminders.size
-                val takenMonthly = monthReminders.count { it.state == ReminderState.TAKEN }
-                val monthlyPercentage = if (totalMonthly > 0) (takenMonthly * 100) / totalMonthly else 100
+                val resolvedMonthly = monthReminders.filter { isResolved(it.state) }
+                val totalMonthly = resolvedMonthly.size
+                val takenMonthly = resolvedMonthly.count { it.state == ReminderState.TAKEN }
+                val monthlyPercentage = if (totalMonthly > 0) (takenMonthly * 100) / totalMonthly else null
 
                 // Per-medication stats
                 val medStats = medications.map { med ->
-                    val medReminders = monthReminders.filter { it.medicationId == med.id }
+                    val medReminders = monthReminders.filter { it.medicationId == med.id && isResolved(it.state) }
                     val total = medReminders.size
                     val taken = medReminders.count { it.state == ReminderState.TAKEN }
                     val missed = medReminders.count { it.state == ReminderState.MISSED || it.state == ReminderState.SKIPPED }
-                    val pct = if (total > 0) (taken * 100) / total else 100
+                    val pct = if (total > 0) (taken * 100) / total else null
                     MedicationStat(
                         medication = med,
                         totalDoses = total,

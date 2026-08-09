@@ -18,6 +18,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.EventAvailable
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.RemoveCircle
+import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -39,11 +45,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.presentation.components.EmptyState
+import com.gokcank.curalis.presentation.components.ReminderStateBadge
+import com.gokcank.curalis.presentation.components.icon
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -84,9 +94,13 @@ fun DailyTimelineScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
+                    // Daha önce month.name kullanılıyordu; bu enum adını ("AUGUST") basıyordu.
+                    val monthName = selectedDate.month
+                        .getDisplayName(java.time.format.TextStyle.FULL, Locale("tr"))
+                        .replaceFirstChar { it.titlecase(Locale("tr")) }
                     Text(
-                        text = "📅 ${selectedDate.dayOfMonth} ${selectedDate.month.name} ${selectedDate.year}",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        text = "${selectedDate.dayOfMonth} $monthName ${selectedDate.year}",
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
@@ -101,12 +115,14 @@ fun DailyTimelineScreen(
 
             if (groupedTimelineItems.isEmpty() || groupedTimelineItems.values.all { it.isEmpty() }) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Bugün için planlanmış ilaç dozu bulunmamaktadır.", color = MaterialTheme.colorScheme.outline)
+                    EmptyState(
+                        icon = Icons.Default.EventAvailable,
+                        title = "Bugün için doz planlanmamış",
+                        description = "Bugüne ait bir ilaç saatiniz yok. İlaçlarınıza saat eklerseniz dozlar burada listelenir."
+                    )
                 }
             } else {
                 LazyColumn(
@@ -142,9 +158,25 @@ fun TimeSlotHeader(slot: TimeSlot) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
     ) {
-        Text("${slot.emoji} ${slot.title}", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.primary)
+        Icon(
+            imageVector = when (slot) {
+                TimeSlot.MORNING -> Icons.Outlined.WbTwilight
+                TimeSlot.AFTERNOON -> Icons.Outlined.LightMode
+                TimeSlot.EVENING -> Icons.Outlined.WbTwilight
+                TimeSlot.NIGHT -> Icons.Outlined.DarkMode
+            },
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
         Spacer(modifier = Modifier.width(8.dp))
-        Text("(${slot.startHour}:00 - ${slot.endHour}:00)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+        Text(slot.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            String.format(Locale.getDefault(), "%02d:00 – %02d:00", slot.startHour, slot.endHour),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -172,52 +204,52 @@ fun TimelineCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
                     Surface(
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.primaryContainer,
                         modifier = Modifier.size(42.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Text(med?.formType?.iconEmoji ?: "💊", fontSize = 22.sp)
+                            Icon(
+                                imageVector = (med?.formType ?: MedicationForm.PILL).icon(),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(22.dp)
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
                             text = med?.name ?: "İlaç",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
+                        val dosageSuffix = med?.dosage?.let { " • $it ${med.unit ?: ""}".trimEnd() } ?: ""
                         Text(
-                            text = "⏰ Saat $formattedTime ${med?.dosage?.let { "• $it ${med.unit ?: ""}" } ?: ""}",
+                            text = "Saat $formattedTime$dosageSuffix",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
 
-                val (badgeText, badgeBg, badgeFg) = when (item.reminder.state) {
-                    ReminderState.TAKEN -> Triple("✅ Alındı", Color(0xFFE8F5E9), Color(0xFF2E7D32))
-                    ReminderState.SKIPPED -> Triple("❌ Atlandı", Color(0xFFFFF3E0), Color(0xFFE65100))
-                    ReminderState.MISSED -> Triple("⚠️ Kaçırıldı", Color(0xFFFFEBEE), Color(0xFFC62828))
-                    ReminderState.SNOOZED -> Triple("⏱️ Ertelendi", Color(0xFFE3F2FD), Color(0xFF1565C0))
-                    else -> Triple("🕒 Bekliyor", Color(0xFFF5F5F5), Color(0xFF616161))
-                }
+                Spacer(modifier = Modifier.width(8.dp))
 
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = badgeBg
-                ) {
-                    Text(
-                        text = badgeText,
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = badgeFg,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
+                ReminderStateBadge(state = item.reminder.state)
             }
 
-            if (item.reminder.state == ReminderState.SCHEDULED || item.reminder.state == ReminderState.SNOOZED) {
+            if (item.reminder.state == ReminderState.SCHEDULED ||
+                item.reminder.state == ReminderState.DELIVERED ||
+                item.reminder.state == ReminderState.SNOOZED
+            ) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -225,22 +257,33 @@ fun TimelineCard(
                 ) {
                     Button(
                         onClick = onTakeClick,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B)),
                         modifier = Modifier
                             .weight(1f)
-                            .height(38.dp),
+                            .height(40.dp),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("✅ Aldım", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Aldım", style = MaterialTheme.typography.labelLarge)
                     }
                     OutlinedButton(
                         onClick = onSkipClick,
                         modifier = Modifier
                             .weight(1f)
-                            .height(38.dp),
+                            .height(40.dp),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("❌ Atla", fontSize = 13.sp, color = MaterialTheme.colorScheme.error)
+                        Icon(
+                            imageVector = Icons.Outlined.RemoveCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Atla", style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }

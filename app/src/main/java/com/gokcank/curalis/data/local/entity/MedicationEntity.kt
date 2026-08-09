@@ -27,5 +27,6 @@ data class MedicationEntity(
     val initialStock: Int? = null,
     val currentStock: Int? = null,
     val refillThreshold: Int? = null,
-    val isRefillReminderEnabled: Boolean = false
+    val isRefillReminderEnabled: Boolean = false,
+    val isVerifiedSource: Boolean = false
 )

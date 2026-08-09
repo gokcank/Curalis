@@ -1,6 +1,7 @@
 package com.gokcank.curalis.presentation.vital
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +13,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Bloodtype
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.Scale
+import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -29,11 +35,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Vital
 import com.gokcank.curalis.domain.model.VitalType
+import com.gokcank.curalis.presentation.components.EmptyState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -122,23 +130,36 @@ fun VitalListScreen(
                     FilterChip(
                         selected = selectedType == type,
                         onClick = { viewModel.setFilterType(type) },
-                        label = { Text(stringResource(type.stringRes)) }
+                        label = { Text(stringResource(type.displayNameRes())) }
                     )
                 }
             }
 
             if (vitals.isEmpty()) {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .weight(1f),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = stringResource(R.string.no_vitals_found),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (selectedType != null) {
+                        // Kayıt var, yalnızca bu filtreye uyan yok.
+                        EmptyState(
+                            icon = Icons.Default.FilterAlt,
+                            title = "Bu türde ölçüm yok",
+                            description = "Seçtiğiniz ölçüm türünde kayıt bulunmuyor. Filtreyi kaldırarak tüm ölçümleri görebilirsiniz.",
+                            actionLabel = "Filtreyi Kaldır",
+                            onAction = { viewModel.setFilterType(null) }
+                        )
+                    } else {
+                        EmptyState(
+                            icon = Icons.Default.MonitorHeart,
+                            title = stringResource(R.string.no_vitals_found),
+                            description = "Tansiyon, kan şekeri veya kilo gibi ölçümlerinizi kaydederek zaman içindeki değişimi takip edebilirsiniz.",
+                            actionLabel = stringResource(R.string.add_vital),
+                            onAction = onAddVitalClick
+                        )
+                    }
                 }
             } else {
                 LazyColumn(
@@ -195,21 +216,34 @@ fun VitalItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Favorite,
+                    imageVector = when (vital.type) {
+                        VitalType.BLOOD_PRESSURE -> Icons.Default.MonitorHeart
+                        VitalType.BLOOD_SUGAR -> Icons.Default.Bloodtype
+                        VitalType.HEART_RATE -> Icons.Default.Favorite
+                        VitalType.WEIGHT -> Icons.Default.Scale
+                        VitalType.TEMPERATURE -> Icons.Default.Thermostat
+                    },
                     contentDescription = null,
                     modifier = Modifier.padding(end = 16.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Column {
-                    Text(text = stringResource(vital.type.stringRes), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = stringResource(vital.type.displayNameRes()),
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                     Text(text = dateString, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = valueText,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    softWrap = false
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(onClick = onDelete) {

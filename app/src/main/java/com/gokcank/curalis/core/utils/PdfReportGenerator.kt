@@ -40,21 +40,25 @@ class PdfReportGenerator @Inject constructor(
     private val reminderRepository: ReminderRepository
 ) {
 
-    suspend fun generateAndShareReport(activityContext: Context) {
+    /** Raporu üretir ve dosyayı döndürür; paylaşmaz. Önizleme için kullanılır. */
+    suspend fun generateReport(): File {
+        val medications = medicationRepository.getAllMedications().firstOrNull() ?: emptyList()
+        val vitals = vitalRepository.getAllVitals().firstOrNull() ?: emptyList()
+
+        val now = System.currentTimeMillis()
+        val monthStart = now - (30L * 24 * 3600 * 1000)
+        val monthReminders = reminderRepository.getRemindersBetweenDates(monthStart, now).firstOrNull() ?: emptyList()
+
+        val takenCount = monthReminders.count { it.state == ReminderState.TAKEN }
+        val skippedCount = monthReminders.count { it.state == ReminderState.SKIPPED }
+        val missedCount = monthReminders.count { it.state == ReminderState.MISSED }
+
+        return generateHealthReportPdf(medications, vitals, takenCount, skippedCount, missedCount)
+    }
+
+    /** Kullanıcı önizlemeyi gördükten sonra dosyayı paylaşım seçicisiyle gönderir. */
+    fun shareReport(activityContext: Context, pdfFile: File) {
         try {
-            val medications = medicationRepository.getAllMedications().firstOrNull() ?: emptyList()
-            val vitals = vitalRepository.getAllVitals().firstOrNull() ?: emptyList()
-
-            val now = System.currentTimeMillis()
-            val monthStart = now - (30L * 24 * 3600 * 1000)
-            val monthReminders = reminderRepository.getRemindersBetweenDates(monthStart, now).firstOrNull() ?: emptyList()
-
-            val takenCount = monthReminders.count { it.state == ReminderState.TAKEN }
-            val skippedCount = monthReminders.count { it.state == ReminderState.SKIPPED }
-            val missedCount = monthReminders.count { it.state == ReminderState.MISSED }
-
-            val pdfFile = generateHealthReportPdf(medications, vitals, takenCount, skippedCount, missedCount)
-
             val contentUri: Uri = FileProvider.getUriForFile(
                 activityContext,
                 "${activityContext.packageName}.fileprovider",
@@ -70,10 +74,9 @@ class PdfReportGenerator @Inject constructor(
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             activityContext.startActivity(chooser)
-            Toast.makeText(activityContext, "📄 PDF Sağlık Raporu oluşturuldu", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(activityContext, "Hata: PDF raporu açılamadı", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activityContext, "Hata: PDF raporu paylaşılamadı", Toast.LENGTH_SHORT).show()
         }
     }
 

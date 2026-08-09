@@ -15,7 +15,10 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -58,6 +61,8 @@ fun AddEditAppointmentScreen(
     val location by viewModel.location.collectAsState()
     val notes by viewModel.notes.collectAsState()
     val timeInMillis by viewModel.timeInMillis.collectAsState()
+    val selectedDoctorId by viewModel.selectedDoctorId.collectAsState()
+    val doctors by viewModel.doctors.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
@@ -123,6 +128,49 @@ fun AddEditAppointmentScreen(
                 label = { Text(stringResource(R.string.appointment_notes)) },
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Doktor seçici — veri modeli/veritabanı ilişkisi zaten hazırdı, eksik olan
+            // yalnızca bu seçim kutusuydu.
+            var doctorMenuExpanded by remember { mutableStateOf(false) }
+            val selectedDoctor = doctors.find { it.id == selectedDoctorId }
+            ExposedDropdownMenuBox(
+                expanded = doctorMenuExpanded,
+                onExpandedChange = { doctorMenuExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = selectedDoctor?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.appointment_doctor)) },
+                    placeholder = { Text(stringResource(R.string.appointment_doctor_none)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = doctorMenuExpanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = doctorMenuExpanded,
+                    onDismissRequest = { doctorMenuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.appointment_doctor_none)) },
+                        onClick = {
+                            viewModel.onDoctorSelected(null)
+                            doctorMenuExpanded = false
+                        }
+                    )
+                    doctors.forEach { doctor ->
+                        DropdownMenuItem(
+                            text = { Text(doctor.name) },
+                            onClick = {
+                                viewModel.onDoctorSelected(doctor.id)
+                                doctorMenuExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             // Date & Time picker field — tapping opens DatePickerDialog

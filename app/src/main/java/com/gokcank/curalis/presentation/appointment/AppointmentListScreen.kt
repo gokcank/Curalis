@@ -1,6 +1,7 @@
 package com.gokcank.curalis.presentation.appointment
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -27,10 +29,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Appointment
+import com.gokcank.curalis.presentation.components.EmptyState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -98,16 +102,18 @@ fun AppointmentListScreen(
         }
     ) { padding ->
         if (appointments.isEmpty()) {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = stringResource(R.string.no_appointments_found),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                EmptyState(
+                    icon = Icons.AutoMirrored.Filled.EventNote,
+                    title = stringResource(R.string.no_appointments_found),
+                    description = "Yaklaşan doktor randevularınızı buraya ekleyip bir saat öncesinden hatırlatma alabilirsiniz.",
+                    actionLabel = stringResource(R.string.add_appointment),
+                    onAction = onAddAppointmentClick
                 )
             }
         } else {
@@ -161,10 +167,21 @@ fun AppointmentItem(
                 tint = MaterialTheme.colorScheme.primary
             )
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = appointment.title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = appointment.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Text(text = dateString, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
                 if (!appointment.location.isNullOrBlank()) {
-                    Text(text = appointment.location, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = appointment.location,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
             Spacer(modifier = Modifier.width(8.dp))

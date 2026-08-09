@@ -3,6 +3,7 @@ package com.gokcank.curalis.presentation.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.domain.model.Medication
+import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
@@ -22,16 +23,17 @@ import java.util.Calendar
 import javax.inject.Inject
 
 enum class DayAdherenceStatus {
-    PERFECT,         // 🟢 All doses taken
-    PARTIAL,         // 🟡 Some taken, some skipped/snoozed
-    MISSED,          // 🔴 At least one missed dose
-    FUTURE_OR_EMPTY  // ⚪ Future date or no doses
+    PERFECT,         // Tüm dozlar alınmış
+    PARTIAL,         // Bir kısmı alınmış, bir kısmı atlanmış/ertelenmiş
+    MISSED,          // En az bir kaçırılmış doz var
+    NO_DOSES,        // Bu gün için planlanmış doz yok
+    FUTURE           // Gelecek tarih; henüz değerlendirilemez
 }
 
 data class DailyReminderItem(
     val reminder: Reminder,
     val medicationName: String,
-    val medicationFormEmoji: String,
+    val medicationForm: MedicationForm,
     val dosageInfo: String
 )
 
@@ -88,8 +90,12 @@ class AdherenceCalendarViewModel @Inject constructor(
             val date = LocalDate.of(ym.year, ym.monthValue, day)
             val dayReminders = remindersByDay[date] ?: emptyList()
 
-            if (date.isAfter(today) || dayReminders.isEmpty()) {
-                map[date] = DayAdherenceStatus.FUTURE_OR_EMPTY
+            if (date.isAfter(today)) {
+                map[date] = DayAdherenceStatus.FUTURE
+            } else if (dayReminders.isEmpty()) {
+                // "Bu gün için ilaç planlanmamıştı" ile "gelecek gün" farklı durumlardır;
+                // ikisini aynı göstermek takvimin tamamını anlamsız bir griye çeviriyordu.
+                map[date] = DayAdherenceStatus.NO_DOSES
             } else {
                 val hasMissed = dayReminders.any { it.state == ReminderState.MISSED }
                 val hasTaken = dayReminders.any { it.state == ReminderState.TAKEN }
@@ -124,7 +130,7 @@ class AdherenceCalendarViewModel @Inject constructor(
             DailyReminderItem(
                 reminder = rem,
                 medicationName = med?.name ?: "İlaç",
-                medicationFormEmoji = med?.formType?.iconEmoji ?: "💊",
+                medicationForm = med?.formType ?: MedicationForm.PILL,
                 dosageInfo = listOfNotNull(med?.dosage, med?.unit).joinToString(" ")
             )
         }

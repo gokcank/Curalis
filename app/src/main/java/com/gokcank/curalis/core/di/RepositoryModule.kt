@@ -1,6 +1,6 @@
 package com.gokcank.curalis.core.di
 
-import com.gokcank.curalis.data.repository_impl.MedicationRepositoryImpl
+import com.gokcank.curalis.data.repository.MedicationRepositoryImpl
 import com.gokcank.curalis.domain.repository.MedicationRepository
 import dagger.Binds
 import dagger.Module
@@ -21,7 +21,7 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindReminderRepository(
-        reminderRepositoryImpl: com.gokcank.curalis.data.repository_impl.ReminderRepositoryImpl
+        reminderRepositoryImpl: com.gokcank.curalis.data.repository.ReminderRepositoryImpl
     ): com.gokcank.curalis.domain.repository.ReminderRepository
 
     @Binds
@@ -41,6 +41,12 @@ abstract class RepositoryModule {
     abstract fun bindVitalRepository(
         vitalRepositoryImpl: com.gokcank.curalis.data.repository.VitalRepositoryImpl
     ): com.gokcank.curalis.domain.repository.VitalRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindStockHistoryRepository(
+        stockHistoryRepositoryImpl: com.gokcank.curalis.data.repository.StockHistoryRepositoryImpl
+    ): com.gokcank.curalis.domain.repository.StockHistoryRepository
 
     @Binds
     @Singleton

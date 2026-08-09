@@ -1,0 +1,246 @@
+package com.gokcank.curalis.presentation.notificationsettings
+
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NotificationSettingsScreen(
+    onNavigateBack: () -> Unit,
+    viewModel: NotificationSettingsViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    var showStartTimePicker by remember { mutableStateOf(false) }
+    var showEndTimePicker by remember { mutableStateOf(false) }
+
+    fun formatMinutes(minutes: Int): String {
+        val h = minutes / 60
+        val m = minutes % 60
+        return String.format("%02d:%02d", h, m)
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Bildirim ve Hatırlatıcı Ayarları") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Gizlilik",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Kilit ekranında ilaç adını gizle", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "Açıkken, kilitli ekranda bildirim görünür ama ilacınızın adı gizlenir.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = uiState.hideMedicationNameOnLockScreen,
+                    onCheckedChange = viewModel::onHideLockScreenNameToggled
+                )
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = "Sessiz Saatler",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Sessiz saatleri etkinleştir", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "Bu saatler arasında hatırlatıcılar sessiz gelir ve ekranınızı uyandırmaz; bildirim yine de görünür kalır.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = uiState.quietHoursEnabled,
+                    onCheckedChange = viewModel::onQuietHoursToggled
+                )
+            }
+
+            if (uiState.quietHoursEnabled) {
+                Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { showStartTimePicker = true },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Başlangıç: ${formatMinutes(uiState.quietHoursStartMinutes)}")
+                    }
+                    OutlinedButton(
+                        onClick = { showEndTimePicker = true },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Bitiş: ${formatMinutes(uiState.quietHoursEndMinutes)}")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = "Bildirim Kategorileri",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "Doz hatırlatmaları ve stok uyarıları artık ayrı bildirim kategorilerinde. " +
+                            "Her birinin sesini, titreşimini veya görünürlüğünü ayrı ayrı kapatmak için sistem ayarlarını kullanabilirsiniz.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Button(
+                        onClick = {
+                            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                            }
+                            context.startActivity(intent)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    ) {
+                        Text("Bildirim Kategorilerini Sistem Ayarlarından Yönet")
+                    }
+                }
+            }
+        }
+    }
+
+    if (showStartTimePicker) {
+        val initial = uiState.quietHoursStartMinutes
+        val timePickerState = rememberTimePickerState(
+            initialHour = initial / 60,
+            initialMinute = initial % 60,
+            is24Hour = true
+        )
+        Dialog(onDismissRequest = { showStartTimePicker = false }) {
+            Card(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Sessiz Saatler Başlangıcı", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    TimePicker(state = timePickerState)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        androidx.compose.material3.TextButton(onClick = { showStartTimePicker = false }) {
+                            Text("İptal")
+                        }
+                        Button(onClick = {
+                            viewModel.onQuietHoursStartChanged(timePickerState.hour * 60 + timePickerState.minute)
+                            showStartTimePicker = false
+                        }) {
+                            Text("Tamam")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showEndTimePicker) {
+        val initial = uiState.quietHoursEndMinutes
+        val timePickerState = rememberTimePickerState(
+            initialHour = initial / 60,
+            initialMinute = initial % 60,
+            is24Hour = true
+        )
+        Dialog(onDismissRequest = { showEndTimePicker = false }) {
+            Card(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Sessiz Saatler Bitişi", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    TimePicker(state = timePickerState)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        androidx.compose.material3.TextButton(onClick = { showEndTimePicker = false }) {
+                            Text("İptal")
+                        }
+                        Button(onClick = {
+                            viewModel.onQuietHoursEndChanged(timePickerState.hour * 60 + timePickerState.minute)
+                            showEndTimePicker = false
+                        }) {
+                            Text("Tamam")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

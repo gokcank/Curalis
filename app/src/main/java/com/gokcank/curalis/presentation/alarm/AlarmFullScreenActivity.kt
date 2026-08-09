@@ -7,6 +7,7 @@ import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -22,12 +23,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Medication
+import androidx.compose.material.icons.filled.Snooze
+import androidx.compose.material.icons.outlined.RemoveCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -37,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gokcank.curalis.core.notification.AlarmScheduler
@@ -122,7 +131,9 @@ class AlarmFullScreenActivity : ComponentActivity() {
 
             @Suppress("DEPRECATION")
             vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            vibrator?.vibrate(longArrayOf(0, 1000, 1000), 0)
+            vibrator?.vibrate(
+                VibrationEffect.createWaveform(longArrayOf(0, 1000, 1000), 0)
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -176,15 +187,20 @@ fun AlarmFullScreenContent(
                     modifier = Modifier.size(72.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text("💊", fontSize = 36.sp)
+                        Icon(
+                            imageVector = Icons.Filled.Medication,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(36.dp)
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "İLAÇ VAKTİ GELMESİ!",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    text = "İlaç vakti geldi",
+                    style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
 
@@ -192,8 +208,9 @@ fun AlarmFullScreenContent(
 
                 Text(
                     text = medicationName,
-                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
                 )
 
                 dose?.let {
@@ -201,7 +218,7 @@ fun AlarmFullScreenContent(
                     Text(
                         text = "Doz: $it",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.outline
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -210,13 +227,18 @@ fun AlarmFullScreenContent(
                 // ALINDI
                 Button(
                     onClick = onTakeClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B)),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("✅ İLACI ALDIĞIMI ONAYLA", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("İlacı aldım", style = MaterialTheme.typography.titleMedium)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -229,7 +251,13 @@ fun AlarmFullScreenContent(
                         .height(48.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("❌ Bu Dozu Atla", color = MaterialTheme.colorScheme.error)
+                    Icon(
+                        imageVector = Icons.Outlined.RemoveCircle,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Bu dozu atla")
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -243,13 +271,25 @@ fun AlarmFullScreenContent(
                         onClick = { onSnoozeClick(10) },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("⏱️ 10 Dk Ertele", fontSize = 12.sp)
+                        Icon(
+                            imageVector = Icons.Filled.Snooze,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("10 dk", style = MaterialTheme.typography.labelLarge)
                     }
                     OutlinedButton(
                         onClick = { onSnoozeClick(30) },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("⏱️ 30 Dk Ertele", fontSize = 12.sp)
+                        Icon(
+                            imageVector = Icons.Filled.Snooze,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("30 dk", style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }

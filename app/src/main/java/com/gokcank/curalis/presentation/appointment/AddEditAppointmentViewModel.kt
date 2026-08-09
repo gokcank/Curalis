@@ -5,12 +5,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.domain.model.Appointment
+import com.gokcank.curalis.domain.model.Doctor
 import com.gokcank.curalis.domain.usecase.AppointmentUseCases
+import com.gokcank.curalis.domain.usecase.DoctorUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -18,9 +22,13 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditAppointmentViewModel @Inject constructor(
     private val appointmentUseCases: AppointmentUseCases,
+    private val doctorUseCases: DoctorUseCases,
     private val alarmScheduler: AlarmScheduler,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    val doctors: kotlinx.coroutines.flow.StateFlow<List<Doctor>> = doctorUseCases.getDoctors()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _title = MutableStateFlow("")
     val title = _title.asStateFlow()

@@ -16,19 +16,26 @@ import javax.inject.Singleton
 
 @Singleton
 class NotificationHelper @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val notificationPreferences: NotificationPreferences
 ) {
 
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     init {
-        createNotificationChannel()
+        createNotificationChannels()
     }
 
-    private fun createNotificationChannel() {
+    /**
+     * Enjeksiyon anında zaten [init] içinde kanallar oluşturulur; bu fonksiyon yalnızca
+     * çağıran tarafta (uygulama açılışında) niyeti açık şekilde ifade etmek için var.
+     */
+    fun ensureNotificationChannelsCreated() {}
+
+    private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
+            val reminderChannel = NotificationChannel(
                 CHANNEL_ID,
                 context.getString(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
@@ -36,7 +43,31 @@ class NotificationHelper @Inject constructor(
                 description = context.getString(R.string.notification_channel_desc)
                 enableVibration(true)
             }
-            notificationManager.createNotificationChannel(channel)
+
+            // Sessiz saatlerde kullanılan, sesi/titreşimi olmayan düşük öncelikli kanal.
+            val silentReminderChannel = NotificationChannel(
+                CHANNEL_ID_REMINDERS_SILENT,
+                context.getString(R.string.notification_channel_name_silent),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = context.getString(R.string.notification_channel_desc_silent)
+                enableVibration(false)
+                setSound(null, null)
+            }
+
+            // Stok/yeniden reçete uyarıları; kullanıcı doz hatırlatmalarını açık tutup
+            // bunu ayrı ayrı sistem ayarlarından kısabilir.
+            val refillChannel = NotificationChannel(
+                CHANNEL_ID_REFILL,
+                context.getString(R.string.notification_channel_name_refill),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = context.getString(R.string.notification_channel_desc_refill)
+            }
+
+            notificationManager.createNotificationChannel(reminderChannel)
+            notificationManager.createNotificationChannel(silentReminderChannel)
+            notificationManager.createNotificationChannel(refillChannel)
         }
     }
 
@@ -106,15 +137,25 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val isQuietHours = notificationPreferences.isWithinQuietHours()
+        val reminderChannelId = if (isQuietHours) CHANNEL_ID_REMINDERS_SILENT else CHANNEL_ID
+        val hideOnLockScreen = notificationPreferences.hideMedicationNameOnLockScreen
+
+        val publicVersion = NotificationCompat.Builder(context, reminderChannelId)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle(context.getString(R.string.notification_title))
+            .build()
+
+        val builder = NotificationCompat.Builder(context, reminderChannelId)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(context.getString(R.string.notification_title))
             .setContentText(context.getString(R.string.notification_text_medication, medicationName))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(if (isQuietHours) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setFullScreenIntent(fullScreenPendingIntent, true)
             .setAutoCancel(true)
             .setContentIntent(contentPendingIntent)
+            .setVisibility(if (hideOnLockScreen) NotificationCompat.VISIBILITY_PRIVATE else NotificationCompat.VISIBILITY_PUBLIC)
+            .setPublicVersion(publicVersion)
             .addAction(
                 android.R.drawable.ic_menu_save,
                 context.getString(R.string.notification_action_take),
@@ -131,6 +172,11 @@ class NotificationHelper @Inject constructor(
                 skipPendingIntent
             )
 
+        // Sessiz saatlerde kullanıcıyı uyandırmamak için tam ekran uyarı gösterilmiyor.
+        if (!isQuietHours) {
+            builder.setFullScreenIntent(fullScreenPendingIntent, true)
+        }
+
         notificationManager.notify(reminderId.hashCode(), builder.build())
     }
 
@@ -143,11 +189,11 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID_REFILL)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle("⚠️ Stok Azalıyor!")
+            .setContentTitle("Stok azalıyor")
             .setContentText("$medicationName ilacınız bitmek üzere! Kalan: $remainingStock doz. Reçetenizi yenilemeyi unutmayın.")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .setContentIntent(contentPendingIntent)
 
@@ -174,7 +220,7 @@ class NotificationHelper @Inject constructor(
         )
 
         val joinedNames = medicationNames.joinToString(", ")
-        val groupTitle = "💊 ${medicationNames.size} İlaç Saatiniz Geldi!"
+        val groupTitle = "${medicationNames.size} ilacın saati geldi"
         val groupText = "Alınacak İlaçlar: $joinedNames"
 
         val takeAllIntent = Intent(context, ReminderActionReceiver::class.java).apply {
@@ -189,18 +235,29 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val isQuietHours = notificationPreferences.isWithinQuietHours()
+        val groupChannelId = if (isQuietHours) CHANNEL_ID_REMINDERS_SILENT else CHANNEL_ID
+        val hideOnLockScreen = notificationPreferences.hideMedicationNameOnLockScreen
+
+        val publicVersion = NotificationCompat.Builder(context, groupChannelId)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle(context.getString(R.string.notification_title))
+            .build()
+
+        val builder = NotificationCompat.Builder(context, groupChannelId)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(groupTitle)
             .setContentText(groupText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(groupText))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(if (isQuietHours) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
             .setContentIntent(contentPendingIntent)
+            .setVisibility(if (hideOnLockScreen) NotificationCompat.VISIBILITY_PRIVATE else NotificationCompat.VISIBILITY_PUBLIC)
+            .setPublicVersion(publicVersion)
             .addAction(
                 android.R.drawable.ic_menu_save,
-                "✅ Hepsini Aldım",
+                "Hepsini Aldım",
                 takeAllPendingIntent
             )
 
@@ -209,6 +266,8 @@ class NotificationHelper @Inject constructor(
 
     companion object {
         const val CHANNEL_ID = "medication_reminders_channel"
+        const val CHANNEL_ID_REMINDERS_SILENT = "medication_reminders_silent_channel"
+        const val CHANNEL_ID_REFILL = "refill_warnings_channel"
         const val ACTION_TAKEN = "com.gokcank.curalis.ACTION_TAKEN"
         const val ACTION_SNOOZE = "com.gokcank.curalis.ACTION_SNOOZE"
         const val ACTION_SKIP = "com.gokcank.curalis.ACTION_SKIP"
