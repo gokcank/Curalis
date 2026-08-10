@@ -59,7 +59,16 @@ fun NavGraph() {
         }
         
         composable(route = Screen.About.route) {
-            AboutScreen(onNavigateBack = { navController.popBackStack() })
+            AboutScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) }
+            )
+        }
+
+        composable(route = Screen.PrivacyPolicy.route) {
+            com.gokcank.curalis.presentation.about.PrivacyPolicyScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
 
         composable(route = Screen.MedicationList.route) {
