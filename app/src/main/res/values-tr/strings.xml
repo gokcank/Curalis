@@ -91,9 +91,9 @@
     <string name="appearance">Görünüm</string>
     <string name="theme_mode">Tema</string>
     <string name="theme_mode_desc">Uygulamanın açık mı koyu mu görüneceğini seçin</string>
-    <string name="theme_follow_system">Sistem</string>
     <string name="theme_light">Açık</string>
     <string name="theme_dark">Koyu</string>
+    <string name="theme_amoled">AMOLED</string>
     <string name="language">Dil / Language</string>
     <string name="language_desc">Uygulama dilini değiştirir (Türkçe, English)</string>
     <string name="about">Hakkında</string>

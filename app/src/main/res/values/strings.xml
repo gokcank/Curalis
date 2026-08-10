@@ -91,9 +91,9 @@
     <string name="appearance">Appearance</string>
     <string name="theme_mode">Theme</string>
     <string name="theme_mode_desc">Choose whether the app appears light or dark</string>
-    <string name="theme_follow_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
+    <string name="theme_amoled">AMOLED</string>
     <string name="language">Dil / Language</string>
     <string name="language_desc">Change app language (Türkçe, English)</string>
     <string name="about">About</string>

@@ -7,29 +7,30 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
+enum class ThemeMode {
+    LIGHT, DARK, AMOLED
+}
+
 @Singleton
 class ThemeController @Inject constructor(
     @ApplicationContext context: Context
 ) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    private val _isDarkMode = MutableStateFlow(
-        if (prefs.contains(KEY_IS_DARK_MODE)) prefs.getBoolean(KEY_IS_DARK_MODE, false) else null
+    private val _themeMode = MutableStateFlow(
+        prefs.getString(KEY_THEME_MODE, null)?.let { stored ->
+            runCatching { ThemeMode.valueOf(stored) }.getOrNull()
+        } ?: ThemeMode.LIGHT
     )
-    val isDarkMode = _isDarkMode.asStateFlow()
+    val themeMode = _themeMode.asStateFlow()
 
-    fun setDarkMode(isDark: Boolean) {
-        prefs.edit().putBoolean(KEY_IS_DARK_MODE, isDark).apply()
-        _isDarkMode.value = isDark
-    }
-
-    fun resetToSystem() {
-        prefs.edit().remove(KEY_IS_DARK_MODE).apply()
-        _isDarkMode.value = null
+    fun setThemeMode(mode: ThemeMode) {
+        prefs.edit().putString(KEY_THEME_MODE, mode.name).apply()
+        _themeMode.value = mode
     }
 
     companion object {
         private const val PREFS_NAME = "curalis_theme_prefs"
-        private const val KEY_IS_DARK_MODE = "is_dark_mode"
+        private const val KEY_THEME_MODE = "theme_mode"
     }
 }

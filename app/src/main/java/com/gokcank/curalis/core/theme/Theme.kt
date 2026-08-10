@@ -1,6 +1,5 @@
 package com.gokcank.curalis.core.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -38,7 +37,8 @@ private val LightColorScheme = lightColorScheme(
     error = LightError,
     onError = LightOnError,
     errorContainer = LightErrorContainer,
-    onErrorContainer = LightOnErrorContainer
+    onErrorContainer = LightOnErrorContainer,
+    surfaceTint = LightSurfaceTint
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -66,6 +66,15 @@ private val DarkColorScheme = darkColorScheme(
     onError = DarkOnError,
     errorContainer = DarkErrorContainer,
     onErrorContainer = DarkOnErrorContainer
+)
+
+private val AmoledColorScheme = DarkColorScheme.copy(
+    background = AmoledBackground,
+    onBackground = AmoledOnBackground,
+    surface = AmoledSurface,
+    onSurface = AmoledOnSurface,
+    surfaceVariant = AmoledSurfaceVariant,
+    onSurfaceVariant = AmoledOnSurfaceVariant
 )
 
 /** Material 3'te slotu olmayan anlamsal renklere (warning/success/info) erişim. */
@@ -114,10 +123,15 @@ object CuralisIconSize {
 
 @Composable
 fun CuralisTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: ThemeMode = ThemeMode.LIGHT,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val darkTheme = themeMode != ThemeMode.LIGHT
+    val colorScheme = when (themeMode) {
+        ThemeMode.LIGHT -> LightColorScheme
+        ThemeMode.DARK -> DarkColorScheme
+        ThemeMode.AMOLED -> AmoledColorScheme
+    }
     val semanticColors = if (darkTheme) DarkSemanticColors else LightSemanticColors
 
     val view = LocalView.current

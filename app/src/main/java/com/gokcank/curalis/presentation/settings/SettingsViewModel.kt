@@ -2,6 +2,7 @@ package com.gokcank.curalis.presentation.settings
 
 import androidx.lifecycle.ViewModel
 import com.gokcank.curalis.core.theme.ThemeController
+import com.gokcank.curalis.core.theme.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -10,9 +11,7 @@ class SettingsViewModel @Inject constructor(
     private val themeController: ThemeController
 ) : ViewModel() {
 
-    val isDarkMode = themeController.isDarkMode
+    val themeMode = themeController.themeMode
 
-    fun setDarkMode(isDark: Boolean) = themeController.setDarkMode(isDark)
-
-    fun resetThemeToSystem() = themeController.resetToSystem()
+    fun setThemeMode(mode: ThemeMode) = themeController.setThemeMode(mode)
 }

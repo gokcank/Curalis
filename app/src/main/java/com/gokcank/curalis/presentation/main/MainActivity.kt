@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.gokcank.curalis.core.navigation.NavGraph
@@ -25,10 +24,9 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val darkThemeOverride by themeController.isDarkMode.collectAsState()
-            val isDark = darkThemeOverride ?: isSystemInDarkTheme()
-            
-            CuralisTheme(darkTheme = isDark) {
+            val themeMode by themeController.themeMode.collectAsState()
+
+            CuralisTheme(themeMode = themeMode) {
                 NavGraph()
             }
         }

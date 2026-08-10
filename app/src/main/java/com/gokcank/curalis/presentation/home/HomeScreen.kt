@@ -43,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -173,17 +172,12 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    // Tam ekran dekoratif stok görsel yerine temanın kendi renklerinden
-                    // türeyen çok hafif bir zemin. design-system.md: dekorasyon bilgiyle
-                    // yarışmamalı ve okunabilirliği düşürmemeli.
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
-                            MaterialTheme.colorScheme.background
-                        )
-                    )
-                )
+                // Önceki dekoratif gradyan (surface -> background) açık gri temada iki ucu
+                // birbirine çok yakın olduğu için 8-bit renk hassasiyetinde görünür bantlanma/
+                // şerit çizgileri yaratıyordu. Düz bir zemin rengi bu riski tamamen ortadan
+                // kaldırıyor; design-system.md zaten dekorasyonun okunabilirlikle
+                // yarışmamasını istiyor, düz renk bu amaca da uyuyor.
+                .background(MaterialTheme.colorScheme.background)
         ) {
             // Content
             Column(

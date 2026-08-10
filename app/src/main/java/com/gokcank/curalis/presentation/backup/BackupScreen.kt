@@ -204,7 +204,8 @@ fun BackupScreen(
                             importLauncher.launch(arrayOf("application/json", "*/*"))
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = uiState !is BackupUiState.Loading
+                        enabled = uiState !is BackupUiState.Loading,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
                     ) {
                         Text("Yedeği Seç ve Yükle")
                     }
@@ -280,7 +281,8 @@ fun BackupScreen(
                             OutlinedButton(
                                 onClick = { pendingPasswordAction = PendingPasswordAction.RestoreDrive },
                                 modifier = Modifier.weight(1f),
-                                enabled = uiState !is BackupUiState.Loading
+                                enabled = uiState !is BackupUiState.Loading,
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.tertiary)
                             ) {
                                 Text("Drive'dan Yükle")
                             }

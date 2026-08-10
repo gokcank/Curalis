@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -38,6 +39,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,8 +61,8 @@ fun SettingsScreen(
             )
         }
     ) { padding ->
-        val isDarkMode by viewModel.isDarkMode.collectAsState()
-        
+        val themeMode by viewModel.themeMode.collectAsState()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -84,26 +86,35 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.padding(vertical = 4.dp))
 
+                val themeChipColors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    labelColor = MaterialTheme.colorScheme.onSurface
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     FilterChip(
-                        selected = isDarkMode == null,
-                        onClick = { viewModel.resetThemeToSystem() },
-                        label = { Text(stringResource(R.string.theme_follow_system)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    FilterChip(
-                        selected = isDarkMode == false,
-                        onClick = { viewModel.setDarkMode(false) },
+                        selected = themeMode == ThemeMode.LIGHT,
+                        onClick = { viewModel.setThemeMode(ThemeMode.LIGHT) },
                         label = { Text(stringResource(R.string.theme_light)) },
+                        colors = themeChipColors,
                         modifier = Modifier.weight(1f)
                     )
                     FilterChip(
-                        selected = isDarkMode == true,
-                        onClick = { viewModel.setDarkMode(true) },
+                        selected = themeMode == ThemeMode.DARK,
+                        onClick = { viewModel.setThemeMode(ThemeMode.DARK) },
                         label = { Text(stringResource(R.string.theme_dark)) },
+                        colors = themeChipColors,
+                        modifier = Modifier.weight(1f)
+                    )
+                    FilterChip(
+                        selected = themeMode == ThemeMode.AMOLED,
+                        onClick = { viewModel.setThemeMode(ThemeMode.AMOLED) },
+                        label = { Text(stringResource(R.string.theme_amoled)) },
+                        colors = themeChipColors,
                         modifier = Modifier.weight(1f)
                     )
                 }

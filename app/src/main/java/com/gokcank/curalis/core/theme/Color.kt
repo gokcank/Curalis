@@ -18,29 +18,45 @@ import androidx.compose.ui.graphics.Color
  */
 
 // ---------- Açık tema ----------
-val LightPrimary = Color(0xFF1565C0)
+// Önceki değerler (#1565C0 mavi, #00695C teal) çok doygundu; kırık-beyaz bir zeminle
+// birleşince "neon/glow" hissi veriyordu. Ayrıca Material3 varsayılan olarak yükseltilmiş
+// yüzeylere (Card, TopAppBar, FAB) "surfaceTint" rengini (varsayılan: primary) düşük
+// opaklıkla bindirir — bu da doygun mavi seçildiğinde kartların çevresinde gerçek bir
+// "parlama" (glow) etkisi yaratıyordu. Aşağıda hem renkler yumuşatıldı hem de
+// surfaceTint nötr bir tona çekildi (bkz. Theme.kt).
+val LightPrimary = Color(0xFF3E6EA0)
 val LightOnPrimary = Color(0xFFFFFFFF)
-val LightPrimaryContainer = Color(0xFFD6E4F7)
-val LightOnPrimaryContainer = Color(0xFF0A2F5C)
+val LightPrimaryContainer = Color(0xFFDCE6F0)
+val LightOnPrimaryContainer = Color(0xFF15304A)
 
-val LightSecondary = Color(0xFF00695C)
+val LightSecondary = Color(0xFF447A6D)
 val LightOnSecondary = Color(0xFFFFFFFF)
-val LightSecondaryContainer = Color(0xFFCDE8E4)
-val LightOnSecondaryContainer = Color(0xFF00302A)
+val LightSecondaryContainer = Color(0xFFD9E7E1)
+val LightOnSecondaryContainer = Color(0xFF17332C)
 
-val LightTertiary = Color(0xFF44546A)
+val LightTertiary = Color(0xFF5A5A54)
 val LightOnTertiary = Color(0xFFFFFFFF)
-val LightTertiaryContainer = Color(0xFFDFE4EC)
-val LightOnTertiaryContainer = Color(0xFF1E2733)
+val LightTertiaryContainer = Color(0xFFE0E0DA)
+val LightOnTertiaryContainer = Color(0xFF1C1C18)
 
-val LightBackground = Color(0xFFF7F9FC)
-val LightOnBackground = Color(0xFF1A1C1E)
-val LightSurface = Color(0xFFFFFFFF)
-val LightOnSurface = Color(0xFF1A1C1E)
-val LightSurfaceVariant = Color(0xFFE7EAEE)
-val LightOnSurfaceVariant = Color(0xFF43474E)
-val LightOutline = Color(0xFF6F737B)
-val LightOutlineVariant = Color(0xFFC3C7CF)
+// Tamamen nötr (R=G=B, sıfır renk sapması) gri ölçek. Tonlar, Material 3'ün kendi
+// kütüphanesinde gömülü resmi "Neutral" ton paletindeki (BaselineTonalPalette)
+// aydınlık basamaklarıyla aynı aralıklarla seçildi — ardışık tonlar arasında yeterli
+// fark bırakılarak (background→surface→surfaceVariant her seferinde belirgin şekilde
+// atlanarak) düz renk geçişlerinde (bkz. HomeScreen gradyanı) bantlanma/şerit
+// oluşmaması hedeflendi. Ayrıca gradyan tamamen düz renge çevrildi (bkz. HomeScreen.kt).
+val LightBackground = Color(0xFFC9C9C9)
+val LightOnBackground = Color(0xFF1D1D1D)
+val LightSurface = Color(0xFFD3D3D3)
+val LightOnSurface = Color(0xFF1D1D1D)
+val LightSurfaceVariant = Color(0xFFB0B0B0)
+val LightOnSurfaceVariant = Color(0xFF3D3D3D)
+val LightOutline = Color(0xFF6E6E6E)
+val LightOutlineVariant = Color(0xFFA3A3A3)
+// Yükseltilmiş yüzeylerdeki (Card/AppBar/FAB) renkli "glow" bindirmesini önlemek için
+// nötr gri bir surfaceTint — varsayılan olarak primary kullanılıp doygun mavi her
+// yükseltilmiş yüzeyde hafif bir parlama yaratıyordu.
+val LightSurfaceTint = Color(0xFFB0B0B0)
 
 val LightError = Color(0xFFB3261E)
 val LightOnError = Color(0xFFFFFFFF)
@@ -76,6 +92,16 @@ val DarkError = Color(0xFFF2B8B5)
 val DarkOnError = Color(0xFF601410)
 val DarkErrorContainer = Color(0xFF8C1D18)
 val DarkOnErrorContainer = Color(0xFFF9DEDC)
+
+// ---------- AMOLED tema (OLED ekranlarda pil tasarrufu için gerçek siyah zemin) ----------
+// Diğer tüm renkler (primary/secondary/error vb.) koyu temayla aynıdır; yalnızca
+// background/surface/surfaceVariant gerçek siyaha çekilir.
+val AmoledBackground = Color(0xFF000000)
+val AmoledOnBackground = DarkOnBackground
+val AmoledSurface = Color(0xFF000000)
+val AmoledOnSurface = DarkOnSurface
+val AmoledSurfaceVariant = Color(0xFF1A1A1A)
+val AmoledOnSurfaceVariant = DarkOnSurfaceVariant
 
 /**
  * Material 3'te karşılığı olmayan ama design-system.md'nin zorunlu kıldığı anlamsal renkler.
