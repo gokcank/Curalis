@@ -120,7 +120,9 @@
 
     <!-- Delete Confirmations -->
     <string name="delete_medication_title">İlacı Sil</string>
-    <string name="delete_medication_message">"%1$s" ilacını silmek istediğinize emin misiniz?</string>
+    <string name="delete_medication_message">"%1$s" ilacını silmek istediğinize emin misiniz? Geçmiş doz kayıtlarını (alındı/atlandı geçmişi) koruyabilir veya her şeyi silebilirsiniz.</string>
+    <string name="delete_medication_archive_button">Sadece İlacı Sil</string>
+    <string name="delete_medication_all_button">Hepsini Sil</string>
     <string name="delete_doctor_title">Doktoru Sil</string>
     <string name="delete_doctor_message">"%1$s" doktorunu silmek istediğinize emin misiniz?</string>
     <string name="delete_appointment_title">Randevuyu Sil</string>

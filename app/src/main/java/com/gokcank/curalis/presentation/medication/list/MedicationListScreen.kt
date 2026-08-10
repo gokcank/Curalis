@@ -117,16 +117,26 @@ fun MedicationListScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.deleteMedication(med)
+                        viewModel.archiveMedication(med)
                         medicationToDelete = null
                     }
                 ) {
-                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete_medication_archive_button))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { medicationToDelete = null }) {
-                    Text(stringResource(R.string.cancel))
+                Row {
+                    TextButton(onClick = { medicationToDelete = null }) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteMedication(med)
+                            medicationToDelete = null
+                        }
+                    ) {
+                        Text(stringResource(R.string.delete_medication_all_button), color = MaterialTheme.colorScheme.error)
+                    }
                 }
             }
         )

@@ -29,6 +29,10 @@ data class Medication(
     // Kullanıcı bu ilacı resmi ilaç veritabanından (TİTCK önerisi) mi seçti,
     // yoksa adını elle mi girdi. Bkz. glossary.md "Verified Information / User Information".
     val isVerifiedSource: Boolean = false,
+    // Kullanıcı ilacı sildiğinde geçmiş doz kayıtlarını korumayı seçtiyse, ilaç satırı
+    // gerçekten silinmez; yalnızca aktif listelerden gizlenir ("arşivlenir"). Böylece
+    // geçmiş hatırlatıcılar hâlâ bu ilacın adını/detaylarını çözebilir.
+    val isArchived: Boolean = false,
     val times: List<MedicationTime> = emptyList()
 )
 

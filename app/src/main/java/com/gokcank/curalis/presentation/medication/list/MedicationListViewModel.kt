@@ -6,6 +6,7 @@ import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.usecase.ArchiveMedicationUseCase
 import com.gokcank.curalis.domain.usecase.DeleteMedicationUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersForMedicationUseCase
@@ -29,6 +30,7 @@ class MedicationListViewModel @Inject constructor(
     private val getMedicationsUseCase: GetMedicationsUseCase,
     private val searchMedicationsUseCase: SearchMedicationsUseCase,
     private val deleteMedicationUseCase: DeleteMedicationUseCase,
+    private val archiveMedicationUseCase: ArchiveMedicationUseCase,
     private val scheduleReminderUseCase: ScheduleReminderUseCase,
     private val getRemindersForMedicationUseCase: GetRemindersForMedicationUseCase,
     private val alarmScheduler: AlarmScheduler
@@ -58,6 +60,7 @@ class MedicationListViewModel @Inject constructor(
         }
     }
 
+    /** Geçmiş doz kayıtları dahil ilacı tamamen siler. */
     fun deleteMedication(medication: Medication) {
         viewModelScope.launch {
             try {
@@ -66,6 +69,21 @@ class MedicationListViewModel @Inject constructor(
                 }
                 alarmScheduler.cancelMedicationAlarms(medication)
                 deleteMedicationUseCase(medication)
+            } catch (e: Exception) {
+                _errorFlow.emit("İlaç silinirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+            }
+        }
+    }
+
+    /** İlacı aktif listelerden gizler ama geçmiş doz kayıtlarını korur. */
+    fun archiveMedication(medication: Medication) {
+        viewModelScope.launch {
+            try {
+                getRemindersForMedicationUseCase(medication.id).firstOrNull()?.forEach { reminder ->
+                    alarmScheduler.cancel(reminder.id)
+                }
+                alarmScheduler.cancelMedicationAlarms(medication)
+                archiveMedicationUseCase(medication)
             } catch (e: Exception) {
                 _errorFlow.emit("İlaç silinirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
             }
@@ -90,14 +108,14 @@ class MedicationListViewModel @Inject constructor(
     private fun getMedications() {
         getMedicationsJob?.cancel()
         getMedicationsJob = getMedicationsUseCase().onEach { meds ->
-            _medications.value = meds
+            _medications.value = meds.filter { !it.isArchived }
         }.launchIn(viewModelScope)
     }
 
     private fun searchMedications(query: String) {
         getMedicationsJob?.cancel()
         getMedicationsJob = searchMedicationsUseCase(query).onEach { meds ->
-            _medications.value = meds
+            _medications.value = meds.filter { !it.isArchived }
         }.launchIn(viewModelScope)
     }
 }

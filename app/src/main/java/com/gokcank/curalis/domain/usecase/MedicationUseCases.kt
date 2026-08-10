@@ -28,6 +28,19 @@ class DeleteMedicationUseCase @Inject constructor(
     }
 }
 
+/**
+ * İlacı gerçekten silmek yerine aktif listelerden gizler ("arşivler"). Geçmiş
+ * hatırlatıcı kayıtları (alındı/atlandı/kaçırıldı) etkilenmez; bu sayede uyum
+ * geçmişi ilaç silindikten sonra da anlamlı kalır.
+ */
+class ArchiveMedicationUseCase @Inject constructor(
+    private val repository: MedicationRepository
+) {
+    suspend operator fun invoke(medication: Medication) {
+        repository.updateMedication(medication.copy(isArchived = true))
+    }
+}
+
 class GetMedicationsUseCase @Inject constructor(
     private val repository: MedicationRepository
 ) {

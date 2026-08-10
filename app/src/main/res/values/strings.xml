@@ -118,7 +118,9 @@
 
     <!-- Delete Confirmations -->
     <string name="delete_medication_title">Delete Medication</string>
-    <string name="delete_medication_message">Are you sure you want to delete "%1$s"?</string>
+    <string name="delete_medication_message">Are you sure you want to delete "%1$s"? You can keep its past dose history (taken/skipped records) or remove everything.</string>
+    <string name="delete_medication_archive_button">Delete Medication Only</string>
+    <string name="delete_medication_all_button">Delete Everything</string>
     <string name="delete_doctor_title">Delete Doctor</string>
     <string name="delete_doctor_message">Are you sure you want to delete "%1$s"?</string>
     <string name="delete_appointment_title">Delete Appointment</string>

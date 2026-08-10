@@ -62,6 +62,9 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
             }
 
             medications.forEach { medication ->
+                // Arşivlenmiş (silinmiş) ilaçlar için yeni doz üretilmez; zaten kaydedilmiş
+                // geçmiş hatırlatıcılar dbReminders üzerinden değişmeden gösterilmeye devam eder.
+                if (medication.isArchived) return@forEach
                 if (medication.frequencyType == FrequencyType.AS_NEEDED) return@forEach
                 if (medication.times.isEmpty()) return@forEach
                 
