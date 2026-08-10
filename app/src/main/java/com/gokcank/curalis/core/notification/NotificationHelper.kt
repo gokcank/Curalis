@@ -278,5 +278,6 @@ class NotificationHelper @Inject constructor(
         const val EXTRA_MEDICATION_ID = "extra_medication_id"
         const val EXTRA_MEDICATION_IDS = "extra_medication_ids"
         const val EXTRA_SNOOZE_MINUTES = "extra_snooze_minutes"
+        const val EXTRA_SKIP_REASON = "extra_skip_reason"
     }
 }

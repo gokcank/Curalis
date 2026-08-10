@@ -46,7 +46,8 @@
     <string name="notification_channel_name_refill">Refill Warnings</string>
     <string name="notification_channel_desc_refill">Sends a notification when your medication stock is running low</string>
     <string name="ok">OK</string>
-    
+    <string name="skip_reason_title">Why are you skipping this dose?</string>
+
     <!-- Doctors -->
     <string name="my_doctors">My Doctors</string>
     <string name="add_doctor">Add Doctor</string>

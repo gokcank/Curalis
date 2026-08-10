@@ -34,4 +34,11 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     }
 }
 
-val CURALIS_MIGRATIONS = arrayOf(MIGRATION_7_8, MIGRATION_8_9)
+val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // İlaç atlama sebebi (bkz. SkipReason) — daha önce yalnızca durum tutuluyordu, sebep hiç kaydedilmiyordu.
+        db.execSQL("ALTER TABLE reminders ADD COLUMN skipReason TEXT")
+    }
+}
+
+val CURALIS_MIGRATIONS = arrayOf(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)

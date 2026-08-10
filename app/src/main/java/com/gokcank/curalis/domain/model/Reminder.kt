@@ -6,5 +6,6 @@ data class Reminder(
     val id: String = UUID.randomUUID().toString(),
     val medicationId: String,
     val timeInMillis: Long,
-    val state: ReminderState = ReminderState.SCHEDULED
+    val state: ReminderState = ReminderState.SCHEDULED,
+    val skipReason: SkipReason? = null
 )

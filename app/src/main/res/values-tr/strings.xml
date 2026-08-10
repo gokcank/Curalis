@@ -46,6 +46,7 @@
     <string name="notification_channel_name_refill">Stok Uyarıları</string>
     <string name="notification_channel_desc_refill">İlaç stoğunuz azaldığında bildirim gönderir</string>
     <string name="ok">Tamam</string>
+    <string name="skip_reason_title">Bu dozu neden atlıyorsunuz?</string>
 
     <!-- Doctors -->
     <string name="my_doctors">Doktorlarım</string>

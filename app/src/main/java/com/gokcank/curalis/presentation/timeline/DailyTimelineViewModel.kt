@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.model.SkipReason
 import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
@@ -90,9 +91,9 @@ class DailyTimelineViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    fun acknowledgeDose(reminderId: String, newState: ReminderState) {
+    fun acknowledgeDose(reminderId: String, newState: ReminderState, skipReason: SkipReason? = null) {
         viewModelScope.launch {
-            acknowledgeReminderUseCase(reminderId, newState)
+            acknowledgeReminderUseCase(reminderId, newState, skipReason)
         }
     }
 }

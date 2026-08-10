@@ -41,6 +41,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,10 +57,17 @@ import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.notification.NotificationHelper
 import com.gokcank.curalis.core.notification.ReminderActionReceiver
 import com.gokcank.curalis.core.theme.CuralisTheme
+import com.gokcank.curalis.core.theme.ThemeController
+import com.gokcank.curalis.domain.model.SkipReason
+import com.gokcank.curalis.presentation.components.SkipReasonDialog
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AlarmFullScreenActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var themeController: ThemeController
 
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
@@ -72,7 +84,11 @@ class AlarmFullScreenActivity : ComponentActivity() {
         val dose = intent.getStringExtra(AlarmScheduler.EXTRA_DOSE)
 
         setContent {
-            CuralisTheme {
+            val themeMode by themeController.themeMode.collectAsState()
+
+            CuralisTheme(themeMode = themeMode) {
+                var showSkipReasonDialog by remember { mutableStateOf(false) }
+
                 AlarmFullScreenContent(
                     medicationName = medicationName,
                     dose = dose,
@@ -80,20 +96,34 @@ class AlarmFullScreenActivity : ComponentActivity() {
                         sendAction(NotificationHelper.ACTION_TAKEN, reminderId, medicationId, medicationName)
                         finish()
                     },
-                    onSkipClick = {
-                        sendAction(NotificationHelper.ACTION_SKIP, reminderId, medicationId, medicationName)
-                        finish()
-                    },
+                    onSkipClick = { showSkipReasonDialog = true },
                     onSnoozeClick = { minutes ->
                         sendAction(NotificationHelper.ACTION_SNOOZE, reminderId, medicationId, medicationName, minutes)
                         finish()
                     }
                 )
+
+                if (showSkipReasonDialog) {
+                    SkipReasonDialog(
+                        onDismiss = { showSkipReasonDialog = false },
+                        onConfirm = { reason ->
+                            sendAction(NotificationHelper.ACTION_SKIP, reminderId, medicationId, medicationName, skipReason = reason)
+                            finish()
+                        }
+                    )
+                }
             }
         }
     }
 
-    private fun sendAction(action: String, reminderId: String, medicationId: String, medicationName: String, snoozeMinutes: Int = 10) {
+    private fun sendAction(
+        action: String,
+        reminderId: String,
+        medicationId: String,
+        medicationName: String,
+        snoozeMinutes: Int = 10,
+        skipReason: SkipReason? = null
+    ) {
         stopAlarmSound()
         val intent = Intent(this, ReminderActionReceiver::class.java).apply {
             this.action = action
@@ -101,6 +131,7 @@ class AlarmFullScreenActivity : ComponentActivity() {
             putExtra(NotificationHelper.EXTRA_MEDICATION_ID, medicationId)
             putExtra(NotificationHelper.EXTRA_MEDICATION_NAME, medicationName)
             putExtra(NotificationHelper.EXTRA_SNOOZE_MINUTES, snoozeMinutes)
+            skipReason?.let { putExtra(NotificationHelper.EXTRA_SKIP_REASON, it.name) }
         }
         sendBroadcast(intent)
     }

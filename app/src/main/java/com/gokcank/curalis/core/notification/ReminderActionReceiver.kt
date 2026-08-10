@@ -6,6 +6,7 @@ import android.content.Intent
 import android.util.Log
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.model.SkipReason
 import com.gokcank.curalis.domain.model.StockChangeReason
 import com.gokcank.curalis.domain.model.StockHistoryEntry
 import com.gokcank.curalis.domain.repository.MedicationRepository
@@ -87,7 +88,11 @@ class ReminderActionReceiver : BroadcastReceiver() {
                     }
 
                     NotificationHelper.ACTION_SKIP -> {
-                        acknowledgeReminderUseCase(reminderId, ReminderState.SKIPPED)
+                        // Bildirimdeki tek dokunuşluk "Atla" hiçbir sebep sormadan anında çalışır;
+                        // yalnızca uygulama içi ekranlar (Timeline, tam ekran alarm) sebep seçtirip bu extra'yı doldurur.
+                        val skipReasonName = intent.getStringExtra(NotificationHelper.EXTRA_SKIP_REASON)
+                        val skipReason = skipReasonName?.let { runCatching { SkipReason.valueOf(it) }.getOrNull() }
+                        acknowledgeReminderUseCase(reminderId, ReminderState.SKIPPED, skipReason)
 
                         if (medicationId.isNotBlank()) {
                             val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()

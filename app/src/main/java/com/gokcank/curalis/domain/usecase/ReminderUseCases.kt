@@ -2,6 +2,7 @@ package com.gokcank.curalis.domain.usecase
 
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.model.SkipReason
 import com.gokcank.curalis.domain.repository.ReminderRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -17,10 +18,10 @@ class ScheduleReminderUseCase @Inject constructor(
 class AcknowledgeReminderUseCase @Inject constructor(
     private val repository: ReminderRepository
 ) {
-    suspend operator fun invoke(reminderId: String, state: ReminderState) {
+    suspend operator fun invoke(reminderId: String, state: ReminderState, skipReason: SkipReason? = null) {
         val reminder = repository.getReminderById(reminderId)
         if (reminder != null) {
-            repository.updateReminder(reminder.copy(state = state))
+            repository.updateReminder(reminder.copy(state = state, skipReason = skipReason))
         }
     }
 }

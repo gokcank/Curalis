@@ -3,13 +3,15 @@ package com.gokcank.curalis.data.mapper
 import com.gokcank.curalis.data.local.entity.ReminderEntity
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.model.SkipReason
 
 fun ReminderEntity.toDomain(): Reminder {
     return Reminder(
         id = id,
         medicationId = medicationId,
         timeInMillis = timeInMillis,
-        state = ReminderState.valueOf(state)
+        state = ReminderState.valueOf(state),
+        skipReason = skipReason?.let { SkipReason.valueOf(it) }
     )
 }
 
@@ -18,6 +20,7 @@ fun Reminder.toEntity(): ReminderEntity {
         id = id,
         medicationId = medicationId,
         timeInMillis = timeInMillis,
-        state = state.name
+        state = state.name,
+        skipReason = skipReason?.name
     )
 }
