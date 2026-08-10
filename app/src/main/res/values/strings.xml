@@ -131,4 +131,7 @@
 
     <!-- Medication Revision Strings -->
     <string name="medication_form">Medication Form / Type</string>
+    <string name="suggested_ministry_of_health_medications">Suggested Ministry of Health Medications:</string>
+    <string name="verified_source_badge">Verified from Ministry of Health database</string>
+    <string name="unverified_source_badge">Entered manually, not from a verified source</string>
 </resources>

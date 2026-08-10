@@ -133,4 +133,7 @@
 
     <!-- Medication Revision Strings -->
     <string name="medication_form">İlaç Formu / Türü</string>
+    <string name="suggested_ministry_of_health_medications">Önerilen Sağlık Bakanlığı İlaçları:</string>
+    <string name="verified_source_badge">Sağlık Bakanlığı kaynağından doğrulandı</string>
+    <string name="unverified_source_badge">Elle girildi, doğrulanmış kaynaktan değil</string>
 </resources>

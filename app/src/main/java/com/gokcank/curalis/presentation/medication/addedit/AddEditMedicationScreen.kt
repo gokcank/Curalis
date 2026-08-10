@@ -205,7 +205,7 @@ fun AddEditMedicationScreen(
                     ) {
                         Column(modifier = Modifier.padding(8.dp)) {
                             Text(
-                                text = "Önerilen Sağlık Bakanlığı / RxNorm İlaçları:",
+                                text = stringResource(R.string.suggested_ministry_of_health_medications),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(4.dp)
@@ -232,7 +232,7 @@ fun AddEditMedicationScreen(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = if (isVerifiedSource) "Sağlık Bakanlığı/RxNorm kaynağından doğrulandı" else "Elle girildi, doğrulanmış kaynaktan değil",
+                    text = if (isVerifiedSource) stringResource(R.string.verified_source_badge) else stringResource(R.string.unverified_source_badge),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (isVerifiedSource) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )

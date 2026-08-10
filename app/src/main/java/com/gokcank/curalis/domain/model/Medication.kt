@@ -26,7 +26,7 @@ data class Medication(
     val currentStock: Int? = null,
     val refillThreshold: Int? = null,
     val isRefillReminderEnabled: Boolean = false,
-    // Kullanıcı bu ilacı resmi ilaç veritabanından (TİTCK/RxNorm önerisi) mi seçti,
+    // Kullanıcı bu ilacı resmi ilaç veritabanından (TİTCK önerisi) mi seçti,
     // yoksa adını elle mi girdi. Bkz. glossary.md "Verified Information / User Information".
     val isVerifiedSource: Boolean = false,
     val times: List<MedicationTime> = emptyList()
