@@ -11,6 +11,9 @@
     <string name="time">Saat</string>
     <string name="date">Tarih</string>
     <string name="all">Tümü</string>
+    <string name="db_recovery_title">Verileriniz yüklenemedi</string>
+    <string name="db_recovery_message">İlaç verileriniz, uygulamanın bu sürümünün okuyamadığı bir biçimde görünüyor. Bu genellikle çok eski bir yedeğin geri yüklenmesinden sonra olur. Sıfırlamak, uygulamayı boş verilerle yeniden başlatır — Ayarlar\'dan aldığınız bir yedek dosyanız varsa sıfırladıktan sonra geri yükleyebilirsiniz.</string>
+    <string name="db_recovery_reset_button">Sıfırla ve Yeniden Başlat</string>
 
     <!-- Dashboard / Home -->
     <string name="greeting_morning">Günaydın ☀️</string>

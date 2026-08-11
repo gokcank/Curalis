@@ -11,6 +11,9 @@
     <string name="time">Time</string>
     <string name="date">Date</string>
     <string name="all">All</string>
+    <string name="db_recovery_title">Your data could not be loaded</string>
+    <string name="db_recovery_message">Your medication data appears to be in a format this version of the app can\'t read. This can happen after restoring a very old backup. Resetting will start the app fresh with empty data — if you have a backup file from Settings, you can restore it afterwards.</string>
+    <string name="db_recovery_reset_button">Reset and Restart</string>
 
     <!-- Dashboard / Home -->
     <string name="greeting_morning">Good Morning ☀️</string>

@@ -1,22 +1,38 @@
 package com.gokcank.curalis.presentation.main
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.gokcank.curalis.core.navigation.NavGraph
 import com.gokcank.curalis.core.theme.CuralisTheme
 import com.gokcank.curalis.core.theme.ThemeController
+import com.gokcank.curalis.data.local.CuralisDatabase
+import com.gokcank.curalis.presentation.startup.DatabaseCheckingScreen
+import com.gokcank.curalis.presentation.startup.DatabaseRecoveryScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+
+private enum class DatabaseHealth { CHECKING, OK, UNREADABLE }
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var themeController: ThemeController
+
+    @Inject
+    lateinit var database: CuralisDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,10 +41,42 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val themeMode by themeController.themeMode.collectAsState()
+            var dbHealth by remember { mutableStateOf(DatabaseHealth.CHECKING) }
+
+            // Bu kontrol normalde çok hızlıdır (veritabanı zaten güncel şemadadır);
+            // yalnızca DatabaseModule'deki migration zinciri kapsamayan, beklenmedik
+            // derecede eski bir veritabanıyla karşılaşılırsa "migration not found"
+            // istisnası burada güvenle yakalanır (bkz. DatabaseRecoveryScreen).
+            LaunchedEffect(Unit) {
+                dbHealth = try {
+                    withContext(Dispatchers.IO) { database.openHelper.writableDatabase }
+                    DatabaseHealth.OK
+                } catch (e: IllegalStateException) {
+                    Log.e("MainActivity", "Veritabanı açılamadı, kurtarma ekranı gösteriliyor", e)
+                    DatabaseHealth.UNREADABLE
+                }
+            }
 
             CuralisTheme(themeMode = themeMode) {
-                NavGraph()
+                when (dbHealth) {
+                    DatabaseHealth.CHECKING -> DatabaseCheckingScreen()
+                    DatabaseHealth.OK -> NavGraph()
+                    DatabaseHealth.UNREADABLE -> DatabaseRecoveryScreen(
+                        onResetClick = { resetDatabaseAndRestart() }
+                    )
+                }
             }
         }
+    }
+
+    private fun resetDatabaseAndRestart() {
+        database.close()
+        deleteDatabase(CuralisDatabase.DATABASE_NAME)
+
+        val restartIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(restartIntent)
+        Runtime.getRuntime().exit(0)
     }
 }
