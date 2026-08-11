@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
     <include domain="sharedpref" path="."/>
-    <include domain="database" path="."/>
     <include domain="file" path="."/>
+    <!-- Room veritabanı kasıtlı olarak dahil edilmiyor (include yok): OS seviyesi otomatik
+         yedekleme, eski bir cihazdan/kurulumdan ham .db dosyasını geri yükleyebilir ve bu
+         dosyanın şema sürümü, uygulamanın güncel migration zincirinin kapsamadığı kadar
+         eski olabilir — bu da açılışta "migration not found" çökmesine yol açar.
+         Kullanıcının kendi Yedekleme & Geri Yükleme özelliği (şifreli, yapılandırılmış
+         JSON tabanlı, bkz. LocalBackupManager) bu riski taşımaz ve zaten mevcut. -->
 </full-backup-content>
