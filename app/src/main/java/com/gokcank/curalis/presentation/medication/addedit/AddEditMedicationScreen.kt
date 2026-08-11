@@ -1,6 +1,9 @@
 package com.gokcank.curalis.presentation.medication.addedit
 
+import android.content.Intent
 import android.os.Build
+import android.provider.Settings
+import androidx.core.net.toUri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -32,6 +35,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -135,14 +139,58 @@ fun AddEditMedicationScreen(
         }
     }
 
+    var showExactAlarmDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is AddEditMedicationViewModel.UiEvent.SaveSuccess -> {
                     onNavigateBack()
                 }
+                is AddEditMedicationViewModel.UiEvent.ExactAlarmPermissionMissing -> {
+                    showExactAlarmDialog = true
+                }
             }
         }
+    }
+
+    if (showExactAlarmDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showExactAlarmDialog = false
+                onNavigateBack()
+            },
+            title = { Text("Tam Zamanlı Alarm İzni Gerekli") },
+            text = {
+                Text(
+                    "İlaç kaydedildi, ancak hatırlatıcıların tam zamanında çalabilmesi için " +
+                        "sistem ayarlarından \"Alarmlar ve hatırlatıcılar\" iznini açmanız gerekiyor. " +
+                        "Aksi halde hatırlatıcılar gecikebilir."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showExactAlarmDialog = false
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                            data = "package:${context.packageName}".toUri()
+                        }
+                        context.startActivity(intent)
+                    }
+                    onNavigateBack()
+                }) {
+                    Text("Ayarları Aç")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showExactAlarmDialog = false
+                    onNavigateBack()
+                }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     Scaffold(

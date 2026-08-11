@@ -394,11 +394,15 @@ class AddEditMedicationViewModel @Inject constructor(
                     alarmScheduler.schedule(reminder, medication.name)
                 }
 
+                // Ekran, SaveSuccess'te hemen geri dönüyor (bkz. AddEditMedicationScreen);
+                // izin eksikse burada gösterilen bir metin kullanıcıya hiç ulaşmadan
+                // ekrandan çıkılırdı. Bu yüzden geri dönmeden önce ayrı bir olayla
+                // kullanıcıyı ayarlara yönlendirme fırsatı veriyoruz.
                 if (!alarmScheduler.canScheduleExactAlarms()) {
-                    _errorMessage.value = "İlaç kaydedildi ancak tam zamanlı alarm izni verilmediği için hatırlatıcılar tetiklenmeyebilir. Lütfen sistem ayarlarından izni açın."
+                    _eventFlow.emit(UiEvent.ExactAlarmPermissionMissing)
+                } else {
+                    _eventFlow.emit(UiEvent.SaveSuccess)
                 }
-
-                _eventFlow.emit(UiEvent.SaveSuccess)
             } catch (e: Exception) {
                 _errorMessage.value = "İlaç kaydedilirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}"
             }
@@ -407,5 +411,6 @@ class AddEditMedicationViewModel @Inject constructor(
 
     sealed class UiEvent {
         data object SaveSuccess : UiEvent()
+        data object ExactAlarmPermissionMissing : UiEvent()
     }
 }
