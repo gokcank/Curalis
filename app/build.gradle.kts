@@ -15,6 +15,21 @@ if (localPropertiesFile.exists()) {
 }
 val webClientId = localProperties.getProperty("WEB_CLIENT_ID") ?: ""
 
+// Yayın imzalama anahtarı bilgileri local.properties'ten okunur (git'e girmez).
+// local.properties yoksa veya bu alanlar eksikse (örn. CI ortamı, yeni bir klonlama)
+// release derlemesi debug anahtarına düşer, böylece build hiçbir zaman bozulmaz —
+// yalnızca gerçek imzalı bir AAB/APK üretmek isteyen geliştiricinin makinesinde
+// bu anahtar tanımlı olması gerekir.
+val releaseStoreFilePath = localProperties.getProperty("RELEASE_STORE_FILE")
+val releaseStorePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD")
+val releaseKeyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS")
+val releaseKeyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD")
+val hasReleaseSigningConfig = !releaseStoreFilePath.isNullOrBlank() &&
+    !releaseStorePassword.isNullOrBlank() &&
+    !releaseKeyAlias.isNullOrBlank() &&
+    !releaseKeyPassword.isNullOrBlank() &&
+    rootProject.file(releaseStoreFilePath).exists()
+
 android {
     namespace = "com.gokcank.curalis"
     compileSdk = 36
@@ -33,10 +48,25 @@ android {
         buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
     }
 
+    signingConfigs {
+        if (hasReleaseSigningConfig) {
+            create("release") {
+                storeFile = rootProject.file(releaseStoreFilePath!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseSigningConfig) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
