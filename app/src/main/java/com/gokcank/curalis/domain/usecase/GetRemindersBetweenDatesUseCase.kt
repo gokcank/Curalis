@@ -8,7 +8,6 @@ import com.gokcank.curalis.domain.repository.ReminderRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.util.Calendar
-import java.util.UUID
 import javax.inject.Inject
 
 class GetRemindersBetweenDatesUseCase @Inject constructor(
@@ -81,7 +80,7 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
                                 if (!dbReminderMap.containsKey(key)) {
                                     virtualReminders.add(
                                         Reminder(
-                                            id = UUID.randomUUID().toString(),
+                                            id = key,
                                             medicationId = medication.id,
                                             timeInMillis = timeInMillis,
                                             state = ReminderState.SCHEDULED

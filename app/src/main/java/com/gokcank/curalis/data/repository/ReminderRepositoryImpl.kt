@@ -17,6 +17,10 @@ class ReminderRepositoryImpl @Inject constructor(
         dao.insertReminder(reminder.toEntity())
     }
 
+    override suspend fun insertReminders(reminders: List<Reminder>) {
+        dao.insertReminders(reminders.map { it.toEntity() })
+    }
+
     override suspend fun updateReminder(reminder: Reminder) {
         dao.updateReminder(reminder.toEntity())
     }

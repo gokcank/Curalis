@@ -15,6 +15,13 @@ interface ReminderDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReminder(reminder: ReminderEntity)
 
+    /**
+     * Aynı kimlikle bir kayıt zaten varsa (ör. kullanıcı dozu daha önce işaretlemişse)
+     * üzerine yazmaz — yalnızca eksik olan gelecek dozları ekler.
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertReminders(reminders: List<ReminderEntity>)
+
     @Update
     suspend fun updateReminder(reminder: ReminderEntity)
 

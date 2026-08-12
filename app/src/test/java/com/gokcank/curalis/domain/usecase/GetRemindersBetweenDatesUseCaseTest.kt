@@ -18,6 +18,7 @@ import java.util.Calendar
 
 private class FakeReminderRepository(private val reminders: List<Reminder>) : ReminderRepository {
     override suspend fun insertReminder(reminder: Reminder) {}
+    override suspend fun insertReminders(reminders: List<Reminder>) {}
     override suspend fun updateReminder(reminder: Reminder) {}
     override suspend fun deleteReminder(reminder: Reminder) {}
     override suspend fun getReminderById(id: String): Reminder? = null
