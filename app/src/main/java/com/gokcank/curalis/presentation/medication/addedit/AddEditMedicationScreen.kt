@@ -160,14 +160,8 @@ fun AddEditMedicationScreen(
                 showExactAlarmDialog = false
                 onNavigateBack()
             },
-            title = { Text("Tam Zamanlı Alarm İzni Gerekli") },
-            text = {
-                Text(
-                    "İlaç kaydedildi, ancak hatırlatıcıların tam zamanında çalabilmesi için " +
-                        "sistem ayarlarından \"Alarmlar ve hatırlatıcılar\" iznini açmanız gerekiyor. " +
-                        "Aksi halde hatırlatıcılar gecikebilir."
-                )
-            },
+            title = { Text(stringResource(R.string.exact_alarm_dialog_title)) },
+            text = { Text(stringResource(R.string.exact_alarm_dialog_message)) },
             confirmButton = {
                 TextButton(onClick = {
                     showExactAlarmDialog = false
@@ -179,7 +173,7 @@ fun AddEditMedicationScreen(
                     }
                     onNavigateBack()
                 }) {
-                    Text("Ayarları Aç")
+                    Text(stringResource(R.string.exact_alarm_dialog_settings_button))
                 }
             },
             dismissButton = {
