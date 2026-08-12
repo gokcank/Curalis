@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.presentation.components.ExactAlarmPermissionDialog
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -69,6 +70,7 @@ fun AddEditAppointmentScreen(
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+    var showExactAlarmDialog by remember { mutableStateOf(false) }
     // Temporary holder for selected date before time is also picked
     var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
 
@@ -84,8 +86,20 @@ fun AddEditAppointmentScreen(
                 is AddEditAppointmentViewModel.UiEvent.SaveSuccess -> {
                     onNavigateBack()
                 }
+                is AddEditAppointmentViewModel.UiEvent.ExactAlarmPermissionMissing -> {
+                    showExactAlarmDialog = true
+                }
             }
         }
+    }
+
+    if (showExactAlarmDialog) {
+        ExactAlarmPermissionDialog(
+            onDismiss = {
+                showExactAlarmDialog = false
+                onNavigateBack()
+            }
+        )
     }
 
     Scaffold(

@@ -1,9 +1,6 @@
 package com.gokcank.curalis.presentation.medication.addedit
 
-import android.content.Intent
 import android.os.Build
-import android.provider.Settings
-import androidx.core.net.toUri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -81,6 +78,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.MedicationAccentColors
 import com.gokcank.curalis.domain.model.StockChangeReason
+import com.gokcank.curalis.presentation.components.ExactAlarmPermissionDialog
 import com.gokcank.curalis.presentation.components.icon
 import com.gokcank.curalis.domain.model.DosageUnit
 import com.gokcank.curalis.domain.model.FrequencyType
@@ -155,34 +153,10 @@ fun AddEditMedicationScreen(
     }
 
     if (showExactAlarmDialog) {
-        AlertDialog(
-            onDismissRequest = {
+        ExactAlarmPermissionDialog(
+            onDismiss = {
                 showExactAlarmDialog = false
                 onNavigateBack()
-            },
-            title = { Text(stringResource(R.string.exact_alarm_dialog_title)) },
-            text = { Text(stringResource(R.string.exact_alarm_dialog_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showExactAlarmDialog = false
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                            data = "package:${context.packageName}".toUri()
-                        }
-                        context.startActivity(intent)
-                    }
-                    onNavigateBack()
-                }) {
-                    Text(stringResource(R.string.exact_alarm_dialog_settings_button))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showExactAlarmDialog = false
-                    onNavigateBack()
-                }) {
-                    Text(stringResource(R.string.cancel))
-                }
             }
         )
     }

@@ -117,12 +117,20 @@ class AddEditAppointmentViewModel @Inject constructor(
             // Schedule appointment notification
             alarmScheduler.scheduleAppointmentReminder(appointment)
 
-            _eventFlow.emit(UiEvent.SaveSuccess)
+            // Ekran, SaveSuccess'te hemen geri dönüyor; izin eksikse kullanıcıyı
+            // ayarlara yönlendirme fırsatını kaçırmamak için geri dönmeden önce
+            // ayrı bir olayla bildiriyoruz (bkz. AddEditMedicationViewModel).
+            if (!alarmScheduler.canScheduleExactAlarms()) {
+                _eventFlow.emit(UiEvent.ExactAlarmPermissionMissing)
+            } else {
+                _eventFlow.emit(UiEvent.SaveSuccess)
+            }
         }
     }
 
     sealed class UiEvent {
         data class ShowSnackbar(val message: String) : UiEvent()
         data object SaveSuccess : UiEvent()
+        data object ExactAlarmPermissionMissing : UiEvent()
     }
 }
