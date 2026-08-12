@@ -29,10 +29,104 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.UUID
 import javax.inject.Inject
+
+/**
+ * İlaç ekleme/düzenleme formunun tüm kullanıcı tarafından girilebilir alanları.
+ *
+ * Daha önce bu alanların her biri ayrı bir MutableStateFlow'du; yeni bir alan eklemek
+ * dört ayrı yere (backing flow, public flow, yükleme, kaydetme) dokunmayı gerektiriyor ve
+ * birini atlayınca alan sessizce kaybolabiliyordu. Tek bir state nesnesi + simetrik
+ * [toFormState]/[toMedication] dönüşümleri bu riski ortadan kaldırıyor: eksik bir alan
+ * iki dönüşüm fonksiyonu yan yana okunduğunda hemen göze çarpar.
+ *
+ * Not: Arama sonuçları, yükleniyor durumu, hata mesajı ve stok geçmişi buraya dahil
+ * DEĞİLDİR — bunlar formun içeriği değil, geçici/harici durumlardır ve ayrı akışlarda tutulur.
+ */
+data class MedicationFormState(
+    val name: String = "",
+    /** Kullanıcı bu ilacı resmi öneri listesinden mi seçti, yoksa elle mi girdi. */
+    val isVerifiedSource: Boolean = false,
+    val activeIngredient: String = "",
+    val formType: MedicationForm = MedicationForm.PILL,
+    val dosage: String = "",
+    val barcode: String = "",
+    val unit: String = "",
+    val mealInstruction: MealInstruction = MealInstruction.DOES_NOT_MATTER,
+    val colorHex: String = "#1E88E5",
+    val iconShape: String = "PILL",
+    val notes: String = "",
+    val expiryDate: Long? = null,
+    val frequencyType: FrequencyType = FrequencyType.DAILY,
+    val intervalDays: String = "2",
+    val activeDays: String = "21",
+    val restDays: String = "7",
+    val specificDays: List<Int> = emptyList(),
+    val isRefillEnabled: Boolean = false,
+    val currentStock: String = "",
+    val refillThreshold: String = "5",
+    val times: List<MedicationTime> = emptyList()
+)
+
+/** Kayıtlı bir ilacı forma yükler. [MedicationFormState.toMedication] ile simetriktir. */
+private fun Medication.toFormState(): MedicationFormState = MedicationFormState(
+    name = name,
+    isVerifiedSource = isVerifiedSource,
+    activeIngredient = activeIngredient ?: "",
+    formType = formType,
+    dosage = dosage ?: "",
+    barcode = barcode ?: "",
+    unit = unit ?: "",
+    mealInstruction = mealInstruction,
+    colorHex = colorHex,
+    iconShape = iconShape,
+    notes = notes ?: "",
+    expiryDate = expiryDate,
+    frequencyType = frequencyType,
+    intervalDays = (intervalDays ?: 2).toString(),
+    activeDays = (activeDays ?: 21).toString(),
+    restDays = (restDays ?: 7).toString(),
+    specificDays = specificDays,
+    isRefillEnabled = isRefillReminderEnabled,
+    currentStock = currentStock?.toString() ?: "",
+    refillThreshold = (refillThreshold ?: 5).toString(),
+    times = times
+)
+
+/** Formu kaydedilebilir bir ilaca çevirir. [Medication.toFormState] ile simetriktir. */
+private fun MedicationFormState.toMedication(id: String): Medication {
+    val parsedStock = currentStock.toIntOrNull()
+    return Medication(
+        id = id,
+        name = name,
+        barcode = barcode.takeIf { it.isNotBlank() },
+        activeIngredient = activeIngredient.takeIf { it.isNotBlank() },
+        form = formType.displayNameTr,
+        formType = formType,
+        colorHex = colorHex,
+        iconShape = iconShape,
+        dosage = dosage.takeIf { it.isNotBlank() },
+        unit = unit.takeIf { it.isNotBlank() },
+        notes = notes.takeIf { it.isNotBlank() },
+        mealInstruction = mealInstruction,
+        expiryDate = expiryDate,
+        frequencyType = frequencyType,
+        intervalDays = if (frequencyType == FrequencyType.INTERVAL) intervalDays.toIntOrNull() ?: 2 else null,
+        specificDays = if (frequencyType == FrequencyType.SPECIFIC_DAYS) specificDays else emptyList(),
+        activeDays = if (frequencyType == FrequencyType.CYCLIC) activeDays.toIntOrNull() ?: 21 else null,
+        restDays = if (frequencyType == FrequencyType.CYCLIC) restDays.toIntOrNull() ?: 7 else null,
+        initialStock = parsedStock,
+        currentStock = parsedStock,
+        refillThreshold = refillThreshold.toIntOrNull() ?: 5,
+        isRefillReminderEnabled = isRefillEnabled,
+        isVerifiedSource = isVerifiedSource,
+        times = times
+    )
+}
 
 @HiltViewModel
 class AddEditMedicationViewModel @Inject constructor(
@@ -48,78 +142,10 @@ class AddEditMedicationViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _medicationName = MutableStateFlow("")
-    val medicationName = _medicationName.asStateFlow()
+    private val _formState = MutableStateFlow(MedicationFormState())
+    val formState = _formState.asStateFlow()
 
-    // Kullanıcı bu ilacı resmi öneri listesinden mi seçti, yoksa elle mi girdi.
-    private val _isVerifiedSource = MutableStateFlow(false)
-    val isVerifiedSource = _isVerifiedSource.asStateFlow()
-
-    private val _activeIngredient = MutableStateFlow("")
-    val activeIngredient = _activeIngredient.asStateFlow()
-
-    private val _formType = MutableStateFlow(MedicationForm.PILL)
-    val formType = _formType.asStateFlow()
-
-    private val _medicationDosage = MutableStateFlow("")
-    val medicationDosage = _medicationDosage.asStateFlow()
-
-    private val _barcode = MutableStateFlow("")
-    val barcode = _barcode.asStateFlow()
-
-    private val _medicationUnit = MutableStateFlow("")
-    val medicationUnit = _medicationUnit.asStateFlow()
-
-    private val _mealInstruction = MutableStateFlow(MealInstruction.DOES_NOT_MATTER)
-    val mealInstruction = _mealInstruction.asStateFlow()
-
-    private val _colorHex = MutableStateFlow("#1E88E5")
-    val colorHex = _colorHex.asStateFlow()
-
-    private val _iconShape = MutableStateFlow("PILL")
-    val iconShape = _iconShape.asStateFlow()
-
-    fun onColorSelected(colorHex: String) {
-        _colorHex.value = colorHex
-    }
-
-    fun onIconShapeSelected(shape: String) {
-        _iconShape.value = shape
-    }
-
-    private val _medicationNotes = MutableStateFlow("")
-    val medicationNotes = _medicationNotes.asStateFlow()
-
-    private val _expiryDate = MutableStateFlow<Long?>(null)
-    val expiryDate = _expiryDate.asStateFlow()
-
-    private val _frequencyType = MutableStateFlow(FrequencyType.DAILY)
-    val frequencyType = _frequencyType.asStateFlow()
-
-    private val _intervalDays = MutableStateFlow("2")
-    val intervalDays = _intervalDays.asStateFlow()
-
-    private val _activeDays = MutableStateFlow("21")
-    val activeDays = _activeDays.asStateFlow()
-
-    private val _restDays = MutableStateFlow("7")
-    val restDays = _restDays.asStateFlow()
-
-    private val _specificDays = MutableStateFlow<List<Int>>(emptyList())
-    val specificDays = _specificDays.asStateFlow()
-
-    private val _isRefillEnabled = MutableStateFlow(false)
-    val isRefillEnabled = _isRefillEnabled.asStateFlow()
-
-    private val _currentStock = MutableStateFlow("")
-    val currentStock = _currentStock.asStateFlow()
-
-    private val _refillThreshold = MutableStateFlow("5")
-    val refillThreshold = _refillThreshold.asStateFlow()
-
-    private val _medicationTimes = MutableStateFlow<List<MedicationTime>>(emptyList())
-    val medicationTimes = _medicationTimes.asStateFlow()
-
+    // Formun içeriği değil, geçici/harici durumlar — bilinçli olarak MedicationFormState dışında.
     private val _suggestions = MutableStateFlow<List<ProviderMedication>>(emptyList())
     val suggestions = _suggestions.asStateFlow()
 
@@ -128,6 +154,9 @@ class AddEditMedicationViewModel @Inject constructor(
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage = _errorMessage.asStateFlow()
+
+    private val _stockHistory = MutableStateFlow<List<StockHistoryEntry>>(emptyList())
+    val stockHistory = _stockHistory.asStateFlow()
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -138,9 +167,6 @@ class AddEditMedicationViewModel @Inject constructor(
 
     private var originalMedication: Medication? = null
     private var searchJob: Job? = null
-
-    private val _stockHistory = MutableStateFlow<List<StockHistoryEntry>>(emptyList())
-    val stockHistory = _stockHistory.asStateFlow()
 
     init {
         savedStateHandle.get<String>("medicationId")?.let { medicationId ->
@@ -155,27 +181,7 @@ class AddEditMedicationViewModel @Inject constructor(
                         medication?.let {
                             currentMedicationId = it.id
                             originalMedication = it
-                            _medicationName.value = it.name
-                            _activeIngredient.value = it.activeIngredient ?: ""
-                            _formType.value = it.formType
-                            _colorHex.value = it.colorHex
-                            _iconShape.value = it.iconShape
-                            _medicationDosage.value = it.dosage ?: ""
-                            _barcode.value = it.barcode ?: ""
-                            _medicationUnit.value = it.unit ?: ""
-                            _mealInstruction.value = it.mealInstruction
-                            _medicationNotes.value = it.notes ?: ""
-                            _expiryDate.value = it.expiryDate
-                            _frequencyType.value = it.frequencyType
-                            _intervalDays.value = (it.intervalDays ?: 2).toString()
-                            _activeDays.value = (it.activeDays ?: 21).toString()
-                            _restDays.value = (it.restDays ?: 7).toString()
-                            _specificDays.value = it.specificDays
-                            _isRefillEnabled.value = it.isRefillReminderEnabled
-                            _currentStock.value = it.currentStock?.toString() ?: ""
-                            _refillThreshold.value = (it.refillThreshold ?: 5).toString()
-                            _isVerifiedSource.value = it.isVerifiedSource
-                            _medicationTimes.value = it.times
+                            _formState.value = it.toFormState()
                         }
                     }
                 }
@@ -184,10 +190,9 @@ class AddEditMedicationViewModel @Inject constructor(
     }
 
     fun onNameChange(name: String) {
-        _medicationName.value = name
-        _errorMessage.value = null
         // Kullanıcı ismi elle değiştiriyor; artık resmi öneriyle birebir eşleştiği garanti değil.
-        _isVerifiedSource.value = false
+        _formState.update { it.copy(name = name, isVerifiedSource = false) }
+        _errorMessage.value = null
 
         searchJob?.cancel()
         if (name.length >= 2) {
@@ -208,84 +213,60 @@ class AddEditMedicationViewModel @Inject constructor(
     }
 
     fun onSuggestionSelected(suggestion: ProviderMedication) {
-        _medicationName.value = suggestion.name
-        _activeIngredient.value = suggestion.activeIngredient ?: ""
-        if (!suggestion.dosage.isNullOrBlank()) {
-            _medicationDosage.value = suggestion.dosage
+        _formState.update {
+            it.copy(
+                name = suggestion.name,
+                activeIngredient = suggestion.activeIngredient ?: "",
+                // Öneride doz yoksa kullanıcının elle girdiği dozu ezme.
+                dosage = suggestion.dosage?.takeIf { d -> d.isNotBlank() } ?: it.dosage,
+                isVerifiedSource = true
+            )
         }
-        _isVerifiedSource.value = true
         _suggestions.value = emptyList()
     }
 
-    fun onActiveIngredientChange(value: String) {
-        _activeIngredient.value = value
-    }
+    fun onActiveIngredientChange(value: String) = _formState.update { it.copy(activeIngredient = value) }
 
-    fun onFormTypeChange(form: MedicationForm) {
-        _formType.value = form
-    }
+    fun onFormTypeChange(form: MedicationForm) = _formState.update { it.copy(formType = form) }
 
-    fun onDosageChange(dosage: String) {
-        _medicationDosage.value = dosage
-    }
+    fun onDosageChange(dosage: String) = _formState.update { it.copy(dosage = dosage) }
 
-    fun onBarcodeChange(code: String) {
-        _barcode.value = code
-    }
+    fun onBarcodeChange(code: String) = _formState.update { it.copy(barcode = code) }
 
-    fun onUnitChange(unit: String) {
-        _medicationUnit.value = unit
-    }
+    fun onUnitChange(unit: String) = _formState.update { it.copy(unit = unit) }
 
-    fun onMealInstructionChange(instruction: MealInstruction) {
-        _mealInstruction.value = instruction
-    }
+    fun onMealInstructionChange(instruction: MealInstruction) = _formState.update { it.copy(mealInstruction = instruction) }
 
-    fun onNotesChange(notes: String) {
-        _medicationNotes.value = notes
-    }
+    fun onColorSelected(colorHex: String) = _formState.update { it.copy(colorHex = colorHex) }
 
-    fun onExpiryDateChange(timestamp: Long?) {
-        _expiryDate.value = timestamp
-    }
+    fun onIconShapeSelected(shape: String) = _formState.update { it.copy(iconShape = shape) }
 
-    fun onFrequencyTypeChange(type: FrequencyType) {
-        _frequencyType.value = type
-    }
+    fun onNotesChange(notes: String) = _formState.update { it.copy(notes = notes) }
 
-    fun onIntervalDaysChange(days: String) {
-        _intervalDays.value = days.filter { it.isDigit() }
-    }
+    fun onExpiryDateChange(timestamp: Long?) = _formState.update { it.copy(expiryDate = timestamp) }
 
-    fun onActiveDaysChange(days: String) {
-        _activeDays.value = days.filter { it.isDigit() }
-    }
+    fun onFrequencyTypeChange(type: FrequencyType) = _formState.update { it.copy(frequencyType = type) }
 
-    fun onRestDaysChange(days: String) {
-        _restDays.value = days.filter { it.isDigit() }
-    }
+    fun onIntervalDaysChange(days: String) = _formState.update { it.copy(intervalDays = days.filter { c -> c.isDigit() }) }
 
-    fun toggleSpecificDay(day: Int) {
-        val current = _specificDays.value.toMutableList()
-        if (current.contains(day)) {
-            current.remove(day)
+    fun onActiveDaysChange(days: String) = _formState.update { it.copy(activeDays = days.filter { c -> c.isDigit() }) }
+
+    fun onRestDaysChange(days: String) = _formState.update { it.copy(restDays = days.filter { c -> c.isDigit() }) }
+
+    fun toggleSpecificDay(day: Int) = _formState.update { state ->
+        val updated = if (state.specificDays.contains(day)) {
+            state.specificDays - day
         } else {
-            current.add(day)
+            state.specificDays + day
         }
-        _specificDays.value = current.sorted()
+        state.copy(specificDays = updated.sorted())
     }
 
-    fun onRefillToggle(enabled: Boolean) {
-        _isRefillEnabled.value = enabled
-    }
+    fun onRefillToggle(enabled: Boolean) = _formState.update { it.copy(isRefillEnabled = enabled) }
 
-    fun onCurrentStockChange(stock: String) {
-        _currentStock.value = stock.filter { it.isDigit() }
-    }
+    fun onCurrentStockChange(stock: String) = _formState.update { it.copy(currentStock = stock.filter { c -> c.isDigit() }) }
 
-    fun onRefillThresholdChange(threshold: String) {
-        _refillThreshold.value = threshold.filter { it.isDigit() }
-    }
+    fun onRefillThresholdChange(threshold: String) = _formState.update { it.copy(refillThreshold = threshold.filter { c -> c.isDigit() }) }
 
     fun addMedicationTime(hour: Int, minute: Int, dose: String? = null) {
         val newTime = MedicationTime(
@@ -294,54 +275,29 @@ class AddEditMedicationViewModel @Inject constructor(
             minute = minute,
             dose = dose?.takeIf { it.isNotBlank() }
         )
-        _medicationTimes.value = (_medicationTimes.value + newTime).sortedWith(compareBy({ it.hour }, { it.minute }))
+        _formState.update { state ->
+            state.copy(times = (state.times + newTime).sortedWith(compareBy({ it.hour }, { it.minute })))
+        }
     }
 
-    fun removeMedicationTime(timeId: String) {
-        _medicationTimes.value = _medicationTimes.value.filterNot { it.id == timeId }
+    fun removeMedicationTime(timeId: String) = _formState.update { state ->
+        state.copy(times = state.times.filterNot { it.id == timeId })
     }
 
     fun saveMedication() {
         viewModelScope.launch {
-            if (!validateMedicationUseCase(_medicationName.value)) {
+            // Kaydetme boyunca tek bir anlık görüntü üzerinden çalışılır; alan alan
+            // .value okunduğunda kullanıcı yazmaya devam ederse tutarsız bir kayıt oluşabilirdi.
+            val form = _formState.value
+
+            if (!validateMedicationUseCase(form.name)) {
                 _errorMessage.value = "İlaç adı boş bırakılamaz."
                 return@launch
             }
 
             try {
                 val medicationId = currentMedicationId ?: UUID.randomUUID().toString()
-                val parsedStock = _currentStock.value.toIntOrNull()
-                val parsedThreshold = _refillThreshold.value.toIntOrNull() ?: 5
-                val parsedInterval = _intervalDays.value.toIntOrNull() ?: 2
-                val parsedActiveDays = _activeDays.value.toIntOrNull() ?: 21
-                val parsedRestDays = _restDays.value.toIntOrNull() ?: 7
-
-                val medication = Medication(
-                    id = medicationId,
-                    name = _medicationName.value,
-                    barcode = _barcode.value.takeIf { it.isNotBlank() },
-                    activeIngredient = _activeIngredient.value.takeIf { it.isNotBlank() },
-                    form = _formType.value.displayNameTr,
-                    formType = _formType.value,
-                    colorHex = _colorHex.value,
-                    iconShape = _iconShape.value,
-                    dosage = _medicationDosage.value.takeIf { it.isNotBlank() },
-                    unit = _medicationUnit.value.takeIf { it.isNotBlank() },
-                    notes = _medicationNotes.value.takeIf { it.isNotBlank() },
-                    mealInstruction = _mealInstruction.value,
-                    expiryDate = _expiryDate.value,
-                    frequencyType = _frequencyType.value,
-                    intervalDays = if (_frequencyType.value == FrequencyType.INTERVAL) parsedInterval else null,
-                    specificDays = if (_frequencyType.value == FrequencyType.SPECIFIC_DAYS) _specificDays.value else emptyList(),
-                    activeDays = if (_frequencyType.value == FrequencyType.CYCLIC) parsedActiveDays else null,
-                    restDays = if (_frequencyType.value == FrequencyType.CYCLIC) parsedRestDays else null,
-                    initialStock = parsedStock,
-                    currentStock = parsedStock,
-                    refillThreshold = parsedThreshold,
-                    isRefillReminderEnabled = _isRefillEnabled.value,
-                    isVerifiedSource = _isVerifiedSource.value,
-                    times = _medicationTimes.value
-                )
+                val medication = form.toMedication(medicationId)
 
                 // Bu ilaca ait önceden kurulmuş tüm alarmları iptal et (düzenlemede
                 // eski saatler/eski kayıtlar sistemde asılı kalmasın diye).
@@ -355,6 +311,7 @@ class AddEditMedicationViewModel @Inject constructor(
                     // bunu da geçmişe kaydet — daha önce stok her düzenlemede sessizce
                     // üzerine yazılıyordu.
                     val oldStock = originalMedication?.currentStock
+                    val parsedStock = medication.currentStock
                     if (oldStock != parsedStock) {
                         stockHistoryRepository.logChange(
                             StockHistoryEntry(
@@ -375,7 +332,7 @@ class AddEditMedicationViewModel @Inject constructor(
                 }
 
                 // Schedule alarms for all configured times
-                _medicationTimes.value.forEach { medTime ->
+                form.times.forEach { medTime ->
                     val calendar = Calendar.getInstance().apply {
                         set(Calendar.HOUR_OF_DAY, medTime.hour)
                         set(Calendar.MINUTE, medTime.minute)

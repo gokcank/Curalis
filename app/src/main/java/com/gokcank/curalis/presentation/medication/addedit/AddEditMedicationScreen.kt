@@ -97,28 +97,12 @@ fun AddEditMedicationScreen(
     onNavigateBack: () -> Unit,
     viewModel: AddEditMedicationViewModel = hiltViewModel()
 ) {
-    val name by viewModel.medicationName.collectAsState()
-    val activeIngredient by viewModel.activeIngredient.collectAsState()
-    val selectedFormType by viewModel.formType.collectAsState()
-    val colorHex by viewModel.colorHex.collectAsState()
-    val dosage by viewModel.medicationDosage.collectAsState()
-    val unit by viewModel.medicationUnit.collectAsState()
-    val mealInstruction by viewModel.mealInstruction.collectAsState()
-    val medicationNotes by viewModel.medicationNotes.collectAsState()
-    val expiryDate by viewModel.expiryDate.collectAsState()
-    val frequencyType by viewModel.frequencyType.collectAsState()
-    val intervalDays by viewModel.intervalDays.collectAsState()
-    val specificDays by viewModel.specificDays.collectAsState()
-    val activeDays by viewModel.activeDays.collectAsState()
-    val restDays by viewModel.restDays.collectAsState()
-    val isRefillEnabled by viewModel.isRefillEnabled.collectAsState()
-    val currentStock by viewModel.currentStock.collectAsState()
-    val refillThreshold by viewModel.refillThreshold.collectAsState()
-    val medicationTimes by viewModel.medicationTimes.collectAsState()
+    // Formun tüm alanları tek bir state nesnesinde (bkz. MedicationFormState); arama
+    // sonuçları/hata gibi geçici durumlar ayrı akışlarda kalır.
+    val formState by viewModel.formState.collectAsState()
     val suggestions by viewModel.suggestions.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
     val error by viewModel.errorMessage.collectAsState()
-    val isVerifiedSource by viewModel.isVerifiedSource.collectAsState()
 
     var showTimePickerDialog by remember { mutableStateOf(false) }
     var isUnitDropdownExpanded by remember { mutableStateOf(false) }
@@ -199,7 +183,7 @@ fun AddEditMedicationScreen(
             // 1. İlaç Adı ve Autocomplete Arama
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = name,
+                    value = formState.name,
                     onValueChange = viewModel::onNameChange,
                     label = { Text(stringResource(R.string.medication_name) + " *") },
                     supportingText = { Text("Yazdıkça resmî ilaç listesinde aranır") },
@@ -240,24 +224,25 @@ fun AddEditMedicationScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
+                val isVerified = formState.isVerifiedSource
                 Icon(
-                    imageVector = if (isVerifiedSource) Icons.Default.CheckCircle else Icons.Default.Edit,
+                    imageVector = if (isVerified) Icons.Default.CheckCircle else Icons.Default.Edit,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = if (isVerifiedSource) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = if (isVerified) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = if (isVerifiedSource) stringResource(R.string.verified_source_badge) else stringResource(R.string.unverified_source_badge),
+                    text = if (isVerified) stringResource(R.string.verified_source_badge) else stringResource(R.string.unverified_source_badge),
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (isVerifiedSource) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (isVerified) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = activeIngredient,
+                value = formState.activeIngredient,
                 onValueChange = viewModel::onActiveIngredientChange,
                 label = { Text(stringResource(R.string.active_ingredient)) },
                 modifier = Modifier.fillMaxWidth()
@@ -268,12 +253,11 @@ fun AddEditMedicationScreen(
             // Barkod: kutunun üzerindeki barkodu okutarak veya elle girerek kaydedilir.
             // TİTCK yerel veritabanında barkod eşlemesi bulunmadığı için otomatik ilaç
             // eşleştirmesi yapılmaz; yalnızca kullanıcının kendi kutusunu tanımasına yarar.
-            val barcode by viewModel.barcode.collectAsState()
             val barcodeScanner = remember { com.google.mlkit.vision.codescanner.GmsBarcodeScanning.getClient(context) }
             var barcodeError by remember { mutableStateOf<String?>(null) }
 
             OutlinedTextField(
-                value = barcode,
+                value = formState.barcode,
                 onValueChange = viewModel::onBarcodeChange,
                 label = { Text("Barkod (Opsiyonel)") },
                 supportingText = barcodeError?.let { { Text(it) } },
@@ -307,7 +291,7 @@ fun AddEditMedicationScreen(
             ) {
                 MedicationForm.entries.forEach { form ->
                     FilterChip(
-                        selected = selectedFormType == form,
+                        selected = formState.formType == form,
                         onClick = { viewModel.onFormTypeChange(form) },
                         label = { Text(form.displayNameTr) },
                         leadingIcon = {
@@ -332,7 +316,7 @@ fun AddEditMedicationScreen(
             ) {
                 MedicationAccentColors.forEach { hex ->
                     val color = Color(android.graphics.Color.parseColor(hex))
-                    val isSelected = colorHex.equals(hex, ignoreCase = true)
+                    val isSelected = formState.colorHex.equals(hex, ignoreCase = true)
                     Box(
                         modifier = Modifier
                             .size(36.dp)
@@ -360,7 +344,7 @@ fun AddEditMedicationScreen(
             // 3. Doz & Birim Miktarı (Dropdown + Manuel Giriş)
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = dosage,
+                    value = formState.dosage,
                     onValueChange = viewModel::onDosageChange,
                     label = { Text(stringResource(R.string.medication_dosage)) },
                     placeholder = { Text("500") },
@@ -374,7 +358,7 @@ fun AddEditMedicationScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     OutlinedTextField(
-                        value = unit,
+                        value = formState.unit,
                         onValueChange = viewModel::onUnitChange,
                         label = { Text("Birim") },
                         placeholder = { Text("Tablet / mg") },
@@ -411,7 +395,7 @@ fun AddEditMedicationScreen(
             ) {
                 MealInstruction.entries.forEach { instruction ->
                     FilterChip(
-                        selected = mealInstruction == instruction,
+                        selected = formState.mealInstruction == instruction,
                         onClick = { viewModel.onMealInstructionChange(instruction) },
                         label = { Text(instruction.displayNameTr) },
                         leadingIcon = {
@@ -438,7 +422,7 @@ fun AddEditMedicationScreen(
             ) {
                 FrequencyType.entries.forEach { type ->
                     FilterChip(
-                        selected = frequencyType == type,
+                        selected = formState.frequencyType == type,
                         onClick = { viewModel.onFrequencyTypeChange(type) },
                         label = {
                             val text = when (type) {
@@ -455,10 +439,10 @@ fun AddEditMedicationScreen(
             }
 
             // Periyot detay seçicileri
-            if (frequencyType == FrequencyType.INTERVAL) {
+            if (formState.frequencyType == FrequencyType.INTERVAL) {
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = intervalDays,
+                    value = formState.intervalDays,
                     onValueChange = viewModel::onIntervalDaysChange,
                     label = { Text("Kaç günde bir alınacak?") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -466,11 +450,11 @@ fun AddEditMedicationScreen(
                 )
             }
 
-            if (frequencyType == FrequencyType.CYCLIC) {
+            if (formState.frequencyType == FrequencyType.CYCLIC) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = activeDays,
+                        value = formState.activeDays,
                         onValueChange = viewModel::onActiveDaysChange,
                         label = { Text("Kaç gün kullanılacak?") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -478,7 +462,7 @@ fun AddEditMedicationScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     OutlinedTextField(
-                        value = restDays,
+                        value = formState.restDays,
                         onValueChange = viewModel::onRestDaysChange,
                         label = { Text("Kaç gün ara verilecek?") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -493,7 +477,7 @@ fun AddEditMedicationScreen(
                 )
             }
 
-            if (frequencyType == FrequencyType.SPECIFIC_DAYS) {
+            if (formState.frequencyType == FrequencyType.SPECIFIC_DAYS) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("Gün Seçimi:", style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(4.dp))
@@ -504,7 +488,7 @@ fun AddEditMedicationScreen(
                 ) {
                     daysOfWeekNames.forEachIndexed { index, dayName ->
                         val dayNumber = index + 1
-                        val isSelected = specificDays.contains(dayNumber)
+                        val isSelected = formState.specificDays.contains(dayNumber)
                         FilterChip(
                             selected = isSelected,
                             onClick = { viewModel.toggleSpecificDay(dayNumber) },
@@ -517,11 +501,11 @@ fun AddEditMedicationScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // 5. Hatırlatıcı Saatleri Ekleme
-            if (frequencyType != FrequencyType.AS_NEEDED) {
+            if (formState.frequencyType != FrequencyType.AS_NEEDED) {
                 Text(text = "Hatırlatıcı Saatleri", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                medicationTimes.forEach { time ->
+                formState.times.forEach { time ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -579,16 +563,16 @@ fun AddEditMedicationScreen(
             ) {
                 Text("Stok Takibi Yapılsın mı?")
                 Switch(
-                    checked = isRefillEnabled,
+                    checked = formState.isRefillEnabled,
                     onCheckedChange = viewModel::onRefillToggle
                 )
             }
 
-            if (isRefillEnabled) {
+            if (formState.isRefillEnabled) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = currentStock,
+                        value = formState.currentStock,
                         onValueChange = viewModel::onCurrentStockChange,
                         label = { Text("Mevcut Stok (Kutu/Tablet)") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -596,7 +580,7 @@ fun AddEditMedicationScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     OutlinedTextField(
-                        value = refillThreshold,
+                        value = formState.refillThreshold,
                         onValueChange = viewModel::onRefillThresholdChange,
                         label = { Text("Kritik Stok Uyarısı") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -657,7 +641,7 @@ fun AddEditMedicationScreen(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                val formattedExpiry = expiryDate?.let {
+                val formattedExpiry = formState.expiryDate?.let {
                     SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(it))
                 } ?: "Son Kullanma Tarihi Seçin (Opsiyonel)"
                 Text(formattedExpiry)
@@ -666,7 +650,7 @@ fun AddEditMedicationScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = medicationNotes,
+                value = formState.notes,
                 onValueChange = viewModel::onNotesChange,
                 label = { Text("İlaç Notları / Açıklama") },
                 placeholder = { Text("Serin ve kuru yerde saklayınız.") },
