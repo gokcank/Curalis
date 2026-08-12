@@ -22,6 +22,75 @@ object FrequencyCalculator {
         return ChronoUnit.DAYS.between(startDate, endDate).toInt()
     }
 
+    /**
+     * Bir ilacın belirli bir günde alınması gerekip gerekmediğini, sıklık tipine göre hesaplar.
+     * Bu, tek bir sonraki tetiklenmeyi bulan [calculateNextTriggerTime] ile bir tarih aralığındaki
+     * tüm dozları listeleyen [GetRemindersBetweenDatesUseCase] arasında paylaşılan tek kaynaktır;
+     * böylece iki yerde birbirinden bağımsız, zamanla farklılaşabilecek gün-eşleştirme mantığı olmaz.
+     */
+    fun shouldTakeOnDay(medication: Medication, dayMillis: Long): Boolean {
+        if (medication.frequencyType == FrequencyType.AS_NEEDED) return false
+
+        val dayStartCal = Calendar.getInstance().apply {
+            timeInMillis = dayMillis
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val medStartCal = Calendar.getInstance().apply {
+            timeInMillis = medication.startDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        if (dayStartCal.timeInMillis < medStartCal.timeInMillis) return false
+
+        return when (medication.frequencyType) {
+            FrequencyType.DAILY -> true
+
+            FrequencyType.INTERVAL -> {
+                val interval = (medication.intervalDays ?: 2).coerceAtLeast(1)
+                val diffDays = calendarDaysBetween(medStartCal.timeInMillis, dayStartCal.timeInMillis)
+                diffDays >= 0 && diffDays % interval == 0
+            }
+
+            FrequencyType.SPECIFIC_DAYS -> {
+                val specificDays = medication.specificDays
+                if (specificDays.isEmpty()) {
+                    true
+                } else {
+                    fun calendarDayToIso(calDay: Int) = if (calDay == Calendar.SUNDAY) 7 else calDay - 1
+                    specificDays.contains(calendarDayToIso(dayStartCal.get(Calendar.DAY_OF_WEEK)))
+                }
+            }
+
+            FrequencyType.CYCLIC -> {
+                val activeDays = (medication.activeDays ?: 21).coerceAtLeast(1)
+                val restDays = (medication.restDays ?: 7).coerceAtLeast(0)
+                val cycleLength = activeDays + restDays
+                val diffDays = calendarDaysBetween(medStartCal.timeInMillis, dayStartCal.timeInMillis)
+                diffDays >= 0 && (diffDays % cycleLength) < activeDays
+            }
+
+            FrequencyType.AS_NEEDED -> false
+        }
+    }
+
+    /**
+     * Aranacak maksimum gün sayısı, sıklık tipinin döngü uzunluğuna göre belirlenir
+     * (ör. INTERVAL için aralık uzunluğu, CYCLIC için tam döngü uzunluğu) — bu kadar gün
+     * içinde uygun bir gün bulunamazsa döngüde bir hata var demektir.
+     */
+    private fun maxSearchDays(medication: Medication): Int = when (medication.frequencyType) {
+        FrequencyType.DAILY -> 1
+        FrequencyType.INTERVAL -> (medication.intervalDays ?: 2).coerceAtLeast(1)
+        FrequencyType.SPECIFIC_DAYS -> 8
+        FrequencyType.CYCLIC -> (medication.activeDays ?: 21).coerceAtLeast(1) + (medication.restDays ?: 7).coerceAtLeast(0)
+        FrequencyType.AS_NEEDED -> 0
+    }
+
     fun calculateNextTriggerTime(
         medication: Medication,
         medTime: MedicationTime,
@@ -29,111 +98,26 @@ object FrequencyCalculator {
     ): Long? {
         if (medication.frequencyType == FrequencyType.AS_NEEDED) return null
 
-        val targetCal = Calendar.getInstance().apply {
+        val dayCal = Calendar.getInstance().apply {
             timeInMillis = fromMillis
-            set(Calendar.HOUR_OF_DAY, medTime.hour)
-            set(Calendar.MINUTE, medTime.minute)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
 
-        return when (medication.frequencyType) {
-            FrequencyType.DAILY -> {
-                if (targetCal.timeInMillis <= fromMillis) {
-                    targetCal.add(Calendar.DAY_OF_YEAR, 1)
+        repeat(maxSearchDays(medication) + 1) {
+            if (shouldTakeOnDay(medication, dayCal.timeInMillis)) {
+                val triggerCal = (dayCal.clone() as Calendar).apply {
+                    set(Calendar.HOUR_OF_DAY, medTime.hour)
+                    set(Calendar.MINUTE, medTime.minute)
                 }
-                targetCal.timeInMillis
+                if (triggerCal.timeInMillis > fromMillis) {
+                    return triggerCal.timeInMillis
+                }
             }
-
-            FrequencyType.INTERVAL -> {
-                val interval = (medication.intervalDays ?: 2).coerceAtLeast(1)
-                val startCal = Calendar.getInstance().apply {
-                    timeInMillis = medication.startDate
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
-
-                val diffDays = calendarDaysBetween(startCal.timeInMillis, targetCal.timeInMillis)
-
-                var targetDaysFromStart = if (diffDays <= 0) 0 else diffDays
-                val remainder = targetDaysFromStart % interval
-                if (remainder != 0) {
-                    targetDaysFromStart += (interval - remainder)
-                }
-
-                targetCal.timeInMillis = startCal.timeInMillis
-                targetCal.add(Calendar.DAY_OF_YEAR, targetDaysFromStart)
-                targetCal.set(Calendar.HOUR_OF_DAY, medTime.hour)
-                targetCal.set(Calendar.MINUTE, medTime.minute)
-
-                if (targetCal.timeInMillis <= fromMillis) {
-                    targetCal.add(Calendar.DAY_OF_YEAR, interval)
-                }
-                targetCal.timeInMillis
-            }
-
-            FrequencyType.SPECIFIC_DAYS -> {
-                val specificDays = medication.specificDays
-                if (specificDays.isEmpty()) {
-                    if (targetCal.timeInMillis <= fromMillis) {
-                        targetCal.add(Calendar.DAY_OF_YEAR, 1)
-                    }
-                    return targetCal.timeInMillis
-                }
-
-                fun calendarDayToIso(calDay: Int): Int {
-                    return if (calDay == Calendar.SUNDAY) 7 else calDay - 1
-                }
-
-                var currentIsoDay = calendarDayToIso(targetCal.get(Calendar.DAY_OF_WEEK))
-
-                if (targetCal.timeInMillis <= fromMillis) {
-                    targetCal.add(Calendar.DAY_OF_YEAR, 1)
-                    currentIsoDay = calendarDayToIso(targetCal.get(Calendar.DAY_OF_WEEK))
-                }
-
-                var attempts = 0
-                while (!specificDays.contains(currentIsoDay) && attempts < 8) {
-                    targetCal.add(Calendar.DAY_OF_YEAR, 1)
-                    currentIsoDay = calendarDayToIso(targetCal.get(Calendar.DAY_OF_WEEK))
-                    attempts++
-                }
-                targetCal.timeInMillis
-            }
-
-            FrequencyType.CYCLIC -> {
-                val activeDays = (medication.activeDays ?: 21).coerceAtLeast(1)
-                val restDays = (medication.restDays ?: 7).coerceAtLeast(0)
-                val cycleLength = activeDays + restDays
-                val startCal = Calendar.getInstance().apply {
-                    timeInMillis = medication.startDate
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
-
-                var searchCal = targetCal.clone() as Calendar
-                if (searchCal.timeInMillis <= fromMillis) {
-                    searchCal.add(Calendar.DAY_OF_YEAR, 1)
-                }
-
-                var attempts = 0
-                while (attempts < cycleLength) {
-                    val diffDays = calendarDaysBetween(startCal.timeInMillis, searchCal.timeInMillis)
-                    val dayInCycle = if (diffDays >= 0) diffDays % cycleLength else cycleLength + (diffDays % cycleLength)
-                    if (dayInCycle < activeDays) {
-                        return searchCal.timeInMillis
-                    }
-                    searchCal.add(Calendar.DAY_OF_YEAR, 1)
-                    attempts++
-                }
-                null
-            }
-
-            FrequencyType.AS_NEEDED -> null
+            dayCal.add(Calendar.DAY_OF_YEAR, 1)
         }
+        return null
     }
 }

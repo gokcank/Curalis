@@ -7,9 +7,6 @@ import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.ReminderRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import java.time.Instant
-import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.UUID
 import javax.inject.Inject
@@ -19,17 +16,6 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
     private val medicationRepository: MedicationRepository
 ) {
 
-    /**
-     * İki zaman damgası arasındaki takvim gün farkını, yaz saati geçişlerinde bazı günlerin
-     * 23 veya 25 saat sürebildiğini hesaba katarak hesaplar. Sabit "milisaniye / (24*60*60*1000)"
-     * bölmesi DST geçişlerinde günü bir kaydırabilir.
-     */
-    private fun calendarDaysBetween(startMillis: Long, endMillis: Long): Int {
-        val zone = ZoneId.systemDefault()
-        val startDate = Instant.ofEpochMilli(startMillis).atZone(zone).toLocalDate()
-        val endDate = Instant.ofEpochMilli(endMillis).atZone(zone).toLocalDate()
-        return ChronoUnit.DAYS.between(startDate, endDate).toInt()
-    }
     operator fun invoke(start: Long, end: Long): Flow<List<Reminder>> {
         return combine(
             reminderRepository.getRemindersBetweenDates(start, end),
@@ -78,40 +64,8 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
 
                 daysInMillis.forEach { dayMillis ->
                     if (dayMillis < medStartCal.timeInMillis) return@forEach
-                    
-                    val dayCal = Calendar.getInstance().apply { timeInMillis = dayMillis }
-                    var shouldTakeToday = false
-                    
-                    when (medication.frequencyType) {
-                        FrequencyType.DAILY -> shouldTakeToday = true
-                        FrequencyType.INTERVAL -> {
-                            val interval = (medication.intervalDays ?: 2).coerceAtLeast(1)
-                            val diffDays = calendarDaysBetween(medStartCal.timeInMillis, dayMillis)
-                            if (diffDays >= 0 && diffDays % interval == 0) {
-                                shouldTakeToday = true
-                            }
-                        }
-                        FrequencyType.SPECIFIC_DAYS -> {
-                            fun isoToCalendar(isoDay: Int) = if (isoDay == 7) Calendar.SUNDAY else isoDay + 1
-                            val calDayOfWeek = dayCal.get(Calendar.DAY_OF_WEEK)
-                            val specificCalendarDays = medication.specificDays.map { isoToCalendar(it) }
-                            if (specificCalendarDays.contains(calDayOfWeek)) {
-                                shouldTakeToday = true
-                            }
-                        }
-                        FrequencyType.CYCLIC -> {
-                            val activeDays = (medication.activeDays ?: 21).coerceAtLeast(1)
-                            val restDays = (medication.restDays ?: 7).coerceAtLeast(0)
-                            val cycleLength = activeDays + restDays
-                            val diffDays = calendarDaysBetween(medStartCal.timeInMillis, dayMillis)
-                            if (diffDays >= 0 && (diffDays % cycleLength) < activeDays) {
-                                shouldTakeToday = true
-                            }
-                        }
-                        else -> {}
-                    }
-                    
-                    if (shouldTakeToday) {
+
+                    if (FrequencyCalculator.shouldTakeOnDay(medication, dayMillis)) {
                         medication.times.forEach { time ->
                             val triggerCal = Calendar.getInstance().apply {
                                 timeInMillis = dayMillis
