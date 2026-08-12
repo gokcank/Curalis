@@ -25,7 +25,8 @@ class BootReceiver : BroadcastReceiver() {
             val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val medications = medicationRepository.getAllMedications().firstOrNull() ?: emptyList()
+                    val medications = medicationRepository.getAllMedications().firstOrNull()
+                        ?.filter { !it.isArchived } ?: emptyList()
                     medications.forEach { medication ->
                         alarmScheduler.scheduleMedicationAlarms(medication)
                     }
