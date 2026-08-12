@@ -113,7 +113,25 @@ fun MedicationListScreen(
         AlertDialog(
             onDismissRequest = { medicationToDelete = null },
             title = { Text(stringResource(R.string.delete_medication_title)) },
-            text = { Text(stringResource(R.string.delete_medication_message, med.name)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.delete_medication_message, med.name))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    // Yıkıcı "hepsini sil" eylemi kasıtlı olarak diyaloğun sistem
+                    // "vazgeç" (dismissButton) slotunda değil, ayrı ve bariz bir yerde
+                    // duruyor — dismissButton'ın gerçekten yalnızca iptal anlamına
+                    // gelmesi için.
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteMedication(med)
+                            medicationToDelete = null
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.delete_medication_all_button), color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -125,18 +143,8 @@ fun MedicationListScreen(
                 }
             },
             dismissButton = {
-                Row {
-                    TextButton(onClick = { medicationToDelete = null }) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                    TextButton(
-                        onClick = {
-                            viewModel.deleteMedication(med)
-                            medicationToDelete = null
-                        }
-                    ) {
-                        Text(stringResource(R.string.delete_medication_all_button), color = MaterialTheme.colorScheme.error)
-                    }
+                TextButton(onClick = { medicationToDelete = null }) {
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
