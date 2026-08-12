@@ -17,7 +17,10 @@ import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.ReminderRepository
 import com.gokcank.curalis.domain.repository.VitalRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -41,19 +44,25 @@ class PdfReportGenerator @Inject constructor(
 ) {
 
     /** Raporu üretir ve dosyayı döndürür; paylaşmaz. Önizleme için kullanılır. */
-    suspend fun generateReport(): File {
-        val medications = medicationRepository.getAllMedications().firstOrNull() ?: emptyList()
-        val vitals = vitalRepository.getAllVitals().firstOrNull() ?: emptyList()
+    suspend fun generateReport(): File = withContext(Dispatchers.IO) {
+        val medicationsDeferred = async { medicationRepository.getAllMedications().firstOrNull() ?: emptyList() }
+        val vitalsDeferred = async { vitalRepository.getAllVitals().firstOrNull() ?: emptyList() }
 
         val now = System.currentTimeMillis()
         val monthStart = now - (30L * 24 * 3600 * 1000)
-        val monthReminders = reminderRepository.getRemindersBetweenDates(monthStart, now).firstOrNull() ?: emptyList()
+        val monthRemindersDeferred = async {
+            reminderRepository.getRemindersBetweenDates(monthStart, now).firstOrNull() ?: emptyList()
+        }
+
+        val medications = medicationsDeferred.await()
+        val vitals = vitalsDeferred.await()
+        val monthReminders = monthRemindersDeferred.await()
 
         val takenCount = monthReminders.count { it.state == ReminderState.TAKEN }
         val skippedCount = monthReminders.count { it.state == ReminderState.SKIPPED }
         val missedCount = monthReminders.count { it.state == ReminderState.MISSED }
 
-        return generateHealthReportPdf(medications, vitals, takenCount, skippedCount, missedCount)
+        generateHealthReportPdf(medications, vitals, takenCount, skippedCount, missedCount)
     }
 
     /** Kullanıcı önizlemeyi gördükten sonra dosyayı paylaşım seçicisiyle gönderir. */
