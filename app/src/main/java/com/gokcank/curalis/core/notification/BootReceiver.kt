@@ -3,6 +3,7 @@ package com.gokcank.curalis.core.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.gokcank.curalis.domain.repository.AppointmentRepository
 import com.gokcank.curalis.domain.repository.MedicationRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,11 +43,15 @@ class BootReceiver : BroadcastReceiver() {
                         alarmScheduler.scheduleAppointmentReminder(appointment)
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e(TAG, "Reboot sonrası hatırlatıcılar yeniden kurulurken hata oluştu", e)
                 } finally {
                     pendingResult.finish()
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "BootReceiver"
     }
 }
