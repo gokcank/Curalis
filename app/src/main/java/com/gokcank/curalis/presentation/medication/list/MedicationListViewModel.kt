@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -64,10 +65,7 @@ class MedicationListViewModel @Inject constructor(
     fun deleteMedication(medication: Medication) {
         viewModelScope.launch {
             try {
-                getRemindersForMedicationUseCase(medication.id).firstOrNull()?.forEach { reminder ->
-                    alarmScheduler.cancel(reminder.id)
-                }
-                alarmScheduler.cancelMedicationAlarms(medication)
+                cancelAlarmsFor(medication)
                 deleteMedicationUseCase(medication)
             } catch (e: Exception) {
                 _errorFlow.emit("İlaç silinirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
@@ -79,15 +77,21 @@ class MedicationListViewModel @Inject constructor(
     fun archiveMedication(medication: Medication) {
         viewModelScope.launch {
             try {
-                getRemindersForMedicationUseCase(medication.id).firstOrNull()?.forEach { reminder ->
-                    alarmScheduler.cancel(reminder.id)
-                }
-                alarmScheduler.cancelMedicationAlarms(medication)
+                cancelAlarmsFor(medication)
                 archiveMedicationUseCase(medication)
             } catch (e: Exception) {
                 _errorFlow.emit("İlaç silinirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
             }
         }
+    }
+
+    /** Bir ilaca ait hem gerçek (UUID kimlikli) hem deterministik kimlikli alarmları iptal eder
+     *  — silme ve arşivleme akışlarının ikisinde de aynı temizlik gerekiyor. */
+    private suspend fun cancelAlarmsFor(medication: Medication) {
+        getRemindersForMedicationUseCase(medication.id).firstOrNull()?.forEach { reminder ->
+            alarmScheduler.cancel(reminder.id)
+        }
+        alarmScheduler.cancelMedicationAlarms(medication)
     }
 
     fun takeDose(medicationId: String) {
@@ -106,15 +110,18 @@ class MedicationListViewModel @Inject constructor(
     }
 
     private fun getMedications() {
-        getMedicationsJob?.cancel()
-        getMedicationsJob = getMedicationsUseCase().onEach { meds ->
-            _medications.value = meds.filter { !it.isArchived }
-        }.launchIn(viewModelScope)
+        observe(getMedicationsUseCase())
     }
 
     private fun searchMedications(query: String) {
+        observe(searchMedicationsUseCase(query))
+    }
+
+    /** `medications` akışını verilen kaynaktan besler; liste ve arama sorgusu aynı
+     *  filtreleme/iptal mantığını paylaşır. */
+    private fun observe(source: Flow<List<Medication>>) {
         getMedicationsJob?.cancel()
-        getMedicationsJob = searchMedicationsUseCase(query).onEach { meds ->
+        getMedicationsJob = source.onEach { meds ->
             _medications.value = meds.filter { !it.isArchived }
         }.launchIn(viewModelScope)
     }
