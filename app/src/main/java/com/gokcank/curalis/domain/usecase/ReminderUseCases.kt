@@ -18,11 +18,13 @@ class ScheduleReminderUseCase @Inject constructor(
 class AcknowledgeReminderUseCase @Inject constructor(
     private val repository: ReminderRepository
 ) {
-    suspend operator fun invoke(reminderId: String, state: ReminderState, skipReason: SkipReason? = null) {
-        val reminder = repository.getReminderById(reminderId)
-        if (reminder != null) {
-            repository.updateReminder(reminder.copy(state = state, skipReason = skipReason))
-        }
+    /** Hatırlatıcı bulunup güncellenebildiyse true döner; örn. medikasyon silinirken
+     *  hatırlatıcısı da silinmiş, ama bildirimden gelen eski bir aksiyon hâlâ tetiklenmişse
+     *  false döner — çağıran taraf bu durumda stok/alarm gibi yan etkileri uygulamamalı. */
+    suspend operator fun invoke(reminderId: String, state: ReminderState, skipReason: SkipReason? = null): Boolean {
+        val reminder = repository.getReminderById(reminderId) ?: return false
+        repository.updateReminder(reminder.copy(state = state, skipReason = skipReason))
+        return true
     }
 }
 

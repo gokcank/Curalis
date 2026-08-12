@@ -55,10 +55,12 @@ class ReminderActionReceiver : BroadcastReceiver() {
 
                 when (action) {
                     NotificationHelper.ACTION_TAKEN -> {
-                        acknowledgeReminderUseCase(reminderId, ReminderState.TAKEN)
+                        val acknowledged = acknowledgeReminderUseCase(reminderId, ReminderState.TAKEN)
 
-                        // Otomatik Stok Düşümü ve Kritik Stok Bildirimi
-                        if (medicationId.isNotBlank()) {
+                        // Hatırlatıcı artık yoksa (örn. ilaç bu bildirim gösterilirken silindi),
+                        // stok düşümü/alarm yeniden kurma gibi yan etkileri uygulama — silinmiş
+                        // bir ilacın alarmlarını diriltmiş oluruz.
+                        if (acknowledged && medicationId.isNotBlank()) {
                             val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
                             medication?.let { med ->
                                 val currentStock = med.currentStock
@@ -92,9 +94,9 @@ class ReminderActionReceiver : BroadcastReceiver() {
                         // yalnızca uygulama içi ekranlar (Timeline, tam ekran alarm) sebep seçtirip bu extra'yı doldurur.
                         val skipReasonName = intent.getStringExtra(NotificationHelper.EXTRA_SKIP_REASON)
                         val skipReason = skipReasonName?.let { runCatching { SkipReason.valueOf(it) }.getOrNull() }
-                        acknowledgeReminderUseCase(reminderId, ReminderState.SKIPPED, skipReason)
+                        val acknowledged = acknowledgeReminderUseCase(reminderId, ReminderState.SKIPPED, skipReason)
 
-                        if (medicationId.isNotBlank()) {
+                        if (acknowledged && medicationId.isNotBlank()) {
                             val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
                             medication?.let { med ->
                                 alarmScheduler.scheduleMedicationAlarms(med)
@@ -104,17 +106,19 @@ class ReminderActionReceiver : BroadcastReceiver() {
 
                     NotificationHelper.ACTION_SNOOZE -> {
                         val snoozeMinutes = intent.getIntExtra(NotificationHelper.EXTRA_SNOOZE_MINUTES, 10)
-                        acknowledgeReminderUseCase(reminderId, ReminderState.SNOOZED)
+                        val acknowledged = acknowledgeReminderUseCase(reminderId, ReminderState.SNOOZED)
 
-                        // Dinamik Erteleme (Snooze) alarmı (Örn: 5, 10, 15, 30, 60 dk)
-                        val snoozeTime = System.currentTimeMillis() + (snoozeMinutes * 60 * 1000L)
-                        val newReminder = Reminder(
-                            medicationId = medicationId,
-                            timeInMillis = snoozeTime,
-                            state = ReminderState.SCHEDULED
-                        )
-                        scheduleReminderUseCase(newReminder)
-                        alarmScheduler.schedule(newReminder, medicationName)
+                        if (acknowledged) {
+                            // Dinamik Erteleme (Snooze) alarmı (Örn: 5, 10, 15, 30, 60 dk)
+                            val snoozeTime = System.currentTimeMillis() + (snoozeMinutes * 60 * 1000L)
+                            val newReminder = Reminder(
+                                medicationId = medicationId,
+                                timeInMillis = snoozeTime,
+                                state = ReminderState.SCHEDULED
+                            )
+                            scheduleReminderUseCase(newReminder)
+                            alarmScheduler.schedule(newReminder, medicationName)
+                        }
                     }
 
                     NotificationHelper.ACTION_TAKE_ALL -> {
@@ -122,9 +126,9 @@ class ReminderActionReceiver : BroadcastReceiver() {
                         val medicationIds = intent.getStringArrayExtra(NotificationHelper.EXTRA_MEDICATION_IDS)?.toList() ?: emptyList()
 
                         reminderIds.forEachIndexed { index, remId ->
-                            acknowledgeReminderUseCase(remId, ReminderState.TAKEN)
+                            val acknowledged = acknowledgeReminderUseCase(remId, ReminderState.TAKEN)
                             val medId = medicationIds.getOrNull(index) ?: ""
-                            if (medId.isNotBlank()) {
+                            if (acknowledged && medId.isNotBlank()) {
                                 val medication = medicationRepository.getMedicationById(medId).firstOrNull()
                                 medication?.let { med ->
                                     val currentStock = med.currentStock
