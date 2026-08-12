@@ -41,6 +41,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -325,7 +326,8 @@ fun DailyReminderCard(item: DailyReminderItem) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    val formattedTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(item.reminder.timeInMillis))
+                    val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+                    val formattedTime = timeFormat.format(Date(item.reminder.timeInMillis))
                     val dosageSuffix = item.dosageInfo.takeIf { it.isNotBlank() }?.let { " • $it" } ?: ""
                     Text(
                         text = "Saat $formattedTime$dosageSuffix",

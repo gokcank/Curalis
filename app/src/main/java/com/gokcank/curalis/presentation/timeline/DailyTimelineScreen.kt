@@ -202,7 +202,8 @@ fun TimelineCard(
     onSkipClick: () -> Unit
 ) {
     val med = item.medication
-    val formattedTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(item.reminder.timeInMillis))
+    val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val formattedTime = timeFormat.format(Date(item.reminder.timeInMillis))
 
     Card(
         modifier = Modifier.fillMaxWidth(),

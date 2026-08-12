@@ -143,7 +143,7 @@ fun AppointmentItem(
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()) }
     val dateString = dateFormat.format(Date(appointment.timeInMillis))
 
     Card(
