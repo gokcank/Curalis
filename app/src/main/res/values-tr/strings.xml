@@ -187,7 +187,7 @@
 
     <!-- İlk kurulum -->
     <string name="onboarding_welcome_title">Curalis\'e Hoş Geldiniz</string>
-    <string name="onboarding_welcome_message">Curalis; ilaçlarınızı, randevularınızı ve sağlık ölçümlerinizi takip etmenize yardımcı olur — hatırlatıcılar, uyum geçmişi ve raporlar, hepsi yalnızca bu cihazda saklanır.</string>
+    <string name="onboarding_welcome_message">Curalis; ilaçlarınızı, randevularınızı ve sağlık ölçümlerinizi takip etmenize yardımcı olur — hatırlatıcılar, uyum geçmişi ve raporlar varsayılan olarak yalnızca bu cihazda saklanır; dilerseniz şifreli bir yedeğini Google Drive\'a da alabilirsiniz.</string>
     <string name="onboarding_permissions_title">İki kısa izin</string>
     <string name="onboarding_permissions_message">Hatırlatıcılarınızın size gerçekten zamanında ulaşması için Curalis\'in bunlara ihtiyacı var. Dilediğinizde cihaz ayarlarınızdan değiştirebilirsiniz.</string>
     <string name="onboarding_permission_notifications_title">Bildirimler</string>
