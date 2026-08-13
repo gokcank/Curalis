@@ -8,5 +8,7 @@ data class Appointment(
     val title: String,
     val timeInMillis: Long,
     val location: String? = null,
-    val notes: String? = null
+    val notes: String? = null,
+    val isVisited: Boolean = false,
+    val visitNote: String? = null
 )

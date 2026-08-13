@@ -50,7 +50,9 @@ fun AppointmentEntity.toDomain(): Appointment {
         title = title,
         timeInMillis = timeInMillis,
         location = location,
-        notes = notes
+        notes = notes,
+        isVisited = isVisited,
+        visitNote = visitNote
     )
 }
 
@@ -61,6 +63,8 @@ fun Appointment.toEntity(): AppointmentEntity {
         title = title,
         timeInMillis = timeInMillis,
         location = location,
-        notes = notes
+        notes = notes,
+        isVisited = isVisited,
+        visitNote = visitNote
     )
 }

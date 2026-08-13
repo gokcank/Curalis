@@ -75,6 +75,10 @@
     <string name="appointment_doctor">Doktor</string>
     <string name="appointment_doctor_none">Doktor seçilmedi</string>
     <string name="no_appointments_found">Henüz hiç randevu eklemediniz.</string>
+    <string name="add_to_calendar">Takvime Ekle</string>
+    <string name="visit_info">Ziyaret Bilgisi</string>
+    <string name="visited">Ziyaret edildi</string>
+    <string name="visit_note">Ziyaret notu (opsiyonel)</string>
 
     <!-- Vitals -->
     <string name="my_vitals">Fiziksel Ölçümler</string>

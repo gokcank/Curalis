@@ -1,18 +1,25 @@
 package com.gokcank.curalis.presentation.appointment
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.provider.CalendarContract
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -21,6 +28,8 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -41,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -64,7 +74,10 @@ fun AddEditAppointmentScreen(
     val timeInMillis by viewModel.timeInMillis.collectAsState()
     val selectedDoctorId by viewModel.selectedDoctorId.collectAsState()
     val doctors by viewModel.doctors.collectAsState()
+    val isVisited by viewModel.isVisited.collectAsState()
+    val visitNote by viewModel.visitNote.collectAsState()
 
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
 
@@ -201,6 +214,51 @@ fun AddEditAppointmentScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Telefonun kendi Takvim uygulamasına etkinlik olarak eklemek için — birinci
+            // taraf Takvim sağlayıcısı (CalendarContract), sunucuya hiçbir veri gitmez.
+            OutlinedButton(
+                onClick = {
+                    val intent = Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI).apply {
+                        putExtra(CalendarContract.Events.TITLE, title)
+                        putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, timeInMillis)
+                        putExtra(CalendarContract.EXTRA_EVENT_END_TIME, timeInMillis + 60 * 60 * 1000L)
+                        if (location.isNotBlank()) putExtra(CalendarContract.Events.EVENT_LOCATION, location)
+                        if (notes.isNotBlank()) putExtra(CalendarContract.Events.DESCRIPTION, notes)
+                    }
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        // Cihazda takvim uygulaması yoksa sessizce yok sayılır.
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Default.Event, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.add_to_calendar))
+            }
+
+            if (viewModel.isEditMode) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(text = stringResource(R.string.visit_info), style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = isVisited, onCheckedChange = viewModel::onVisitedChange)
+                    Text(stringResource(R.string.visited))
+                }
+                if (isVisited) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = visitNote,
+                        onValueChange = viewModel::onVisitNoteChange,
+                        label = { Text(stringResource(R.string.visit_note)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 

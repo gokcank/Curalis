@@ -45,6 +45,12 @@ class AddEditAppointmentViewModel @Inject constructor(
     private val _selectedDoctorId = MutableStateFlow<String?>(null)
     val selectedDoctorId = _selectedDoctorId.asStateFlow()
 
+    private val _isVisited = MutableStateFlow(false)
+    val isVisited = _isVisited.asStateFlow()
+
+    private val _visitNote = MutableStateFlow("")
+    val visitNote = _visitNote.asStateFlow()
+
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
@@ -64,6 +70,8 @@ class AddEditAppointmentViewModel @Inject constructor(
                             _notes.value = it.notes ?: ""
                             _timeInMillis.value = it.timeInMillis
                             _selectedDoctorId.value = it.doctorId
+                            _isVisited.value = it.isVisited
+                            _visitNote.value = it.visitNote ?: ""
                         }
                     }
                 }
@@ -91,6 +99,14 @@ class AddEditAppointmentViewModel @Inject constructor(
         _selectedDoctorId.value = doctorId
     }
 
+    fun onVisitedChange(visited: Boolean) {
+        _isVisited.value = visited
+    }
+
+    fun onVisitNoteChange(note: String) {
+        _visitNote.value = note
+    }
+
     fun saveAppointment() {
         viewModelScope.launch {
             if (_title.value.isBlank()) {
@@ -105,7 +121,9 @@ class AddEditAppointmentViewModel @Inject constructor(
                 location = _location.value.takeIf { it.isNotBlank() },
                 notes = _notes.value.takeIf { it.isNotBlank() },
                 timeInMillis = _timeInMillis.value,
-                doctorId = _selectedDoctorId.value
+                doctorId = _selectedDoctorId.value,
+                isVisited = _isVisited.value,
+                visitNote = _visitNote.value.takeIf { it.isNotBlank() }
             )
 
             if (currentAppointmentId != null) {

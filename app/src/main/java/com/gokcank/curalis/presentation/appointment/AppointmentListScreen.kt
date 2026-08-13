@@ -183,6 +183,13 @@ fun AppointmentItem(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+                if (appointment.isVisited) {
+                    Text(
+                        text = stringResource(R.string.visited),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
             }
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = onDelete) {

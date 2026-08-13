@@ -75,6 +75,10 @@
     <string name="appointment_doctor">Doctor</string>
     <string name="appointment_doctor_none">No doctor selected</string>
     <string name="no_appointments_found">No appointments added yet.</string>
+    <string name="add_to_calendar">Add to Calendar</string>
+    <string name="visit_info">Visit Info</string>
+    <string name="visited">Visited</string>
+    <string name="visit_note">Visit note (optional)</string>
 
     <!-- Vitals -->
     <string name="my_vitals">My Vitals</string>

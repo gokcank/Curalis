@@ -25,5 +25,7 @@ data class AppointmentEntity(
     val title: String,
     val timeInMillis: Long,
     val location: String?,
-    val notes: String?
+    val notes: String?,
+    val isVisited: Boolean = false,
+    val visitNote: String? = null
 )
