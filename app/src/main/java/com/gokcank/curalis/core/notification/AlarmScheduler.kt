@@ -34,8 +34,11 @@ class AlarmScheduler @Inject constructor(
 
     private fun setExactAlarm(triggerAtMillis: Long, pendingIntent: PendingIntent): Boolean {
         if (!canScheduleExactAlarms()) {
-            Log.w(TAG, "Tam zamanlı alarm izni yok, alarm kurulamadı.")
-            return false
+            // Tam zamanlı alarm izni yoksa hatırlatmayı tamamen atlamak yerine, birkaç
+            // dakikalık sapma göze alınarak Android'in yaklaşık zamanlı alarmına düşülür —
+            // kullanıcı hiç hatırlatma almamaktan iyi.
+            Log.w(TAG, "Tam zamanlı alarm izni yok, yaklaşık zamanlı alarma düşülüyor.")
+            return setInexactAlarm(triggerAtMillis, pendingIntent)
         }
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -53,7 +56,21 @@ class AlarmScheduler @Inject constructor(
             }
             true
         } catch (e: SecurityException) {
-            Log.e(TAG, "Alarm kurulurken izin hatası", e)
+            Log.e(TAG, "Alarm kurulurken izin hatası, yaklaşık zamanlı alarma düşülüyor.", e)
+            setInexactAlarm(triggerAtMillis, pendingIntent)
+        }
+    }
+
+    private fun setInexactAlarm(triggerAtMillis: Long, pendingIntent: PendingIntent): Boolean {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+            }
+            true
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Yaklaşık zamanlı alarm da kurulamadı.", e)
             false
         }
     }

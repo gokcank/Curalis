@@ -6,7 +6,6 @@ import android.os.Build
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationTime
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,8 +18,8 @@ import java.util.Calendar
 
 /**
  * Faz 0 düzeltmesi: Android 12+ (API 31) kullanıcı tam zamanlı alarm iznini geri alabiliyor.
- * AlarmScheduler artık her kurulumdan önce bu izni kontrol edip, izin yoksa alarmı sessizce
- * atlamalı (çökme yerine). Bu testler o davranışı doğruluyor.
+ * AlarmScheduler artık her kurulumdan önce bu izni kontrol edip, izin yoksa çökmek veya alarmı
+ * hiç kurmamak yerine yaklaşık zamanlı bir alarma düşmeli. Bu testler o davranışı doğruluyor.
  */
 @RunWith(RobolectricTestRunner::class)
 class AlarmSchedulerTest {
@@ -54,14 +53,14 @@ class AlarmSchedulerTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
-    fun `scheduleMedicationAlarms skips silently when exact alarm permission is missing`() {
+    fun `scheduleMedicationAlarms falls back to an inexact alarm when exact alarm permission is missing`() {
         ShadowAlarmManager.setCanScheduleExactAlarms(false)
         val scheduler = AlarmScheduler(context, NotificationPreferences(context))
 
-        // Çökmeden geri dönmeli; hiçbir alarm kurulmamalı.
+        // Çökmeden geri dönmeli; tam zamanlı alarm yerine yaklaşık zamanlı bir alarm kurulmalı.
         scheduler.scheduleMedicationAlarms(futureMedication())
 
-        assertNull(shadowOf(alarmManager).peekNextScheduledAlarm())
+        assertNotNull(shadowOf(alarmManager).peekNextScheduledAlarm())
     }
 
     @Test
