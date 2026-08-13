@@ -6,10 +6,13 @@ import android.content.Intent
 import android.util.Log
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.ReminderRepository
+import com.gokcank.curalis.domain.usecase.GenerateUpcomingRemindersUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,6 +27,12 @@ class ReminderReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var reminderRepository: ReminderRepository
+
+    @Inject
+    lateinit var medicationRepository: MedicationRepository
+
+    @Inject
+    lateinit var generateUpcomingRemindersUseCase: GenerateUpcomingRemindersUseCase
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val reminderId = intent?.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: return
@@ -55,6 +64,15 @@ class ReminderReceiver : BroadcastReceiver() {
                         )
                     } else if (existing.state == ReminderState.SCHEDULED) {
                         reminderRepository.updateReminder(existing.copy(state = ReminderState.DELIVERED))
+                    }
+
+                    // Tekrarlayan (günlük/haftalık vb.) ilaçlarda tek seferlik alarm burada
+                    // tükeniyor; bir sonraki tetiklenmeyi yeniden kurmazsak alarm ilk günden
+                    // sonra sessizce donuyordu. Aynı çağrı, pencereyi de ileriye taşır.
+                    val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
+                    if (medication != null && !medication.isArchived) {
+                        generateUpcomingRemindersUseCase(medication)
+                        alarmScheduler.scheduleMedicationAlarms(medication)
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Hatırlatıcı 'iletildi' olarak işaretlenirken hata oluştu", e)
