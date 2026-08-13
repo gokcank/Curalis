@@ -1,6 +1,7 @@
 package com.gokcank.curalis.core.notification
 
 import android.content.Context
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Calendar
 import javax.inject.Inject
@@ -34,6 +35,19 @@ class NotificationPreferences @Inject constructor(
         get() = prefs.getInt(KEY_QUIET_END, DEFAULT_QUIET_END)
         set(value) = prefs.edit().putInt(KEY_QUIET_END, value).apply()
 
+    /** Bildirimdeki "Ertele" eylemi bir dozu kaç dakika sonraya taşır. */
+    var snoozeMinutes: Int
+        get() = prefs.getInt(KEY_SNOOZE_MINUTES, DEFAULT_SNOOZE_MINUTES)
+        set(value) = prefs.edit { putInt(KEY_SNOOZE_MINUTES, value) }
+
+    /**
+     * Randevu hatırlatıcısının randevudan kaç dakika önce geleceği. 0, hatırlatıcının
+     * randevunun tam saatinde (öncesinden değil) gelmesi anlamına gelir.
+     */
+    var appointmentReminderMinutesBefore: Int
+        get() = prefs.getInt(KEY_APPOINTMENT_LEAD_MINUTES, DEFAULT_APPOINTMENT_LEAD_MINUTES)
+        set(value) = prefs.edit { putInt(KEY_APPOINTMENT_LEAD_MINUTES, value) }
+
     fun isWithinQuietHours(): Boolean {
         if (!quietHoursEnabled) return false
         val now = Calendar.getInstance()
@@ -54,7 +68,17 @@ class NotificationPreferences @Inject constructor(
         private const val KEY_QUIET_ENABLED = "quiet_hours_enabled"
         private const val KEY_QUIET_START = "quiet_hours_start_minutes"
         private const val KEY_QUIET_END = "quiet_hours_end_minutes"
+        private const val KEY_SNOOZE_MINUTES = "snooze_minutes"
+        private const val KEY_APPOINTMENT_LEAD_MINUTES = "appointment_reminder_lead_minutes"
         const val DEFAULT_QUIET_START = 22 * 60 // 22:00
         const val DEFAULT_QUIET_END = 7 * 60 // 07:00
+        const val DEFAULT_SNOOZE_MINUTES = 10
+        const val DEFAULT_APPOINTMENT_LEAD_MINUTES = 60 // 1 saat önce
+
+        /** Ayarlar ekranındaki ertele süresi seçenekleri (dakika). */
+        val SNOOZE_OPTIONS_MINUTES = listOf(5, 10, 15, 30)
+
+        /** Ayarlar ekranındaki randevu hatırlatma zamanı seçenekleri (dakika); 0 = kapalı. */
+        val APPOINTMENT_LEAD_OPTIONS_MINUTES = listOf(0, 10, 30, 60, 24 * 60, 7 * 24 * 60)
     }
 }

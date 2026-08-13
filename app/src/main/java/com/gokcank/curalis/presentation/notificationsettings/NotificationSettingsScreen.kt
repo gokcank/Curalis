@@ -4,18 +4,22 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import com.gokcank.curalis.core.notification.NotificationPreferences
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +59,21 @@ fun NotificationSettingsScreen(
         val m = minutes % 60
         return String.format("%02d:%02d", h, m)
     }
+
+    fun formatAppointmentLead(minutes: Int): String = when (minutes) {
+        0 -> "Kapalı"
+        in 1..59 -> "$minutes dk"
+        in 60..1439 -> "${minutes / 60} saat"
+        in 1440..10079 -> "${minutes / 1440} gün"
+        else -> "${minutes / (7 * 1440)} hafta"
+    }
+
+    val themeChipColors = FilterChipDefaults.filterChipColors(
+        selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+        selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        containerColor = MaterialTheme.colorScheme.surface,
+        labelColor = MaterialTheme.colorScheme.onSurface
+    )
 
     Scaffold(
         topBar = {
@@ -146,6 +165,64 @@ fun NotificationSettingsScreen(
                     ) {
                         Text("Bitiş: ${formatMinutes(uiState.quietHoursEndMinutes)}")
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = "Erteleme",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                "Bildirimdeki \"Ertele\" düğmesi dozu kaç dakika sonraya taşısın?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NotificationPreferences.SNOOZE_OPTIONS_MINUTES.forEach { minutes ->
+                    FilterChip(
+                        selected = uiState.snoozeMinutes == minutes,
+                        onClick = { viewModel.onSnoozeMinutesChanged(minutes) },
+                        label = { Text("$minutes dk") },
+                        colors = themeChipColors,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = "Randevu Hatırlatması",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                "Randevu hatırlatıcısı, randevudan ne kadar önce gelsin?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NotificationPreferences.APPOINTMENT_LEAD_OPTIONS_MINUTES.forEach { minutes ->
+                    FilterChip(
+                        selected = uiState.appointmentReminderMinutesBefore == minutes,
+                        onClick = { viewModel.onAppointmentReminderLeadChanged(minutes) },
+                        label = { Text(formatAppointmentLead(minutes)) },
+                        colors = themeChipColors
+                    )
                 }
             }
 

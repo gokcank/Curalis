@@ -15,7 +15,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class AlarmScheduler @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val notificationPreferences: NotificationPreferences
 ) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
@@ -136,8 +137,9 @@ class AlarmScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val reminderTime = if (appointment.timeInMillis - (60 * 60 * 1000) > System.currentTimeMillis()) {
-            appointment.timeInMillis - (60 * 60 * 1000)
+        val leadMillis = notificationPreferences.appointmentReminderMinutesBefore * 60 * 1000L
+        val reminderTime = if (appointment.timeInMillis - leadMillis > System.currentTimeMillis()) {
+            appointment.timeInMillis - leadMillis
         } else {
             appointment.timeInMillis
         }

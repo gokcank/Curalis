@@ -12,7 +12,9 @@ data class NotificationSettingsUiState(
     val hideMedicationNameOnLockScreen: Boolean = false,
     val quietHoursEnabled: Boolean = false,
     val quietHoursStartMinutes: Int = NotificationPreferences.DEFAULT_QUIET_START,
-    val quietHoursEndMinutes: Int = NotificationPreferences.DEFAULT_QUIET_END
+    val quietHoursEndMinutes: Int = NotificationPreferences.DEFAULT_QUIET_END,
+    val snoozeMinutes: Int = NotificationPreferences.DEFAULT_SNOOZE_MINUTES,
+    val appointmentReminderMinutesBefore: Int = NotificationPreferences.DEFAULT_APPOINTMENT_LEAD_MINUTES
 )
 
 @HiltViewModel
@@ -25,7 +27,9 @@ class NotificationSettingsViewModel @Inject constructor(
             hideMedicationNameOnLockScreen = preferences.hideMedicationNameOnLockScreen,
             quietHoursEnabled = preferences.quietHoursEnabled,
             quietHoursStartMinutes = preferences.quietHoursStartMinutes,
-            quietHoursEndMinutes = preferences.quietHoursEndMinutes
+            quietHoursEndMinutes = preferences.quietHoursEndMinutes,
+            snoozeMinutes = preferences.snoozeMinutes,
+            appointmentReminderMinutesBefore = preferences.appointmentReminderMinutesBefore
         )
     )
     val uiState: StateFlow<NotificationSettingsUiState> = _uiState.asStateFlow()
@@ -48,5 +52,15 @@ class NotificationSettingsViewModel @Inject constructor(
     fun onQuietHoursEndChanged(minutes: Int) {
         preferences.quietHoursEndMinutes = minutes
         _uiState.value = _uiState.value.copy(quietHoursEndMinutes = minutes)
+    }
+
+    fun onSnoozeMinutesChanged(minutes: Int) {
+        preferences.snoozeMinutes = minutes
+        _uiState.value = _uiState.value.copy(snoozeMinutes = minutes)
+    }
+
+    fun onAppointmentReminderLeadChanged(minutes: Int) {
+        preferences.appointmentReminderMinutesBefore = minutes
+        _uiState.value = _uiState.value.copy(appointmentReminderMinutesBefore = minutes)
     }
 }

@@ -108,13 +108,13 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Action: Snooze (10 mins)
+        // Action: Snooze
         val snoozeIntent = Intent(context, ReminderActionReceiver::class.java).apply {
             action = ACTION_SNOOZE
             putExtra(EXTRA_REMINDER_ID, reminderId)
             putExtra(EXTRA_MEDICATION_NAME, medicationName)
             putExtra(EXTRA_MEDICATION_ID, medicationId)
-            putExtra(EXTRA_SNOOZE_MINUTES, 10)
+            putExtra(EXTRA_SNOOZE_MINUTES, notificationPreferences.snoozeMinutes)
         }
         val snoozePendingIntent = PendingIntent.getBroadcast(
             context,

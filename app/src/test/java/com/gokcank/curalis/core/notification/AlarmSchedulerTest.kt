@@ -40,7 +40,7 @@ class AlarmSchedulerTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.R]) // API 30: exact alarm permission not required yet
     fun `canScheduleExactAlarms is always true below API 31`() {
-        val scheduler = AlarmScheduler(context)
+        val scheduler = AlarmScheduler(context, NotificationPreferences(context))
         assert(scheduler.canScheduleExactAlarms())
     }
 
@@ -48,7 +48,7 @@ class AlarmSchedulerTest {
     @Config(sdk = [Build.VERSION_CODES.S]) // API 31
     fun `canScheduleExactAlarms reflects revoked system permission on API 31+`() {
         ShadowAlarmManager.setCanScheduleExactAlarms(false)
-        val scheduler = AlarmScheduler(context)
+        val scheduler = AlarmScheduler(context, NotificationPreferences(context))
         assert(!scheduler.canScheduleExactAlarms())
     }
 
@@ -56,7 +56,7 @@ class AlarmSchedulerTest {
     @Config(sdk = [Build.VERSION_CODES.S])
     fun `scheduleMedicationAlarms skips silently when exact alarm permission is missing`() {
         ShadowAlarmManager.setCanScheduleExactAlarms(false)
-        val scheduler = AlarmScheduler(context)
+        val scheduler = AlarmScheduler(context, NotificationPreferences(context))
 
         // Çökmeden geri dönmeli; hiçbir alarm kurulmamalı.
         scheduler.scheduleMedicationAlarms(futureMedication())
@@ -68,7 +68,7 @@ class AlarmSchedulerTest {
     @Config(sdk = [Build.VERSION_CODES.S])
     fun `scheduleMedicationAlarms schedules an alarm when permission is granted`() {
         ShadowAlarmManager.setCanScheduleExactAlarms(true)
-        val scheduler = AlarmScheduler(context)
+        val scheduler = AlarmScheduler(context, NotificationPreferences(context))
 
         scheduler.scheduleMedicationAlarms(futureMedication())
 
