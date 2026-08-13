@@ -91,9 +91,9 @@ class DailyTimelineViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    fun acknowledgeDose(reminderId: String, newState: ReminderState, skipReason: SkipReason? = null) {
+    fun acknowledgeDose(reminder: Reminder, newState: ReminderState, skipReason: SkipReason? = null) {
         viewModelScope.launch {
-            acknowledgeReminderUseCase(reminderId, newState, skipReason)
+            acknowledgeReminderUseCase(reminder, newState, skipReason)
         }
     }
 }

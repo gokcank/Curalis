@@ -26,6 +26,22 @@ class AcknowledgeReminderUseCase @Inject constructor(
         repository.updateReminder(reminder.copy(state = state, skipReason = skipReason))
         return true
     }
+
+    /**
+     * Doz üretici normalde her dozu önceden veritabanına yazar, ama pencere henüz
+     * çalışmamışsa (ör. ilk kurulum, arka plan görevi henüz tetiklenmemiş) ekranda hâlâ
+     * geçici bir doz gösterilebilir. Bu aşırı yükleme, kayıt veritabanında zaten varsa
+     * günceller; yoksa verilen dozu yeni durumuyla ekler — böylece güvenlik ağı
+     * senaryosunda bile "Aldım"/"Atla" işaretlemesi sessizce başarısız olmaz.
+     */
+    suspend operator fun invoke(reminder: Reminder, state: ReminderState, skipReason: SkipReason? = null) {
+        val existing = repository.getReminderById(reminder.id)
+        if (existing != null) {
+            repository.updateReminder(existing.copy(state = state, skipReason = skipReason))
+        } else {
+            repository.insertReminder(reminder.copy(state = state, skipReason = skipReason))
+        }
+    }
 }
 
 class GetRemindersForMedicationUseCase @Inject constructor(

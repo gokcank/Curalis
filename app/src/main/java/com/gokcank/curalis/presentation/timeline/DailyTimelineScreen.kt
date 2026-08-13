@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.MedicationForm
+import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.presentation.components.EmptyState
 import com.gokcank.curalis.presentation.components.ReminderStateBadge
@@ -70,7 +71,7 @@ fun DailyTimelineScreen(
 ) {
     val groupedTimelineItems by viewModel.groupedTimelineItems.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
-    var pendingSkipReminderId by remember { mutableStateOf<String?>(null) }
+    var pendingSkipReminder by remember { mutableStateOf<Reminder?>(null) }
 
     Scaffold(
         topBar = {
@@ -143,8 +144,8 @@ fun DailyTimelineScreen(
                             items(itemsInSlot) { timelineItem ->
                                 TimelineCard(
                                     item = timelineItem,
-                                    onTakeClick = { viewModel.acknowledgeDose(timelineItem.reminder.id, ReminderState.TAKEN) },
-                                    onSkipClick = { pendingSkipReminderId = timelineItem.reminder.id }
+                                    onTakeClick = { viewModel.acknowledgeDose(timelineItem.reminder, ReminderState.TAKEN) },
+                                    onSkipClick = { pendingSkipReminder = timelineItem.reminder }
                                 )
                             }
                         }
@@ -153,12 +154,12 @@ fun DailyTimelineScreen(
             }
         }
 
-        pendingSkipReminderId?.let { reminderId ->
+        pendingSkipReminder?.let { reminder ->
             SkipReasonDialog(
-                onDismiss = { pendingSkipReminderId = null },
+                onDismiss = { pendingSkipReminder = null },
                 onConfirm = { reason ->
-                    viewModel.acknowledgeDose(reminderId, ReminderState.SKIPPED, reason)
-                    pendingSkipReminderId = null
+                    viewModel.acknowledgeDose(reminder, ReminderState.SKIPPED, reason)
+                    pendingSkipReminder = null
                 }
             )
         }
