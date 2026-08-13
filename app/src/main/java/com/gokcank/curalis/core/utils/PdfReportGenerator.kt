@@ -14,8 +14,8 @@ import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.model.Vital
 import com.gokcank.curalis.domain.repository.MedicationRepository
-import com.gokcank.curalis.domain.repository.ReminderRepository
 import com.gokcank.curalis.domain.repository.VitalRepository
+import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -40,7 +40,7 @@ class PdfReportGenerator @Inject constructor(
     @ApplicationContext private val context: Context,
     private val medicationRepository: MedicationRepository,
     private val vitalRepository: VitalRepository,
-    private val reminderRepository: ReminderRepository
+    private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase
 ) {
 
     /** Raporu üretir ve dosyayı döndürür; paylaşmaz. Önizleme için kullanılır. */
@@ -51,7 +51,7 @@ class PdfReportGenerator @Inject constructor(
         val now = System.currentTimeMillis()
         val monthStart = now - (30L * 24 * 3600 * 1000)
         val monthRemindersDeferred = async {
-            reminderRepository.getRemindersBetweenDates(monthStart, now).firstOrNull() ?: emptyList()
+            getRemindersBetweenDatesUseCase(monthStart, now).firstOrNull() ?: emptyList()
         }
 
         val medications = medicationsDeferred.await()

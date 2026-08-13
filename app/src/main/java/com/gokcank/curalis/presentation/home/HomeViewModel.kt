@@ -9,8 +9,8 @@ import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.model.Vital
 import com.gokcank.curalis.domain.repository.AppointmentRepository
 import com.gokcank.curalis.domain.repository.MedicationRepository
-import com.gokcank.curalis.domain.repository.ReminderRepository
 import com.gokcank.curalis.domain.repository.VitalRepository
+import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +32,7 @@ data class HomeUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val reminderRepository: ReminderRepository,
+    private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase,
     private val appointmentRepository: AppointmentRepository,
     private val vitalRepository: VitalRepository,
     private val medicationRepository: MedicationRepository
@@ -66,7 +66,7 @@ class HomeViewModel @Inject constructor(
             val vitalFlow = vitalRepository.getAllVitals()
                 .map { vitals -> vitals.firstOrNull() }
                 
-            val todayRemindersFlow = reminderRepository.getRemindersBetweenDates(startOfDay, endOfDay)
+            val todayRemindersFlow = getRemindersBetweenDatesUseCase(startOfDay, endOfDay)
             
             combine(appointmentFlow, vitalFlow, todayRemindersFlow) { nextAppt, latestVital, todayReminders ->
                 val total = todayReminders.size
