@@ -115,6 +115,19 @@ fun AdherenceAnalyticsScreen(
                     }
                 }
 
+                // 1.5 Haftalık Uyum Trendi
+                if (uiState.weeklyTrend.count { it.percentage != null } >= 2) {
+                    item {
+                        Text(
+                            text = "Uyum Trendi (Son 8 Hafta)",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                    item {
+                        AdherenceTrendChart(points = uiState.weeklyTrend)
+                    }
+                }
+
                 // 2. Haftalık Doz Detay Sayacı
                 item {
                     Card(

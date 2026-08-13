@@ -24,6 +24,12 @@ data class MedicationStat(
     val adherencePercentage: Int?
 )
 
+/** Bir haftalık dilimin uyum yüzdesi. O haftada sonuçlanmış doz yoksa percentage null olur. */
+data class WeeklyAdherencePoint(
+    val weekStartMillis: Long,
+    val percentage: Int?
+)
+
 data class AdherenceAnalyticsUiState(
     /** Değerlendirilecek doz yoksa null. Sıfır dozdan "%100 uyum" üretmek yanıltıcıdır. */
     val weeklyAdherenceRate: Int? = null,
@@ -32,6 +38,8 @@ data class AdherenceAnalyticsUiState(
     val takenWeeklyDoses: Int = 0,
     val missedWeeklyDoses: Int = 0,
     val medicationStats: List<MedicationStat> = emptyList(),
+    /** Son 8 haftanın uyum trendi, en eskiden en yeniye sıralı. */
+    val weeklyTrend: List<WeeklyAdherencePoint> = emptyList(),
     val isLoading: Boolean = true
 )
 
@@ -64,12 +72,22 @@ class AdherenceAnalyticsViewModel @Inject constructor(
                 set(Calendar.MINUTE, 0)
             }.timeInMillis
 
+            // Trend grafiği son 8 haftayı kapsar; aylık/haftalık kartlar bu aralığın
+            // bir alt kümesi olduğu için tek bir sorgu yeterli.
+            val trendWeekCount = 8
+            val trendStart = (now.clone() as Calendar).apply {
+                add(Calendar.DAY_OF_YEAR, -7 * trendWeekCount)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+            }.timeInMillis
+
             val endTime = now.timeInMillis
 
             combine(
-                getRemindersBetweenDatesUseCase(monthStart, endTime),
+                getRemindersBetweenDatesUseCase(trendStart, endTime),
                 getMedicationsUseCase()
-            ) { monthReminders, medications ->
+            ) { trendReminders, medications ->
+                val monthReminders = trendReminders.filter { it.timeInMillis >= monthStart }
                 val weekReminders = monthReminders.filter { it.timeInMillis >= weekStart }
 
                 // Weekly stats
@@ -106,6 +124,27 @@ class AdherenceAnalyticsViewModel @Inject constructor(
                     )
                 }.sortedByDescending { it.totalDoses }
 
+                // Haftalık uyum trendi — en eski haftadan başlayarak, her biri kendi
+                // 7 günlük penceresindeki sonuçlanmış dozlar üzerinden hesaplanır.
+                val weeklyTrend = (trendWeekCount - 1 downTo 0).map { weeksAgo ->
+                    val bucketEnd = (now.clone() as Calendar).apply {
+                        add(Calendar.DAY_OF_YEAR, -7 * weeksAgo)
+                    }.timeInMillis
+                    val bucketStart = (now.clone() as Calendar).apply {
+                        add(Calendar.DAY_OF_YEAR, -7 * (weeksAgo + 1))
+                    }.timeInMillis
+                    val bucketReminders = trendReminders.filter {
+                        it.timeInMillis in bucketStart..<bucketEnd && isResolved(it.state)
+                    }
+                    val bucketTaken = bucketReminders.count { it.state == ReminderState.TAKEN }
+                    val bucketPercentage = if (bucketReminders.isNotEmpty()) {
+                        (bucketTaken * 100) / bucketReminders.size
+                    } else {
+                        null
+                    }
+                    WeeklyAdherencePoint(weekStartMillis = bucketStart, percentage = bucketPercentage)
+                }
+
                 AdherenceAnalyticsUiState(
                     weeklyAdherenceRate = weeklyPercentage,
                     monthlyAdherenceRate = monthlyPercentage,
@@ -113,6 +152,7 @@ class AdherenceAnalyticsViewModel @Inject constructor(
                     takenWeeklyDoses = takenWeekly,
                     missedWeeklyDoses = missedWeekly,
                     medicationStats = medStats,
+                    weeklyTrend = weeklyTrend,
                     isLoading = false
                 )
             }.collect { state ->
