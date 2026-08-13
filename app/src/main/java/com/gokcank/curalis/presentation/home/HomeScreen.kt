@@ -89,6 +89,7 @@ fun HomeScreen(
         entryPoint.pdfReportGenerator()
     }
     var pdfPreviewFile by remember { mutableStateOf<java.io.File?>(null) }
+    var showReportRangeDialog by remember { mutableStateOf(false) }
 
     BackHandler {
         showExitDialog = true
@@ -132,11 +133,7 @@ fun HomeScreen(
                 ),
                 actions = {
                     IconButton(
-                        onClick = {
-                            scope.launch {
-                                pdfPreviewFile = pdfReportGenerator.generateReport()
-                            }
-                        }
+                        onClick = { showReportRangeDialog = true }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Description,
@@ -330,6 +327,18 @@ fun HomeScreen(
             file = file,
             onDismiss = { pdfPreviewFile = null },
             onShare = { pdfReportGenerator.shareReport(context, file) }
+        )
+    }
+
+    if (showReportRangeDialog) {
+        com.gokcank.curalis.presentation.components.ReportDateRangeDialog(
+            onDismiss = { showReportRangeDialog = false },
+            onRangeSelected = { start, end ->
+                showReportRangeDialog = false
+                scope.launch {
+                    pdfPreviewFile = pdfReportGenerator.generateReport(start, end)
+                }
+            }
         )
     }
 }

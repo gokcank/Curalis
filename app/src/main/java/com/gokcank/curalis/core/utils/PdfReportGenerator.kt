@@ -43,26 +43,32 @@ class PdfReportGenerator @Inject constructor(
     private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase
 ) {
 
-    /** Raporu üretir ve dosyayı döndürür; paylaşmaz. Önizleme için kullanılır. */
-    suspend fun generateReport(): File = withContext(Dispatchers.IO) {
+    /**
+     * Raporu üretir ve dosyayı döndürür; paylaşmaz. Önizleme için kullanılır.
+     * @param startMillis Uyum istatistiklerinin hesaplanacağı aralığın başlangıcı; verilmezse
+     * son 30 gün kullanılır. Ölçüm geçmişi ve ilaç dolabı listesi bu aralıktan etkilenmez —
+     * onlar her zaman en güncel/tüm kayıtları gösterir.
+     */
+    suspend fun generateReport(
+        startMillis: Long = System.currentTimeMillis() - (30L * 24 * 3600 * 1000),
+        endMillis: Long = System.currentTimeMillis()
+    ): File = withContext(Dispatchers.IO) {
         val medicationsDeferred = async { medicationRepository.getAllMedications().firstOrNull() ?: emptyList() }
         val vitalsDeferred = async { vitalRepository.getAllVitals().firstOrNull() ?: emptyList() }
 
-        val now = System.currentTimeMillis()
-        val monthStart = now - (30L * 24 * 3600 * 1000)
-        val monthRemindersDeferred = async {
-            getRemindersBetweenDatesUseCase(monthStart, now).firstOrNull() ?: emptyList()
+        val rangeRemindersDeferred = async {
+            getRemindersBetweenDatesUseCase(startMillis, endMillis).firstOrNull() ?: emptyList()
         }
 
         val medications = medicationsDeferred.await()
         val vitals = vitalsDeferred.await()
-        val monthReminders = monthRemindersDeferred.await()
+        val rangeReminders = rangeRemindersDeferred.await()
 
-        val takenCount = monthReminders.count { it.state == ReminderState.TAKEN }
-        val skippedCount = monthReminders.count { it.state == ReminderState.SKIPPED }
-        val missedCount = monthReminders.count { it.state == ReminderState.MISSED }
+        val takenCount = rangeReminders.count { it.state == ReminderState.TAKEN }
+        val skippedCount = rangeReminders.count { it.state == ReminderState.SKIPPED }
+        val missedCount = rangeReminders.count { it.state == ReminderState.MISSED }
 
-        generateHealthReportPdf(medications, vitals, takenCount, skippedCount, missedCount)
+        generateHealthReportPdf(medications, vitals, takenCount, skippedCount, missedCount, startMillis, endMillis)
     }
 
     /** Kullanıcı önizlemeyi gördükten sonra dosyayı paylaşım seçicisiyle gönderir. */
@@ -94,7 +100,9 @@ class PdfReportGenerator @Inject constructor(
         vitals: List<Vital> = emptyList(),
         takenCount: Int = 0,
         skippedCount: Int = 0,
-        missedCount: Int = 0
+        missedCount: Int = 0,
+        rangeStartMillis: Long = System.currentTimeMillis() - (30L * 24 * 3600 * 1000),
+        rangeEndMillis: Long = System.currentTimeMillis()
     ): File {
         val pdfDocument = PdfDocument()
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size at 72 dpi
@@ -138,8 +146,14 @@ class PdfReportGenerator @Inject constructor(
         val totalScheduled = takenCount + skippedCount + missedCount
         val adherenceRate = if (totalScheduled > 0) (takenCount * 100) / totalScheduled else 100
 
+        val rangeDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale("tr"))
         canvas.drawText("1. İlaç Kullanım Uyum Özet İstatistiği", 40f, y, subTitlePaint)
         y += 18f
+        canvas.drawText(
+            "• Rapor Aralığı: ${rangeDateFormat.format(Date(rangeStartMillis))} – ${rangeDateFormat.format(Date(rangeEndMillis))}",
+            40f, y, bodyPaint
+        )
+        y += 16f
         canvas.drawText("• Toplam İlaç Vakti: $totalScheduled | Alınan: $takenCount | Atlanan: $skippedCount | Kaçırılan: $missedCount", 40f, y, bodyPaint)
         y += 16f
         canvas.drawText("• Genel İlaç Uyum Oranı: %$adherenceRate", 40f, y, bodyPaint)
