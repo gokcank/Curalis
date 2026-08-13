@@ -27,6 +27,10 @@ data class HomeUiState(
     val dailyProgress: Float = 0f,
     val nextAppointment: Appointment? = null,
     val latestVital: Vital? = null,
+    /** Bugün için hiç doz planlanmışsa true — günün son dozu geçmiş olsa bile "Bugünkü
+     *  Program" kartının kaybolmaması, kullanıcının geçmiş bir dozu düzeltebilmek için
+     *  o ekrana ulaşabilmesi gerekiyor. */
+    val hasTodayReminders: Boolean = false,
     val isLoading: Boolean = true
 )
 
@@ -88,6 +92,7 @@ class HomeViewModel @Inject constructor(
                     dailyProgress = progress,
                     nextAppointment = nextAppt,
                     latestVital = latestVital,
+                    hasTodayReminders = total > 0,
                     isLoading = false
                 )
             }.collect { state ->

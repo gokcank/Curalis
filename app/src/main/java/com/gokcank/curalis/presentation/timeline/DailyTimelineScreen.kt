@@ -263,10 +263,16 @@ fun TimelineCard(
                 ReminderStateBadge(state = item.reminder.state)
             }
 
-            if (item.reminder.state == ReminderState.SCHEDULED ||
+            val isPending = item.reminder.state == ReminderState.SCHEDULED ||
                 item.reminder.state == ReminderState.DELIVERED ||
                 item.reminder.state == ReminderState.SNOOZED
-            ) {
+            // "Kaçırıldı"/"Atlandı" otomatik ya da yanlışlıkla verilmiş bir karar olabilir;
+            // kullanıcı dozu gerçekte aldıysa bunu düzeltebilmeli. Yalnızca "Alındı" ve
+            // "İptal" (ilaç silinmiş) durumları artık değiştirilemez kabul edilir.
+            val isCorrectable = item.reminder.state == ReminderState.MISSED ||
+                item.reminder.state == ReminderState.SKIPPED
+
+            if (isPending || isCorrectable) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -285,22 +291,27 @@ fun TimelineCard(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Aldım", style = MaterialTheme.typography.labelLarge)
-                    }
-                    OutlinedButton(
-                        onClick = onSkipClick,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(40.dp),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.RemoveCircle,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
+                        Text(
+                            if (isCorrectable) "Aslında Aldım" else "Aldım",
+                            style = MaterialTheme.typography.labelLarge
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Atla", style = MaterialTheme.typography.labelLarge)
+                    }
+                    if (isPending) {
+                        OutlinedButton(
+                            onClick = onSkipClick,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(40.dp),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.RemoveCircle,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Atla", style = MaterialTheme.typography.labelLarge)
+                        }
                     }
                 }
             }

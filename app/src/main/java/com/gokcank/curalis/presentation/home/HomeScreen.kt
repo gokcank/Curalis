@@ -211,7 +211,12 @@ fun HomeScreen(
                 )
 
                 // Quick Glance Cards
-                if (uiState.nextMedication != null || uiState.nextAppointment != null || uiState.latestVital != null) {
+                // Not: hasTodayReminders da dahil — günün son dozu geçmiş olsa bile "Bugünkü
+                // Program" kartı kaybolmamalı, yoksa geçmiş bir dozu düzeltecek ekrana hiç
+                // ulaşılamıyor (bkz. HomeUiState.hasTodayReminders).
+                if (uiState.nextMedication != null || uiState.nextAppointment != null ||
+                    uiState.latestVital != null || uiState.hasTodayReminders
+                ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -240,7 +245,7 @@ fun HomeScreen(
                         }
                         
                         // Daily Progress
-                        if (uiState.dailyProgress > 0f || uiState.nextMedication != null) {
+                        if (uiState.hasTodayReminders) {
                             Card(
                                 onClick = onNavigateToDailyTimeline,
                                 modifier = Modifier.fillMaxWidth(),
