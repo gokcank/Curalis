@@ -90,7 +90,7 @@ fun AboutScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = stringResource(R.string.database_date_label, com.gokcank.curalis.data.local.CuralisDatabase.DATABASE_DATE),
+                    text = stringResource(R.string.database_date_label, com.gokcank.curalis.data.local.MedicationDictionaryDatabase.DATABASE_DATE),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
