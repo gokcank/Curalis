@@ -13,9 +13,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.gokcank.curalis.core.navigation.NavGraph
+import com.gokcank.curalis.core.security.AppLockController
 import com.gokcank.curalis.core.theme.CuralisTheme
 import com.gokcank.curalis.core.theme.ThemeController
 import com.gokcank.curalis.data.local.CuralisDatabase
+import com.gokcank.curalis.presentation.lock.AppLockScreen
 import com.gokcank.curalis.presentation.startup.DatabaseCheckingScreen
 import com.gokcank.curalis.presentation.startup.DatabaseRecoveryScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +35,19 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var database: CuralisDatabase
+
+    @Inject
+    lateinit var appLockController: AppLockController
+
+    override fun onStart() {
+        super.onStart()
+        appLockController.onAppForegrounded()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        appLockController.onAppBackgrounded()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,13 +72,18 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+            val isLocked by appLockController.isLocked.collectAsState()
+
             CuralisTheme(themeMode = themeMode) {
-                when (dbHealth) {
-                    DatabaseHealth.CHECKING -> DatabaseCheckingScreen()
-                    DatabaseHealth.OK -> NavGraph()
-                    DatabaseHealth.UNREADABLE -> DatabaseRecoveryScreen(
+                when {
+                    dbHealth == DatabaseHealth.CHECKING -> DatabaseCheckingScreen()
+                    dbHealth == DatabaseHealth.UNREADABLE -> DatabaseRecoveryScreen(
                         onResetClick = { resetDatabaseAndRestart() }
                     )
+                    // Kilit ekranı, uygulamanın geri kalanı hiç oluşturulmadan önce gelir;
+                    // böylece son görüntülenen ekran kilitliyken arkada görünmez.
+                    isLocked -> AppLockScreen()
+                    else -> NavGraph()
                 }
             }
         }

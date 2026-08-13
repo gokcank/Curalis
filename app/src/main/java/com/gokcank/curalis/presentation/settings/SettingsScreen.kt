@@ -47,6 +47,7 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToBackup: () -> Unit,
     onNavigateToNotificationSettings: () -> Unit = {},
+    onNavigateToAppLockSettings: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -62,6 +63,7 @@ fun SettingsScreen(
         }
     ) { padding ->
         val themeMode by viewModel.themeMode.collectAsState()
+        val isAppLockEnabled by viewModel.isAppLockEnabled.collectAsState()
 
         Column(
             modifier = Modifier
@@ -205,6 +207,43 @@ fun SettingsScreen(
                     )
                 ) {
                     Text("Yönet")
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = stringResource(R.string.security),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.app_lock), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        stringResource(
+                            if (isAppLockEnabled) R.string.app_lock_status_on
+                            else R.string.app_lock_status_off
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Button(
+                    onClick = onNavigateToAppLockSettings,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(stringResource(R.string.app_lock_manage))
                 }
             }
 

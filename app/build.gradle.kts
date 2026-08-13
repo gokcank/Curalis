@@ -132,6 +132,9 @@ dependencies {
     // WorkManager
     implementation(libs.work.runtime.ktx)
 
+    // Biometrik kimlik doğrulama (uygulama kilidi)
+    implementation(libs.biometric)
+
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

@@ -144,4 +144,38 @@
     <string name="suggested_ministry_of_health_medications">Önerilen Sağlık Bakanlığı İlaçları:</string>
     <string name="verified_source_badge">Sağlık Bakanlığı kaynağından doğrulandı</string>
     <string name="unverified_source_badge">Elle girildi, doğrulanmış kaynaktan değil</string>
+
+    <!-- Uygulama kilidi -->
+    <string name="security">Güvenlik</string>
+    <string name="app_lock">Uygulama Kilidi</string>
+    <string name="app_lock_desc">Curalis her açıldığında PIN veya parmak izi sorulsun</string>
+    <string name="app_lock_manage">Yönet</string>
+    <string name="app_lock_status_on">Açık</string>
+    <string name="app_lock_status_off">Kapalı</string>
+    <string name="app_lock_enter_pin">PIN\'inizi girin</string>
+    <string name="app_lock_create_pin">%1$d haneli bir PIN belirleyin</string>
+    <string name="app_lock_confirm_pin">PIN\'i tekrar girin</string>
+    <string name="app_lock_pin_mismatch">PIN\'ler eşleşmedi. Baştan deneyin.</string>
+    <string name="app_lock_wrong_pin">PIN yanlış. Tekrar deneyin.</string>
+    <plurals name="app_lock_too_many_attempts">
+        <!-- Türkçede sayıdan sonra isim çekimlenmez; iki biçim de aynı. -->
+        <item quantity="one">Çok fazla hatalı deneme. %1$d saniye sonra tekrar deneyin.</item>
+        <item quantity="other">Çok fazla hatalı deneme. %1$d saniye sonra tekrar deneyin.</item>
+    </plurals>
+    <string name="app_lock_use_biometric">Parmak izi veya yüz ile aç</string>
+    <string name="app_lock_biometric_title">Curalis kilidini aç</string>
+    <string name="app_lock_biometric_subtitle">Sağlık bilgilerinizi görmek için kimliğinizi doğrulayın</string>
+    <string name="app_lock_biometric_toggle">Parmak izi veya yüz ile aç</string>
+    <string name="app_lock_biometric_toggle_desc">Dilediğinizde PIN\'inizi kullanmaya devam edebilirsiniz.</string>
+    <string name="app_lock_biometric_unavailable">Cihazınızda tanımlı parmak izi veya yüz tanıma yok.</string>
+    <string name="app_lock_turn_on">Uygulama kilidini aç</string>
+    <string name="app_lock_turn_on_desc">PIN\'iniz yalnızca bu cihazda saklanır ve kurtarılamaz — unutursanız uygulamayı yeniden kurmanız gerekir.</string>
+    <string name="app_lock_change_pin">PIN\'i değiştir</string>
+    <string name="app_lock_turn_off">Uygulama kilidini kapat</string>
+    <string name="app_lock_turn_off_confirm_title">Uygulama kilidi kapatılsın mı?</string>
+    <string name="app_lock_turn_off_confirm_message">Telefonunuzu eline alan herkes Curalis\'i açıp sağlık bilgilerinizi görebilir.</string>
+    <string name="app_lock_pin_set">Uygulama kilidi açıldı.</string>
+    <string name="app_lock_pin_changed">PIN\'iniz değiştirildi.</string>
+    <string name="app_lock_removed">Uygulama kilidi kapatıldı.</string>
+    <string name="delete_digit">Son rakamı sil</string>
 </resources>

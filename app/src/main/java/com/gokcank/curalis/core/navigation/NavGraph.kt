@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.gokcank.curalis.presentation.medication.addedit.AddEditMedicationScreen
 import com.gokcank.curalis.presentation.medication.list.MedicationListScreen
 import com.gokcank.curalis.presentation.home.HomeScreen
+import com.gokcank.curalis.presentation.lock.AppLockSettingsScreen
 import com.gokcank.curalis.presentation.settings.SettingsScreen
 import com.gokcank.curalis.presentation.backup.BackupScreen
 import com.gokcank.curalis.presentation.about.AboutScreen
@@ -44,7 +45,8 @@ fun NavGraph() {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToBackup = { navController.navigate(Screen.Backup.route) },
-                onNavigateToNotificationSettings = { navController.navigate(Screen.NotificationSettings.route) }
+                onNavigateToNotificationSettings = { navController.navigate(Screen.NotificationSettings.route) },
+                onNavigateToAppLockSettings = { navController.navigate(Screen.AppLockSettings.route) }
             )
         }
 
@@ -52,6 +54,10 @@ fun NavGraph() {
             com.gokcank.curalis.presentation.notificationsettings.NotificationSettingsScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
+        }
+
+        composable(route = Screen.AppLockSettings.route) {
+            AppLockSettingsScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         composable(route = Screen.Backup.route) {

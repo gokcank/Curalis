@@ -142,4 +142,37 @@
     <string name="suggested_ministry_of_health_medications">Suggested Ministry of Health Medications:</string>
     <string name="verified_source_badge">Verified from Ministry of Health database</string>
     <string name="unverified_source_badge">Entered manually, not from a verified source</string>
+
+    <!-- App lock -->
+    <string name="security">Security</string>
+    <string name="app_lock">App Lock</string>
+    <string name="app_lock_desc">Ask for a PIN or fingerprint every time you open Curalis</string>
+    <string name="app_lock_manage">Manage</string>
+    <string name="app_lock_status_on">On</string>
+    <string name="app_lock_status_off">Off</string>
+    <string name="app_lock_enter_pin">Enter your PIN</string>
+    <string name="app_lock_create_pin">Choose a %1$d-digit PIN</string>
+    <string name="app_lock_confirm_pin">Enter the PIN again</string>
+    <string name="app_lock_pin_mismatch">The PINs did not match. Start again.</string>
+    <string name="app_lock_wrong_pin">Wrong PIN. Try again.</string>
+    <plurals name="app_lock_too_many_attempts">
+        <item quantity="one">Too many wrong attempts. Try again in %1$d second.</item>
+        <item quantity="other">Too many wrong attempts. Try again in %1$d seconds.</item>
+    </plurals>
+    <string name="app_lock_use_biometric">Use fingerprint or face</string>
+    <string name="app_lock_biometric_title">Unlock Curalis</string>
+    <string name="app_lock_biometric_subtitle">Confirm your identity to see your health data</string>
+    <string name="app_lock_biometric_toggle">Unlock with fingerprint or face</string>
+    <string name="app_lock_biometric_toggle_desc">You can still use your PIN whenever you prefer.</string>
+    <string name="app_lock_biometric_unavailable">Your device has no fingerprint or face unlock set up.</string>
+    <string name="app_lock_turn_on">Turn on app lock</string>
+    <string name="app_lock_turn_on_desc">Your PIN is stored only on this device and cannot be recovered — if you forget it, you will need to reinstall the app.</string>
+    <string name="app_lock_change_pin">Change PIN</string>
+    <string name="app_lock_turn_off">Turn off app lock</string>
+    <string name="app_lock_turn_off_confirm_title">Turn off app lock?</string>
+    <string name="app_lock_turn_off_confirm_message">Anyone who picks up your phone will be able to open Curalis and see your health data.</string>
+    <string name="app_lock_pin_set">App lock is on.</string>
+    <string name="app_lock_pin_changed">Your PIN has been changed.</string>
+    <string name="app_lock_removed">App lock is off.</string>
+    <string name="delete_digit">Delete last digit</string>
 </resources>
