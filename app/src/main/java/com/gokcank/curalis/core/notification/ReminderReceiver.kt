@@ -81,7 +81,13 @@ class ReminderReceiver : BroadcastReceiver() {
                 }
             }
 
-            alarmScheduler.scheduleMissedDoseCheck(reminderId, medicationId, 30)
+            alarmScheduler.scheduleMissedDoseCheck(
+                reminderId = reminderId,
+                medicationId = medicationId,
+                medicationName = medicationName,
+                delayMinutes = MissedDoseCheckReceiver.RETRY_INTERVAL_MINUTES,
+                attempt = 1
+            )
         }
     }
 

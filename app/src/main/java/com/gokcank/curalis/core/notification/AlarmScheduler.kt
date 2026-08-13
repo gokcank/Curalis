@@ -147,10 +147,18 @@ class AlarmScheduler @Inject constructor(
         }
     }
 
-    fun scheduleMissedDoseCheck(reminderId: String, medicationId: String, delayMinutes: Int = 30) {
+    fun scheduleMissedDoseCheck(
+        reminderId: String,
+        medicationId: String,
+        medicationName: String,
+        delayMinutes: Int,
+        attempt: Int
+    ) {
         val intent = Intent(context, MissedDoseCheckReceiver::class.java).apply {
             putExtra(EXTRA_REMINDER_ID, reminderId)
             putExtra(EXTRA_MEDICATION_ID, medicationId)
+            putExtra(EXTRA_MEDICATION_NAME, medicationName)
+            putExtra(EXTRA_MISSED_CHECK_ATTEMPT, attempt)
         }
 
         val requestCode = (reminderId + "_missed").hashCode()
@@ -183,6 +191,7 @@ class AlarmScheduler @Inject constructor(
         const val EXTRA_MEDICATION_ID = "extra_medication_id"
         const val EXTRA_DOSE = "extra_dose"
         const val EXTRA_TIME_MILLIS = "extra_time_millis"
+        const val EXTRA_MISSED_CHECK_ATTEMPT = "extra_missed_check_attempt"
         /** İlaç hatırlatıcısı ile randevu hatırlatıcısını ayırt eder; ikisi de aynı
          *  ReminderReceiver'ı kullanır ama yalnızca ilaç hatırlatıcıları Reminder
          *  tablosunda durum takibi (DELIVERED/MISSED) alır. */
