@@ -11,4 +11,6 @@ fun VitalType.displayNameRes(): Int = when (this) {
     VitalType.HEART_RATE -> R.string.vital_type_heart_rate_short
     VitalType.WEIGHT -> R.string.vital_type_weight_short
     VitalType.TEMPERATURE -> R.string.vital_type_temperature_short
+    VitalType.OXYGEN_SATURATION -> R.string.vital_type_oxygen_saturation_short
+    VitalType.CHOLESTEROL -> R.string.vital_type_cholesterol_short
 }

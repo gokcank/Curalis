@@ -87,6 +87,8 @@
     <string name="vital_type_heart_rate_short">Nabız</string>
     <string name="vital_type_weight_short">Kilo</string>
     <string name="vital_type_temperature_short">Ateş</string>
+    <string name="vital_type_oxygen_saturation_short">SpO₂</string>
+    <string name="vital_type_cholesterol_short">Kolesterol</string>
     <string name="vital_systolic">Büyük Tansiyon (Sistolik)</string>
     <string name="vital_diastolic">Küçük Tansiyon (Diyastolik)</string>
     <string name="vital_unit_label">Birim: %1$s</string>

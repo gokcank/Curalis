@@ -19,6 +19,8 @@ import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Thermostat
+import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -135,6 +137,12 @@ fun VitalListScreen(
                 }
             }
 
+            if (selectedType != null && vitals.size >= 2) {
+                Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    VitalTrendChart(vitals = vitals, type = selectedType!!)
+                }
+            }
+
             if (vitals.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -222,6 +230,8 @@ fun VitalItem(
                         VitalType.HEART_RATE -> Icons.Default.Favorite
                         VitalType.WEIGHT -> Icons.Default.Scale
                         VitalType.TEMPERATURE -> Icons.Default.Thermostat
+                        VitalType.OXYGEN_SATURATION -> Icons.Default.Air
+                        VitalType.CHOLESTEROL -> Icons.Default.WaterDrop
                     },
                     contentDescription = null,
                     modifier = Modifier.padding(end = 16.dp),

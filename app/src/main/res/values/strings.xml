@@ -87,6 +87,8 @@
     <string name="vital_type_heart_rate_short">Pulse</string>
     <string name="vital_type_weight_short">Weight</string>
     <string name="vital_type_temperature_short">Temp.</string>
+    <string name="vital_type_oxygen_saturation_short">SpO₂</string>
+    <string name="vital_type_cholesterol_short">Cholesterol</string>
     <string name="vital_systolic">Systolic (Upper)</string>
     <string name="vital_diastolic">Diastolic (Lower)</string>
     <string name="vital_unit_label">Unit: %1$s</string>

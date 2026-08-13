@@ -5,5 +5,7 @@ enum class VitalType(val defaultUnit: String) {
     BLOOD_SUGAR("mg/dL"),
     HEART_RATE("bpm"),
     WEIGHT("kg"),
-    TEMPERATURE("°C")
+    TEMPERATURE("°C"),
+    OXYGEN_SATURATION("%"),
+    CHOLESTEROL("mg/dL")
 }
