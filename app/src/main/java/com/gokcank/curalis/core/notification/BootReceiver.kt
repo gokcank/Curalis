@@ -8,6 +8,7 @@ import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.repository.AppointmentRepository
 import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.ReminderRepository
+import com.gokcank.curalis.domain.usecase.GenerateUpcomingRemindersUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersForMedicationUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +35,9 @@ class BootReceiver : BroadcastReceiver() {
     @Inject
     lateinit var reminderRepository: ReminderRepository
 
+    @Inject
+    lateinit var generateUpcomingRemindersUseCase: GenerateUpcomingRemindersUseCase
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             val pendingResult = goAsync()
@@ -53,6 +57,9 @@ class BootReceiver : BroadcastReceiver() {
                                 reminderRepository.updateReminder(staleReminder.copy(state = ReminderState.MISSED))
                             }
 
+                        // Cihaz uzun süre kapalıysa 30 günlük pencerenin bir kısmı geride
+                        // kalmış olabilir; burada da çalıştırmak pencereyi ileriye taşır.
+                        generateUpcomingRemindersUseCase(medication)
                         alarmScheduler.scheduleMedicationAlarms(medication)
                     }
 

@@ -83,10 +83,16 @@ class AlarmScheduler @Inject constructor(
 
         medication.times.forEach { medTime ->
             val nextTriggerMillis = FrequencyCalculator.calculateNextTriggerTime(medication, medTime) ?: return@forEach
-            val reminderId = "${medication.id}_${medTime.id}"
+            // Bu ilaç+saat dilimi için AlarmManager'daki alarmın kimliği (iptal ederken de
+            // kullanılır, bkz. cancelMedicationAlarms) — gün değişse de sabit kalır.
+            val pendingIntentKey = "${medication.id}_${medTime.id}"
+            // Veritabanındaki Reminder satırının kimliği — GenerateUpcomingRemindersUseCase'in
+            // önceden yazdığı satırla aynı şema (medicationId_timeInMillis) kullanılır ki alarm
+            // çaldığında ReminderReceiver ayrı bir kayıt oluşturmak yerine o satırı güncellesin.
+            val dbReminderId = "${medication.id}_$nextTriggerMillis"
 
             val intent = Intent(context, ReminderReceiver::class.java).apply {
-                putExtra(EXTRA_REMINDER_ID, reminderId)
+                putExtra(EXTRA_REMINDER_ID, dbReminderId)
                 putExtra(EXTRA_MEDICATION_NAME, medication.name)
                 putExtra(EXTRA_MEDICATION_ID, medication.id)
                 putExtra(EXTRA_DOSE, medTime.dose)
@@ -96,7 +102,7 @@ class AlarmScheduler @Inject constructor(
 
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                reminderId.hashCode(),
+                pendingIntentKey.hashCode(),
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )

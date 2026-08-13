@@ -10,14 +10,13 @@ import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.MedicationTime
 import com.gokcank.curalis.domain.model.ProviderMedication
-import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.StockChangeReason
 import com.gokcank.curalis.domain.model.StockHistoryEntry
 import com.gokcank.curalis.domain.repository.StockHistoryRepository
 import com.gokcank.curalis.domain.usecase.AddMedicationUseCase
+import com.gokcank.curalis.domain.usecase.GenerateUpcomingRemindersUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationByIdUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersForMedicationUseCase
-import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import com.gokcank.curalis.domain.usecase.SearchRemoteMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.UpdateMedicationUseCase
 import com.gokcank.curalis.domain.usecase.ValidateMedicationUseCase
@@ -31,7 +30,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Calendar
 import java.util.UUID
 import javax.inject.Inject
 
@@ -134,7 +132,7 @@ class AddEditMedicationViewModel @Inject constructor(
     private val addMedicationUseCase: AddMedicationUseCase,
     private val updateMedicationUseCase: UpdateMedicationUseCase,
     private val validateMedicationUseCase: ValidateMedicationUseCase,
-    private val scheduleReminderUseCase: ScheduleReminderUseCase,
+    private val generateUpcomingRemindersUseCase: GenerateUpcomingRemindersUseCase,
     private val getRemindersForMedicationUseCase: GetRemindersForMedicationUseCase,
     private val searchRemoteMedicationsUseCase: SearchRemoteMedicationsUseCase,
     private val alarmScheduler: AlarmScheduler,
@@ -331,25 +329,11 @@ class AddEditMedicationViewModel @Inject constructor(
                     addMedicationUseCase(medication)
                 }
 
-                // Schedule alarms for all configured times
-                form.times.forEach { medTime ->
-                    val calendar = Calendar.getInstance().apply {
-                        set(Calendar.HOUR_OF_DAY, medTime.hour)
-                        set(Calendar.MINUTE, medTime.minute)
-                        set(Calendar.SECOND, 0)
-                        set(Calendar.MILLISECOND, 0)
-                        if (timeInMillis <= System.currentTimeMillis()) {
-                            add(Calendar.DAY_OF_YEAR, 1)
-                        }
-                    }
-
-                    val reminder = Reminder(
-                        medicationId = medicationId,
-                        timeInMillis = calendar.timeInMillis
-                    )
-                    scheduleReminderUseCase(reminder)
-                    alarmScheduler.schedule(reminder, medication.name)
-                }
+                // Önündeki 30 günün tüm dozlarını gerçek kayıtlar olarak veritabanına yaz
+                // (Ana Sayfa/rapor/Günlük Program artık aynı kalıcı kayıtları görsün diye),
+                // ardından bir sonraki tetiklenme için native alarmı kur.
+                generateUpcomingRemindersUseCase(medication)
+                alarmScheduler.scheduleMedicationAlarms(medication)
 
                 // Ekran, SaveSuccess'te hemen geri dönüyor (bkz. AddEditMedicationScreen);
                 // izin eksikse burada gösterilen bir metin kullanıcıya hiç ulaşmadan
