@@ -30,5 +30,6 @@ data class MedicationEntity(
     val isRefillReminderEnabled: Boolean = false,
     val isVerifiedSource: Boolean = false,
     val isArchived: Boolean = false,
-    val photoPath: String? = null
+    val photoPath: String? = null,
+    val doctorId: String? = null
 )

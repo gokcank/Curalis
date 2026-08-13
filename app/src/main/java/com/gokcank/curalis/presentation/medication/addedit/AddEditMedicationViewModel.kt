@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import android.net.Uri
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.utils.MedicationPhotoStorage
+import com.gokcank.curalis.domain.model.Doctor
+import com.gokcank.curalis.domain.usecase.DoctorUseCases
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.Medication
@@ -27,9 +29,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -70,6 +75,7 @@ data class MedicationFormState(
     val currentStock: String = "",
     val refillThreshold: String = "5",
     val photoPath: String? = null,
+    val doctorId: String? = null,
     val times: List<MedicationTime> = emptyList()
 )
 
@@ -96,6 +102,7 @@ private fun Medication.toFormState(): MedicationFormState = MedicationFormState(
     currentStock = currentStock?.toString() ?: "",
     refillThreshold = (refillThreshold ?: 5).toString(),
     photoPath = photoPath,
+    doctorId = doctorId,
     times = times
 )
 
@@ -127,6 +134,7 @@ private fun MedicationFormState.toMedication(id: String): Medication {
         isRefillReminderEnabled = isRefillEnabled,
         isVerifiedSource = isVerifiedSource,
         photoPath = photoPath,
+        doctorId = doctorId,
         times = times
     )
 }
@@ -143,11 +151,15 @@ class AddEditMedicationViewModel @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val stockHistoryRepository: StockHistoryRepository,
     private val photoStorage: MedicationPhotoStorage,
+    doctorUseCases: DoctorUseCases,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _formState = MutableStateFlow(MedicationFormState())
     val formState = _formState.asStateFlow()
+
+    val doctors: StateFlow<List<Doctor>> = doctorUseCases.getDoctors()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // Formun içeriği değil, geçici/harici durumlar — bilinçli olarak MedicationFormState dışında.
     private val _suggestions = MutableStateFlow<List<ProviderMedication>>(emptyList())
@@ -271,6 +283,8 @@ class AddEditMedicationViewModel @Inject constructor(
     fun onCurrentStockChange(stock: String) = _formState.update { it.copy(currentStock = stock.filter { c -> c.isDigit() }) }
 
     fun onRefillThresholdChange(threshold: String) = _formState.update { it.copy(refillThreshold = threshold.filter { c -> c.isDigit() }) }
+
+    fun onDoctorSelected(doctorId: String?) = _formState.update { it.copy(doctorId = doctorId) }
 
     /** Kamera uygulamasının fotoğrafı yazacağı bir hedef hazırlar; sonucu [onPhotoCaptured] alır. */
     fun prepareCaptureTarget() = photoStorage.createCaptureTarget()

@@ -42,6 +42,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -712,6 +713,52 @@ fun AddEditMedicationScreen(
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 6.5 Doktor Bağlantısı (isteğe bağlı)
+            val doctors by viewModel.doctors.collectAsState()
+            var doctorMenuExpanded by remember { mutableStateOf(false) }
+            val selectedDoctor = doctors.find { it.id == formState.doctorId }
+            Text(text = "Doktor", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            ExposedDropdownMenuBox(
+                expanded = doctorMenuExpanded,
+                onExpandedChange = { doctorMenuExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = selectedDoctor?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Bu ilacı reçete eden doktor") },
+                    placeholder = { Text("Belirtilmedi") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = doctorMenuExpanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = doctorMenuExpanded,
+                    onDismissRequest = { doctorMenuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Belirtilmedi") },
+                        onClick = {
+                            viewModel.onDoctorSelected(null)
+                            doctorMenuExpanded = false
+                        }
+                    )
+                    doctors.forEach { doctor ->
+                        DropdownMenuItem(
+                            text = { Text(doctor.name) },
+                            onClick = {
+                                viewModel.onDoctorSelected(doctor.id)
+                                doctorMenuExpanded = false
+                            }
+                        )
                     }
                 }
             }

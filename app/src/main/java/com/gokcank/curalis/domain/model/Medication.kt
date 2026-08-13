@@ -36,6 +36,8 @@ data class Medication(
     // Cihazda saklanan bir ilaç fotoğrafının dosya yolu (bkz. MedicationPhotoStorage).
     // Hiçbir sunucuya yüklenmez.
     val photoPath: String? = null,
+    // Bu ilacı reçete eden/takip eden doktor (bkz. Doctor). İsteğe bağlıdır.
+    val doctorId: String? = null,
     val times: List<MedicationTime> = emptyList()
 )
 

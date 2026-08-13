@@ -4,12 +4,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.domain.model.Doctor
+import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.usecase.DoctorUseCases
+import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -17,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditDoctorViewModel @Inject constructor(
     private val doctorUseCases: DoctorUseCases,
+    getMedicationsUseCase: GetMedicationsUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -39,6 +46,19 @@ class AddEditDoctorViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     private var currentDoctorId: String? = null
+
+    /** Bu doktora bağlı (reçete eden doktoru bu olarak seçilmiş) ilaçlar. Yeni bir doktor
+     *  eklenirken (henüz kimliği yokken) her zaman boştur. */
+    val linkedMedications: StateFlow<List<Medication>> = savedStateHandle
+        .get<String>("doctorId")
+        ?.takeIf { it.isNotBlank() }
+        ?.let { doctorId ->
+            getMedicationsUseCase().map { medications ->
+                medications.filter { it.doctorId == doctorId && !it.isArchived }
+            }
+        }
+        ?.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        ?: MutableStateFlow(emptyList())
 
     init {
         savedStateHandle.get<String>("doctorId")?.let { doctorId ->
