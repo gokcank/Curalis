@@ -33,6 +33,9 @@ data class Medication(
     // gerçekten silinmez; yalnızca aktif listelerden gizlenir ("arşivlenir"). Böylece
     // geçmiş hatırlatıcılar hâlâ bu ilacın adını/detaylarını çözebilir.
     val isArchived: Boolean = false,
+    // Cihazda saklanan bir ilaç fotoğrafının dosya yolu (bkz. MedicationPhotoStorage).
+    // Hiçbir sunucuya yüklenmez.
+    val photoPath: String? = null,
     val times: List<MedicationTime> = emptyList()
 )
 

@@ -1,5 +1,6 @@
 package com.gokcank.curalis.domain.usecase
 
+import com.gokcank.curalis.core.utils.MedicationPhotoStorage
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.repository.MedicationRepository
 import javax.inject.Inject
@@ -21,10 +22,14 @@ class UpdateMedicationUseCase @Inject constructor(
 }
 
 class DeleteMedicationUseCase @Inject constructor(
-    private val repository: MedicationRepository
+    private val repository: MedicationRepository,
+    private val photoStorage: MedicationPhotoStorage
 ) {
     suspend operator fun invoke(medication: Medication) {
         repository.deleteMedication(medication)
+        // Arşivlemede satır silinmediği için fotoğraf da silinmez; bu yalnızca kalıcı
+        // silmede çalışır, aksi halde hâlâ görüntülenen bir arşiv kaydının fotoğrafı kaybolurdu.
+        photoStorage.delete(medication.photoPath)
     }
 }
 

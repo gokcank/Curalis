@@ -2,7 +2,9 @@ package com.gokcank.curalis.presentation.medication.addedit
 
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -25,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
@@ -65,7 +68,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -123,6 +129,27 @@ fun AddEditMedicationScreen(
 
     var showExactAlarmDialog by remember { mutableStateOf(false) }
 
+    var showPhotoChooser by remember { mutableStateOf(false) }
+    var pendingCaptureFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        val file = pendingCaptureFile
+        if (success && file != null) {
+            viewModel.onPhotoCaptured(file)
+        }
+        pendingCaptureFile = null
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            viewModel.onGalleryPhotoPicked(uri)
+        }
+    }
+
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
@@ -141,6 +168,60 @@ fun AddEditMedicationScreen(
             onDismiss = {
                 showExactAlarmDialog = false
                 onNavigateBack()
+            }
+        )
+    }
+
+    if (showPhotoChooser) {
+        AlertDialog(
+            onDismissRequest = { showPhotoChooser = false },
+            title = { Text("İlaç Fotoğrafı") },
+            text = {
+                Column {
+                    TextButton(
+                        onClick = {
+                            showPhotoChooser = false
+                            val (file, uri) = viewModel.prepareCaptureTarget()
+                            pendingCaptureFile = file
+                            cameraLauncher.launch(uri)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Kameradan Çek", modifier = Modifier.fillMaxWidth())
+                    }
+                    TextButton(
+                        onClick = {
+                            showPhotoChooser = false
+                            galleryLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Galeriden Seç", modifier = Modifier.fillMaxWidth())
+                    }
+                    if (formState.photoPath != null) {
+                        TextButton(
+                            onClick = {
+                                showPhotoChooser = false
+                                viewModel.onRemovePhoto()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                "Fotoğrafı Kaldır",
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showPhotoChooser = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
             }
         )
     }
@@ -338,6 +419,16 @@ fun AddEditMedicationScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 2.6 İlaç Fotoğrafı — yalnızca bu cihazda saklanır, hiçbir sunucuya yüklenmez.
+            Text(text = "İlaç Fotoğrafı", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            MedicationPhotoPicker(
+                photoPath = formState.photoPath,
+                onClick = { showPhotoChooser = true }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -763,6 +854,42 @@ fun SuggestionItem(
                 }
             }
             Text(text = suggestion.form ?: "İlaç", style = MaterialTheme.typography.labelSmall)
+        }
+    }
+}
+
+@Composable
+private fun MedicationPhotoPicker(photoPath: String?, onClick: () -> Unit) {
+    // Bitmap'i disk yolundan yalnızca yol değiştiğinde yeniden okur — her yeniden
+    // kompozisyonda dosyayı tekrar açmak gereksiz bir G/Ç maliyeti olurdu.
+    val imageBitmap = remember(photoPath) {
+        photoPath?.let { path ->
+            runCatching { android.graphics.BitmapFactory.decodeFile(path)?.asImageBitmap() }.getOrNull()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .size(88.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        if (imageBitmap != null) {
+            Image(
+                bitmap = imageBitmap,
+                contentDescription = "İlaç fotoğrafı",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.AddAPhoto,
+                contentDescription = "Fotoğraf ekle",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(28.dp)
+            )
         }
     }
 }

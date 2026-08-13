@@ -3,7 +3,9 @@ package com.gokcank.curalis.presentation.medication.addedit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.net.Uri
 import com.gokcank.curalis.core.notification.AlarmScheduler
+import com.gokcank.curalis.core.utils.MedicationPhotoStorage
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.Medication
@@ -67,6 +69,7 @@ data class MedicationFormState(
     val isRefillEnabled: Boolean = false,
     val currentStock: String = "",
     val refillThreshold: String = "5",
+    val photoPath: String? = null,
     val times: List<MedicationTime> = emptyList()
 )
 
@@ -92,6 +95,7 @@ private fun Medication.toFormState(): MedicationFormState = MedicationFormState(
     isRefillEnabled = isRefillReminderEnabled,
     currentStock = currentStock?.toString() ?: "",
     refillThreshold = (refillThreshold ?: 5).toString(),
+    photoPath = photoPath,
     times = times
 )
 
@@ -122,6 +126,7 @@ private fun MedicationFormState.toMedication(id: String): Medication {
         refillThreshold = refillThreshold.toIntOrNull() ?: 5,
         isRefillReminderEnabled = isRefillEnabled,
         isVerifiedSource = isVerifiedSource,
+        photoPath = photoPath,
         times = times
     )
 }
@@ -137,6 +142,7 @@ class AddEditMedicationViewModel @Inject constructor(
     private val searchRemoteMedicationsUseCase: SearchRemoteMedicationsUseCase,
     private val alarmScheduler: AlarmScheduler,
     private val stockHistoryRepository: StockHistoryRepository,
+    private val photoStorage: MedicationPhotoStorage,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -266,6 +272,44 @@ class AddEditMedicationViewModel @Inject constructor(
 
     fun onRefillThresholdChange(threshold: String) = _formState.update { it.copy(refillThreshold = threshold.filter { c -> c.isDigit() }) }
 
+    /** Kamera uygulamasının fotoğrafı yazacağı bir hedef hazırlar; sonucu [onPhotoCaptured] alır. */
+    fun prepareCaptureTarget() = photoStorage.createCaptureTarget()
+
+    fun onPhotoCaptured(file: java.io.File) {
+        val previous = _formState.value.photoPath
+        _formState.update { it.copy(photoPath = file.absolutePath) }
+        deleteIfUnsavedReplacement(previous, file.absolutePath)
+    }
+
+    fun onGalleryPhotoPicked(uri: Uri) {
+        viewModelScope.launch {
+            val previous = _formState.value.photoPath
+            val newPath = photoStorage.copyFromUri(uri) ?: return@launch
+            _formState.update { it.copy(photoPath = newPath) }
+            deleteIfUnsavedReplacement(previous, newPath)
+        }
+    }
+
+    fun onRemovePhoto() {
+        val previous = _formState.value.photoPath
+        _formState.update { it.copy(photoPath = null) }
+        deleteIfUnsavedReplacement(previous, null)
+    }
+
+    /**
+     * [previous] dosyasını yalnızca hiçbir zaman kaydedilmemişse (bu düzenleme oturumunda
+     * yeni çekilmiş/seçilmiş ama henüz "Kaydet"e basılmamış bir dosyaysa) hemen siler.
+     * Aksi halde — yani [previous] veritabanındaki orijinal ilaç kaydına aitse — kullanıcı
+     * kaydetmeden vazgeçebilir; o durumda dosyayı hemen silmek DB'de kırık bir referans
+     * bırakırdı. Orijinal dosyanın temizliği [saveMedication] içinde, değişiklik gerçekten
+     * kaydedildikten sonra yapılır.
+     */
+    private fun deleteIfUnsavedReplacement(previous: String?, newPath: String?) {
+        if (previous == null || previous == newPath) return
+        if (previous == originalMedication?.photoPath) return
+        photoStorage.delete(previous)
+    }
+
     fun addMedicationTime(hour: Int, minute: Int, dose: String? = null) {
         val newTime = MedicationTime(
             id = UUID.randomUUID().toString(),
@@ -325,6 +369,13 @@ class AddEditMedicationViewModel @Inject constructor(
                         )
                     }
                     updateMedicationUseCase(medication)
+                    // Fotoğraf değiştirildi/kaldırıldıysa, artık hiçbir yerden referans
+                    // verilmeyen eski dosya burada, değişiklik kalıcı olarak kaydedildikten
+                    // sonra temizlenir.
+                    val oldPhotoPath = originalMedication?.photoPath
+                    if (oldPhotoPath != null && oldPhotoPath != medication.photoPath) {
+                        photoStorage.delete(oldPhotoPath)
+                    }
                 } else {
                     addMedicationUseCase(medication)
                 }

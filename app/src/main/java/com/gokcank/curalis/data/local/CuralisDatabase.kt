@@ -29,7 +29,7 @@ import com.gokcank.curalis.data.local.entity.VitalEntity
         VitalEntity::class,
         StockHistoryEntity::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = true
 )
 abstract class CuralisDatabase : RoomDatabase() {
