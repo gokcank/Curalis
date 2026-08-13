@@ -13,6 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.gokcank.curalis.core.navigation.NavGraph
+import com.gokcank.curalis.core.notification.AlarmScheduler
+import com.gokcank.curalis.core.onboarding.OnboardingPreferences
 import com.gokcank.curalis.core.security.AppLockController
 import com.gokcank.curalis.core.theme.CuralisTheme
 import com.gokcank.curalis.core.theme.ThemeController
@@ -20,6 +22,7 @@ import com.gokcank.curalis.data.local.CuralisDatabase
 import com.gokcank.curalis.presentation.lock.AppLockScreen
 import com.gokcank.curalis.presentation.startup.DatabaseCheckingScreen
 import com.gokcank.curalis.presentation.startup.DatabaseRecoveryScreen
+import com.gokcank.curalis.presentation.startup.OnboardingScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,6 +41,12 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var appLockController: AppLockController
+
+    @Inject
+    lateinit var onboardingPreferences: OnboardingPreferences
+
+    @Inject
+    lateinit var alarmScheduler: AlarmScheduler
 
     override fun onStart() {
         super.onStart()
@@ -73,12 +82,22 @@ class MainActivity : AppCompatActivity() {
             }
 
             val isLocked by appLockController.isLocked.collectAsState()
+            var hasCompletedOnboarding by remember { mutableStateOf(onboardingPreferences.hasCompletedOnboarding) }
 
             CuralisTheme(themeMode = themeMode) {
                 when {
                     dbHealth == DatabaseHealth.CHECKING -> DatabaseCheckingScreen()
                     dbHealth == DatabaseHealth.UNREADABLE -> DatabaseRecoveryScreen(
                         onResetClick = { resetDatabaseAndRestart() }
+                    )
+                    // Hesap gerektirmeyen, tek seferlik karşılama; veritabanı zaten
+                    // hazır olduğu için bundan sonra gösterilir.
+                    !hasCompletedOnboarding -> OnboardingScreen(
+                        alarmScheduler = alarmScheduler,
+                        onFinished = {
+                            onboardingPreferences.hasCompletedOnboarding = true
+                            hasCompletedOnboarding = true
+                        }
                     )
                     // Kilit ekranı, uygulamanın geri kalanı hiç oluşturulmadan önce gelir;
                     // böylece son görüntülenen ekran kilitliyken arkada görünmez.

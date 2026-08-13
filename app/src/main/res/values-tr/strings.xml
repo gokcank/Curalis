@@ -178,4 +178,18 @@
     <string name="app_lock_pin_changed">PIN\'iniz değiştirildi.</string>
     <string name="app_lock_removed">Uygulama kilidi kapatıldı.</string>
     <string name="delete_digit">Son rakamı sil</string>
+
+    <!-- İlk kurulum -->
+    <string name="onboarding_welcome_title">Curalis\'e Hoş Geldiniz</string>
+    <string name="onboarding_welcome_message">Curalis; ilaçlarınızı, randevularınızı ve sağlık ölçümlerinizi takip etmenize yardımcı olur — hatırlatıcılar, uyum geçmişi ve raporlar, hepsi yalnızca bu cihazda saklanır.</string>
+    <string name="onboarding_permissions_title">İki kısa izin</string>
+    <string name="onboarding_permissions_message">Hatırlatıcılarınızın size gerçekten zamanında ulaşması için Curalis\'in bunlara ihtiyacı var. Dilediğinizde cihaz ayarlarınızdan değiştirebilirsiniz.</string>
+    <string name="onboarding_permission_notifications_title">Bildirimler</string>
+    <string name="onboarding_permission_notifications_desc">Bir dozun saati geldiğinde size hatırlatma gösterebilmek için gerekli.</string>
+    <string name="onboarding_permission_exact_alarm_title">Alarmlar ve hatırlatıcılar</string>
+    <string name="onboarding_permission_exact_alarm_desc">Hatırlatıcıların geç değil, tam zamanında çalması için gerekli.</string>
+    <string name="onboarding_permission_enable">Etkinleştir</string>
+    <string name="onboarding_permission_granted">Etkin</string>
+    <string name="onboarding_continue">Devam Et</string>
+    <string name="onboarding_start">Başlayalım</string>
 </resources>

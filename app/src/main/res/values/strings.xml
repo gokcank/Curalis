@@ -175,4 +175,18 @@
     <string name="app_lock_pin_changed">Your PIN has been changed.</string>
     <string name="app_lock_removed">App lock is off.</string>
     <string name="delete_digit">Delete last digit</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Welcome to Curalis</string>
+    <string name="onboarding_welcome_message">Curalis helps you keep track of your medications, appointments and health measurements — reminders, adherence history and reports, all stored only on this device.</string>
+    <string name="onboarding_permissions_title">Two quick permissions</string>
+    <string name="onboarding_permissions_message">Curalis needs these so your reminders actually reach you on time. You can change them later in your device settings.</string>
+    <string name="onboarding_permission_notifications_title">Notifications</string>
+    <string name="onboarding_permission_notifications_desc">Needed to show you a reminder when it\'s time for a dose.</string>
+    <string name="onboarding_permission_exact_alarm_title">Alarms &amp; reminders</string>
+    <string name="onboarding_permission_exact_alarm_desc">Needed so reminders fire exactly on time, not late.</string>
+    <string name="onboarding_permission_enable">Enable</string>
+    <string name="onboarding_permission_granted">Enabled</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_start">Get Started</string>
 </resources>
