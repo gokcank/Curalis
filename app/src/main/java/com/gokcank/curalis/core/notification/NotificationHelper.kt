@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.gokcank.curalis.R
 import com.gokcank.curalis.presentation.alarm.AlarmFullScreenActivity
@@ -71,7 +72,12 @@ class NotificationHelper @Inject constructor(
         }
     }
 
-    fun showReminderNotification(reminderId: String, medicationName: String, medicationId: String = "") {
+    fun showReminderNotification(
+        reminderId: String,
+        medicationName: String,
+        medicationId: String = "",
+        isLastAttempt: Boolean = false
+    ) {
         val contentIntent = Intent(context, MainActivity::class.java)
         val contentPendingIntent = PendingIntent.getActivity(
             context,
@@ -172,8 +178,19 @@ class NotificationHelper @Inject constructor(
                 skipPendingIntent
             )
 
-        // Sessiz saatlerde kullanıcıyı uyandırmamak için tam ekran uyarı gösterilmiyor.
-        if (!isQuietHours) {
+        // Sessiz saatlerde kullanıcıyı uyandırmamak için tam ekran uyarı hiçbir zaman
+        // gösterilmiyor. Bunun dışında görünürlük kullanıcının popup tercihine bağlı;
+        // ancak son deneme (bkz. MissedDoseCheckReceiver) bu tercihi görmezden gelir —
+        // doz "kaçırıldı" olarak işaretlenmeden önceki son fırsat sessizce geçmemeli.
+        val screenOn = (context.getSystemService(Context.POWER_SERVICE) as PowerManager).isInteractive
+        val shouldShowPopup = !isQuietHours && (
+            isLastAttempt || when (notificationPreferences.popupMode) {
+                NotificationPopupMode.ALWAYS -> true
+                NotificationPopupMode.NEVER -> false
+                NotificationPopupMode.SCREEN_ON_ONLY -> screenOn
+            }
+        )
+        if (shouldShowPopup) {
             builder.setFullScreenIntent(fullScreenPendingIntent, true)
         }
 

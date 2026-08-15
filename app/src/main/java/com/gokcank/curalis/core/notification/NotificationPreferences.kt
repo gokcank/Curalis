@@ -40,6 +40,12 @@ class NotificationPreferences @Inject constructor(
         get() = prefs.getInt(KEY_SNOOZE_MINUTES, DEFAULT_SNOOZE_MINUTES)
         set(value) = prefs.edit { putInt(KEY_SNOOZE_MINUTES, value) }
 
+    /** Tam ekran alarm popup'ının ne zaman gösterileceği. */
+    var popupMode: NotificationPopupMode
+        get() = NotificationPopupMode.entries.find { it.name == prefs.getString(KEY_POPUP_MODE, null) }
+            ?: NotificationPopupMode.ALWAYS
+        set(value) = prefs.edit { putString(KEY_POPUP_MODE, value.name) }
+
     /**
      * Randevu hatırlatıcısının randevudan kaç dakika önce geleceği. 0, hatırlatıcının
      * randevunun tam saatinde (öncesinden değil) gelmesi anlamına gelir.
@@ -69,6 +75,7 @@ class NotificationPreferences @Inject constructor(
         private const val KEY_QUIET_START = "quiet_hours_start_minutes"
         private const val KEY_QUIET_END = "quiet_hours_end_minutes"
         private const val KEY_SNOOZE_MINUTES = "snooze_minutes"
+        private const val KEY_POPUP_MODE = "popup_mode"
         private const val KEY_APPOINTMENT_LEAD_MINUTES = "appointment_reminder_lead_minutes"
         const val DEFAULT_QUIET_START = 22 * 60 // 22:00
         const val DEFAULT_QUIET_END = 7 * 60 // 07:00

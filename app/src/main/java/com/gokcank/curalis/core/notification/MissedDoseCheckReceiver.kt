@@ -71,8 +71,15 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
                 } else if (targetReminder.state == ReminderState.SCHEDULED || targetReminder.state == ReminderState.DELIVERED) {
                     if (attempt < MAX_ATTEMPTS) {
                         // Kullanıcı hâlâ yanıt vermedi; bildirimi yeniden göster ve bir
-                        // sonraki denemeyi kur.
-                        notificationHelper.showReminderNotification(reminderId, medicationName, medicationId)
+                        // sonraki denemeyi kur. attempt + 1 == MAX_ATTEMPTS ise bu, doz
+                        // "kaçırıldı" olarak işaretlenmeden önceki son bildirim demektir —
+                        // popup tercihinden bağımsız olarak zorla gösterilir.
+                        notificationHelper.showReminderNotification(
+                            reminderId,
+                            medicationName,
+                            medicationId,
+                            isLastAttempt = attempt + 1 == MAX_ATTEMPTS
+                        )
                         alarmScheduler.scheduleMissedDoseCheck(
                             reminderId = reminderId,
                             medicationId = medicationId,

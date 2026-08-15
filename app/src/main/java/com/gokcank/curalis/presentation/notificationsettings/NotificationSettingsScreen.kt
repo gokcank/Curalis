@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import com.gokcank.curalis.core.notification.NotificationPopupMode
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -167,6 +168,41 @@ fun NotificationSettingsScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = "Tam Ekran Uyarı Popup'ı",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                "Bir doz hatırlatması geldiğinde, kilit ekranında da görünen tam ekran alarm uyarısı ne zaman gösterilsin?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NotificationPopupMode.entries.forEach { mode ->
+                    FilterChip(
+                        selected = uiState.popupMode == mode,
+                        onClick = { viewModel.onPopupModeChanged(mode) },
+                        label = { Text(mode.displayNameTr) },
+                        colors = themeChipColors,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            Text(
+                "Doz \"kaçırıldı\" olarak işaretlenmeden önceki son hatırlatmada, bu ayardan bağımsız olarak popup her zaman gösterilir.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
 
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 

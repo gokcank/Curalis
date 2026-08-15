@@ -1,6 +1,7 @@
 package com.gokcank.curalis.presentation.notificationsettings
 
 import androidx.lifecycle.ViewModel
+import com.gokcank.curalis.core.notification.NotificationPopupMode
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,8 @@ data class NotificationSettingsUiState(
     val quietHoursStartMinutes: Int = NotificationPreferences.DEFAULT_QUIET_START,
     val quietHoursEndMinutes: Int = NotificationPreferences.DEFAULT_QUIET_END,
     val snoozeMinutes: Int = NotificationPreferences.DEFAULT_SNOOZE_MINUTES,
-    val appointmentReminderMinutesBefore: Int = NotificationPreferences.DEFAULT_APPOINTMENT_LEAD_MINUTES
+    val appointmentReminderMinutesBefore: Int = NotificationPreferences.DEFAULT_APPOINTMENT_LEAD_MINUTES,
+    val popupMode: NotificationPopupMode = NotificationPopupMode.ALWAYS
 )
 
 @HiltViewModel
@@ -29,7 +31,8 @@ class NotificationSettingsViewModel @Inject constructor(
             quietHoursStartMinutes = preferences.quietHoursStartMinutes,
             quietHoursEndMinutes = preferences.quietHoursEndMinutes,
             snoozeMinutes = preferences.snoozeMinutes,
-            appointmentReminderMinutesBefore = preferences.appointmentReminderMinutesBefore
+            appointmentReminderMinutesBefore = preferences.appointmentReminderMinutesBefore,
+            popupMode = preferences.popupMode
         )
     )
     val uiState: StateFlow<NotificationSettingsUiState> = _uiState.asStateFlow()
@@ -62,5 +65,10 @@ class NotificationSettingsViewModel @Inject constructor(
     fun onAppointmentReminderLeadChanged(minutes: Int) {
         preferences.appointmentReminderMinutesBefore = minutes
         _uiState.value = _uiState.value.copy(appointmentReminderMinutesBefore = minutes)
+    }
+
+    fun onPopupModeChanged(mode: NotificationPopupMode) {
+        preferences.popupMode = mode
+        _uiState.value = _uiState.value.copy(popupMode = mode)
     }
 }
