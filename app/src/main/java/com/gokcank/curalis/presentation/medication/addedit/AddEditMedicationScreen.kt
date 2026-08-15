@@ -129,6 +129,7 @@ fun AddEditMedicationScreen(
     }
 
     var showExactAlarmDialog by remember { mutableStateOf(false) }
+    var showScheduleChangeScopeDialog by remember { mutableStateOf(false) }
 
     var showPhotoChooser by remember { mutableStateOf(false) }
     var pendingCaptureFile by remember { mutableStateOf<java.io.File?>(null) }
@@ -160,6 +161,9 @@ fun AddEditMedicationScreen(
                 is AddEditMedicationViewModel.UiEvent.ExactAlarmPermissionMissing -> {
                     showExactAlarmDialog = true
                 }
+                is AddEditMedicationViewModel.UiEvent.ConfirmScheduleChangeScope -> {
+                    showScheduleChangeScopeDialog = true
+                }
             }
         }
     }
@@ -169,6 +173,39 @@ fun AddEditMedicationScreen(
             onDismiss = {
                 showExactAlarmDialog = false
                 onNavigateBack()
+            }
+        )
+    }
+
+    if (showScheduleChangeScopeDialog) {
+        AlertDialog(
+            onDismissRequest = { showScheduleChangeScopeDialog = false },
+            title = { Text("Saat değişikliği") },
+            text = {
+                Text(
+                    "İlaç saatlerinde değişiklik yaptınız. Bugün için zaten planlanmış dozlar " +
+                        "olduğu gibi kalsın mı, yoksa bu değişiklik hemen bugünden itibaren mi geçerli olsun?"
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showScheduleChangeScopeDialog = false
+                    viewModel.confirmScheduleChangeScope(
+                        AddEditMedicationViewModel.ScheduleChangeScope.FROM_NOW
+                    )
+                }) {
+                    Text("Bugünden itibaren")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showScheduleChangeScopeDialog = false
+                    viewModel.confirmScheduleChangeScope(
+                        AddEditMedicationViewModel.ScheduleChangeScope.FROM_TOMORROW
+                    )
+                }) {
+                    Text("Yarından itibaren")
+                }
             }
         )
     }

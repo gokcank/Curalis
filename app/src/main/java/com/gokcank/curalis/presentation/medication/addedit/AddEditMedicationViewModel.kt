@@ -14,8 +14,10 @@ import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.MedicationTime
 import com.gokcank.curalis.domain.model.ProviderMedication
+import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.model.StockChangeReason
 import com.gokcank.curalis.domain.model.StockHistoryEntry
+import com.gokcank.curalis.domain.repository.ReminderRepository
 import com.gokcank.curalis.domain.repository.StockHistoryRepository
 import com.gokcank.curalis.domain.usecase.AddMedicationUseCase
 import com.gokcank.curalis.domain.usecase.GenerateUpcomingRemindersUseCase
@@ -149,6 +151,7 @@ class AddEditMedicationViewModel @Inject constructor(
     private val getRemindersForMedicationUseCase: GetRemindersForMedicationUseCase,
     private val searchRemoteMedicationsUseCase: SearchRemoteMedicationsUseCase,
     private val alarmScheduler: AlarmScheduler,
+    private val reminderRepository: ReminderRepository,
     private val stockHistoryRepository: StockHistoryRepository,
     private val photoStorage: MedicationPhotoStorage,
     doctorUseCases: DoctorUseCases,
@@ -340,6 +343,9 @@ class AddEditMedicationViewModel @Inject constructor(
         state.copy(times = state.times.filterNot { it.id == timeId })
     }
 
+    /** saveMedication() saatleri değiştiyse kullanıcıya kapsam sorana kadar burada bekletilir. */
+    private var pendingScheduleChangeMedication: Medication? = null
+
     fun saveMedication() {
         viewModelScope.launch {
             // Kaydetme boyunca tek bir anlık görüntü üzerinden çalışılır; alan alan
@@ -351,72 +357,139 @@ class AddEditMedicationViewModel @Inject constructor(
                 return@launch
             }
 
-            try {
-                val medicationId = currentMedicationId ?: UUID.randomUUID().toString()
-                val medication = form.toMedication(medicationId)
+            val medicationId = currentMedicationId ?: UUID.randomUUID().toString()
+            val medication = form.toMedication(medicationId)
 
-                // Bu ilaca ait önceden kurulmuş tüm alarmları iptal et (düzenlemede
-                // eski saatler/eski kayıtlar sistemde asılı kalmasın diye).
-                getRemindersForMedicationUseCase(medicationId).firstOrNull()?.forEach { existingReminder ->
-                    alarmScheduler.cancel(existingReminder.id)
+            // Saatler değiştiyse (eklendi/çıkarıldı/saati değişti) ve bekleyen gelecek
+            // dozlar varsa, kullanıcıya bu değişikliğin kapsamını sor — aksi halde eski
+            // saatteki bekleyen kayıtlar hiç temizlenmeden sistemde asılı kalıyordu.
+            val original = originalMedication
+            if (original != null && original.times != medication.times) {
+                val hasPendingFutureReminders = reminderRepository.getRemindersForMedication(medicationId)
+                    .firstOrNull()
+                    ?.any {
+                        (it.state == ReminderState.SCHEDULED || it.state == ReminderState.DELIVERED) &&
+                            it.timeInMillis > System.currentTimeMillis()
+                    } ?: false
+
+                if (hasPendingFutureReminders) {
+                    pendingScheduleChangeMedication = medication
+                    _eventFlow.emit(UiEvent.ConfirmScheduleChangeScope)
+                    return@launch
                 }
-                originalMedication?.let { old -> alarmScheduler.cancelMedicationAlarms(old) }
-
-                if (currentMedicationId != null) {
-                    // Kullanıcı stoğu elle değiştirdiyse (yeni kutu girdi, düzeltme yaptı vb.)
-                    // bunu da geçmişe kaydet — daha önce stok her düzenlemede sessizce
-                    // üzerine yazılıyordu.
-                    val oldStock = originalMedication?.currentStock
-                    val parsedStock = medication.currentStock
-                    if (oldStock != parsedStock) {
-                        stockHistoryRepository.logChange(
-                            StockHistoryEntry(
-                                medicationId = medicationId,
-                                previousStock = oldStock,
-                                newStock = parsedStock,
-                                reason = if (parsedStock != null && oldStock != null && parsedStock > oldStock) {
-                                    StockChangeReason.REFILL
-                                } else {
-                                    StockChangeReason.MANUAL_EDIT
-                                }
-                            )
-                        )
-                    }
-                    updateMedicationUseCase(medication)
-                    // Fotoğraf değiştirildi/kaldırıldıysa, artık hiçbir yerden referans
-                    // verilmeyen eski dosya burada, değişiklik kalıcı olarak kaydedildikten
-                    // sonra temizlenir.
-                    val oldPhotoPath = originalMedication?.photoPath
-                    if (oldPhotoPath != null && oldPhotoPath != medication.photoPath) {
-                        photoStorage.delete(oldPhotoPath)
-                    }
-                } else {
-                    addMedicationUseCase(medication)
-                }
-
-                // Önündeki 30 günün tüm dozlarını gerçek kayıtlar olarak veritabanına yaz
-                // (Ana Sayfa/rapor/Günlük Program artık aynı kalıcı kayıtları görsün diye),
-                // ardından bir sonraki tetiklenme için native alarmı kur.
-                generateUpcomingRemindersUseCase(medication)
-                alarmScheduler.scheduleMedicationAlarms(medication)
-
-                // Ekran, SaveSuccess'te hemen geri dönüyor (bkz. AddEditMedicationScreen);
-                // izin eksikse burada gösterilen bir metin kullanıcıya hiç ulaşmadan
-                // ekrandan çıkılırdı. Bu yüzden geri dönmeden önce ayrı bir olayla
-                // kullanıcıyı ayarlara yönlendirme fırsatı veriyoruz.
-                if (!alarmScheduler.canScheduleExactAlarms()) {
-                    _eventFlow.emit(UiEvent.ExactAlarmPermissionMissing)
-                } else {
-                    _eventFlow.emit(UiEvent.SaveSuccess)
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "İlaç kaydedilirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}"
             }
+
+            persistMedication(medication, ScheduleChangeScope.FROM_NOW)
         }
     }
+
+    /** Kullanıcı saat değişikliğinin kapsamını seçtikten sonra kaydı tamamlar. */
+    fun confirmScheduleChangeScope(scope: ScheduleChangeScope) {
+        val medication = pendingScheduleChangeMedication ?: return
+        pendingScheduleChangeMedication = null
+        viewModelScope.launch {
+            persistMedication(medication, scope)
+        }
+    }
+
+    private suspend fun persistMedication(medication: Medication, scope: ScheduleChangeScope) {
+        val medicationId = medication.id
+        try {
+            // Bu ilaca ait önceden kurulmuş tüm alarmları iptal et (düzenlemede
+            // eski saatler/eski kayıtlar sistemde asılı kalmasın diye).
+            getRemindersForMedicationUseCase(medicationId).firstOrNull()?.forEach { existingReminder ->
+                alarmScheduler.cancel(existingReminder.id)
+            }
+            originalMedication?.let { old -> alarmScheduler.cancelMedicationAlarms(old) }
+
+            if (currentMedicationId != null) {
+                // Kullanıcı stoğu elle değiştirdiyse (yeni kutu girdi, düzeltme yaptı vb.)
+                // bunu da geçmişe kaydet — daha önce stok her düzenlemede sessizce
+                // üzerine yazılıyordu.
+                val oldStock = originalMedication?.currentStock
+                val parsedStock = medication.currentStock
+                if (oldStock != parsedStock) {
+                    stockHistoryRepository.logChange(
+                        StockHistoryEntry(
+                            medicationId = medicationId,
+                            previousStock = oldStock,
+                            newStock = parsedStock,
+                            reason = if (parsedStock != null && oldStock != null && parsedStock > oldStock) {
+                                StockChangeReason.REFILL
+                            } else {
+                                StockChangeReason.MANUAL_EDIT
+                            }
+                        )
+                    )
+                }
+                updateMedicationUseCase(medication)
+                // Fotoğraf değiştirildi/kaldırıldıysa, artık hiçbir yerden referans
+                // verilmeyen eski dosya burada, değişiklik kalıcı olarak kaydedildikten
+                // sonra temizlenir.
+                val oldPhotoPath = originalMedication?.photoPath
+                if (oldPhotoPath != null && oldPhotoPath != medication.photoPath) {
+                    photoStorage.delete(oldPhotoPath)
+                }
+            } else {
+                addMedicationUseCase(medication)
+            }
+
+            // scope == FROM_TOMORROW ise bugünün zaten planlanmış dozlarına dokunulmaz;
+            // yeni saatler yalnızca yarından itibaren geçerli olur. FROM_NOW ise (yeni
+            // ilaç ya da bekleyen gelecek dozu olmayan bir düzenleme) her zamanki gibi
+            // şimdiden itibaren uygulanır.
+            val regenerateFromMillis = when (scope) {
+                ScheduleChangeScope.FROM_NOW -> System.currentTimeMillis()
+                ScheduleChangeScope.FROM_TOMORROW -> startOfTomorrowMillis() - 1
+            }
+
+            // Eski saatlere ait, artık geçerli olmayan bekleyen kayıtları kapsam
+            // dahilinde temizle; generateUpcomingRemindersUseCase var olan kayıtların
+            // üzerine yazmadığı için bu adım olmadan eski saatteki "hayalet" dozlar
+            // sistemde asılı kalırdı.
+            reminderRepository.getRemindersForMedication(medicationId).firstOrNull()
+                ?.filter {
+                    (it.state == ReminderState.SCHEDULED || it.state == ReminderState.DELIVERED) &&
+                        it.timeInMillis >= regenerateFromMillis
+                }
+                ?.forEach { reminderRepository.deleteReminder(it) }
+
+            // Önündeki 30 günün tüm dozlarını gerçek kayıtlar olarak veritabanına yaz
+            // (Ana Sayfa/rapor/Günlük Program artık aynı kalıcı kayıtları görsün diye),
+            // ardından bir sonraki tetiklenme için native alarmı kur.
+            generateUpcomingRemindersUseCase(medication, fromMillis = regenerateFromMillis)
+            alarmScheduler.scheduleMedicationAlarms(medication)
+
+            // Ekran, SaveSuccess'te hemen geri dönüyor (bkz. AddEditMedicationScreen);
+            // izin eksikse burada gösterilen bir metin kullanıcıya hiç ulaşmadan
+            // ekrandan çıkılırdı. Bu yüzden geri dönmeden önce ayrı bir olayla
+            // kullanıcıyı ayarlara yönlendirme fırsatı veriyoruz.
+            if (!alarmScheduler.canScheduleExactAlarms()) {
+                _eventFlow.emit(UiEvent.ExactAlarmPermissionMissing)
+            } else {
+                _eventFlow.emit(UiEvent.SaveSuccess)
+            }
+        } catch (e: Exception) {
+            _errorMessage.value = "İlaç kaydedilirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}"
+        }
+    }
+
+    private fun startOfTomorrowMillis(): Long {
+        val cal = java.util.Calendar.getInstance().apply {
+            add(java.util.Calendar.DAY_OF_YEAR, 1)
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
+        return cal.timeInMillis
+    }
+
+    enum class ScheduleChangeScope { FROM_NOW, FROM_TOMORROW }
 
     sealed class UiEvent {
         data object SaveSuccess : UiEvent()
         data object ExactAlarmPermissionMissing : UiEvent()
+        data object ConfirmScheduleChangeScope : UiEvent()
     }
 }
