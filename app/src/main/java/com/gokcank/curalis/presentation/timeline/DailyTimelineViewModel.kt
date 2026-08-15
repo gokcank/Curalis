@@ -2,6 +2,8 @@ package com.gokcank.curalis.presentation.timeline
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.core.notification.AlarmScheduler
+import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
@@ -9,6 +11,7 @@ import com.gokcank.curalis.domain.model.SkipReason
 import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
+import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +44,10 @@ data class TimelineItem(
 class DailyTimelineViewModel @Inject constructor(
     private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase,
     private val getMedicationsUseCase: GetMedicationsUseCase,
-    private val acknowledgeReminderUseCase: AcknowledgeReminderUseCase
+    private val acknowledgeReminderUseCase: AcknowledgeReminderUseCase,
+    private val scheduleReminderUseCase: ScheduleReminderUseCase,
+    private val alarmScheduler: AlarmScheduler,
+    private val notificationPreferences: NotificationPreferences
 ) : ViewModel() {
 
     private val _selectedDate = MutableStateFlow(LocalDate.now())
@@ -99,6 +105,54 @@ class DailyTimelineViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             acknowledgeReminderUseCase(reminder, newState, skipReason, takenAtMillis)
+        }
+    }
+
+    private fun pendingItems(): List<TimelineItem> =
+        groupedTimelineItems.value.values.flatten().filter {
+            it.reminder.state == ReminderState.SCHEDULED ||
+                it.reminder.state == ReminderState.DELIVERED ||
+                it.reminder.state == ReminderState.SNOOZED
+        }
+
+    fun takeAllPending() {
+        viewModelScope.launch {
+            val now = System.currentTimeMillis()
+            pendingItems().forEach { item ->
+                acknowledgeReminderUseCase(item.reminder, ReminderState.TAKEN, takenAtMillis = now)
+            }
+        }
+    }
+
+    fun skipAllPending(reason: SkipReason) {
+        viewModelScope.launch {
+            pendingItems().forEach { item ->
+                acknowledgeReminderUseCase(item.reminder, ReminderState.SKIPPED, reason)
+            }
+        }
+    }
+
+    /**
+     * Bildirimdeki tekli erteleme ile aynı mantık: eski hatırlatıcı SNOOZED olarak
+     * işaretlenir, yerine notificationPreferences.snoozeMinutes sonrasına yeni bir
+     * SCHEDULED hatırlatıcı + alarm kurulur.
+     */
+    fun snoozeAllPending() {
+        viewModelScope.launch {
+            val snoozeMinutes = notificationPreferences.snoozeMinutes
+            val snoozeTime = System.currentTimeMillis() + (snoozeMinutes * 60 * 1000L)
+            val medsMap = medicationsMap.value
+            pendingItems().forEach { item ->
+                acknowledgeReminderUseCase(item.reminder, ReminderState.SNOOZED)
+                val newReminder = Reminder(
+                    medicationId = item.reminder.medicationId,
+                    timeInMillis = snoozeTime,
+                    state = ReminderState.SCHEDULED
+                )
+                scheduleReminderUseCase(newReminder)
+                val medicationName = medsMap[item.reminder.medicationId]?.name ?: "İlaç"
+                alarmScheduler.schedule(newReminder, medicationName)
+            }
         }
     }
 }

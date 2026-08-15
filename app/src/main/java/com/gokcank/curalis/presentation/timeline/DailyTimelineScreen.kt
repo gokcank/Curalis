@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -74,6 +75,13 @@ fun DailyTimelineScreen(
     val selectedDate by viewModel.selectedDate.collectAsState()
     var pendingSkipReminder by remember { mutableStateOf<Reminder?>(null) }
     var pendingTakeReminder by remember { mutableStateOf<Reminder?>(null) }
+    var showBulkSkipDialog by remember { mutableStateOf(false) }
+
+    val hasPendingDoses = groupedTimelineItems.values.flatten().any {
+        it.reminder.state == ReminderState.SCHEDULED ||
+            it.reminder.state == ReminderState.DELIVERED ||
+            it.reminder.state == ReminderState.SNOOZED
+    }
 
     Scaffold(
         topBar = {
@@ -120,6 +128,36 @@ fun DailyTimelineScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            if (hasPendingDoses) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { viewModel.takeAllPending() },
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                    ) {
+                        Text("Tümünü Al", style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    OutlinedButton(
+                        onClick = { showBulkSkipDialog = true },
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                    ) {
+                        Text("Tümünü Atla", style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    OutlinedButton(
+                        onClick = { viewModel.snoozeAllPending() },
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                    ) {
+                        Text("Tümünü Ertele", style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             if (groupedTimelineItems.isEmpty() || groupedTimelineItems.values.all { it.isEmpty() }) {
                 Box(
@@ -176,6 +214,16 @@ fun DailyTimelineScreen(
                 onConfirm = { takenAtMillis ->
                     viewModel.acknowledgeDose(reminder, ReminderState.TAKEN, takenAtMillis = takenAtMillis)
                     pendingTakeReminder = null
+                }
+            )
+        }
+
+        if (showBulkSkipDialog) {
+            SkipReasonDialog(
+                onDismiss = { showBulkSkipDialog = false },
+                onConfirm = { reason ->
+                    viewModel.skipAllPending(reason)
+                    showBulkSkipDialog = false
                 }
             )
         }
