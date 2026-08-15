@@ -48,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun NotificationSettingsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToTroubleshooting: () -> Unit = {},
     viewModel: NotificationSettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -94,6 +95,29 @@ fun NotificationSettingsScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "Hatırlatıcılar zamanında gelmiyor mu?",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        "Android sistem izinlerini ve telefon üreticinize özel ayarları kontrol edin.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Button(onClick = onNavigateToTroubleshooting) {
+                        Text("Sorun Gidermeyi Başlat")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
             Text(
                 text = "Gizlilik",
                 style = MaterialTheme.typography.titleMedium,
