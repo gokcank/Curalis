@@ -8,10 +8,14 @@ import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.usecase.ArchiveMedicationUseCase
 import com.gokcank.curalis.domain.usecase.DeleteMedicationUseCase
+import com.gokcank.curalis.domain.usecase.GenerateUpcomingRemindersUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersForMedicationUseCase
+import com.gokcank.curalis.domain.usecase.ResumeMedicationUseCase
 import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import com.gokcank.curalis.domain.usecase.SearchMedicationsUseCase
+import com.gokcank.curalis.domain.usecase.SuspendMedicationUseCase
+import com.gokcank.curalis.domain.usecase.UnarchiveMedicationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,13 +36,22 @@ class MedicationListViewModel @Inject constructor(
     private val searchMedicationsUseCase: SearchMedicationsUseCase,
     private val deleteMedicationUseCase: DeleteMedicationUseCase,
     private val archiveMedicationUseCase: ArchiveMedicationUseCase,
+    private val unarchiveMedicationUseCase: UnarchiveMedicationUseCase,
+    private val suspendMedicationUseCase: SuspendMedicationUseCase,
+    private val resumeMedicationUseCase: ResumeMedicationUseCase,
+    private val generateUpcomingRemindersUseCase: GenerateUpcomingRemindersUseCase,
     private val scheduleReminderUseCase: ScheduleReminderUseCase,
     private val getRemindersForMedicationUseCase: GetRemindersForMedicationUseCase,
     private val alarmScheduler: AlarmScheduler
 ) : ViewModel() {
 
-    private val _medications = MutableStateFlow<List<Medication>>(emptyList())
-    val medications: StateFlow<List<Medication>> = _medications.asStateFlow()
+    // Aktif ve arşivlenmiş ilaçlar aynı akıştan türetilir; Arşiv sekmesi olmadan
+    // önce arşivlenen bir ilaç görünmez ve geri alınamazdı — yalnızca kayboluyordu.
+    private val _activeMedications = MutableStateFlow<List<Medication>>(emptyList())
+    val activeMedications: StateFlow<List<Medication>> = _activeMedications.asStateFlow()
+
+    private val _archivedMedications = MutableStateFlow<List<Medication>>(emptyList())
+    val archivedMedications: StateFlow<List<Medication>> = _archivedMedications.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -85,8 +98,50 @@ class MedicationListViewModel @Inject constructor(
         }
     }
 
+    /** Arşivdeki bir ilacı Aktif sekmesine geri getirir; hatırlatıcıları ve alarmı yeniden kurar. */
+    fun unarchiveMedication(medication: Medication) {
+        viewModelScope.launch {
+            try {
+                unarchiveMedicationUseCase(medication)
+                val restored = medication.copy(isArchived = false)
+                if (!restored.isSuspended) {
+                    generateUpcomingRemindersUseCase(restored)
+                    alarmScheduler.scheduleMedicationAlarms(restored)
+                }
+            } catch (e: Exception) {
+                _errorFlow.emit("İlaç arşivden çıkarılırken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+            }
+        }
+    }
+
+    /** İlacı geçici olarak duraklatır — silme/arşivden farklı, listede kalır. */
+    fun suspendMedication(medication: Medication) {
+        viewModelScope.launch {
+            try {
+                cancelAlarmsFor(medication)
+                suspendMedicationUseCase(medication)
+            } catch (e: Exception) {
+                _errorFlow.emit("İlaç askıya alınırken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+            }
+        }
+    }
+
+    /** Askıya alınmış bir ilacı devam ettirir; hatırlatıcıları ve alarmı yeniden kurar. */
+    fun resumeMedication(medication: Medication) {
+        viewModelScope.launch {
+            try {
+                resumeMedicationUseCase(medication)
+                val resumed = medication.copy(isSuspended = false)
+                generateUpcomingRemindersUseCase(resumed)
+                alarmScheduler.scheduleMedicationAlarms(resumed)
+            } catch (e: Exception) {
+                _errorFlow.emit("İlaç devam ettirilirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+            }
+        }
+    }
+
     /** Bir ilaca ait hem gerçek (UUID kimlikli) hem deterministik kimlikli alarmları iptal eder
-     *  — silme ve arşivleme akışlarının ikisinde de aynı temizlik gerekiyor. */
+     *  — silme, arşivleme ve askıya alma akışlarının hepsinde aynı temizlik gerekiyor. */
     private suspend fun cancelAlarmsFor(medication: Medication) {
         getRemindersForMedicationUseCase(medication.id).firstOrNull()?.forEach { reminder ->
             alarmScheduler.cancel(reminder.id)
@@ -117,12 +172,13 @@ class MedicationListViewModel @Inject constructor(
         observe(searchMedicationsUseCase(query))
     }
 
-    /** `medications` akışını verilen kaynaktan besler; liste ve arama sorgusu aynı
-     *  filtreleme/iptal mantığını paylaşır. */
+    /** Aktif/Arşiv akışlarını verilen kaynaktan besler; liste ve arama sorgusu aynı
+     *  filtreleme mantığını paylaşır. */
     private fun observe(source: Flow<List<Medication>>) {
         getMedicationsJob?.cancel()
         getMedicationsJob = source.onEach { meds ->
-            _medications.value = meds.filter { !it.isArchived }
+            _activeMedications.value = meds.filter { !it.isArchived }
+            _archivedMedications.value = meds.filter { it.isArchived }
         }.launchIn(viewModelScope)
     }
 }

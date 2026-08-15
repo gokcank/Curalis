@@ -70,7 +70,7 @@ class ReminderReceiver : BroadcastReceiver() {
                     // tükeniyor; bir sonraki tetiklenmeyi yeniden kurmazsak alarm ilk günden
                     // sonra sessizce donuyordu. Aynı çağrı, pencereyi de ileriye taşır.
                     val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
-                    if (medication != null && !medication.isArchived) {
+                    if (medication != null && !medication.isArchived && !medication.isSuspended) {
                         generateUpcomingRemindersUseCase(medication)
                         alarmScheduler.scheduleMedicationAlarms(medication)
                     }

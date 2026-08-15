@@ -98,6 +98,7 @@ class AlarmScheduler @Inject constructor(
     }
 
     fun scheduleMedicationAlarms(medication: Medication) {
+        if (medication.isSuspended || medication.isArchived) return
         if (medication.frequencyType == FrequencyType.AS_NEEDED) return
 
         medication.times.forEach { medTime ->

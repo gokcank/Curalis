@@ -33,6 +33,14 @@ data class Medication(
     // gerçekten silinmez; yalnızca aktif listelerden gizlenir ("arşivlenir"). Böylece
     // geçmiş hatırlatıcılar hâlâ bu ilacın adını/detaylarını çözebilir.
     val isArchived: Boolean = false,
+    // Arşivden farklı: ilaç silinmez/gizlenmez, listede kalır ama yeni hatırlatıcı
+    // üretilmez ve alarmlar kurulmaz — geçici duraklatma (ör. tedaviye ara verildi).
+    // Kullanıcı istediğinde "Devam Et" ile kaldığı yerden devam eder.
+    val isSuspended: Boolean = false,
+    // Tedavi süresi (gün) — ilaç kutusunun son kullanma tarihinden (expiryDate) farklı
+    // olarak, bu tedavinin kaç gün süreceğini belirtir (ör. "10 günlük antibiyotik").
+    // Yalnızca bilgilendirme amaçlıdır; süre dolduğunda ilaç otomatik arşivlenmez.
+    val treatmentDurationDays: Int? = null,
     // Cihazda saklanan bir ilaç fotoğrafının dosya yolu (bkz. MedicationPhotoStorage).
     // Hiçbir sunucuya yüklenmez.
     val photoPath: String? = null,

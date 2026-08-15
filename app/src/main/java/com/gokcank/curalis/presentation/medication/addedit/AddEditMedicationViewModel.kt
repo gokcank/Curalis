@@ -78,7 +78,8 @@ data class MedicationFormState(
     val refillThreshold: String = "5",
     val photoPath: String? = null,
     val doctorId: String? = null,
-    val times: List<MedicationTime> = emptyList()
+    val times: List<MedicationTime> = emptyList(),
+    val treatmentDurationDays: String = ""
 )
 
 /** Kayıtlı bir ilacı forma yükler. [MedicationFormState.toMedication] ile simetriktir. */
@@ -105,7 +106,8 @@ private fun Medication.toFormState(): MedicationFormState = MedicationFormState(
     refillThreshold = (refillThreshold ?: 5).toString(),
     photoPath = photoPath,
     doctorId = doctorId,
-    times = times
+    times = times,
+    treatmentDurationDays = treatmentDurationDays?.toString() ?: ""
 )
 
 /** Formu kaydedilebilir bir ilaca çevirir. [Medication.toFormState] ile simetriktir. */
@@ -135,6 +137,7 @@ private fun MedicationFormState.toMedication(id: String): Medication {
         refillThreshold = refillThreshold.toIntOrNull() ?: 5,
         isRefillReminderEnabled = isRefillEnabled,
         isVerifiedSource = isVerifiedSource,
+        treatmentDurationDays = treatmentDurationDays.toIntOrNull(),
         photoPath = photoPath,
         doctorId = doctorId,
         times = times
@@ -264,6 +267,8 @@ class AddEditMedicationViewModel @Inject constructor(
 
     fun onExpiryDateChange(timestamp: Long?) = _formState.update { it.copy(expiryDate = timestamp) }
 
+    fun onTreatmentDurationChange(days: String) = _formState.update { it.copy(treatmentDurationDays = days) }
+
     fun onFrequencyTypeChange(type: FrequencyType) = _formState.update { it.copy(frequencyType = type) }
 
     fun onIntervalDaysChange(days: String) = _formState.update { it.copy(intervalDays = days.filter { c -> c.isDigit() }) }
@@ -358,7 +363,13 @@ class AddEditMedicationViewModel @Inject constructor(
             }
 
             val medicationId = currentMedicationId ?: UUID.randomUUID().toString()
-            val medication = form.toMedication(medicationId)
+            // isArchived/isSuspended form alanları değildir (Askıya Al/Arşivle işlemleri
+            // İlaçlarım listesinden yapılır); form burada bunları sıfırlarsa, askıya
+            // alınmış bir ilacı düzenleyip kaydetmek sessizce "devam ediyor" durumuna
+            // döndürürdü.
+            val medication = form.toMedication(medicationId).let { med ->
+                originalMedication?.let { med.copy(isArchived = it.isArchived, isSuspended = it.isSuspended) } ?: med
+            }
 
             // Saatler değiştiyse (eklendi/çıkarıldı/saati değişti) ve bekleyen gelecek
             // dozlar varsa, kullanıcıya bu değişikliğin kapsamını sor — aksi halde eski
