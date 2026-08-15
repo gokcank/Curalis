@@ -1,4 +1,6 @@
-<h1 align="center">Curalis 💊</h1>
+<h1 align="center">
+  <img src="store_assets/logo.png" width="42" height="42" valign="middle" alt="Curalis Logo" /> Curalis
+</h1>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android" />
