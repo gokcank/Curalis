@@ -52,6 +52,13 @@ fun NavGraph() {
 
         composable(route = Screen.NotificationSettings.route) {
             com.gokcank.curalis.presentation.notificationsettings.NotificationSettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToTroubleshooting = { navController.navigate(Screen.ReminderTroubleshooting.route) }
+            )
+        }
+
+        composable(route = Screen.ReminderTroubleshooting.route) {
+            com.gokcank.curalis.presentation.troubleshooting.ReminderTroubleshootingScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

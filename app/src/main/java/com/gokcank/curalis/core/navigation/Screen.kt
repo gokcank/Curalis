@@ -11,6 +11,7 @@ sealed class Screen(val route: String) {
     data object Home : Screen("home_screen")
     data object Settings : Screen("settings_screen")
     data object NotificationSettings : Screen("notification_settings_screen")
+    data object ReminderTroubleshooting : Screen("reminder_troubleshooting_screen")
     data object AppLockSettings : Screen("app_lock_settings_screen")
     data object About : Screen("about_screen")
     data object PrivacyPolicy : Screen("privacy_policy_screen")
