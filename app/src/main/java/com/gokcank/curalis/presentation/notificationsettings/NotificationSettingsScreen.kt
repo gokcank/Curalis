@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import com.gokcank.curalis.core.notification.NotificationPopupMode
 import com.gokcank.curalis.core.notification.NotificationPreferences
@@ -55,6 +57,8 @@ fun NotificationSettingsScreen(
     val context = LocalContext.current
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
+    var showMorningTimePicker by remember { mutableStateOf(false) }
+    var showWeekendTimePicker by remember { mutableStateOf(false) }
 
     fun formatMinutes(minutes: Int): String {
         val h = minutes / 60
@@ -94,6 +98,7 @@ fun NotificationSettingsScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -289,6 +294,75 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
+                text = "Sabah Hatırlatması",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Her sabah hatırlat", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "İlaçlarınızı yanınıza almanız için her sabah ayrı bir hatırlatma gönderilir.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = uiState.morningReminderEnabled,
+                    onCheckedChange = viewModel::onMorningReminderToggled
+                )
+            }
+
+            if (uiState.morningReminderEnabled) {
+                Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                OutlinedButton(
+                    onClick = { showMorningTimePicker = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Sabah saati: ${formatMinutes(uiState.morningReminderMinutes)}")
+                }
+
+                Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Hafta Sonu Modu", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "Cumartesi ve Pazar günleri için ayrı bir sabah saati kullanın.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = uiState.weekendModeEnabled,
+                        onCheckedChange = viewModel::onWeekendModeToggled
+                    )
+                }
+
+                if (uiState.weekendModeEnabled) {
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    OutlinedButton(
+                        onClick = { showWeekendTimePicker = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Hafta sonu saati: ${formatMinutes(uiState.weekendMorningReminderMinutes)}")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
                 text = "Bildirim Kategorileri",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
@@ -372,6 +446,66 @@ fun NotificationSettingsScreen(
                         Button(onClick = {
                             viewModel.onQuietHoursEndChanged(timePickerState.hour * 60 + timePickerState.minute)
                             showEndTimePicker = false
+                        }) {
+                            Text("Tamam")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showMorningTimePicker) {
+        val initial = uiState.morningReminderMinutes
+        val timePickerState = rememberTimePickerState(
+            initialHour = initial / 60,
+            initialMinute = initial % 60,
+            is24Hour = true
+        )
+        Dialog(onDismissRequest = { showMorningTimePicker = false }) {
+            Card(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Sabah Hatırlatma Saati", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    TimePicker(state = timePickerState)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        androidx.compose.material3.TextButton(onClick = { showMorningTimePicker = false }) {
+                            Text("İptal")
+                        }
+                        Button(onClick = {
+                            viewModel.onMorningReminderMinutesChanged(timePickerState.hour * 60 + timePickerState.minute)
+                            showMorningTimePicker = false
+                        }) {
+                            Text("Tamam")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showWeekendTimePicker) {
+        val initial = uiState.weekendMorningReminderMinutes
+        val timePickerState = rememberTimePickerState(
+            initialHour = initial / 60,
+            initialMinute = initial % 60,
+            is24Hour = true
+        )
+        Dialog(onDismissRequest = { showWeekendTimePicker = false }) {
+            Card(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Hafta Sonu Sabah Saati", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    TimePicker(state = timePickerState)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        androidx.compose.material3.TextButton(onClick = { showWeekendTimePicker = false }) {
+                            Text("İptal")
+                        }
+                        Button(onClick = {
+                            viewModel.onWeekendMorningReminderMinutesChanged(timePickerState.hour * 60 + timePickerState.minute)
+                            showWeekendTimePicker = false
                         }) {
                             Text("Tamam")
                         }

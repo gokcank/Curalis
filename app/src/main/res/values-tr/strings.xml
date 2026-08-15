@@ -55,6 +55,10 @@
     <string name="notification_channel_desc_silent">Sessiz saatler içinde gelen ilaç hatırlatıcıları; ses ve titreşim içermez</string>
     <string name="notification_channel_name_refill">Stok Uyarıları</string>
     <string name="notification_channel_desc_refill">İlaç stoğunuz azaldığında bildirim gönderir</string>
+    <string name="notification_channel_name_proactive">Sabah Hatırlatması</string>
+    <string name="notification_channel_desc_proactive">İlaçlarınızı yanınıza almanız için günlük sabah hatırlatması</string>
+    <string name="notification_morning_title">Günaydın!</string>
+    <string name="notification_morning_text">Bugün alacağınız ilaçları yanınıza almayı unutmayın.</string>
     <string name="ok">Tamam</string>
     <string name="skip_reason_title">Bu dozu neden atlıyorsunuz?</string>
 
