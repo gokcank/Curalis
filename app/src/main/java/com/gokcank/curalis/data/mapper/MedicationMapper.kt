@@ -42,6 +42,7 @@ fun MedicationEntity.toDomain(times: List<MedicationTime> = emptyList()): Medica
         isArchived = isArchived,
         isSuspended = isSuspended,
         treatmentDurationDays = treatmentDurationDays,
+        rxNumber = rxNumber,
         photoPath = photoPath,
         doctorId = doctorId,
         times = times
@@ -76,6 +77,7 @@ fun Medication.toEntity(): MedicationEntity {
         isArchived = isArchived,
         isSuspended = isSuspended,
         treatmentDurationDays = treatmentDurationDays,
+        rxNumber = rxNumber,
         photoPath = photoPath,
         doctorId = doctorId
     )

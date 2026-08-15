@@ -24,6 +24,9 @@ googleApiServicesDrive = "v3-rev20260720-2.0.0"
 playServicesCodeScanner = "16.1.0"
 work = "2.11.2"
 biometric = "1.1.0"
+sqlcipher = "4.5.4"
+androidxSqlite = "2.4.0"
+securityCrypto = "1.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -79,6 +82,13 @@ google-api-services-drive = { group = "com.google.apis", name = "google-api-serv
 # Barcode Scanning (Google Play Services Code Scanner — kamera iznini ve arayüzünü
 # kendi içinde yönetir, uygulamanın CameraX kurmasına veya CAMERA izni istemesine gerek kalmaz).
 play-services-code-scanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "playServicesCodeScanner" }
+
+# Yerel veritabanı şifreleme: SQLCipher, Room'un altındaki SQLite motorunu şifreler.
+# Şifreleme anahtarı security-crypto (Android Keystore destekli EncryptedSharedPreferences)
+# ile saklanır — bkz. DatabaseKeyProvider.
+sqlcipher-android = { group = "net.zetetic", name = "android-database-sqlcipher", version.ref = "sqlcipher" }
+androidx-sqlite = { group = "androidx.sqlite", name = "sqlite", version.ref = "androidxSqlite" }
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -79,7 +79,8 @@ data class MedicationFormState(
     val photoPath: String? = null,
     val doctorId: String? = null,
     val times: List<MedicationTime> = emptyList(),
-    val treatmentDurationDays: String = ""
+    val treatmentDurationDays: String = "",
+    val rxNumber: String = ""
 )
 
 /** Kayıtlı bir ilacı forma yükler. [MedicationFormState.toMedication] ile simetriktir. */
@@ -107,7 +108,8 @@ private fun Medication.toFormState(): MedicationFormState = MedicationFormState(
     photoPath = photoPath,
     doctorId = doctorId,
     times = times,
-    treatmentDurationDays = treatmentDurationDays?.toString() ?: ""
+    treatmentDurationDays = treatmentDurationDays?.toString() ?: "",
+    rxNumber = rxNumber ?: ""
 )
 
 /** Formu kaydedilebilir bir ilaca çevirir. [Medication.toFormState] ile simetriktir. */
@@ -138,6 +140,7 @@ private fun MedicationFormState.toMedication(id: String): Medication {
         isRefillReminderEnabled = isRefillEnabled,
         isVerifiedSource = isVerifiedSource,
         treatmentDurationDays = treatmentDurationDays.toIntOrNull(),
+        rxNumber = rxNumber.takeIf { it.isNotBlank() },
         photoPath = photoPath,
         doctorId = doctorId,
         times = times
@@ -268,6 +271,8 @@ class AddEditMedicationViewModel @Inject constructor(
     fun onExpiryDateChange(timestamp: Long?) = _formState.update { it.copy(expiryDate = timestamp) }
 
     fun onTreatmentDurationChange(days: String) = _formState.update { it.copy(treatmentDurationDays = days) }
+
+    fun onRxNumberChange(value: String) = _formState.update { it.copy(rxNumber = value) }
 
     fun onFrequencyTypeChange(type: FrequencyType) = _formState.update { it.copy(frequencyType = type) }
 
