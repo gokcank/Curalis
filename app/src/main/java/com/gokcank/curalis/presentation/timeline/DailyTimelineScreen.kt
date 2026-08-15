@@ -21,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.EventAvailable
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.RemoveCircle
@@ -62,6 +64,8 @@ import com.gokcank.curalis.presentation.components.ReminderStateBadge
 import com.gokcank.curalis.presentation.components.SkipReasonDialog
 import com.gokcank.curalis.presentation.components.icon
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.TextStyle
 import java.util.Date
 import java.util.Locale
 
@@ -126,6 +130,21 @@ fun DailyTimelineScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            val weekStart = remember(selectedDate) {
+                selectedDate.minusDays((selectedDate.dayOfWeek.value - 1).toLong())
+            }
+            val weekDates = remember(weekStart) { (0..6).map { weekStart.plusDays(it.toLong()) } }
+
+            WeeklyStrip(
+                weekDates = weekDates,
+                selectedDate = selectedDate,
+                onDateSelected = { viewModel.selectDate(it) },
+                onPreviousWeek = { viewModel.selectDate(selectedDate.minusWeeks(1)) },
+                onNextWeek = { viewModel.selectDate(selectedDate.plusWeeks(1)) }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -225,6 +244,74 @@ fun DailyTimelineScreen(
                     viewModel.skipAllPending(reason)
                     showBulkSkipDialog = false
                 }
+            )
+        }
+    }
+}
+
+@Composable
+fun WeeklyStrip(
+    weekDates: List<LocalDate>,
+    selectedDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit,
+    onPreviousWeek: () -> Unit,
+    onNextWeek: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onPreviousWeek) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Önceki hafta")
+        }
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            weekDates.forEach { date ->
+                DayChip(
+                    date = date,
+                    isSelected = date == selectedDate,
+                    isToday = date == LocalDate.now(),
+                    onClick = { onDateSelected(date) }
+                )
+            }
+        }
+        IconButton(onClick = onNextWeek) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Sonraki hafta")
+        }
+    }
+}
+
+@Composable
+fun DayChip(
+    date: LocalDate,
+    isSelected: Boolean,
+    isToday: Boolean,
+    onClick: () -> Unit
+) {
+    val dayAbbrev = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("tr"))
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+        onClick = onClick,
+        modifier = Modifier.size(width = 40.dp, height = 56.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = dayAbbrev,
+                style = MaterialTheme.typography.labelSmall,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = date.dayOfMonth.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
             )
         }
     }

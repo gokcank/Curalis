@@ -57,6 +57,10 @@ class DailyTimelineViewModel @Inject constructor(
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
+    fun selectDate(date: LocalDate) {
+        _selectedDate.value = date
+    }
+
     /** Ayarlar'dan değiştirilebilen dilim sınırları; ekran her açıldığında yeniden okunur. */
     val slotBounds: Map<TimeSlot, TimeSlotBounds> = run {
         val morningStart = timelinePreferences.morningStartHour
