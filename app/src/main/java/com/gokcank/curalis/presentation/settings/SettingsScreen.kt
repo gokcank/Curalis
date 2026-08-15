@@ -3,6 +3,9 @@ package com.gokcank.curalis.presentation.settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import com.gokcank.curalis.core.timeline.TimelinePreferences
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,12 +67,14 @@ fun SettingsScreen(
     ) { padding ->
         val themeMode by viewModel.themeMode.collectAsState()
         val isAppLockEnabled by viewModel.isAppLockEnabled.collectAsState()
+        val timelineSlotBounds by viewModel.timelineSlotBounds.collectAsState()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 text = stringResource(R.string.appearance),
@@ -207,6 +212,78 @@ fun SettingsScreen(
                     )
                 ) {
                     Text("Yönet")
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = "Zaman Çizelgesi Dilimleri",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                "Günlük Zaman Çizelgesi ekranındaki Sabah/Öğle/Akşam dilimlerinin başlangıç saatlerini değiştirin.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            val slotChipColors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                containerColor = MaterialTheme.colorScheme.surface,
+                labelColor = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+            Text("Sabah başlangıcı", style = MaterialTheme.typography.bodyLarge)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                TimelinePreferences.MORNING_START_OPTIONS.forEach { hour ->
+                    FilterChip(
+                        selected = timelineSlotBounds.morningStartHour == hour,
+                        onClick = { viewModel.setMorningStartHour(hour) },
+                        label = { Text(String.format("%02d:00", hour)) },
+                        colors = slotChipColors,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+            Text("Öğle başlangıcı", style = MaterialTheme.typography.bodyLarge)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                TimelinePreferences.AFTERNOON_START_OPTIONS.forEach { hour ->
+                    FilterChip(
+                        selected = timelineSlotBounds.afternoonStartHour == hour,
+                        onClick = { viewModel.setAfternoonStartHour(hour) },
+                        label = { Text(String.format("%02d:00", hour)) },
+                        colors = slotChipColors,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+            Text("Akşam başlangıcı", style = MaterialTheme.typography.bodyLarge)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                TimelinePreferences.EVENING_START_OPTIONS.forEach { hour ->
+                    FilterChip(
+                        selected = timelineSlotBounds.eveningStartHour == hour,
+                        onClick = { viewModel.setEveningStartHour(hour) },
+                        label = { Text(String.format("%02d:00", hour)) },
+                        colors = slotChipColors,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.notification.NotificationPreferences
+import com.gokcank.curalis.core.timeline.TimelinePreferences
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
@@ -26,12 +27,14 @@ import java.time.LocalDate
 import java.util.Calendar
 import javax.inject.Inject
 
-enum class TimeSlot(val title: String, val startHour: Int, val endHour: Int) {
-    MORNING("Sabah", 6, 12),
-    AFTERNOON("Öğle", 12, 18),
-    EVENING("Akşam", 18, 24),
-    NIGHT("Gece", 0, 6)
+enum class TimeSlot(val title: String) {
+    MORNING("Sabah"),
+    AFTERNOON("Öğle"),
+    EVENING("Akşam"),
+    NIGHT("Gece")
 }
+
+data class TimeSlotBounds(val startHour: Int, val endHour: Int)
 
 data class TimelineItem(
     val reminder: Reminder,
@@ -47,11 +50,25 @@ class DailyTimelineViewModel @Inject constructor(
     private val acknowledgeReminderUseCase: AcknowledgeReminderUseCase,
     private val scheduleReminderUseCase: ScheduleReminderUseCase,
     private val alarmScheduler: AlarmScheduler,
-    private val notificationPreferences: NotificationPreferences
+    private val notificationPreferences: NotificationPreferences,
+    timelinePreferences: TimelinePreferences
 ) : ViewModel() {
 
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
+
+    /** Ayarlar'dan değiştirilebilen dilim sınırları; ekran her açıldığında yeniden okunur. */
+    val slotBounds: Map<TimeSlot, TimeSlotBounds> = run {
+        val morningStart = timelinePreferences.morningStartHour
+        val afternoonStart = timelinePreferences.afternoonStartHour
+        val eveningStart = timelinePreferences.eveningStartHour
+        mapOf(
+            TimeSlot.MORNING to TimeSlotBounds(morningStart, afternoonStart),
+            TimeSlot.AFTERNOON to TimeSlotBounds(afternoonStart, eveningStart),
+            TimeSlot.EVENING to TimeSlotBounds(eveningStart, 24),
+            TimeSlot.NIGHT to TimeSlotBounds(0, morningStart)
+        )
+    }
 
     val medicationsMap: StateFlow<Map<String, Medication>> = getMedicationsUseCase()
         .combine(MutableStateFlow(Unit)) { meds, _ ->
@@ -79,12 +96,10 @@ class DailyTimelineViewModel @Inject constructor(
                         val cal = Calendar.getInstance().apply { timeInMillis = rem.timeInMillis }
                         val hour = cal.get(Calendar.HOUR_OF_DAY)
 
-                        val slot = when (hour) {
-                            in 6..11 -> TimeSlot.MORNING
-                            in 12..17 -> TimeSlot.AFTERNOON
-                            in 18..23 -> TimeSlot.EVENING
-                            else -> TimeSlot.NIGHT
-                        }
+                        val slot = TimeSlot.entries.firstOrNull { entry ->
+                            val bounds = slotBounds.getValue(entry)
+                            hour >= bounds.startHour && hour < bounds.endHour
+                        } ?: TimeSlot.NIGHT
 
                         TimelineItem(
                             reminder = rem,
