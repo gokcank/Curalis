@@ -115,6 +115,13 @@ fun AddEditMedicationScreen(
     var isUnitDropdownExpanded by remember { mutableStateOf(false) }
     var showDatePickerDialog by remember { mutableStateOf(false) }
 
+    // Yeni ilaç eklerken zorunlu olmayan alanlar varsayılan olarak gizli kalır; kullanıcı
+    // aşağıdaki "Neredeyse bitti" listesinden hangi ek bilgileri gireceğini işaretler.
+    // Düzenleme modunda (viewModel.isEditMode) bu kısıtlama uygulanmaz — mevcut bir kaydın
+    // alanları kullanıcıdan gizlenmez, hepsi her zaman gösterilir (bkz. aşağıdaki `showExtra`).
+    var expandedExtraFields by remember { mutableStateOf(emptySet<String>()) }
+    fun showExtra(key: String) = viewModel.isEditMode || key in expandedExtraFields
+
     val context = LocalContext.current
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -358,16 +365,16 @@ fun AddEditMedicationScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            if (showExtra("etken_madde")) {
+                Spacer(modifier = Modifier.height(12.dp))
 
-            OutlinedTextField(
-                value = formState.activeIngredient,
-                onValueChange = viewModel::onActiveIngredientChange,
-                label = { Text(stringResource(R.string.active_ingredient)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = formState.activeIngredient,
+                    onValueChange = viewModel::onActiveIngredientChange,
+                    label = { Text(stringResource(R.string.active_ingredient)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             // Barkod: kutunun üzerindeki barkodu okutarak veya elle girerek kaydedilir.
             // TİTCK yerel veritabanında barkod eşlemesi bulunmadığı için otomatik ilaç
@@ -375,27 +382,31 @@ fun AddEditMedicationScreen(
             val barcodeScanner = remember { com.google.mlkit.vision.codescanner.GmsBarcodeScanning.getClient(context) }
             var barcodeError by remember { mutableStateOf<String?>(null) }
 
-            OutlinedTextField(
-                value = formState.barcode,
-                onValueChange = viewModel::onBarcodeChange,
-                label = { Text("Barkod (Opsiyonel)") },
-                supportingText = barcodeError?.let { { Text(it) } },
-                trailingIcon = {
-                    IconButton(onClick = {
-                        barcodeError = null
-                        barcodeScanner.startScan()
-                            .addOnSuccessListener { result ->
-                                viewModel.onBarcodeChange(result.rawValue ?: "")
-                            }
-                            .addOnFailureListener {
-                                barcodeError = "Barkod okunamadı, elle girebilirsiniz."
-                            }
-                    }) {
-                        Icon(imageVector = Icons.Default.QrCodeScanner, contentDescription = "Barkod Tara")
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (showExtra("barkod")) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = formState.barcode,
+                    onValueChange = viewModel::onBarcodeChange,
+                    label = { Text("Barkod (Opsiyonel)") },
+                    supportingText = barcodeError?.let { { Text(it) } },
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            barcodeError = null
+                            barcodeScanner.startScan()
+                                .addOnSuccessListener { result ->
+                                    viewModel.onBarcodeChange(result.rawValue ?: "")
+                                }
+                                .addOnFailureListener {
+                                    barcodeError = "Barkod okunamadı, elle girebilirsiniz."
+                                }
+                        }) {
+                            Icon(imageVector = Icons.Default.QrCodeScanner, contentDescription = "Barkod Tara")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -424,49 +435,53 @@ fun AddEditMedicationScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (showExtra("renk")) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // 2.5 İlaç Renk Seçici (Color Picker)
-            Text(text = "İlaç Renk Vurgusu", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                MedicationAccentColors.forEach { hex ->
-                    val color = Color(android.graphics.Color.parseColor(hex))
-                    val isSelected = formState.colorHex.equals(hex, ignoreCase = true)
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(color = color, shape = CircleShape)
-                            .clickable { viewModel.onColorSelected(hex) }
-                            .semantics {
-                                contentDescription = if (isSelected) "Seçili renk" else "Renk seçeneği"
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isSelected) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(20.dp)
-                            )
+                // 2.5 İlaç Renk Seçici (Color Picker)
+                Text(text = "İlaç Renk Vurgusu", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    MedicationAccentColors.forEach { hex ->
+                        val color = Color(android.graphics.Color.parseColor(hex))
+                        val isSelected = formState.colorHex.equals(hex, ignoreCase = true)
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(color = color, shape = CircleShape)
+                                .clickable { viewModel.onColorSelected(hex) }
+                                .semantics {
+                                    contentDescription = if (isSelected) "Seçili renk" else "Renk seçeneği"
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (showExtra("foto")) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // 2.6 İlaç Fotoğrafı — yalnızca bu cihazda saklanır, hiçbir sunucuya yüklenmez.
-            Text(text = "İlaç Fotoğrafı", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            MedicationPhotoPicker(
-                photoPath = formState.photoPath,
-                onClick = { showPhotoChooser = true }
-            )
+                // 2.6 İlaç Fotoğrafı — yalnızca bu cihazda saklanır, hiçbir sunucuya yüklenmez.
+                Text(text = "İlaç Fotoğrafı", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                MedicationPhotoPicker(
+                    photoPath = formState.photoPath,
+                    onClick = { showPhotoChooser = true }
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -511,30 +526,32 @@ fun AddEditMedicationScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (showExtra("yemek")) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // 3.5 Yemek Talimatı (Aç Karnına / Yemekle / Tok Karnına / Fark Etmez)
-            Text(text = "Yemek Talimatı", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                MealInstruction.entries.forEach { instruction ->
-                    FilterChip(
-                        selected = formState.mealInstruction == instruction,
-                        onClick = { viewModel.onMealInstructionChange(instruction) },
-                        label = { Text(instruction.displayNameTr) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = instruction.icon(),
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    )
+                // 3.5 Yemek Talimatı (Aç Karnına / Yemekle / Tok Karnına / Fark Etmez)
+                Text(text = "Yemek Talimatı", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    MealInstruction.entries.forEach { instruction ->
+                        FilterChip(
+                            selected = formState.mealInstruction == instruction,
+                            onClick = { viewModel.onMealInstructionChange(instruction) },
+                            label = { Text(instruction.displayNameTr) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = instruction.icon(),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        )
+                    }
                 }
             }
 
@@ -682,7 +699,63 @@ fun AddEditMedicationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            if (!viewModel.isEditMode) {
+                // "Neredeyse bitti" listesi — zorunlu olmayan alanları tek uzun formdan
+                // çıkarıp, kullanıcının isteğe bağlı olarak işaretleyebileceği bir listeye
+                // taşır. İşaretlenen her öğe, o bölümü aşağıda görünür hale getirir.
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Neredeyse bitti!",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Text(
+                            "İsterseniz şu ek bilgileri de ekleyebilirsiniz:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        val extraFieldOptions = listOf(
+                            "etken_madde" to "Etken Madde",
+                            "barkod" to "Barkod",
+                            "renk" to "Renk",
+                            "foto" to "Fotoğraf",
+                            "yemek" to "Yemek Talimatı",
+                            "stok" to "Stok Takibi",
+                            "doktor" to "Doktor",
+                            "ek_bilgi" to "Son Kullanma Tarihi / Notlar"
+                        )
+                        androidx.compose.foundation.layout.FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            extraFieldOptions.forEach { (key, label) ->
+                                FilterChip(
+                                    selected = key in expandedExtraFields,
+                                    onClick = {
+                                        expandedExtraFields = if (key in expandedExtraFields) {
+                                            expandedExtraFields - key
+                                        } else {
+                                            expandedExtraFields + key
+                                        }
+                                    },
+                                    label = { Text(label) }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             // 6. Kutu / Stok Takibi (Stok Bitmeye Yakın Uyarı Bildirimi)
+            if (showExtra("stok")) {
             Text(text = "Kutu / Stok Takibi", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
@@ -753,10 +826,12 @@ fun AddEditMedicationScreen(
                     }
                 }
             }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // 6.5 Doktor Bağlantısı (isteğe bağlı)
+            if (showExtra("doktor")) {
             val doctors by viewModel.doctors.collectAsState()
             var doctorMenuExpanded by remember { mutableStateOf(false) }
             val selectedDoctor = doctors.find { it.id == formState.doctorId }
@@ -799,10 +874,12 @@ fun AddEditMedicationScreen(
                     }
                 }
             }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // 7. Ek Bilgiler & Son Kullanma Tarihi
+            if (showExtra("ek_bilgi")) {
             Text(text = "Ek Bilgiler & Son Kullanma Tarihi", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -832,6 +909,7 @@ fun AddEditMedicationScreen(
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2
             )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
