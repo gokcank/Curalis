@@ -179,7 +179,7 @@ fun DailyTimelineScreen(
                         val itemsInSlot = groupedTimelineItems[slot] ?: emptyList()
                         if (itemsInSlot.isNotEmpty()) {
                             item {
-                                TimeSlotHeader(slot = slot)
+                                TimeSlotHeader(slot = slot, bounds = viewModel.slotBounds.getValue(slot))
                             }
                             items(itemsInSlot) { timelineItem ->
                                 TimelineCard(
@@ -231,7 +231,7 @@ fun DailyTimelineScreen(
 }
 
 @Composable
-fun TimeSlotHeader(slot: TimeSlot) {
+fun TimeSlotHeader(slot: TimeSlot, bounds: TimeSlotBounds) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -253,7 +253,7 @@ fun TimeSlotHeader(slot: TimeSlot) {
         Text(slot.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            String.format(Locale.getDefault(), "%02d:00 – %02d:00", slot.startHour, slot.endHour),
+            String.format(Locale.getDefault(), "%02d:00 – %02d:00", bounds.startHour, bounds.endHour),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
