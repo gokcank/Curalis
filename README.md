@@ -1,141 +1,123 @@
-# Curalis
+<h1 align="center">Curalis 💊</h1>
 
-> Privacy-first, local-first medication management.
+<p align="center">
+  <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android" />
+  <img src="https://img.shields.io/badge/Kotlin-B125EA?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
+  <img src="https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" />
+  <img src="https://img.shields.io/badge/Material_3-7C4DFF?style=for-the-badge&logo=materialdesign&logoColor=white" alt="Material 3" />
+  <img src="https://img.shields.io/badge/Room_DB-4285F4?style=for-the-badge&logo=sqlite&logoColor=white" alt="Room DB" />
+  <img src="https://img.shields.io/badge/Hilt-34A853?style=for-the-badge&logo=dagger&logoColor=white" alt="Hilt" />
+  <img src="https://img.shields.io/badge/Offline_First-00897B?style=for-the-badge" alt="Offline First" />
+  <img src="https://img.shields.io/badge/Version-v1.0.0-blue?style=for-the-badge" alt="Version" />
+</p>
 
----
+<p align="center">
+  <img src="store_assets/feature_graphic.png" width="100%" alt="Curalis Feature Graphic" />
+</p>
 
-## Overview
-
-Curalis is a modern medication management application focused on reliability, privacy, and medical safety.
-
-The project helps users organize medications, reminders, treatment history, and inventory while keeping personal medical data under the user's control.
-
-Curalis is designed to work offline and follows a Local-First architecture. Cloud synchronization is optional and planned for future releases.
-
----
-
-## Core Principles
-
-- Medical Safety
-- User Privacy
-- User Ownership
-- Reliability
-- Simplicity
-- Accessibility
-- Transparency
-- Maintainability
-- Performance
+**Curalis** is a privacy-first, local-first intelligent medication and personal health tracking application built for Android. 
+Designed with a seamless and modern UI using **Jetpack Compose** and **Material 3**, Curalis helps users organize medications, smart reminders, doctors, appointments, and vitals with 100% offline privacy and zero unnecessary data collection.
 
 ---
 
-## Current Status
-
-Project Status:
-
-**Early Development**
-
-This project is under active development.
-
-Architecture and documentation may evolve as the project matures.
+## 🚀 Key Highlights & Documentation
+For full architectural details, developer documentation, and engineering guidelines, please see the [Documentation Index](docs/index.md).
+*(Mimari detaylar, geliştirici dokümanları ve mühendislik prensipleri için lütfen [Dokümantasyon](docs/index.md) dizinine göz atın.)*
 
 ---
 
-## Planned Features
+## ✨ Features
 
-- Medication management
-- Medication reminders
-- Inventory tracking
-- Active ingredient lookup
-- Medication history
-- Provider integration
-- Offline support
-- Optional cloud synchronization
-- Data export
-- Accessibility support
+- ⏰ **Smart Medication & Alarm Engine:**
+  - Exact alarms with full-screen intent, custom sounds, vibration, and snooze support (`AlarmManager`).
+  - Flexible scheduling: Daily, Specific Days, Intervals (Every X days), and As-Needed (PRN quick dose logging).
+  - Meal instructions (Before, After, With meal) and customized medication forms/colors.
 
-Future features may include:
+- 🇹🇷 **Offline TİTCK Drug Dictionary:**
+  - Bundled with ~23,000 official Turkish Medicines and Medical Devices Agency (TİTCK) medications.
+  - Lightning-fast offline searching by trade name and active ingredient with barcode support.
 
-- Barcode scanning
-- OCR
-- Wearable integration
-- AI-assisted organization
+- 🗓️ **Virtual Timeline & Adherence Calendar:**
+  - Dynamic "Virtual Schedule Generator" calculates unlimited future schedule occurrences without bloating the database.
+  - Interactive daily timeline and monthly adherence tracking with compliance rates.
 
----
+- 👨‍⚕️ **Health & Appointment Ecosystem:**
+  - **Doctors:** Manage doctors with specialties, phone, email, and clinical notes.
+  - **Appointments:** Schedule medical visits with reminder alarms and notes.
+  - **Vitals Tracking:** Track blood pressure, blood glucose, weight, temperature, pulse, and oxygen saturation.
 
-## Technology Stack
+- 📄 **PDF Health & Doctor Report:**
+  - One-tap export to a comprehensive, professional PDF health report (active medications, dosage schedule, treatment history, and adherence statistics) to share with healthcare providers.
 
-The project is currently planned to use:
+- 📦 **Inventory & Refill Alerts:**
+  - Track remaining pills and stock automatically decremented on dose taken.
+  - Customizable refill warning thresholds.
 
-- Kotlin
-- Jetpack Compose
-- Material 3
-- Room
-- Hilt
-- Coroutines
-- Flow
-- WorkManager
-
-Additional technologies may evolve as the project grows.
+- 🔒 **Privacy & Local-First Backup:**
+  - 100% offline-ready Room database.
+  - Optional encrypted Google Drive backup and local JSON export/import.
 
 ---
 
-## Documentation
+## 🏛️ Architecture & Tech Stack
 
-Documentation is located in the `docs/` directory.
-
-Suggested reading order:
-
-1. `index.md`
-2. `foundation/philosophy.md`
-3. `product/product.md`
-4. `architecture/architecture.md`
-
-Then continue with topic-specific documents as needed.
-
----
-
-## Project Structure
+Curalis strictly follows **Clean Architecture** and **MVI / MVVM** patterns:
 
 ```text
-docs/
-app/
-gradle/
+UI (Jetpack Compose / Material 3)
+      │
+      ▼
+ViewModel (StateFlow & SharedFlow)
+      │
+      ▼
+Domain Layer (Use Cases & Business Logic)
+      │
+      ▼
+Repository Layer
+ ┌────┴──────────────────────────┐
+ ▼                               ▼
+Local Room Database       TİTCK Drug Dictionary (Pre-packaged SQLite)
 ```
 
-The documentation is considered the primary source of truth for project behavior and architecture.
+- **Language & Runtime:** Kotlin (Coroutines, Flow)
+- **UI Framework:** Jetpack Compose, Material Design 3, Dynamic Color
+- **Dependency Injection:** Dagger Hilt
+- **Local Storage:** Room Database, Encrypted DataStore
+- **PDF Engine:** iText 7
+- **Scheduling:** AlarmManager & WorkManager
+- **Backup & Cloud:** Google Drive REST API (Optional)
 
 ---
 
-## Development Philosophy
+## 🛠️ Build & Setup
 
-Curalis is documentation-driven.
+### Requirements
+- **JDK:** 17+
+- **Android SDK:** Compile SDK 35, Min SDK 26
+- **Tooling:** Antigravity IDE / Gradle CLI
 
-Architecture, product decisions, and engineering standards are documented before implementation whenever practical.
+### Build Commands
+```bash
+# Clone the repository
+git clone git@github.com:gokcank/Curalis.git
+cd Curalis
 
-Documentation guides development rather than describing it afterward.
+# Build debug APK
+./gradlew assembleDebug
 
----
-
-## Contributing
-
-Please read:
-
-- `docs/engineering/contributing.md`
-
-before contributing.
-
----
-
-## License
-
-The project license will be defined before the first public release.
+# Install on connected device / emulator
+./gradlew installDebug
+```
 
 ---
 
-## Disclaimer
+## 🔒 Privacy & Medical Disclaimer
 
-Curalis is **not** a medical device.
-
-The application assists users in organizing medication-related information and does not provide medical advice, diagnosis, or treatment recommendations.
+- **Privacy First:** Curalis does not collect, track, or sell your health data. All data remains strictly on your local device unless you choose to use the optional cloud backup.
+- **Medical Disclaimer:** Curalis is **not** a medical device and does not provide medical advice, diagnosis, or treatment recommendations. Always consult a healthcare professional regarding your medications and health conditions.
 
 ---
+
+## 📄 License & Attribution
+
+All rights reserved. Proprietary software developed with privacy-centric engineering.
