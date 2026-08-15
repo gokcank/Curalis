@@ -7,5 +7,9 @@ data class Reminder(
     val medicationId: String,
     val timeInMillis: Long,
     val state: ReminderState = ReminderState.SCHEDULED,
-    val skipReason: SkipReason? = null
+    val skipReason: SkipReason? = null,
+    /** Kullanıcının dozu gerçekte aldığını belirttiği zaman — "Şimdi" / "Tam zamanında" /
+     *  elle seçilen bir saat olabilir. `timeInMillis` (planlanan saat) ile karıştırılmamalı.
+     *  Yalnızca state == TAKEN iken anlamlıdır. */
+    val takenAtMillis: Long? = null
 )

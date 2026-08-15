@@ -76,6 +76,14 @@ val MIGRATION_13_14 = object : Migration(13, 14) {
     }
 }
 
+val MIGRATION_14_15 = object : Migration(14, 15) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Doz zaman damgası: kullanıcının bir dozu gerçekte ne zaman aldığını belirtebilmesi
+        // (Şimdi / Tam zamanında / elle seçilen bir saat) için (bkz. DoseTakenTimeDialog).
+        db.execSQL("ALTER TABLE reminders ADD COLUMN takenAtMillis INTEGER")
+    }
+}
+
 val CURALIS_MIGRATIONS = arrayOf(
-    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14
+    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15
 )

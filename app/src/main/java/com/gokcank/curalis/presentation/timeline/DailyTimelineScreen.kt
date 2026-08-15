@@ -55,6 +55,7 @@ import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.presentation.components.DoseTakenTimeDialog
 import com.gokcank.curalis.presentation.components.EmptyState
 import com.gokcank.curalis.presentation.components.ReminderStateBadge
 import com.gokcank.curalis.presentation.components.SkipReasonDialog
@@ -72,6 +73,7 @@ fun DailyTimelineScreen(
     val groupedTimelineItems by viewModel.groupedTimelineItems.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     var pendingSkipReminder by remember { mutableStateOf<Reminder?>(null) }
+    var pendingTakeReminder by remember { mutableStateOf<Reminder?>(null) }
 
     Scaffold(
         topBar = {
@@ -144,8 +146,11 @@ fun DailyTimelineScreen(
                             items(itemsInSlot) { timelineItem ->
                                 TimelineCard(
                                     item = timelineItem,
-                                    onTakeClick = { viewModel.acknowledgeDose(timelineItem.reminder, ReminderState.TAKEN) },
-                                    onSkipClick = { pendingSkipReminder = timelineItem.reminder }
+                                    onTakeClick = { pendingTakeReminder = timelineItem.reminder },
+                                    onSkipClick = { pendingSkipReminder = timelineItem.reminder },
+                                    onUnTakeClick = {
+                                        viewModel.acknowledgeDose(timelineItem.reminder, ReminderState.SCHEDULED, takenAtMillis = null)
+                                    }
                                 )
                             }
                         }
@@ -160,6 +165,17 @@ fun DailyTimelineScreen(
                 onConfirm = { reason ->
                     viewModel.acknowledgeDose(reminder, ReminderState.SKIPPED, reason)
                     pendingSkipReminder = null
+                }
+            )
+        }
+
+        pendingTakeReminder?.let { reminder ->
+            DoseTakenTimeDialog(
+                scheduledTimeMillis = reminder.timeInMillis,
+                onDismiss = { pendingTakeReminder = null },
+                onConfirm = { takenAtMillis ->
+                    viewModel.acknowledgeDose(reminder, ReminderState.TAKEN, takenAtMillis = takenAtMillis)
+                    pendingTakeReminder = null
                 }
             )
         }
@@ -200,11 +216,13 @@ fun TimeSlotHeader(slot: TimeSlot) {
 fun TimelineCard(
     item: TimelineItem,
     onTakeClick: () -> Unit,
-    onSkipClick: () -> Unit
+    onSkipClick: () -> Unit,
+    onUnTakeClick: () -> Unit
 ) {
     val med = item.medication
     val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val formattedTime = timeFormat.format(Date(item.reminder.timeInMillis))
+    val takenAtMillis = item.reminder.takenAtMillis
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -248,8 +266,13 @@ fun TimelineCard(
                             overflow = TextOverflow.Ellipsis
                         )
                         val dosageSuffix = med?.dosage?.let { " • $it ${med.unit ?: ""}".trimEnd() } ?: ""
+                        val timeLine = if (item.reminder.state == ReminderState.TAKEN && takenAtMillis != null) {
+                            "Saat $formattedTime$dosageSuffix • Alındı: ${timeFormat.format(Date(takenAtMillis))}"
+                        } else {
+                            "Saat $formattedTime$dosageSuffix"
+                        }
                         Text(
-                            text = "Saat $formattedTime$dosageSuffix",
+                            text = timeLine,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
@@ -271,30 +294,33 @@ fun TimelineCard(
             // "İptal" (ilaç silinmiş) durumları artık değiştirilemez kabul edilir.
             val isCorrectable = item.reminder.state == ReminderState.MISSED ||
                 item.reminder.state == ReminderState.SKIPPED
+            val isTaken = item.reminder.state == ReminderState.TAKEN
 
-            if (isPending || isCorrectable) {
+            if (isPending || isCorrectable || isTaken) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Button(
-                        onClick = onTakeClick,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(40.dp),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            if (isCorrectable) "Aslında Aldım" else "Aldım",
-                            style = MaterialTheme.typography.labelLarge
-                        )
+                    if (isPending || isCorrectable) {
+                        Button(
+                            onClick = onTakeClick,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(40.dp),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                if (isCorrectable) "Aslında Aldım" else "Aldım",
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
                     }
                     if (isPending) {
                         OutlinedButton(
@@ -311,6 +337,23 @@ fun TimelineCard(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text("Atla", style = MaterialTheme.typography.labelLarge)
+                        }
+                    }
+                    if (isTaken) {
+                        OutlinedButton(
+                            onClick = onUnTakeClick,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(40.dp),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.RemoveCircle,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Geri Al", style = MaterialTheme.typography.labelLarge)
                         }
                     }
                 }

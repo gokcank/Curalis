@@ -21,9 +21,14 @@ class AcknowledgeReminderUseCase @Inject constructor(
     /** Hatırlatıcı bulunup güncellenebildiyse true döner; örn. medikasyon silinirken
      *  hatırlatıcısı da silinmiş, ama bildirimden gelen eski bir aksiyon hâlâ tetiklenmişse
      *  false döner — çağıran taraf bu durumda stok/alarm gibi yan etkileri uygulamamalı. */
-    suspend operator fun invoke(reminderId: String, state: ReminderState, skipReason: SkipReason? = null): Boolean {
+    suspend operator fun invoke(
+        reminderId: String,
+        state: ReminderState,
+        skipReason: SkipReason? = null,
+        takenAtMillis: Long? = null
+    ): Boolean {
         val reminder = repository.getReminderById(reminderId) ?: return false
-        repository.updateReminder(reminder.copy(state = state, skipReason = skipReason))
+        repository.updateReminder(reminder.copy(state = state, skipReason = skipReason, takenAtMillis = takenAtMillis))
         return true
     }
 
@@ -34,12 +39,17 @@ class AcknowledgeReminderUseCase @Inject constructor(
      * günceller; yoksa verilen dozu yeni durumuyla ekler — böylece güvenlik ağı
      * senaryosunda bile "Aldım"/"Atla" işaretlemesi sessizce başarısız olmaz.
      */
-    suspend operator fun invoke(reminder: Reminder, state: ReminderState, skipReason: SkipReason? = null) {
+    suspend operator fun invoke(
+        reminder: Reminder,
+        state: ReminderState,
+        skipReason: SkipReason? = null,
+        takenAtMillis: Long? = null
+    ) {
         val existing = repository.getReminderById(reminder.id)
         if (existing != null) {
-            repository.updateReminder(existing.copy(state = state, skipReason = skipReason))
+            repository.updateReminder(existing.copy(state = state, skipReason = skipReason, takenAtMillis = takenAtMillis))
         } else {
-            repository.insertReminder(reminder.copy(state = state, skipReason = skipReason))
+            repository.insertReminder(reminder.copy(state = state, skipReason = skipReason, takenAtMillis = takenAtMillis))
         }
     }
 }

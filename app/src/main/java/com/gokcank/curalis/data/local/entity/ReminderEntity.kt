@@ -23,5 +23,6 @@ data class ReminderEntity(
     val medicationId: String,
     val timeInMillis: Long,
     val state: String,
-    val skipReason: String? = null
+    val skipReason: String? = null,
+    val takenAtMillis: Long? = null
 )

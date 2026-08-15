@@ -3,6 +3,10 @@
     <!-- General -->
     <string name="app_name">Curalis</string>
     <string name="cancel">İptal</string>
+    <string name="dose_taken_time_title">Bu dozu ne zaman aldınız?</string>
+    <string name="dose_taken_time_now">Şimdi</string>
+    <string name="dose_taken_time_on_time">Tam zamanında</string>
+    <string name="dose_taken_time_pick">Bir saat seç</string>
     <string name="save">Kaydet</string>
     <string name="add">Ekle</string>
     <string name="back">Geri Dön</string>

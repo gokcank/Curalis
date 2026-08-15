@@ -3,6 +3,10 @@
     <!-- General -->
     <string name="app_name">Curalis</string>
     <string name="cancel">Cancel</string>
+    <string name="dose_taken_time_title">When did you take this dose?</string>
+    <string name="dose_taken_time_now">Now</string>
+    <string name="dose_taken_time_on_time">On time</string>
+    <string name="dose_taken_time_pick">Pick a time</string>
     <string name="save">Save</string>
     <string name="add">Add</string>
     <string name="back">Back</string>
