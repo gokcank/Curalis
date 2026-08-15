@@ -69,6 +69,9 @@ class BootReceiver : BroadcastReceiver() {
                     upcomingAppointments.forEach { appointment ->
                         alarmScheduler.scheduleAppointmentReminder(appointment)
                     }
+
+                    // Reboot, sabah hatırlatması alarmını da siler.
+                    alarmScheduler.scheduleMorningReminder()
                 } catch (e: Exception) {
                     Log.e(TAG, "Reboot sonrası hatırlatıcılar yeniden kurulurken hata oluştu", e)
                 } finally {

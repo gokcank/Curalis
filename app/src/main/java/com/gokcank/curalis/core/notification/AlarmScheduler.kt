@@ -12,6 +12,7 @@ import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.usecase.FrequencyCalculator
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Calendar
 import javax.inject.Inject
 
 class AlarmScheduler @Inject constructor(
@@ -192,6 +193,64 @@ class AlarmScheduler @Inject constructor(
         setExactAlarm(triggerAtMillis, pendingIntent)
     }
 
+    private fun morningReminderPendingIntent(): PendingIntent {
+        val intent = Intent(context, MorningReminderReceiver::class.java)
+        return PendingIntent.getBroadcast(
+            context,
+            MORNING_REMINDER_REQUEST_CODE,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    /**
+     * Bir sonraki sabah hatırlatmasının tetikleneceği zamanı, hafta içi/hafta sonu ayrımını
+     * gözeterek hesaplar. Tek seferlik alarm olarak kurulur; [MorningReminderReceiver] her
+     * tetiklendiğinde bir sonraki günü yeniden kurar — AlarmManager'ın günlük tekrar eden
+     * alarmları hafta içi/sonu ayrımı yapamadığı için bu yaklaşım tercih edildi.
+     */
+    private fun nextMorningReminderTrigger(): Long {
+        fun targetMinutesFor(cal: Calendar): Int {
+            val isWeekend = cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY ||
+                cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
+            return if (isWeekend && notificationPreferences.weekendModeEnabled) {
+                notificationPreferences.weekendMorningReminderMinutes
+            } else {
+                notificationPreferences.morningReminderMinutes
+            }
+        }
+
+        val now = System.currentTimeMillis()
+        val cal = Calendar.getInstance()
+        var targetMinutes = targetMinutesFor(cal)
+        cal.set(Calendar.HOUR_OF_DAY, targetMinutes / 60)
+        cal.set(Calendar.MINUTE, targetMinutes % 60)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+
+        if (cal.timeInMillis <= now) {
+            cal.add(Calendar.DAY_OF_YEAR, 1)
+            targetMinutes = targetMinutesFor(cal)
+            cal.set(Calendar.HOUR_OF_DAY, targetMinutes / 60)
+            cal.set(Calendar.MINUTE, targetMinutes % 60)
+        }
+
+        return cal.timeInMillis
+    }
+
+    /** Sabah hatırlatması kapalıysa kurulu alarmı iptal eder; açıksa bir sonraki tetiklenmeyi kurar. */
+    fun scheduleMorningReminder() {
+        if (!notificationPreferences.morningReminderEnabled) {
+            cancelMorningReminder()
+            return
+        }
+        setExactAlarm(nextMorningReminderTrigger(), morningReminderPendingIntent())
+    }
+
+    fun cancelMorningReminder() {
+        alarmManager.cancel(morningReminderPendingIntent())
+    }
+
     fun cancel(reminderId: String) {
         val intent = Intent(context, ReminderReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
@@ -217,5 +276,6 @@ class AlarmScheduler @Inject constructor(
         const val EXTRA_REMINDER_KIND = "extra_reminder_kind"
         const val KIND_MEDICATION = "medication"
         const val KIND_APPOINTMENT = "appointment"
+        private const val MORNING_REMINDER_REQUEST_CODE = -2001
     }
 }

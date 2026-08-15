@@ -66,10 +66,41 @@ class NotificationHelper @Inject constructor(
                 description = context.getString(R.string.notification_channel_desc_refill)
             }
 
+            // Sabah "ilaçlarını yanına al" hatırlatması; bir doz alarmı değil, kullanıcının
+            // gün içinde kendi başına yönetebileceği düşük öncelikli bir öneri.
+            val proactiveChannel = NotificationChannel(
+                CHANNEL_ID_PROACTIVE,
+                context.getString(R.string.notification_channel_name_proactive),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = context.getString(R.string.notification_channel_desc_proactive)
+            }
+
             notificationManager.createNotificationChannel(reminderChannel)
             notificationManager.createNotificationChannel(silentReminderChannel)
             notificationManager.createNotificationChannel(refillChannel)
+            notificationManager.createNotificationChannel(proactiveChannel)
         }
+    }
+
+    fun showMorningReminderNotification() {
+        val contentIntent = Intent(context, MainActivity::class.java)
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            MORNING_REMINDER_NOTIFICATION_ID,
+            contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID_PROACTIVE)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle(context.getString(R.string.notification_morning_title))
+            .setContentText(context.getString(R.string.notification_morning_text))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
+
+        notificationManager.notify(MORNING_REMINDER_NOTIFICATION_ID, builder.build())
     }
 
     fun showReminderNotification(
@@ -285,6 +316,8 @@ class NotificationHelper @Inject constructor(
         const val CHANNEL_ID = "medication_reminders_channel"
         const val CHANNEL_ID_REMINDERS_SILENT = "medication_reminders_silent_channel"
         const val CHANNEL_ID_REFILL = "refill_warnings_channel"
+        const val CHANNEL_ID_PROACTIVE = "proactive_reminders_channel"
+        const val MORNING_REMINDER_NOTIFICATION_ID = -1001
         const val ACTION_TAKEN = "com.gokcank.curalis.ACTION_TAKEN"
         const val ACTION_SNOOZE = "com.gokcank.curalis.ACTION_SNOOZE"
         const val ACTION_SKIP = "com.gokcank.curalis.ACTION_SKIP"

@@ -55,6 +55,10 @@
     <string name="notification_channel_desc_silent">Medication reminders during quiet hours; no sound or vibration</string>
     <string name="notification_channel_name_refill">Refill Warnings</string>
     <string name="notification_channel_desc_refill">Sends a notification when your medication stock is running low</string>
+    <string name="notification_channel_name_proactive">Morning Reminder</string>
+    <string name="notification_channel_desc_proactive">Daily morning reminder to take your medications with you</string>
+    <string name="notification_morning_title">Good morning!</string>
+    <string name="notification_morning_text">Don\'t forget to take today\'s medications with you.</string>
     <string name="ok">OK</string>
     <string name="skip_reason_title">Why are you skipping this dose?</string>
 
