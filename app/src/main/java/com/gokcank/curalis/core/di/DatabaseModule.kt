@@ -2,12 +2,15 @@ package com.gokcank.curalis.core.di
 
 import android.app.Application
 import androidx.room.Room
+import com.gokcank.curalis.core.security.DatabaseKeyProvider
+import com.gokcank.curalis.core.security.LegacyDatabaseMigrator
 import com.gokcank.curalis.data.local.CuralisDatabase
 import com.gokcank.curalis.data.local.dao.MedicationDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import net.sqlcipher.database.SupportFactory
 import javax.inject.Singleton
 
 @Module
@@ -16,17 +19,24 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideCuralisDatabase(app: Application): CuralisDatabase {
+    fun provideCuralisDatabase(app: Application, keyProvider: DatabaseKeyProvider): CuralisDatabase {
         // DİKKAT: Burada kasıtlı olarak fallbackToDestructiveMigration() kullanılmıyor.
         // Bu, kullanıcı verisi (ilaç/randevu/ölçüm geçmişi) barındıran canlı veritabanı.
         // Sürüm numarası bir sonraki güncellemede artarsa ve karşılığında bir Migration
         // tanımlanmamışsa, Room burada veriyi sessizce silmek yerine çökerek geliştiriciyi
         // gerçek bir migration yazmaya zorlar (bkz. schemas/ klasörü, room.schemaLocation).
+        val passphrase = keyProvider.getOrCreatePassphrase()
+
+        // 1.1.0 öncesi kurulumlarda dosya şifresizdi; Room'u açmadan önce (gerekiyorsa)
+        // şifreli bir kopyaya taşınır (bkz. LegacyDatabaseMigrator).
+        LegacyDatabaseMigrator.migrateIfNeeded(app, CuralisDatabase.DATABASE_NAME, passphrase)
+
         return Room.databaseBuilder(
             app,
             CuralisDatabase::class.java,
             CuralisDatabase.DATABASE_NAME
         )
+        .openHelperFactory(SupportFactory(passphrase.toByteArray(Charsets.UTF_8)))
         .addMigrations(*com.gokcank.curalis.data.local.CURALIS_MIGRATIONS)
         .build()
     }

@@ -41,6 +41,8 @@ data class Medication(
     // olarak, bu tedavinin kaç gün süreceğini belirtir (ör. "10 günlük antibiyotik").
     // Yalnızca bilgilendirme amaçlıdır; süre dolduğunda ilaç otomatik arşivlenmez.
     val treatmentDurationDays: Int? = null,
+    // Reçete (Rx) numarası — eczaneden yenileme talep ederken referans olarak kullanılır.
+    val rxNumber: String? = null,
     // Cihazda saklanan bir ilaç fotoğrafının dosya yolu (bkz. MedicationPhotoStorage).
     // Hiçbir sunucuya yüklenmez.
     val photoPath: String? = null,

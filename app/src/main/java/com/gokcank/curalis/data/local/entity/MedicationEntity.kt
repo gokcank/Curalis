@@ -32,6 +32,7 @@ data class MedicationEntity(
     val isArchived: Boolean = false,
     val isSuspended: Boolean = false,
     val treatmentDurationDays: Int? = null,
+    val rxNumber: String? = null,
     val photoPath: String? = null,
     val doctorId: String? = null
 )

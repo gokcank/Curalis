@@ -140,6 +140,11 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    // Yerel veritabanı şifreleme (bkz. DatabaseModule, DatabaseKeyProvider)
+    implementation(libs.sqlcipher.android)
+    implementation(libs.androidx.sqlite)
+    implementation(libs.androidx.security.crypto)
+
     // Google Drive & Auth
     implementation(libs.play.services.auth)
     implementation(libs.google.api.client.android)
