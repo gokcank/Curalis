@@ -2,11 +2,14 @@ package com.gokcank.curalis.presentation.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.DinnerDining
+import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.Healing
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.NoMeals
+import androidx.compose.material.icons.filled.Opacity
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Sanitizer
 import androidx.compose.material.icons.filled.Schedule
@@ -31,10 +34,16 @@ fun MedicationForm.icon(): ImageVector = when (this) {
     MedicationForm.CAPSULE -> Icons.Filled.Medication
     MedicationForm.SYRUP -> Icons.Filled.Science
     MedicationForm.INJECTION -> Icons.Filled.Vaccines
+    MedicationForm.INJECTION_PEN -> Icons.Filled.Vaccines
     MedicationForm.OINTMENT -> Icons.Filled.Sanitizer
+    MedicationForm.GEL -> Icons.Filled.Opacity
     MedicationForm.DROPS -> Icons.Filled.WaterDrop
     MedicationForm.INHALER -> Icons.Filled.Air
+    MedicationForm.SPRAY -> Icons.Filled.Air
+    MedicationForm.SUPPOSITORY -> Icons.Filled.Circle
     MedicationForm.PATCH -> Icons.Filled.Healing
+    MedicationForm.LOZENGE -> Icons.Filled.Medication
+    MedicationForm.POWDER -> Icons.Filled.Grain
     MedicationForm.OTHER -> Icons.Filled.Inventory2
 }
 
