@@ -8,10 +8,16 @@ enum class MedicationForm(
     CAPSULE("Kapsül", "Capsule"),
     SYRUP("Şurup / Likit", "Syrup / Liquid"),
     INJECTION("İğne / Enjeksiyon", "Injection"),
+    INJECTION_PEN("Enjeksiyon Kalemi", "Injection Pen"),
     OINTMENT("Merhem / Krem", "Ointment / Cream"),
+    GEL("Jel", "Gel"),
     DROPS("Damla", "Drops"),
     INHALER("İnhaler / Fısfıs", "Inhaler"),
+    SPRAY("Sprey", "Spray"),
+    SUPPOSITORY("Fitil", "Suppository"),
     PATCH("Bant / Yakı", "Patch"),
+    LOZENGE("Pastil / Emilebilir Tablet", "Lozenge"),
+    POWDER("Toz / Saşe", "Powder / Sachet"),
     OTHER("Diğer", "Other");
 
     companion object {

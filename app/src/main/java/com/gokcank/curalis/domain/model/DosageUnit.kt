@@ -14,7 +14,11 @@ enum class DosageUnit(val displayNameTr: String, val displayNameEn: String) {
     MG("mg", "mg"),
     MCG("mcg", "mcg"),
     GRAM("g", "g"),
-    IU("IU", "IU");
+    IU("IU", "IU"),
+    FITIL("Fitil", "Suppository"),
+    SASE("Saşe", "Sachet"),
+    PUF("Puf", "Puff"),
+    KALEM("Kalem Dozu", "Pen Dose");
 
     companion object {
         val ALL_UNITS = values().map { it.displayNameTr }
