@@ -44,7 +44,7 @@ class BootReceiver : BroadcastReceiver() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val medications = medicationRepository.getAllMedications().firstOrNull()
-                        ?.filter { !it.isArchived } ?: emptyList()
+                        ?.filter { !it.isArchived && !it.isSuspended } ?: emptyList()
                     val now = System.currentTimeMillis()
                     medications.forEach { medication ->
                         // Reboot, kurulu tüm AlarmManager alarmlarını temizler; bu yüzden

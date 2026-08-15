@@ -727,7 +727,7 @@ fun AddEditMedicationScreen(
                             "yemek" to "Yemek Talimatı",
                             "stok" to "Stok Takibi",
                             "doktor" to "Doktor",
-                            "ek_bilgi" to "Son Kullanma Tarihi / Notlar"
+                            "ek_bilgi" to "Son Kullanma Tarihi / Notlar / Tedavi Süresi"
                         )
                         androidx.compose.foundation.layout.FlowRow(
                             modifier = Modifier.fillMaxWidth(),
@@ -908,6 +908,18 @@ fun AddEditMedicationScreen(
                 placeholder = { Text("Serin ve kuru yerde saklayınız.") },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = formState.treatmentDurationDays,
+                onValueChange = viewModel::onTreatmentDurationChange,
+                label = { Text("Tedavi Süresi (gün, Opsiyonel)") },
+                placeholder = { Text("Örn: 10") },
+                supportingText = { Text("Kutunun son kullanma tarihinden farklıdır — bu tedavinin kaç gün süreceğidir.") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
             )
             }
 

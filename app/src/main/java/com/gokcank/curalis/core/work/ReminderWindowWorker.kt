@@ -38,7 +38,7 @@ class ReminderWindowWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return try {
             val medications = medicationRepository.getAllMedications().firstOrNull()
-                ?.filter { !it.isArchived } ?: emptyList()
+                ?.filter { !it.isArchived && !it.isSuspended } ?: emptyList()
 
             medications.forEach { medication ->
                 generateUpcomingRemindersUseCase(medication)

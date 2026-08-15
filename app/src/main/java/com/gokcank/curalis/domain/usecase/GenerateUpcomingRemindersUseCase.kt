@@ -24,6 +24,10 @@ class GenerateUpcomingRemindersUseCase @Inject constructor(
 
     suspend operator fun invoke(medication: Medication, fromMillis: Long = System.currentTimeMillis()) {
         if (medication.isArchived) return
+        // Askıya alınan ilaç silinmez/gizlenmez ama tedaviye ara verildiği için yeni
+        // hatırlatıcı üretilmez — kullanıcı "Devam Et" dediğinde bu fonksiyon yeniden
+        // çağrılır (bkz. MedicationListViewModel.resumeMedication).
+        if (medication.isSuspended) return
         if (medication.frequencyType == FrequencyType.AS_NEEDED) return
         if (medication.times.isEmpty()) return
 

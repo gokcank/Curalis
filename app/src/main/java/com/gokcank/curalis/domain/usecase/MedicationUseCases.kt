@@ -46,6 +46,36 @@ class ArchiveMedicationUseCase @Inject constructor(
     }
 }
 
+/** Arşivlenmiş bir ilacı Aktif sekmesine geri döndürür. Hatırlatıcı üretimi ve alarm
+ *  kurulumu bunu çağıran tarafın sorumluluğundadır (bkz. MedicationListViewModel). */
+class UnarchiveMedicationUseCase @Inject constructor(
+    private val repository: MedicationRepository
+) {
+    suspend operator fun invoke(medication: Medication) {
+        repository.updateMedication(medication.copy(isArchived = false))
+    }
+}
+
+/** İlacı geçici olarak duraklatır — arşivden farklı, ilaç listede kalır ama yeni
+ *  hatırlatıcı üretilmez/alarm kurulmaz. */
+class SuspendMedicationUseCase @Inject constructor(
+    private val repository: MedicationRepository
+) {
+    suspend operator fun invoke(medication: Medication) {
+        repository.updateMedication(medication.copy(isSuspended = true))
+    }
+}
+
+/** Askıya alınmış bir ilacı devam ettirir. Hatırlatıcı üretimi ve alarm kurulumu
+ *  bunu çağıran tarafın sorumluluğundadır (bkz. MedicationListViewModel). */
+class ResumeMedicationUseCase @Inject constructor(
+    private val repository: MedicationRepository
+) {
+    suspend operator fun invoke(medication: Medication) {
+        repository.updateMedication(medication.copy(isSuspended = false))
+    }
+}
+
 class GetMedicationsUseCase @Inject constructor(
     private val repository: MedicationRepository
 ) {

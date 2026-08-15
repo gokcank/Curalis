@@ -29,6 +29,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Medication
+import androidx.compose.material.icons.filled.PauseCircle
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Verified
@@ -46,6 +49,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -88,9 +93,11 @@ fun MedicationListScreen(
     onNavigateBack: () -> Unit,
     viewModel: MedicationListViewModel = hiltViewModel()
 ) {
-    val medications by viewModel.medications.collectAsState()
+    val activeMedications by viewModel.activeMedications.collectAsState()
+    val archivedMedications by viewModel.archivedMedications.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     var medicationToDelete by remember { mutableStateOf<Medication?>(null) }
+    var selectedTab by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -133,13 +140,17 @@ fun MedicationListScreen(
                 }
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.archiveMedication(med)
-                        medicationToDelete = null
+                // Zaten arşivde olan bir ilaç için "arşivle" seçeneğinin bir anlamı
+                // yok — yalnızca Aktif sekmesinden gelen silme akışında gösterilir.
+                if (!med.isArchived) {
+                    TextButton(
+                        onClick = {
+                            viewModel.archiveMedication(med)
+                            medicationToDelete = null
+                        }
+                    ) {
+                        Text(stringResource(R.string.delete_medication_archive_button))
                     }
-                ) {
-                    Text(stringResource(R.string.delete_medication_archive_button))
                 }
             },
             dismissButton = {
@@ -196,8 +207,24 @@ fun MedicationListScreen(
                 placeholder = { Text(stringResource(R.string.medication_name)) },
                 singleLine = true
             )
-            
-            if (medications.isEmpty()) {
+
+            Spacer(modifier = Modifier.height(8.dp))
+            TabRow(selectedTabIndex = selectedTab) {
+                Tab(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    text = { Text("Aktif") }
+                )
+                Tab(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    text = { Text("Arşiv (${archivedMedications.size})") }
+                )
+            }
+
+            val visibleMedications = if (selectedTab == 0) activeMedications else archivedMedications
+
+            if (visibleMedications.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     if (searchQuery.isNotBlank()) {
                         // Kayıtlar var, yalnızca arama eşleşmedi: "hiç ilaç eklemediniz"
@@ -206,6 +233,12 @@ fun MedicationListScreen(
                             icon = Icons.Default.Search,
                             query = searchQuery,
                             onClearSearch = { viewModel.onSearchQueryChange("") }
+                        )
+                    } else if (selectedTab == 1) {
+                        EmptyState(
+                            icon = Icons.Default.Inventory2,
+                            title = "Arşivde ilaç yok",
+                            description = "Arşivlediğiniz ilaçlar burada görünür ve istediğiniz zaman geri alabilirsiniz."
                         )
                     } else {
                         EmptyState(
@@ -222,13 +255,28 @@ fun MedicationListScreen(
                     modifier = Modifier.fillMaxSize().padding(top = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(medications) { medication ->
-                        MedicationItem(
-                            medication = medication,
-                            onClick = { onNavigateToAddEdit(medication.id) },
-                            onTakeDose = { viewModel.takeDose(medication.id) },
-                            onDelete = { medicationToDelete = medication }
-                        )
+                    items(visibleMedications) { medication ->
+                        if (selectedTab == 1) {
+                            ArchivedMedicationItem(
+                                medication = medication,
+                                onRestore = { viewModel.unarchiveMedication(medication) },
+                                onDeleteForever = { medicationToDelete = medication }
+                            )
+                        } else {
+                            MedicationItem(
+                                medication = medication,
+                                onClick = { onNavigateToAddEdit(medication.id) },
+                                onTakeDose = { viewModel.takeDose(medication.id) },
+                                onDelete = { medicationToDelete = medication },
+                                onToggleSuspend = {
+                                    if (medication.isSuspended) {
+                                        viewModel.resumeMedication(medication)
+                                    } else {
+                                        viewModel.suspendMedication(medication)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -250,7 +298,8 @@ fun MedicationItem(
     medication: Medication,
     onClick: () -> Unit,
     onTakeDose: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onToggleSuspend: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -318,6 +367,27 @@ fun MedicationItem(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
+                    if (medication.isSuspended) {
+                        val semantic = LocalCuralisColors.current
+                        InfoChip(
+                            icon = Icons.Default.PauseCircle,
+                            text = "Askıya Alındı",
+                            containerColor = semantic.warningContainer,
+                            contentColor = semantic.onWarningContainer
+                        )
+                    }
+
+                    medication.treatmentDurationDays?.let { days ->
+                        val elapsedDays = ((System.currentTimeMillis() - medication.startDate) / (24 * 60 * 60 * 1000L)).toInt()
+                        val remaining = days - elapsedDays
+                        InfoChip(
+                            icon = Icons.Default.Event,
+                            text = if (remaining > 0) "Tedavi: $remaining gün kaldı" else "Tedavi süresi doldu",
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
                     InfoChip(
                         icon = if (medication.isVerifiedSource) Icons.Default.Verified else Icons.Default.Edit,
                         text = if (medication.isVerifiedSource) "Doğrulanmış Kaynak" else "Elle Girildi",
@@ -387,7 +457,67 @@ fun MedicationItem(
                 }
             }
 
+            IconButton(onClick = onToggleSuspend) {
+                Icon(
+                    imageVector = if (medication.isSuspended) Icons.Default.PlayCircle else Icons.Default.PauseCircle,
+                    contentDescription = if (medication.isSuspended) "Devam Et" else "Askıya Al",
+                    tint = MaterialTheme.colorScheme.outline
+                )
+            }
+
             IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete),
+                    tint = MaterialTheme.colorScheme.outline
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ArchivedMedicationItem(
+    medication: Medication,
+    onRestore: () -> Unit,
+    onDeleteForever: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = medication.name,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                val dosageStr = listOfNotNull(medication.dosage, medication.unit).joinToString(" ")
+                if (dosageStr.isNotBlank()) {
+                    Text(
+                        text = dosageStr,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            IconButton(onClick = onRestore) {
+                Icon(
+                    imageVector = Icons.Default.Restore,
+                    contentDescription = "Arşivden Çıkar",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            IconButton(onClick = onDeleteForever) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = stringResource(R.string.delete),
