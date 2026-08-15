@@ -21,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -58,8 +60,12 @@ fun AppointmentListScreen(
     onAppointmentClick: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val appointments by viewModel.appointments.collectAsState()
+    val upcomingAppointments by viewModel.upcomingAppointments.collectAsState()
+    val completedAppointments by viewModel.completedAppointments.collectAsState()
     var appointmentToDelete by remember { mutableStateOf<Appointment?>(null) }
+    var selectedTab by remember { mutableStateOf(0) }
+    val tabTitles = listOf("Yaklaşan", "Tamamlandı")
+    val visibleAppointments = if (selectedTab == 0) upcomingAppointments else completedAppointments
 
     appointmentToDelete?.let { appt ->
         AlertDialog(
@@ -101,35 +107,66 @@ fun AppointmentListScreen(
             }
         }
     ) { padding ->
-        if (appointments.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                EmptyState(
-                    icon = Icons.AutoMirrored.Filled.EventNote,
-                    title = stringResource(R.string.no_appointments_found),
-                    description = "Yaklaşan doktor randevularınızı buraya ekleyip bir saat öncesinden hatırlatma alabilirsiniz.",
-                    actionLabel = stringResource(R.string.add_appointment),
-                    onAction = onAddAppointmentClick
-                )
+        val hasAnyAppointments = upcomingAppointments.isNotEmpty() || completedAppointments.isNotEmpty()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            if (hasAnyAppointments) {
+                TabRow(selectedTabIndex = selectedTab) {
+                    tabTitles.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTab == index,
+                            onClick = { selectedTab = index },
+                            text = { Text(title) }
+                        )
+                    }
+                }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(appointments) { appointment ->
-                    AppointmentItem(
-                        appointment = appointment,
-                        onClick = { onAppointmentClick(appointment.id) },
-                        onDelete = { appointmentToDelete = appointment }
+
+            if (!hasAnyAppointments) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    EmptyState(
+                        icon = Icons.AutoMirrored.Filled.EventNote,
+                        title = stringResource(R.string.no_appointments_found),
+                        description = "Yaklaşan doktor randevularınızı buraya ekleyip bir saat öncesinden hatırlatma alabilirsiniz.",
+                        actionLabel = stringResource(R.string.add_appointment),
+                        onAction = onAddAppointmentClick
                     )
+                }
+            } else if (visibleAppointments.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    EmptyState(
+                        icon = Icons.AutoMirrored.Filled.EventNote,
+                        title = if (selectedTab == 0) "Yaklaşan randevu yok" else "Tamamlanmış randevu yok",
+                        description = if (selectedTab == 0) {
+                            "Şu anda beklemede olan bir randevunuz yok."
+                        } else {
+                            "Zamanı geçmiş bir randevunuz henüz yok."
+                        }
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(visibleAppointments) { appointment ->
+                        AppointmentItem(
+                            appointment = appointment,
+                            onClick = { onAppointmentClick(appointment.id) },
+                            onDelete = { appointmentToDelete = appointment }
+                        )
+                    }
                 }
             }
         }
