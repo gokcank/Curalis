@@ -31,6 +31,14 @@ class AddEditVitalViewModel @Inject constructor(
     private val _notes = MutableStateFlow("")
     val notes = _notes.asStateFlow()
 
+    /** Yalnızca VitalType.WEIGHT için anlamlıdır; diğer türlerde selectedType.defaultUnit kullanılır. */
+    private val _weightUnit = MutableStateFlow("kg")
+    val weightUnit = _weightUnit.asStateFlow()
+
+    fun onWeightUnitSelected(unit: String) {
+        _weightUnit.value = unit
+    }
+
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
@@ -68,7 +76,7 @@ class AddEditVitalViewModel @Inject constructor(
                 type = _selectedType.value,
                 value1 = v1,
                 value2 = v2,
-                unit = _selectedType.value.defaultUnit,
+                unit = if (_selectedType.value == VitalType.WEIGHT) _weightUnit.value else _selectedType.value.defaultUnit,
                 timeInMillis = System.currentTimeMillis(),
                 notes = _notes.value.takeIf { it.isNotBlank() }
             )

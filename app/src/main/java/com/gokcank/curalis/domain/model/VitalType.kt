@@ -7,5 +7,11 @@ enum class VitalType(val defaultUnit: String) {
     WEIGHT("kg"),
     TEMPERATURE("°C"),
     OXYGEN_SATURATION("%"),
-    CHOLESTEROL("mg/dL")
+    CHOLESTEROL("mg/dL"),
+    A1C("%"),
+    HDL_CHOLESTEROL("mg/dL"),
+    LDL_CHOLESTEROL("mg/dL"),
+    TRIGLYCERIDES("mg/dL"),
+    BODY_FAT("%"),
+    STEP_COUNT("adım")
 }

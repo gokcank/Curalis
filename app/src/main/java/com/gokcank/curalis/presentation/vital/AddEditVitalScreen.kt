@@ -1,5 +1,6 @@
 package com.gokcank.curalis.presentation.vital
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +55,7 @@ fun AddEditVitalScreen(
     val value1 by viewModel.value1.collectAsState()
     val value2 by viewModel.value2.collectAsState()
     val notes by viewModel.notes.collectAsState()
+    val weightUnit by viewModel.weightUnit.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
@@ -156,12 +159,28 @@ fun AddEditVitalScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
-                Text(
-                    text = stringResource(R.string.vital_unit_label, selectedType.defaultUnit),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+                if (selectedType == VitalType.WEIGHT) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = weightUnit == "kg",
+                            onClick = { viewModel.onWeightUnitSelected("kg") },
+                            label = { Text("kg") }
+                        )
+                        FilterChip(
+                            selected = weightUnit == "lb",
+                            onClick = { viewModel.onWeightUnitSelected("lb") },
+                            label = { Text("lb") }
+                        )
+                    }
+                } else {
+                    Text(
+                        text = stringResource(R.string.vital_unit_label, selectedType.defaultUnit),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

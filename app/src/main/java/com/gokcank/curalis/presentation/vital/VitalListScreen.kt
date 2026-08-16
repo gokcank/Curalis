@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -232,6 +234,12 @@ fun VitalItem(
                         VitalType.TEMPERATURE -> Icons.Default.Thermostat
                         VitalType.OXYGEN_SATURATION -> Icons.Default.Air
                         VitalType.CHOLESTEROL -> Icons.Default.WaterDrop
+                        VitalType.A1C -> Icons.Default.Science
+                        VitalType.HDL_CHOLESTEROL -> Icons.Default.WaterDrop
+                        VitalType.LDL_CHOLESTEROL -> Icons.Default.WaterDrop
+                        VitalType.TRIGLYCERIDES -> Icons.Default.WaterDrop
+                        VitalType.BODY_FAT -> Icons.Default.Scale
+                        VitalType.STEP_COUNT -> Icons.Default.DirectionsWalk
                     },
                     contentDescription = null,
                     modifier = Modifier.padding(end = 16.dp),
