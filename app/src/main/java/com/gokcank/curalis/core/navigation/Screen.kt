@@ -24,6 +24,13 @@ sealed class Screen(val route: String) {
         }
     }
     
+    data object EmergencyContactList : Screen("emergency_contact_list_screen")
+    data object AddEditEmergencyContact : Screen("add_edit_emergency_contact_screen?contactId={contactId}") {
+        fun passContactId(contactId: String?): String {
+            return "add_edit_emergency_contact_screen?contactId=$contactId"
+        }
+    }
+
     data object AppointmentList : Screen("appointment_list_screen")
     data object AddEditAppointment : Screen("add_edit_appointment_screen?appointmentId={appointmentId}") {
         fun passAppointmentId(appointmentId: String?): String {

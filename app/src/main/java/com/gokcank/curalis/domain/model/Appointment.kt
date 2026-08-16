@@ -5,6 +5,8 @@ import java.util.UUID
 data class Appointment(
     val id: String = UUID.randomUUID().toString(),
     val doctorId: String? = null,
+    // Doktor'un alternatifi — bir randevu ikisinden yalnızca birine atanabilir.
+    val emergencyContactId: String? = null,
     val title: String,
     val timeInMillis: Long,
     val location: String? = null,

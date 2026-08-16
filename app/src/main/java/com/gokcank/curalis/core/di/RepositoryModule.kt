@@ -38,6 +38,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindEmergencyContactRepository(
+        emergencyContactRepositoryImpl: com.gokcank.curalis.data.repository.EmergencyContactRepositoryImpl
+    ): com.gokcank.curalis.domain.repository.EmergencyContactRepository
+
+    @Binds
+    @Singleton
     abstract fun bindVitalRepository(
         vitalRepositoryImpl: com.gokcank.curalis.data.repository.VitalRepositoryImpl
     ): com.gokcank.curalis.domain.repository.VitalRepository

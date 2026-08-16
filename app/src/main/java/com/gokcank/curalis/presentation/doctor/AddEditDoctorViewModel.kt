@@ -3,9 +3,11 @@ package com.gokcank.curalis.presentation.doctor
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.domain.model.Appointment
 import com.gokcank.curalis.domain.model.Doctor
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.usecase.DoctorUseCases
+import com.gokcank.curalis.domain.usecase.GetAppointmentsUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,6 +26,7 @@ import javax.inject.Inject
 class AddEditDoctorViewModel @Inject constructor(
     private val doctorUseCases: DoctorUseCases,
     getMedicationsUseCase: GetMedicationsUseCase,
+    getAppointmentsUseCase: GetAppointmentsUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -47,6 +50,14 @@ class AddEditDoctorViewModel @Inject constructor(
 
     private var currentDoctorId: String? = null
 
+    // savedStateHandle'daki ham "doctorId" argümanı, ekleme akışında navigasyonun
+    // {doctorId} yer tutucusunu literal olarak geçirmesi yüzünden boş olmayan ama
+    // geçersiz bir string olabilir (bkz. NavGraph — onAddDoctorClick). Bu yüzden
+    // isEditMode, ham argümana değil, veritabanında GERÇEKTEN bulunan bir doktora göre
+    // belirlenir; aksi halde yeni ilaç eklerken de "Randevular" sekmesi yanlışlıkla görünürdü.
+    private val _isEditMode = MutableStateFlow(false)
+    val isEditMode: StateFlow<Boolean> = _isEditMode.asStateFlow()
+
     /** Bu doktora bağlı (reçete eden doktoru bu olarak seçilmiş) ilaçlar. Yeni bir doktor
      *  eklenirken (henüz kimliği yokken) her zaman boştur. */
     val linkedMedications: StateFlow<List<Medication>> = savedStateHandle
@@ -60,6 +71,18 @@ class AddEditDoctorViewModel @Inject constructor(
         ?.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
         ?: MutableStateFlow(emptyList())
 
+    /** Bu doktora atanmış randevular — "Randevular" sekmesinde gösterilir. */
+    val linkedAppointments: StateFlow<List<Appointment>> = savedStateHandle
+        .get<String>("doctorId")
+        ?.takeIf { it.isNotBlank() }
+        ?.let { doctorId ->
+            getAppointmentsUseCase().map { appointments ->
+                appointments.filter { it.doctorId == doctorId }.sortedBy { it.timeInMillis }
+            }
+        }
+        ?.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        ?: MutableStateFlow(emptyList())
+
     init {
         savedStateHandle.get<String>("doctorId")?.let { doctorId ->
             if (doctorId.isNotBlank()) {
@@ -67,6 +90,7 @@ class AddEditDoctorViewModel @Inject constructor(
                     doctorUseCases.getDoctorById(doctorId).collect { doctor ->
                         doctor?.let {
                             currentDoctorId = it.id
+                            _isEditMode.value = true
                             _doctorName.value = it.name
                             _specialty.value = it.specialty ?: ""
                             _phoneNumber.value = it.phoneNumber ?: ""

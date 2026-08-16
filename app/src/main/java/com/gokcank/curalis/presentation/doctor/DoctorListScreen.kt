@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ContactEmergency
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,7 +53,8 @@ fun DoctorListScreen(
     viewModel: DoctorListViewModel = hiltViewModel(),
     onAddDoctorClick: () -> Unit,
     onDoctorClick: (String) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToEmergencyContacts: () -> Unit = {}
 ) {
     val doctors by viewModel.doctors.collectAsState()
     var doctorToDelete by remember { mutableStateOf<Doctor?>(null) }
@@ -87,6 +89,11 @@ fun DoctorListScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onNavigateToEmergencyContacts) {
+                        Icon(Icons.Default.ContactEmergency, contentDescription = "Acil Durum Kişileri")
                     }
                 }
             )

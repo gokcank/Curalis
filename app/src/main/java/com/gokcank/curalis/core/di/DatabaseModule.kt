@@ -79,6 +79,12 @@ object DatabaseModule {
 
     @Provides
     @Singleton
+    fun provideEmergencyContactDao(db: CuralisDatabase): com.gokcank.curalis.data.local.dao.EmergencyContactDao {
+        return db.emergencyContactDao
+    }
+
+    @Provides
+    @Singleton
     fun provideMedicationDictionaryDatabase(app: Application): com.gokcank.curalis.data.local.MedicationDictionaryDatabase {
         // Bu veritabanı kullanıcı verisi içermiyor; her güncellemede assets'ten yeniden
         // kopyalanan salt okunur bir ilaç sözlüğü. Bu yüzden yıkıcı migration burada güvenli.
