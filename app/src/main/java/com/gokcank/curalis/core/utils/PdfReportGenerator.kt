@@ -35,6 +35,20 @@ interface PdfReportGeneratorEntryPoint {
     fun pdfReportGenerator(): PdfReportGenerator
 }
 
+/** Rapor önizlemesinde gösterilen özet rozeti için hesaplanan uyum istatistikleri. */
+data class ReportSummary(
+    val adherencePercentage: Int?,
+    val totalCount: Int,
+    val takenCount: Int,
+    val skippedCount: Int,
+    val missedCount: Int
+)
+
+data class ReportResult(
+    val file: File,
+    val summary: ReportSummary
+)
+
 @Singleton
 class PdfReportGenerator @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -46,13 +60,20 @@ class PdfReportGenerator @Inject constructor(
     /**
      * Raporu üretir ve dosyayı döndürür; paylaşmaz. Önizleme için kullanılır.
      * @param startMillis Uyum istatistiklerinin hesaplanacağı aralığın başlangıcı; verilmezse
-     * son 30 gün kullanılır. Ölçüm geçmişi ve ilaç dolabı listesi bu aralıktan etkilenmez —
-     * onlar her zaman en güncel/tüm kayıtları gösterir.
+     * son 30 gün kullanılır.
+     * @param medicationIds Yalnızca bu ilaçların dahil edilmesi için filtre; null veya boş ise
+     * tüm ilaçlar dahil edilir.
+     * @param includeAdherenceSummary/includeMedicationList/includeVitals Paylaşılan PDF'in
+     * hangi bölümleri içereceğini seçtirir.
      */
     suspend fun generateReport(
         startMillis: Long = System.currentTimeMillis() - (30L * 24 * 3600 * 1000),
-        endMillis: Long = System.currentTimeMillis()
-    ): File = withContext(Dispatchers.IO) {
+        endMillis: Long = System.currentTimeMillis(),
+        medicationIds: Set<String>? = null,
+        includeAdherenceSummary: Boolean = true,
+        includeMedicationList: Boolean = true,
+        includeVitals: Boolean = true
+    ): ReportResult = withContext(Dispatchers.IO) {
         val medicationsDeferred = async { medicationRepository.getAllMedications().firstOrNull() ?: emptyList() }
         val vitalsDeferred = async { vitalRepository.getAllVitals().firstOrNull() ?: emptyList() }
 
@@ -60,15 +81,34 @@ class PdfReportGenerator @Inject constructor(
             getRemindersBetweenDatesUseCase(startMillis, endMillis).firstOrNull() ?: emptyList()
         }
 
-        val medications = medicationsDeferred.await()
+        val allMedications = medicationsDeferred.await()
+        val medications = if (medicationIds.isNullOrEmpty()) allMedications else allMedications.filter { it.id in medicationIds }
         val vitals = vitalsDeferred.await()
-        val rangeReminders = rangeRemindersDeferred.await()
+        val allRangeReminders = rangeRemindersDeferred.await()
+        val rangeReminders = if (medicationIds.isNullOrEmpty()) allRangeReminders else allRangeReminders.filter { it.medicationId in medicationIds }
 
         val takenCount = rangeReminders.count { it.state == ReminderState.TAKEN }
         val skippedCount = rangeReminders.count { it.state == ReminderState.SKIPPED }
         val missedCount = rangeReminders.count { it.state == ReminderState.MISSED }
+        val totalScheduled = takenCount + skippedCount + missedCount
+        val adherencePercentage = if (totalScheduled > 0) (takenCount * 100) / totalScheduled else null
 
-        generateHealthReportPdf(medications, vitals, takenCount, skippedCount, missedCount, startMillis, endMillis)
+        val file = generateHealthReportPdf(
+            medications = medications,
+            vitals = if (includeVitals) vitals else emptyList(),
+            takenCount = takenCount,
+            skippedCount = skippedCount,
+            missedCount = missedCount,
+            rangeStartMillis = startMillis,
+            rangeEndMillis = endMillis,
+            includeAdherenceSummary = includeAdherenceSummary,
+            includeMedicationList = includeMedicationList
+        )
+
+        ReportResult(
+            file = file,
+            summary = ReportSummary(adherencePercentage, totalScheduled, takenCount, skippedCount, missedCount)
+        )
     }
 
     /** Kullanıcı önizlemeyi gördükten sonra dosyayı paylaşım seçicisiyle gönderir. */
@@ -102,7 +142,9 @@ class PdfReportGenerator @Inject constructor(
         skippedCount: Int = 0,
         missedCount: Int = 0,
         rangeStartMillis: Long = System.currentTimeMillis() - (30L * 24 * 3600 * 1000),
-        rangeEndMillis: Long = System.currentTimeMillis()
+        rangeEndMillis: Long = System.currentTimeMillis(),
+        includeAdherenceSummary: Boolean = true,
+        includeMedicationList: Boolean = true
     ): File {
         val pdfDocument = PdfDocument()
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size at 72 dpi
@@ -130,6 +172,7 @@ class PdfReportGenerator @Inject constructor(
         }
 
         var y = 40f
+        var sectionNumber = 1
 
         // Title & Header
         canvas.drawText("CURALİS SAĞLIK & İLAÇ UYUM RAPORU", 40f, y, titlePaint)
@@ -143,59 +186,63 @@ class PdfReportGenerator @Inject constructor(
         y += 20f
 
         // Adherence Section
-        val totalScheduled = takenCount + skippedCount + missedCount
-        val adherenceRate = if (totalScheduled > 0) (takenCount * 100) / totalScheduled else 100
+        if (includeAdherenceSummary) {
+            val totalScheduled = takenCount + skippedCount + missedCount
+            val adherenceRate = if (totalScheduled > 0) (takenCount * 100) / totalScheduled else 100
 
-        val rangeDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale("tr"))
-        canvas.drawText("1. İlaç Kullanım Uyum Özet İstatistiği", 40f, y, subTitlePaint)
-        y += 18f
-        canvas.drawText(
-            "• Rapor Aralığı: ${rangeDateFormat.format(Date(rangeStartMillis))} – ${rangeDateFormat.format(Date(rangeEndMillis))}",
-            40f, y, bodyPaint
-        )
-        y += 16f
-        canvas.drawText("• Toplam İlaç Vakti: $totalScheduled | Alınan: $takenCount | Atlanan: $skippedCount | Kaçırılan: $missedCount", 40f, y, bodyPaint)
-        y += 16f
-        canvas.drawText("• Genel İlaç Uyum Oranı: %$adherenceRate", 40f, y, bodyPaint)
-        y += 20f
-        canvas.drawLine(40f, y, 555f, y, linePaint)
-        y += 20f
-
-        // Medication Cabinet List
-        canvas.drawText("2. Mevcut İlaç Dolabı Listesi (${medications.size} Kayıtlı İlaç)", 40f, y, subTitlePaint)
-        y += 20f
-
-        canvas.drawText("İlaç Adı", 40f, y, subTitlePaint)
-        canvas.drawText("Form & Doz", 190f, y, subTitlePaint)
-        canvas.drawText("Sıklık", 340f, y, subTitlePaint)
-        canvas.drawText("Kalan Stok", 470f, y, subTitlePaint)
-        y += 8f
-        canvas.drawLine(40f, y, 555f, y, linePaint)
-        y += 16f
-
-        if (medications.isEmpty()) {
-            canvas.drawText("Kayıtlı ilaç bulunmamaktadır.", 40f, y, bodyPaint)
+            val rangeDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale("tr"))
+            canvas.drawText("${sectionNumber++}. İlaç Kullanım Uyum Özet İstatistiği", 40f, y, subTitlePaint)
+            y += 18f
+            canvas.drawText(
+                "• Rapor Aralığı: ${rangeDateFormat.format(Date(rangeStartMillis))} – ${rangeDateFormat.format(Date(rangeEndMillis))}",
+                40f, y, bodyPaint
+            )
+            y += 16f
+            canvas.drawText("• Toplam İlaç Vakti: $totalScheduled | Alınan: $takenCount | Atlanan: $skippedCount | Kaçırılan: $missedCount", 40f, y, bodyPaint)
+            y += 16f
+            canvas.drawText("• Genel İlaç Uyum Oranı: %$adherenceRate", 40f, y, bodyPaint)
             y += 20f
-        } else {
-            medications.forEach { med ->
-                if (y > 740f) return@forEach
-                canvas.drawText(med.name.take(20), 40f, y, bodyPaint)
-                val dosageStr = listOfNotNull(med.dosage, med.unit).joinToString(" ")
-                canvas.drawText("${med.formType.displayNameTr} $dosageStr".take(22), 190f, y, bodyPaint)
-                canvas.drawText(med.frequencyType.name, 340f, y, bodyPaint)
-                val stockText = if (med.isRefillReminderEnabled && med.currentStock != null) "${med.currentStock} Doz" else "-"
-                canvas.drawText(stockText, 470f, y, bodyPaint)
-                y += 18f
-            }
+            canvas.drawLine(40f, y, 555f, y, linePaint)
+            y += 20f
         }
 
-        y += 10f
-        canvas.drawLine(40f, y, 555f, y, linePaint)
-        y += 20f
+        // Medication Cabinet List
+        if (includeMedicationList) {
+            canvas.drawText("${sectionNumber++}. Mevcut İlaç Dolabı Listesi (${medications.size} Kayıtlı İlaç)", 40f, y, subTitlePaint)
+            y += 20f
+
+            canvas.drawText("İlaç Adı", 40f, y, subTitlePaint)
+            canvas.drawText("Form & Doz", 190f, y, subTitlePaint)
+            canvas.drawText("Sıklık", 340f, y, subTitlePaint)
+            canvas.drawText("Kalan Stok", 470f, y, subTitlePaint)
+            y += 8f
+            canvas.drawLine(40f, y, 555f, y, linePaint)
+            y += 16f
+
+            if (medications.isEmpty()) {
+                canvas.drawText("Kayıtlı ilaç bulunmamaktadır.", 40f, y, bodyPaint)
+                y += 20f
+            } else {
+                medications.forEach { med ->
+                    if (y > 740f) return@forEach
+                    canvas.drawText(med.name.take(20), 40f, y, bodyPaint)
+                    val dosageStr = listOfNotNull(med.dosage, med.unit).joinToString(" ")
+                    canvas.drawText("${med.formType.displayNameTr} $dosageStr".take(22), 190f, y, bodyPaint)
+                    canvas.drawText(med.frequencyType.name, 340f, y, bodyPaint)
+                    val stockText = if (med.isRefillReminderEnabled && med.currentStock != null) "${med.currentStock} Doz" else "-"
+                    canvas.drawText(stockText, 470f, y, bodyPaint)
+                    y += 18f
+                }
+            }
+
+            y += 10f
+            canvas.drawLine(40f, y, 555f, y, linePaint)
+            y += 20f
+        }
 
         // Vitals History Section
         if (vitals.isNotEmpty()) {
-            canvas.drawText("3. Son Ölçümler Geçmişi (${vitals.size} Ölçüm)", 40f, y, subTitlePaint)
+            canvas.drawText("${sectionNumber++}. Son Ölçümler Geçmişi (${vitals.size} Ölçüm)", 40f, y, subTitlePaint)
             y += 20f
             vitals.take(8).forEach { vital ->
                 if (y > 780f) return@forEach

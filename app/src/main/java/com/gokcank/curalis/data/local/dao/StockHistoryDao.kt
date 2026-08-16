@@ -14,4 +14,7 @@ interface StockHistoryDao {
 
     @Query("SELECT * FROM stock_history WHERE medicationId = :medicationId ORDER BY timestamp DESC")
     fun getHistoryForMedication(medicationId: String): Flow<List<StockHistoryEntity>>
+
+    @Query("SELECT * FROM stock_history ORDER BY timestamp DESC")
+    fun getAllHistory(): Flow<List<StockHistoryEntity>>
 }

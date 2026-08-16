@@ -89,6 +89,12 @@ fun NavGraph() {
                 onNavigateToAddEdit = { medicationId ->
                     navController.navigate(Screen.AddEditMedication.passMedicationId(medicationId))
                 },
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToStockHistory = { navController.navigate(Screen.StockHistoryList.route) }
+            )
+        }
+        composable(route = Screen.StockHistoryList.route) {
+            com.gokcank.curalis.presentation.stockhistory.StockHistoryListScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

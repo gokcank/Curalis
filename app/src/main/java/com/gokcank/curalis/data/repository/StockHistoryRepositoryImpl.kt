@@ -20,4 +20,8 @@ class StockHistoryRepositoryImpl @Inject constructor(
     override fun getHistoryForMedication(medicationId: String): Flow<List<StockHistoryEntry>> {
         return dao.getHistoryForMedication(medicationId).map { entities -> entities.map { it.toDomain() } }
     }
+
+    override fun getAllHistory(): Flow<List<StockHistoryEntry>> {
+        return dao.getAllHistory().map { entities -> entities.map { it.toDomain() } }
+    }
 }

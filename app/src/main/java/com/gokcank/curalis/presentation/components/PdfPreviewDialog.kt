@@ -35,6 +35,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.gokcank.curalis.core.theme.LocalCuralisColors
+import com.gokcank.curalis.core.utils.ReportSummary
+import com.gokcank.curalis.presentation.analytics.AdherencePercentageCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -50,7 +53,8 @@ import java.io.File
 fun PdfPreviewDialog(
     file: File,
     onDismiss: () -> Unit,
-    onShare: () -> Unit
+    onShare: () -> Unit,
+    summary: ReportSummary? = null
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -95,6 +99,18 @@ fun PdfPreviewDialog(
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        if (summary != null) {
+                            item {
+                                val semantic = LocalCuralisColors.current
+                                AdherencePercentageCard(
+                                    title = "Rapor Özeti",
+                                    percentage = summary.adherencePercentage,
+                                    subtitle = "Toplam ${summary.totalCount} vakit · Alınan ${summary.takenCount} · Atlanan ${summary.skippedCount} · Kaçırılan ${summary.missedCount}",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = semantic.success
+                                )
+                            }
+                        }
                         items(pages) { bitmap ->
                             Image(
                                 bitmap = bitmap.asImageBitmap(),
