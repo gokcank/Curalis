@@ -101,6 +101,12 @@
     <string name="vital_type_temperature_short">Temp.</string>
     <string name="vital_type_oxygen_saturation_short">SpO₂</string>
     <string name="vital_type_cholesterol_short">Cholesterol</string>
+    <string name="vital_type_a1c_short">A1C</string>
+    <string name="vital_type_hdl_short">HDL Cholesterol</string>
+    <string name="vital_type_ldl_short">LDL Cholesterol</string>
+    <string name="vital_type_triglycerides_short">Triglycerides</string>
+    <string name="vital_type_body_fat_short">Body Fat</string>
+    <string name="vital_type_step_count_short">Steps</string>
     <string name="vital_systolic">Systolic (Upper)</string>
     <string name="vital_diastolic">Diastolic (Lower)</string>
     <string name="vital_unit_label">Unit: %1$s</string>
