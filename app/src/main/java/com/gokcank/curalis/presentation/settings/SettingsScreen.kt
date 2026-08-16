@@ -8,6 +8,9 @@ import androidx.compose.foundation.verticalScroll
 import com.gokcank.curalis.core.timeline.TimelinePreferences
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,6 +24,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,11 +41,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import android.content.Intent
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.ThemeMode
 
@@ -51,6 +58,7 @@ fun SettingsScreen(
     onNavigateToBackup: () -> Unit,
     onNavigateToNotificationSettings: () -> Unit = {},
     onNavigateToAppLockSettings: () -> Unit = {},
+    onNavigateToHelpCenter: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -355,6 +363,106 @@ fun SettingsScreen(
                     )
                 ) {
                     Text("Yönet")
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CloudUpload,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "İpucu: Telefon değişikliğinde verilerinizi kaybetmemek için Google Drive'a şifreli bir yedek almanızı öneririz.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = "Destek",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Yardım Merkezi / SSS", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "Sık sorulan sorular ve çözümleri",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Button(
+                    onClick = onNavigateToHelpCenter,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Icon(imageVector = Icons.Default.HelpOutline, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Görüntüle")
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            val context = LocalContext.current
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Uygulamayı Paylaş", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "Curalis'i arkadaşlarınızla ve ailenizle paylaşın",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(
+                                Intent.EXTRA_TEXT,
+                                "İlaçlarımı, randevularımı ve sağlık ölçümlerimi Curalis ile takip ediyorum — verileriniz yalnızca cihazınızda saklanır: https://play.google.com/store/apps/details?id=${context.packageName}"
+                            )
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, "Curalis'i Paylaş"))
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Icon(imageVector = Icons.Default.Share, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Paylaş")
                 }
             }
         }
