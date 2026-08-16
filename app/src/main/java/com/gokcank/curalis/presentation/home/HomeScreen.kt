@@ -78,6 +78,7 @@ fun HomeScreen(
     onNavigateToAbout: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val medications by viewModel.medications.collectAsState()
     var showExitDialog by remember { mutableStateOf(false) }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val context = LocalContext.current
@@ -89,6 +90,7 @@ fun HomeScreen(
         entryPoint.pdfReportGenerator()
     }
     var pdfPreviewFile by remember { mutableStateOf<java.io.File?>(null) }
+    var reportSummary by remember { mutableStateOf<com.gokcank.curalis.core.utils.ReportSummary?>(null) }
     var showReportRangeDialog by remember { mutableStateOf(false) }
 
     BackHandler {
@@ -330,18 +332,29 @@ fun HomeScreen(
     pdfPreviewFile?.let { file ->
         com.gokcank.curalis.presentation.components.PdfPreviewDialog(
             file = file,
-            onDismiss = { pdfPreviewFile = null },
-            onShare = { pdfReportGenerator.shareReport(context, file) }
+            onDismiss = { pdfPreviewFile = null; reportSummary = null },
+            onShare = { pdfReportGenerator.shareReport(context, file) },
+            summary = reportSummary
         )
     }
 
     if (showReportRangeDialog) {
-        com.gokcank.curalis.presentation.components.ReportDateRangeDialog(
+        com.gokcank.curalis.presentation.components.ReportOptionsDialog(
+            medications = medications,
             onDismiss = { showReportRangeDialog = false },
-            onRangeSelected = { start, end ->
+            onConfirm = { start, end, medicationId, includeAdherence, includeMedList, includeVitals ->
                 showReportRangeDialog = false
                 scope.launch {
-                    pdfPreviewFile = pdfReportGenerator.generateReport(start, end)
+                    val result = pdfReportGenerator.generateReport(
+                        startMillis = start,
+                        endMillis = end,
+                        medicationIds = medicationId?.let { setOf(it) },
+                        includeAdherenceSummary = includeAdherence,
+                        includeMedicationList = includeMedList,
+                        includeVitals = includeVitals
+                    )
+                    pdfPreviewFile = result.file
+                    reportSummary = result.summary
                 }
             }
         )

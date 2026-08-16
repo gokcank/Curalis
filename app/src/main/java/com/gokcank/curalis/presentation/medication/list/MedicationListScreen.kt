@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.PauseCircle
@@ -91,6 +92,7 @@ import java.util.Locale
 fun MedicationListScreen(
     onNavigateToAddEdit: (String?) -> Unit,
     onNavigateBack: () -> Unit,
+    onNavigateToStockHistory: () -> Unit,
     viewModel: MedicationListViewModel = hiltViewModel()
 ) {
     val activeMedications by viewModel.activeMedications.collectAsState()
@@ -115,6 +117,8 @@ fun MedicationListScreen(
         entryPoint.pdfReportGenerator()
     }
     var pdfPreviewFile by remember { mutableStateOf<java.io.File?>(null) }
+    var reportSummary by remember { mutableStateOf<com.gokcank.curalis.core.utils.ReportSummary?>(null) }
+    var showReportOptionsDialog by remember { mutableStateOf(false) }
 
     medicationToDelete?.let { med ->
         AlertDialog(
@@ -172,13 +176,13 @@ fun MedicationListScreen(
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            scope.launch {
-                                pdfPreviewFile = pdfReportGenerator.generateReport()
-                            }
-                        }
-                    ) {
+                    IconButton(onClick = onNavigateToStockHistory) {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = "Yenileme Geçmişi"
+                        )
+                    }
+                    IconButton(onClick = { showReportOptionsDialog = true }) {
                         Icon(
                             imageVector = Icons.Default.Description,
                             contentDescription = "PDF rapor oluştur"
@@ -286,8 +290,31 @@ fun MedicationListScreen(
     pdfPreviewFile?.let { file ->
         com.gokcank.curalis.presentation.components.PdfPreviewDialog(
             file = file,
-            onDismiss = { pdfPreviewFile = null },
-            onShare = { pdfReportGenerator.shareReport(context, file) }
+            onDismiss = { pdfPreviewFile = null; reportSummary = null },
+            onShare = { pdfReportGenerator.shareReport(context, file) },
+            summary = reportSummary
+        )
+    }
+
+    if (showReportOptionsDialog) {
+        com.gokcank.curalis.presentation.components.ReportOptionsDialog(
+            medications = activeMedications + archivedMedications,
+            onDismiss = { showReportOptionsDialog = false },
+            onConfirm = { start, end, medicationId, includeAdherence, includeMedList, includeVitals ->
+                showReportOptionsDialog = false
+                scope.launch {
+                    val result = pdfReportGenerator.generateReport(
+                        startMillis = start,
+                        endMillis = end,
+                        medicationIds = medicationId?.let { setOf(it) },
+                        includeAdherenceSummary = includeAdherence,
+                        includeMedicationList = includeMedList,
+                        includeVitals = includeVitals
+                    )
+                    pdfPreviewFile = result.file
+                    reportSummary = result.summary
+                }
+            }
         )
     }
 }
