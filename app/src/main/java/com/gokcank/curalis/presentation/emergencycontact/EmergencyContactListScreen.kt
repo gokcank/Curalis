@@ -1,19 +1,25 @@
-package com.gokcank.curalis.presentation.doctor
+package com.gokcank.curalis.presentation.emergencycontact
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContactEmergency
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -22,10 +28,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -33,49 +43,37 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
-import com.gokcank.curalis.domain.model.Doctor
+import com.gokcank.curalis.domain.model.EmergencyContact
 import com.gokcank.curalis.presentation.components.EmptyState
-
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DoctorListScreen(
-    viewModel: DoctorListViewModel = hiltViewModel(),
-    onAddDoctorClick: () -> Unit,
-    onDoctorClick: (String) -> Unit,
-    onNavigateBack: () -> Unit,
-    onNavigateToEmergencyContacts: () -> Unit = {}
+fun EmergencyContactListScreen(
+    viewModel: EmergencyContactListViewModel = hiltViewModel(),
+    onAddContactClick: () -> Unit,
+    onContactClick: (String) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
-    val doctors by viewModel.doctors.collectAsState()
-    var doctorToDelete by remember { mutableStateOf<Doctor?>(null) }
+    val contacts by viewModel.contacts.collectAsState()
+    var contactToDelete by remember { mutableStateOf<EmergencyContact?>(null) }
 
-    doctorToDelete?.let { doctor ->
+    contactToDelete?.let { contact ->
         AlertDialog(
-            onDismissRequest = { doctorToDelete = null },
-            title = { Text(stringResource(R.string.delete_doctor_title)) },
-            text = { Text(stringResource(R.string.delete_doctor_message, doctor.name)) },
+            onDismissRequest = { contactToDelete = null },
+            title = { Text("Kişiyi Sil") },
+            text = { Text("${contact.name} isimli kişiyi silmek istediğinize emin misiniz?") },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.deleteDoctor(doctor)
-                        doctorToDelete = null
+                        viewModel.deleteContact(contact)
+                        contactToDelete = null
                     }
                 ) {
                     Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { doctorToDelete = null }) {
+                TextButton(onClick = { contactToDelete = null }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -85,53 +83,44 @@ fun DoctorListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.my_doctors)) },
+                title = { Text("Acil Durum Kişileri") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onNavigateToEmergencyContacts) {
-                        Icon(Icons.Default.ContactEmergency, contentDescription = "Acil Durum Kişileri")
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddDoctorClick) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_doctor))
+            FloatingActionButton(onClick = onAddContactClick) {
+                Icon(Icons.Default.Add, contentDescription = "Kişi Ekle")
             }
         }
     ) { padding ->
-        if (doctors.isEmpty()) {
+        if (contacts.isEmpty()) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
+                modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center
             ) {
                 EmptyState(
-                    icon = Icons.Default.Person,
-                    title = stringResource(R.string.no_doctors_found),
-                    description = "Doktorlarınızı kaydederseniz randevularınızı onlarla ilişkilendirebilirsiniz.",
-                    actionLabel = stringResource(R.string.add_doctor),
-                    onAction = onAddDoctorClick
+                    icon = Icons.Default.ContactEmergency,
+                    title = "Henüz acil durum kişisi eklemediniz",
+                    description = "Acil bir durumda aranacak bir yakınınızı kaydedip randevulara atayabilirsiniz.",
+                    actionLabel = "Kişi Ekle",
+                    onAction = onAddContactClick
                 )
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(doctors) { doctor ->
-                    DoctorItem(
-                        doctor = doctor,
-                        onClick = { onDoctorClick(doctor.id) },
-                        onDelete = { doctorToDelete = doctor }
+                items(contacts) { contact ->
+                    EmergencyContactItem(
+                        contact = contact,
+                        onClick = { onContactClick(contact.id) },
+                        onDelete = { contactToDelete = contact }
                     )
                 }
             }
@@ -141,41 +130,36 @@ fun DoctorListScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DoctorItem(
-    doctor: Doctor,
+fun EmergencyContactItem(
+    contact: EmergencyContact,
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onDelete
-            )
+            .combinedClickable(onClick = onClick, onLongClick = onDelete)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.Person,
+                imageVector = Icons.Default.ContactEmergency,
                 contentDescription = null,
                 modifier = Modifier.padding(end = 16.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = doctor.name,
+                    text = contact.name,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (!doctor.specialty.isNullOrBlank()) {
+                if (!contact.relationship.isNullOrBlank()) {
                     Text(
-                        text = doctor.specialty,
+                        text = contact.relationship,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,

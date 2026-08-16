@@ -47,6 +47,7 @@ fun AppointmentEntity.toDomain(): Appointment {
     return Appointment(
         id = id,
         doctorId = doctorId,
+        emergencyContactId = emergencyContactId,
         title = title,
         timeInMillis = timeInMillis,
         location = location,
@@ -60,6 +61,7 @@ fun Appointment.toEntity(): AppointmentEntity {
     return AppointmentEntity(
         id = id,
         doctorId = doctorId,
+        emergencyContactId = emergencyContactId,
         title = title,
         timeInMillis = timeInMillis,
         location = location,

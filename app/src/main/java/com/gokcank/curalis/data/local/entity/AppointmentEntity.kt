@@ -14,14 +14,21 @@ import java.util.UUID
             parentColumns = ["id"],
             childColumns = ["doctorId"],
             onDelete = ForeignKey.SET_NULL
+        ),
+        ForeignKey(
+            entity = EmergencyContactEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["emergencyContactId"],
+            onDelete = ForeignKey.SET_NULL
         )
     ],
-    indices = [Index(value = ["doctorId"])]
+    indices = [Index(value = ["doctorId"]), Index(value = ["emergencyContactId"])]
 )
 data class AppointmentEntity(
     @PrimaryKey
     val id: String = UUID.randomUUID().toString(),
     val doctorId: String?,
+    val emergencyContactId: String? = null,
     val title: String,
     val timeInMillis: Long,
     val location: String?,

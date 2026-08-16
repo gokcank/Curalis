@@ -74,6 +74,8 @@ fun AddEditAppointmentScreen(
     val timeInMillis by viewModel.timeInMillis.collectAsState()
     val selectedDoctorId by viewModel.selectedDoctorId.collectAsState()
     val doctors by viewModel.doctors.collectAsState()
+    val selectedEmergencyContactId by viewModel.selectedEmergencyContactId.collectAsState()
+    val emergencyContacts by viewModel.emergencyContacts.collectAsState()
     val isVisited by viewModel.isVisited.collectAsState()
     val visitNote by viewModel.visitNote.collectAsState()
 
@@ -157,44 +159,77 @@ fun AddEditAppointmentScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Doktor seçici — veri modeli/veritabanı ilişkisi zaten hazırdı, eksik olan
-            // yalnızca bu seçim kutusuydu.
-            var doctorMenuExpanded by remember { mutableStateOf(false) }
+            // Kişi ata seçici — Doktor'un yanında Acil Durum Kişisi de seçilebilir; bir
+            // randevu ikisinden yalnızca birine atanabilir (bkz. onDoctorSelected/
+            // onEmergencyContactSelected'daki karşılıklı dışlama).
+            var personMenuExpanded by remember { mutableStateOf(false) }
             val selectedDoctor = doctors.find { it.id == selectedDoctorId }
+            val selectedContact = emergencyContacts.find { it.id == selectedEmergencyContactId }
+            val selectedPersonLabel = when {
+                selectedDoctor != null -> "${selectedDoctor.name} (Doktor)"
+                selectedContact != null -> "${selectedContact.name} (Acil Durum Kişisi)"
+                else -> ""
+            }
             ExposedDropdownMenuBox(
-                expanded = doctorMenuExpanded,
-                onExpandedChange = { doctorMenuExpanded = it }
+                expanded = personMenuExpanded,
+                onExpandedChange = { personMenuExpanded = it }
             ) {
                 OutlinedTextField(
-                    value = selectedDoctor?.name ?: "",
+                    value = selectedPersonLabel,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text(stringResource(R.string.appointment_doctor)) },
+                    label = { Text("Kişi Ata") },
                     placeholder = { Text(stringResource(R.string.appointment_doctor_none)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = doctorMenuExpanded) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = personMenuExpanded) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor()
                 )
                 ExposedDropdownMenu(
-                    expanded = doctorMenuExpanded,
-                    onDismissRequest = { doctorMenuExpanded = false }
+                    expanded = personMenuExpanded,
+                    onDismissRequest = { personMenuExpanded = false }
                 ) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.appointment_doctor_none)) },
                         onClick = {
                             viewModel.onDoctorSelected(null)
-                            doctorMenuExpanded = false
+                            viewModel.onEmergencyContactSelected(null)
+                            personMenuExpanded = false
                         }
                     )
-                    doctors.forEach { doctor ->
-                        DropdownMenuItem(
-                            text = { Text(doctor.name) },
-                            onClick = {
-                                viewModel.onDoctorSelected(doctor.id)
-                                doctorMenuExpanded = false
-                            }
+                    if (doctors.isNotEmpty()) {
+                        Text(
+                            "Doktorlar",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                         )
+                        doctors.forEach { doctor ->
+                            DropdownMenuItem(
+                                text = { Text(doctor.name) },
+                                onClick = {
+                                    viewModel.onDoctorSelected(doctor.id)
+                                    personMenuExpanded = false
+                                }
+                            )
+                        }
+                    }
+                    if (emergencyContacts.isNotEmpty()) {
+                        Text(
+                            "Acil Durum Kişileri",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
+                        emergencyContacts.forEach { contact ->
+                            DropdownMenuItem(
+                                text = { Text(contact.name) },
+                                onClick = {
+                                    viewModel.onEmergencyContactSelected(contact.id)
+                                    personMenuExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }

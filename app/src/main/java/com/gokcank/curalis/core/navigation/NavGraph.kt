@@ -112,10 +112,11 @@ fun NavGraph() {
         composable(route = Screen.DoctorList.route) {
             DoctorListScreen(
                 onAddDoctorClick = { navController.navigate(Screen.AddEditDoctor.route) },
-                onDoctorClick = { doctorId -> 
+                onDoctorClick = { doctorId ->
                     navController.navigate(Screen.AddEditDoctor.passDoctorId(doctorId))
                 },
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToEmergencyContacts = { navController.navigate(Screen.EmergencyContactList.route) }
             )
         }
         composable(
@@ -123,6 +124,25 @@ fun NavGraph() {
             arguments = listOf(navArgument("doctorId") { type = NavType.StringType; nullable = true })
         ) {
             AddEditDoctorScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        // Emergency Contacts
+        composable(route = Screen.EmergencyContactList.route) {
+            com.gokcank.curalis.presentation.emergencycontact.EmergencyContactListScreen(
+                onAddContactClick = { navController.navigate(Screen.AddEditEmergencyContact.route) },
+                onContactClick = { contactId ->
+                    navController.navigate(Screen.AddEditEmergencyContact.passContactId(contactId))
+                },
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Screen.AddEditEmergencyContact.route,
+            arguments = listOf(navArgument("contactId") { type = NavType.StringType; nullable = true })
+        ) {
+            com.gokcank.curalis.presentation.emergencycontact.AddEditEmergencyContactScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
 
         // Appointments

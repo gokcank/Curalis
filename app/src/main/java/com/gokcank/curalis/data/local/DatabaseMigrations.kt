@@ -101,6 +101,26 @@ val MIGRATION_16_17 = object : Migration(16, 17) {
     }
 }
 
+val MIGRATION_17_18 = object : Migration(17, 18) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Acil Durum Kişisi — Doktor'dan ayrı, basit bir kişi türü (bkz. EmergencyContact).
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS emergency_contacts (
+                id TEXT NOT NULL PRIMARY KEY,
+                name TEXT NOT NULL,
+                relationship TEXT,
+                phoneNumber TEXT,
+                notes TEXT
+            )
+            """
+        )
+        // Bir randevu, Doktor'un alternatifi olarak bir Acil Durum Kişisi'ne atanabilir.
+        db.execSQL("ALTER TABLE appointments ADD COLUMN emergencyContactId TEXT REFERENCES emergency_contacts(id) ON DELETE SET NULL")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_appointments_emergencyContactId ON appointments(emergencyContactId)")
+    }
+}
+
 val CURALIS_MIGRATIONS = arrayOf(
-    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17
+    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18
 )

@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.domain.model.Appointment
 import com.gokcank.curalis.domain.model.Doctor
+import com.gokcank.curalis.domain.model.EmergencyContact
 import com.gokcank.curalis.domain.usecase.AppointmentUseCases
 import com.gokcank.curalis.domain.usecase.DoctorUseCases
+import com.gokcank.curalis.domain.usecase.EmergencyContactUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,11 +25,15 @@ import javax.inject.Inject
 class AddEditAppointmentViewModel @Inject constructor(
     private val appointmentUseCases: AppointmentUseCases,
     private val doctorUseCases: DoctorUseCases,
+    private val emergencyContactUseCases: EmergencyContactUseCases,
     private val alarmScheduler: AlarmScheduler,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     val doctors: kotlinx.coroutines.flow.StateFlow<List<Doctor>> = doctorUseCases.getDoctors()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val emergencyContacts: kotlinx.coroutines.flow.StateFlow<List<EmergencyContact>> = emergencyContactUseCases.getEmergencyContacts()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _title = MutableStateFlow("")
@@ -44,6 +50,9 @@ class AddEditAppointmentViewModel @Inject constructor(
 
     private val _selectedDoctorId = MutableStateFlow<String?>(null)
     val selectedDoctorId = _selectedDoctorId.asStateFlow()
+
+    private val _selectedEmergencyContactId = MutableStateFlow<String?>(null)
+    val selectedEmergencyContactId = _selectedEmergencyContactId.asStateFlow()
 
     private val _isVisited = MutableStateFlow(false)
     val isVisited = _isVisited.asStateFlow()
@@ -70,6 +79,7 @@ class AddEditAppointmentViewModel @Inject constructor(
                             _notes.value = it.notes ?: ""
                             _timeInMillis.value = it.timeInMillis
                             _selectedDoctorId.value = it.doctorId
+                            _selectedEmergencyContactId.value = it.emergencyContactId
                             _isVisited.value = it.isVisited
                             _visitNote.value = it.visitNote ?: ""
                         }
@@ -97,6 +107,13 @@ class AddEditAppointmentViewModel @Inject constructor(
 
     fun onDoctorSelected(doctorId: String?) {
         _selectedDoctorId.value = doctorId
+        // Randevu Doktor'un ya da Acil Durum Kişisi'nin yalnızca birine atanabilir.
+        if (doctorId != null) _selectedEmergencyContactId.value = null
+    }
+
+    fun onEmergencyContactSelected(contactId: String?) {
+        _selectedEmergencyContactId.value = contactId
+        if (contactId != null) _selectedDoctorId.value = null
     }
 
     fun onVisitedChange(visited: Boolean) {
@@ -122,6 +139,7 @@ class AddEditAppointmentViewModel @Inject constructor(
                 notes = _notes.value.takeIf { it.isNotBlank() },
                 timeInMillis = _timeInMillis.value,
                 doctorId = _selectedDoctorId.value,
+                emergencyContactId = _selectedEmergencyContactId.value,
                 isVisited = _isVisited.value,
                 visitNote = _visitNote.value.takeIf { it.isNotBlank() }
             )

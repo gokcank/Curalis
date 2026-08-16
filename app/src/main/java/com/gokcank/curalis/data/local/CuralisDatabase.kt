@@ -5,12 +5,14 @@ import androidx.room.RoomDatabase
 import com.gokcank.curalis.data.local.dao.AppointmentDao
 import com.gokcank.curalis.data.local.dao.BackupDao
 import com.gokcank.curalis.data.local.dao.DoctorDao
+import com.gokcank.curalis.data.local.dao.EmergencyContactDao
 import com.gokcank.curalis.data.local.dao.MedicationDao
 import com.gokcank.curalis.data.local.dao.ReminderDao
 import com.gokcank.curalis.data.local.dao.StockHistoryDao
 import com.gokcank.curalis.data.local.dao.VitalDao
 import com.gokcank.curalis.data.local.entity.AppointmentEntity
 import com.gokcank.curalis.data.local.entity.DoctorEntity
+import com.gokcank.curalis.data.local.entity.EmergencyContactEntity
 import com.gokcank.curalis.data.local.entity.MedicationDaysEntity
 import com.gokcank.curalis.data.local.entity.MedicationEntity
 import com.gokcank.curalis.data.local.entity.MedicationTimeEntity
@@ -27,9 +29,10 @@ import com.gokcank.curalis.data.local.entity.VitalEntity
         DoctorEntity::class,
         AppointmentEntity::class,
         VitalEntity::class,
-        StockHistoryEntity::class
+        StockHistoryEntity::class,
+        EmergencyContactEntity::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = true
 )
 abstract class CuralisDatabase : RoomDatabase() {
@@ -40,6 +43,7 @@ abstract class CuralisDatabase : RoomDatabase() {
     abstract val vitalDao: VitalDao
     abstract val backupDao: BackupDao
     abstract val stockHistoryDao: StockHistoryDao
+    abstract val emergencyContactDao: EmergencyContactDao
     
     companion object {
         const val DATABASE_NAME = "curalis_db"
