@@ -113,6 +113,6 @@ class NotificationPreferences @Inject constructor(
         val SNOOZE_OPTIONS_MINUTES = listOf(5, 10, 15, 30)
 
         /** Ayarlar ekranındaki randevu hatırlatma zamanı seçenekleri (dakika); 0 = kapalı. */
-        val APPOINTMENT_LEAD_OPTIONS_MINUTES = listOf(0, 10, 30, 60, 24 * 60, 7 * 24 * 60)
+        val APPOINTMENT_LEAD_OPTIONS_MINUTES = listOf(0, 10, 30, 60, 8 * 60, 12 * 60, 24 * 60, 7 * 24 * 60)
     }
 }
