@@ -16,6 +16,7 @@ sealed class Screen(val route: String) {
     data object About : Screen("about_screen")
     data object PrivacyPolicy : Screen("privacy_policy_screen")
     data object Backup : Screen("backup_screen")
+    data object HelpCenter : Screen("help_center_screen")
     
     data object DoctorList : Screen("doctor_list_screen")
     data object AddEditDoctor : Screen("add_edit_doctor_screen?doctorId={doctorId}") {

@@ -46,7 +46,14 @@ fun NavGraph() {
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToBackup = { navController.navigate(Screen.Backup.route) },
                 onNavigateToNotificationSettings = { navController.navigate(Screen.NotificationSettings.route) },
-                onNavigateToAppLockSettings = { navController.navigate(Screen.AppLockSettings.route) }
+                onNavigateToAppLockSettings = { navController.navigate(Screen.AppLockSettings.route) },
+                onNavigateToHelpCenter = { navController.navigate(Screen.HelpCenter.route) }
+            )
+        }
+
+        composable(route = Screen.HelpCenter.route) {
+            com.gokcank.curalis.presentation.help.HelpCenterScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
