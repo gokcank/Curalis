@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>Curalis - Kişisel Sağlık ve İlaç Takip Asistanı | %100 Çevrimdışı & Yerel Güvenlik</title>
+  <meta name="description" content="Curalis; ilaçlarınızı, doktor randevularınızı ve sağlık ölçümlerinizi tek bir yerden, sıfır veri toplama ve tam gizlilik güvencesiyle yönetmenizi sağlayan yeni nesil yerel sağlık asistanıdır.">
+  <meta name="keywords" content="Curalis, ilaç takibi, ilaç hatırlatıcı, sağlık takibi, tansiyon takibi, kan şekeri, TİTCK ilaç sözlüğü, doktor randevuları, yerel veri, local-first">
+  <meta name="author" content="Gökcan Kurt">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://gokcank.github.io/Curalis/">
+  <meta property="og:title" content="Curalis - Kişisel Sağlık ve İlaç Takip Asistanı">
+  <meta property="og:description" content="%100 Çevrimdışı & Yerel Veri Güvenliği ile çalışan gelişmiş ilaç ve sağlık takip ekosistemi.">
+  <meta property="og:image" content="assets/feature_graphic.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://gokcank.github.io/Curalis/">
+  <meta property="twitter:title" content="Curalis - Kişisel Sağlık ve İlaç Takip Asistanı">
+  <meta property="twitter:description" content="%100 Çevrimdışı & Yerel Veri Güvenliği ile çalışan gelişmiş ilaç ve sağlık takip ekosistemi.">
+  <meta property="twitter:image" content="assets/feature_graphic.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header / Navigation Bar -->
+  <header class="site-header" id="top">
+    <div class="container header-container">
+      <a href="#top" class="brand-logo" aria-label="Curalis Ana Sayfa">
+        <img src="assets/logo.png" alt="Curalis Logo" class="logo-img" width="36" height="36">
+        <span class="brand-name">Curalis</span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="main-nav" aria-label="Ana Menü">
+        <ul class="nav-links">
+          <li><a href="#features" class="nav-link" data-i18n="nav_features">Özellikler</a></li>
+          <li><a href="#interactive-showcase" class="nav-link" data-i18n="nav_interactive">Deneyimle</a></li>
+          <li><a href="#gallery" class="nav-link" data-i18n="nav_gallery">Ekranlar</a></li>
+          <li><a href="#architecture" class="nav-link" data-i18n="nav_architecture">Mimari & Gizlilik</a></li>
+          <li><a href="privacy.html" class="nav-link" data-i18n="nav_privacy">Gizlilik Politikası</a></li>
+        </ul>
+      </nav>
+
+      <!-- Header Controls -->
+      <div class="header-controls">
+        <button id="lang-toggle-btn" class="btn btn-lang" type="button" aria-label="Dili Değiştir / Switch Language">
+          <span class="lang-icon">🌐</span>
+          <span id="lang-label" class="lang-text">EN</span>
+        </button>
+        
+        <a href="#download" class="btn btn-primary btn-sm nav-cta" data-i18n="nav_download">İndir</a>
+        
+        <button id="mobile-menu-toggle" class="mobile-menu-btn" type="button" aria-label="Menüyü Aç" aria-expanded="false">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-drawer" class="mobile-drawer" aria-hidden="true">
+      <ul class="mobile-nav-links">
+        <li><a href="#features" class="mobile-nav-link" data-i18n="nav_features">Özellikler</a></li>
+        <li><a href="#interactive-showcase" class="mobile-nav-link" data-i18n="nav_interactive">Deneyimle</a></li>
+        <li><a href="#gallery" class="mobile-nav-link" data-i18n="nav_gallery">Ekranlar</a></li>
+        <li><a href="#architecture" class="mobile-nav-link" data-i18n="nav_architecture">Mimari & Gizlilik</a></li>
+        <li><a href="privacy.html" class="mobile-nav-link" data-i18n="nav_privacy">Gizlilik Politikası</a></li>
+        <li class="mobile-cta-item">
+          <a href="#download" class="btn btn-primary btn-block" data-i18n="nav_download">İndir</a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section" id="hero">
+      <div class="container hero-container">
+        <!-- Hero Left Column: Copy & Actions -->
+        <div class="hero-content">
+          <div class="hero-badge" data-i18n="hero_badge">
+            <span class="badge-icon">🔒</span>
+            <span class="badge-text">%100 Çevrimdışı & Yerel Veri Güvenliği</span>
+          </div>
+
+          <h1 class="hero-title" data-i18n="hero_title">
+            Kişisel Sağlık ve İlaç Takibinde Yeni Standart
+          </h1>
+
+          <p class="hero-subtitle" data-i18n="hero_subtitle">
+            İlaçlarınızı, doktor randevularınızı ve sağlık ölçümlerinizi tek bir yerden, sıfır veri toplama ve tam gizlilik güvencesiyle yönetin.
+          </p>
+
+          <!-- Hero Action Buttons -->
+          <div class="hero-actions" id="download">
+            <a href="https://github.com/gokcank/Curalis/releases" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+              <svg class="btn-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993s-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9994.4482.9994.9993s-.4483.9997-.9994.9997m11.4045-6.02l1.996-3.4572c.1556-.2696.0633-.6144-.2063-.77-.2698-.1558-.6144-.0633-.77.2063l-2.024 3.5056c-1.4646-.6676-3.1197-1.042-4.8772-1.042-1.7576 0-3.4127.3744-4.8773 1.042L5.0987 5.3005c-.1556-.2696-.5002-.3621-.77-.2063-.2696.1556-.3619.5004-.2063.77l1.996 3.4572C2.695 11.109.3248 14.8878 0 19.3333h24c-.3248-4.4455-2.695-8.2243-6.1185-10.0119"/>
+              </svg>
+              <div class="btn-text-group">
+                <span class="btn-subtext" data-i18n="hero_apk_sub">Doğrudan İndir</span>
+                <span class="btn-maintext" data-i18n="hero_apk_main">APK İndir</span>
+              </div>
+            </a>
+
+            <a href="https://play.google.com/store/apps" class="btn btn-secondary btn-lg btn-disabled" target="_blank" rel="noopener noreferrer" title="Google Play Store sürümü yakında">
+              <svg class="btn-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M3.609 1.814L13.792 12 3.61 22.186a2.41 2.41 0 0 1-.61-.318c-.61-.46-.999-1.2-.999-2.03V4.162c0-.83.389-1.57.999-2.03.18-.136.386-.245.609-.318zm11.603 11.606l2.36 2.36-12.78 7.378 10.42-9.738zm0-2.84L4.792.842l12.78 7.378-2.36 2.36zm1.42 1.42l3.82 2.206c1.19.687 1.19 1.808 0 2.495l-3.82 2.206-2.13-2.13 2.13-2.777z"/>
+              </svg>
+              <div class="btn-text-group">
+                <span class="btn-subtext" data-i18n="hero_play_sub">Google Play</span>
+                <span class="btn-maintext" data-i18n="hero_play_main">Çok Yakında</span>
+              </div>
+            </a>
+
+            <a href="https://github.com/gokcank/Curalis" class="btn btn-ghost btn-lg" target="_blank" rel="noopener noreferrer">
+              <svg class="btn-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              <div class="btn-text-group">
+                <span class="btn-subtext" data-i18n="hero_github_sub">Açık Kaynak</span>
+                <span class="btn-maintext" data-i18n="hero_github_main">GitHub'da İncele</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Hero Right Column: Interactive Phone Mockup Showcase -->
+        <div class="hero-mockup-column" id="interactive-showcase">
+          <!-- Interactive Selector Tabs -->
+          <div class="mockup-tab-list" role="tablist" aria-label="Uygulama Ekranları">
+            <button class="mockup-tab-item active" role="tab" aria-selected="true" data-screen="assets/SS-TR 01.png" data-alt="Curalis Zaman Çizelgesi">
+              <span class="tab-badge-icon">⏰</span>
+              <span class="tab-info">
+                <strong class="tab-title" data-i18n="tab1_title">Zaman Çizelgesi</strong>
+                <small class="tab-desc" data-i18n="tab1_desc">Günlük doz akışı ve saatlik takvim</small>
+              </span>
+            </button>
+
+            <button class="mockup-tab-item" role="tab" aria-selected="false" data-screen="assets/SS-TR 03.png" data-alt="Curalis İlaç Takip Listesi">
+              <span class="tab-badge-icon">💊</span>
+              <span class="tab-info">
+                <strong class="tab-title" data-i18n="tab2_title">İlaç Takibi</strong>
+                <small class="tab-desc" data-i18n="tab2_desc">Stok, form ve reçete yönetimi</small>
+              </span>
+            </button>
+
+            <button class="mockup-tab-item" role="tab" aria-selected="false" data-screen="assets/SS-TR 05.png" data-alt="Curalis Doktor ve Randevular">
+              <span class="tab-badge-icon">👨‍⚕️</span>
+              <span class="tab-info">
+                <strong class="tab-title" data-i18n="tab3_title">Doktorlarım & Randevular</strong>
+                <small class="tab-desc" data-i18n="tab3_desc">Klinik kayıtları ve randevu alarmları</small>
+              </span>
+            </button>
+
+            <button class="mockup-tab-item" role="tab" aria-selected="false" data-screen="assets/SS-TR 07.png" data-alt="Curalis Sağlık Ölçümleri ve Vitaller">
+              <span class="tab-badge-icon">📊</span>
+              <span class="tab-info">
+                <strong class="tab-title" data-i18n="tab4_title">Sağlık Ölçümleri</strong>
+                <small class="tab-desc" data-i18n="tab4_desc">Tansiyon, şeker, nabız ve trendler</small>
+              </span>
+            </button>
+          </div>
+
+          <!-- Realistic Matte Phone Mockup Frame -->
+          <div class="phone-frame-wrapper">
+            <div class="phone-frame">
+              <div class="phone-speaker"></div>
+              <div class="phone-notch"></div>
+              <div class="phone-screen-viewport">
+                <img id="interactive-screen-img" src="assets/SS-TR 01.png" alt="Curalis Zaman Çizelgesi Ekranı" class="phone-screen-img" width="1080" height="2400" loading="eager">
+              </div>
+              <div class="phone-home-indicator"></div>
+            </div>
+            <div class="phone-shadow"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Features Section (6 Matte Cards) -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge" data-i18n="features_badge">Kapsamlı Ekosistem</span>
+          <h2 class="section-title" data-i18n="features_title">Sağlığınız İçin Eksiksiz Çözüm</h2>
+          <p class="section-subtitle" data-i18n="features_subtitle">
+            Curalis, bir hatırlatıcıdan çok daha fazlasıdır. İlaç güvenliği, klinik randevular ve vital ölçümler için hepsi bir arada açık kaynaklı bir sağlık üssüdür.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <!-- Card 1: Alarm Engine -->
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <span class="feature-icon">⏰</span>
+            </div>
+            <h3 class="feature-title" data-i18n="feat1_title">Akıllı Hatırlatıcı & Alarm Motoru</h3>
+            <p class="feature-desc" data-i18n="feat1_desc">
+              Android AlarmManager ile milisaniyelik hassasiyet. Tam ekran uyandırma alarmları, ayarlanabilir erteleme (snooze) süreleri ve aç/tok/öğün öncesi dozlama desteği.
+            </p>
+          </article>
+
+          <!-- Card 2: TITCK Medication DB -->
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <span class="feature-icon">🇹🇷</span>
+            </div>
+            <h3 class="feature-title" data-i18n="feat2_title">Çevrimdışı TİTCK İlaç Sözlüğü</h3>
+            <p class="feature-desc" data-i18n="feat2_desc">
+              T.C. Sağlık Bakanlığı onaylı ~23.000 resmi ilaç, etken madde ve barkod veritabanı doğrudan cihazınızda. İnternet bağlantısına ihtiyaç duymadan anında arayın ve ekleyin.
+            </p>
+          </article>
+
+          <!-- Card 3: Virtual Schedule & Adherence -->
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <span class="feature-icon">🗓️</span>
+            </div>
+            <h3 class="feature-title" data-i18n="feat3_title">Sanal Zamanlayıcı & Uyum Takvimi</h3>
+            <p class="feature-desc" data-i18n="feat3_desc">
+              Veritabanını şişirmeyen dinamik sanal zamanlayıcı motoru ile gelecekteki sınırsız günün takvimini görüntüleyin. Aylık uyum (adherence) grafikleriyle tedavi başarınızı ölçün.
+            </p>
+          </article>
+
+          <!-- Card 4: PDF Doctor Reports -->
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <span class="feature-icon">📄</span>
+            </div>
+            <h3 class="feature-title" data-i18n="feat4_title">Tek Tıkla PDF Doktor Raporu</h3>
+            <p class="feature-desc" data-i18n="feat4_desc">
+              Doktor randevularınızda hekiminizle paylaşabileceğiniz resmi formatta, tüm ilaç kullanım geçmişinizi, ölçümlerinizi ve uyum yüzdelerinizi içeren PDF rapor çıktısı alın.
+            </p>
+          </article>
+
+          <!-- Card 5: Doctor & Vital Ecosystem -->
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <span class="feature-icon">👨‍⚕️</span>
+            </div>
+            <h3 class="feature-title" data-i18n="feat5_title">Doktor, Randevu ve Vital Takip</h3>
+            <p class="feature-desc" data-i18n="feat5_desc">
+              Hekim rehberinizi kaydedin, klinik randevu alarmları kurun. Tansiyon, kan şekeri, nabız, kilo ve oksijen seviyelerinizi detaylı trend grafikleriyle izleyin.
+            </p>
+          </article>
+
+          <!-- Card 6: Local-First Privacy -->
+          <article class="feature-card">
+            <div class="feature-icon-wrapper">
+              <span class="feature-icon">🔒</span>
+            </div>
+            <h3 class="feature-title" data-i18n="feat6_title">Yerel Öncelikli (Local-First) Güvenlik</h3>
+            <p class="feature-desc" data-i18n="feat6_desc">
+              Sıfır telemetri, sıfır reklam, sıfır harici sunucu takibi. Tüm sağlık verileriniz yalnızca cihazınızın şifrelenmiş Room SQLite veritabanında saklanır.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- App Screenshots Gallery Section -->
+    <section class="gallery-section" id="gallery">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge" data-i18n="gallery_badge">Arayüz Vitrini</span>
+          <h2 class="section-title" data-i18n="gallery_title">Modern, Sezgisel ve Erişilebilir Arayüz</h2>
+          <p class="section-subtitle" data-i18n="gallery_subtitle">
+            Curalis, Material 3 tasarım prensipleri ve yüksek kontrastlı tipografisi ile her yaştan kullanıcının rahatça kullanabileceği şekilde geliştirildi.
+          </p>
+        </div>
+
+        <div class="gallery-grid">
+          <!-- Gallery Item 1 -->
+          <figure class="gallery-card">
+            <div class="gallery-img-wrapper">
+              <img src="assets/SS-TR 01.png" alt="Curalis Günlük Zaman Çizelgesi" class="gallery-img" loading="lazy" width="1080" height="2400">
+            </div>
+            <figcaption class="gallery-caption">
+              <h4 class="gallery-item-title" data-i18n="gal1_title">Günlük Zaman Çizelgesi</h4>
+              <p class="gallery-item-desc" data-i18n="gal1_desc">Günün ilaçlarını kronolojik sırada, net saatler ve yemek durumlarıyla izleyin.</p>
+            </figcaption>
+          </figure>
+
+          <!-- Gallery Item 2 -->
+          <figure class="gallery-card">
+            <div class="gallery-img-wrapper">
+              <img src="assets/SS-TR 02.png" alt="Curalis Hızlı İlaç Arama ve TİTCK Sözlüğü" class="gallery-img" loading="lazy" width="1080" height="2400">
+            </div>
+            <figcaption class="gallery-caption">
+              <h4 class="gallery-item-title" data-i18n="gal2_title">TİTCK İlaç Veritabanı</h4>
+              <p class="gallery-item-desc" data-i18n="gal2_desc">23.000'den fazla onaylı ilacı etken madde, barkod ve form bilgisiyle arayın.</p>
+            </figcaption>
+          </figure>
+
+          <!-- Gallery Item 3 -->
+          <figure class="gallery-card">
+            <div class="gallery-img-wrapper">
+              <img src="assets/SS-TR 03.png" alt="Curalis İlaç Dolabım ve Stok Yönetimi" class="gallery-img" loading="lazy" width="1080" height="2400">
+            </div>
+            <figcaption class="gallery-caption">
+              <h4 class="gallery-item-title" data-i18n="gal3_title">İlaç Dolabım & Stok</h4>
+              <p class="gallery-item-desc" data-i18n="gal3_desc">Kritik stok seviyesi uyarıları ve kalan hap adetlerini otomatik takip edin.</p>
+            </figcaption>
+          </figure>
+
+          <!-- Gallery Item 4 -->
+          <figure class="gallery-card">
+            <div class="gallery-img-wrapper">
+              <img src="assets/SS-TR 04.png" alt="Curalis Tedavi Uyum Takvimi" class="gallery-img" loading="lazy" width="1080" height="2400">
+            </div>
+            <figcaption class="gallery-caption">
+              <h4 class="gallery-item-title" data-i18n="gal4_title">Tedavi Uyum Takvimi</h4>
+              <p class="gallery-item-desc" data-i18n="gal4_desc">Geçmiş ve gelecek günlerdeki doz alma başarınızı renkli takvimde görün.</p>
+            </figcaption>
+          </figure>
+
+          <!-- Gallery Item 5 -->
+          <figure class="gallery-card">
+            <div class="gallery-img-wrapper">
+              <img src="assets/SS-TR 05.png" alt="Curalis Doktor Rehberi" class="gallery-img" loading="lazy" width="1080" height="2400">
+            </div>
+            <figcaption class="gallery-caption">
+              <h4 class="gallery-item-title" data-i18n="gal5_title">Doktor Rehberi</h4>
+              <p class="gallery-item-desc" data-i18n="gal5_desc">Uzman hekimlerinizi, klinik iletişim bilgilerini ve notlarınızı saklayın.</p>
+            </figcaption>
+          </figure>
+
+          <!-- Gallery Item 6 -->
+          <figure class="gallery-card">
+            <div class="gallery-img-wrapper">
+              <img src="assets/SS-TR 06.png" alt="Curalis Randevu Takibi ve Bildirimleri" class="gallery-img" loading="lazy" width="1080" height="2400">
+            </div>
+            <figcaption class="gallery-caption">
+              <h4 class="gallery-item-title" data-i18n="gal6_title">Klinik Randevu Takibi</h4>
+              <p class="gallery-item-desc" data-i18n="gal6_desc">Hastane ve muayene randevularınızı alarmlarla vaktinde hatırlayın.</p>
+            </figcaption>
+          </figure>
+
+          <!-- Gallery Item 7 -->
+          <figure class="gallery-card">
+            <div class="gallery-img-wrapper">
+              <img src="assets/SS-TR 07.png" alt="Curalis Vital Ölçümler ve Trend Grafikleri" class="gallery-img" loading="lazy" width="1080" height="2400">
+            </div>
+            <figcaption class="gallery-caption">
+              <h4 class="gallery-item-title" data-i18n="gal7_title">Sağlık Ölçümleri (Vitaller)</h4>
+              <p class="gallery-item-desc" data-i18n="gal7_desc">Tansiyon, şeker, nabız ve oksijen seviyelerinizi grafiklerle izleyin.</p>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture & Privacy Section -->
+    <section class="architecture-section" id="architecture">
+      <div class="container">
+        <div class="architecture-card">
+          <div class="architecture-content">
+            <span class="section-badge" data-i18n="arch_badge">Mühendislik & Güvenlik</span>
+            <h2 class="architecture-title" data-i18n="arch_title">Gizliliğiniz Pazarlık Konusu Değildir</h2>
+            <p class="architecture-desc" data-i18n="arch_desc">
+              Curalis, Android modern uygulama geliştirme standartlarına uygun olarak <strong>Clean Architecture</strong> (Domain / Data / Presentation) prensipleriyle geliştirilmiştir. 
+              Uygulamada hiçbir üçüncü taraf analitik kütüphanesi, kullanıcı takip kodu veya reklam ağı bulunmaz.
+            </p>
+            
+            <ul class="architecture-points">
+              <li>
+                <span class="point-icon">🛡️</span>
+                <div class="point-text">
+                  <strong data-i18n="arch_p1_title">Sıfır Bulut Bağımlılığı</strong>
+                  <span data-i18n="arch_p1_desc">İnternetiniz olmasa bile tüm özellikler %100 kapasiteyle eksiksiz çalışır.</span>
+                </div>
+              </li>
+              <li>
+                <span class="point-icon">🔐</span>
+                <div class="point-text">
+                  <strong data-i18n="arch_p2_title">Şifreli Yerel Yedekleme</strong>
+                  <span data-i18n="arch_p2_desc">Verilerinizi dilediğiniz zaman JSON veya şifreli yedek olarak dışa aktarın ve geri yükleyin.</span>
+                </div>
+              </li>
+              <li>
+                <span class="point-icon">📖</span>
+                <div class="point-text">
+                  <strong data-i18n="arch_p3_title">Açık Kaynak Kod Şeffaflığı</strong>
+                  <span data-i18n="arch_p3_desc">Tüm kaynak kodlar bağımsız denetime ve katkılara açıktır.</span>
+                </div>
+              </li>
+            </ul>
+
+            <div class="architecture-actions">
+              <a href="privacy.html" class="btn btn-secondary" data-i18n="arch_privacy_btn">Gizlilik Politikasını İncele</a>
+              <a href="https://github.com/gokcank/Curalis" class="btn btn-ghost" target="_blank" rel="noopener noreferrer" data-i18n="arch_github_btn">GitHub Kaynak Kodu</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Download Banner -->
+    <section class="bottom-cta-section">
+      <div class="container">
+        <div class="cta-card">
+          <div class="cta-content">
+            <h2 class="cta-title" data-i18n="cta_title">Sağlık Rutininizi Bugün Güvenceye Alın</h2>
+            <p class="cta-subtitle" data-i18n="cta_subtitle">Curalis'i hemen indirin, ilaçlarınızı ve sağlık verilerinizi tam gizlilikle yönetmeye başlayın.</p>
+            <div class="cta-buttons">
+              <a href="https://github.com/gokcank/Curalis/releases" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer" data-i18n="hero_apk_main">APK İndir</a>
+              <a href="https://github.com/gokcank/Curalis" class="btn btn-ghost btn-lg" target="_blank" rel="noopener noreferrer">⭐ GitHub'da Yıldız Ver</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-col footer-brand">
+        <div class="footer-logo-group">
+          <img src="assets/logo.png" alt="Curalis Logo" class="footer-logo" width="32" height="32">
+          <span class="footer-brand-name">Curalis</span>
+        </div>
+        <p class="footer-tagline" data-i18n="footer_tagline">
+          Kişisel Sağlık ve İlaç Takip Asistanı. %100 Çevrimdışı, Yerel Öncelikli ve Açık Kaynaklı.
+        </p>
+        <p class="footer-version">Sürüm: <strong>v1.0.0</strong></p>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading" data-i18n="footer_links_title">Hızlı Bağlantılar</h4>
+        <ul class="footer-menu">
+          <li><a href="#hero" data-i18n="nav_home">Ana Sayfa</a></li>
+          <li><a href="#features" data-i18n="nav_features">Özellikler</a></li>
+          <li><a href="#interactive-showcase" data-i18n="nav_interactive">İnteraktif Deneyim</a></li>
+          <li><a href="#gallery" data-i18n="nav_gallery">Ekran Görüntüleri</a></li>
+          <li><a href="privacy.html" data-i18n="nav_privacy">Gizlilik Politikası</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading" data-i18n="footer_community_title">Topluluk & Destek</h4>
+        <ul class="footer-menu">
+          <li><a href="https://github.com/gokcank/Curalis" target="_blank" rel="noopener noreferrer">GitHub Deposu</a></li>
+          <li><a href="https://github.com/gokcank/Curalis/issues" target="_blank" rel="noopener noreferrer">Hata Bildir / Issue</a></li>
+          <li><a href="https://github.com/gokcank/Curalis/releases" target="_blank" rel="noopener noreferrer">Sürüm Notları</a></li>
+          <li><a href="mailto:destek.gokcank@gmail.com">destek.gokcank@gmail.com</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p class="copyright">&copy; 2026 Curalis. Gökcan Kurt tarafından açık kaynak olarak geliştirilmiştir.</p>
+      <p class="footer-disclaimer" data-i18n="footer_disclaimer">
+        Curalis tıbbi tavsiye, tanı veya tedavi sunmaz. Tıbbi kararlarınız için daima hekiminize danışınız.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript Engine -->
+  <script src="app.js" defer></script>
+</body>
+</html>
