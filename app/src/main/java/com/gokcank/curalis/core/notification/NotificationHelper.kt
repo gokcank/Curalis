@@ -252,6 +252,31 @@ class NotificationHelper @Inject constructor(
         notificationManager.cancel(reminderId.hashCode())
     }
 
+    /**
+     * Cihazın saat dilimi değiştiğinde (ör. yurt dışı seyahati) [TimezoneChangeReceiver]
+     * tarafından gösterilir — kullanıcı hatırlatıcıların neden farklı görünebileceğini
+     * anlasın diye kısa bir bilgilendirme.
+     */
+    fun showTimezoneChangedNotification() {
+        val contentIntent = Intent(context, MainActivity::class.java)
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            TIMEZONE_CHANGED_NOTIFICATION_ID,
+            contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID_PROACTIVE)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle("Saat diliminiz değişti")
+            .setContentText("İlaç hatırlatıcılarınız yeni yerel saatinize göre güncellendi.")
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
+
+        notificationManager.notify(TIMEZONE_CHANGED_NOTIFICATION_ID, builder.build())
+    }
+
     fun showGroupedReminderNotification(
         reminderIds: List<String>,
         medicationNames: List<String>,
@@ -318,6 +343,7 @@ class NotificationHelper @Inject constructor(
         const val CHANNEL_ID_REFILL = "refill_warnings_channel"
         const val CHANNEL_ID_PROACTIVE = "proactive_reminders_channel"
         const val MORNING_REMINDER_NOTIFICATION_ID = -1001
+        const val TIMEZONE_CHANGED_NOTIFICATION_ID = -1002
         const val ACTION_TAKEN = "com.gokcank.curalis.ACTION_TAKEN"
         const val ACTION_SNOOZE = "com.gokcank.curalis.ACTION_SNOOZE"
         const val ACTION_SKIP = "com.gokcank.curalis.ACTION_SKIP"

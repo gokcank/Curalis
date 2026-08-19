@@ -76,6 +76,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".core.notification.TimezoneChangeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <!-- FullScreen LockScreen Alarm Activity -->
         <activity
             android:name=".presentation.alarm.AlarmFullScreenActivity"
