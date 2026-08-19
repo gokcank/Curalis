@@ -435,6 +435,16 @@ fun AddEditMedicationScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            MedicationLivePreview(
+                name = formState.name,
+                formType = formState.formType,
+                dosage = formState.dosage,
+                unit = formState.unit,
+                colorHex = formState.colorHex
+            )
+
             if (showExtra("renk")) {
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -1075,5 +1085,56 @@ private fun MedicationPhotoPicker(photoPath: String?, onClick: () -> Unit) {
                 modifier = Modifier.size(28.dp)
             )
         }
+    }
+}
+
+/**
+ * Seçilen ilaç şekli ve rengin, listede/kutuda nasıl görüneceğini kullanıcıya baştan
+ * gösteren büyük, canlı güncellenen önizleme. Form/renk/isim/doz değiştikçe anında
+ * yeniden çizilir; ayrı bir onay adımı gerektirmez.
+ */
+@Composable
+private fun MedicationLivePreview(
+    name: String,
+    formType: MedicationForm,
+    dosage: String,
+    unit: String,
+    colorHex: String
+) {
+    val accentColor = remember(colorHex) {
+        runCatching { Color(android.graphics.Color.parseColor(colorHex)) }.getOrDefault(Color(0xFF1E88E5))
+    }
+    val dosageLine = listOfNotNull(dosage.takeIf { it.isNotBlank() }, unit.takeIf { it.isNotBlank() })
+        .joinToString(" ")
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(96.dp)
+                .background(color = accentColor, shape = CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = formType.icon(),
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = name.ifBlank { "İlaç Adı" },
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = if (name.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = listOfNotNull(formType.displayNameTr, dosageLine.takeIf { it.isNotBlank() }).joinToString(" · "),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
