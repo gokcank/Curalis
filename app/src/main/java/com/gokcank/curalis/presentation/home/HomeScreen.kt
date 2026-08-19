@@ -10,10 +10,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Favorite
@@ -36,7 +41,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.gokcank.curalis.core.theme.LocalCuralisColors
 import com.gokcank.curalis.core.utils.PdfReportGeneratorEntryPoint
+import com.gokcank.curalis.domain.model.MedicationForm
+import com.gokcank.curalis.domain.model.Reminder
+import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.presentation.components.DoseTakenTimeDialog
+import com.gokcank.curalis.presentation.components.icon
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -92,6 +103,7 @@ fun HomeScreen(
     var pdfPreviewFile by remember { mutableStateOf<java.io.File?>(null) }
     var reportSummary by remember { mutableStateOf<com.gokcank.curalis.core.utils.ReportSummary?>(null) }
     var showReportRangeDialog by remember { mutableStateOf(false) }
+    var pendingDoseReminder by remember { mutableStateOf<Reminder?>(null) }
 
     BackHandler {
         showExitDialog = true
@@ -285,6 +297,18 @@ fun HomeScreen(
                                 }
                             }
                         }
+
+                        if (uiState.pillboxItems.isNotEmpty()) {
+                            PillboxStrip(
+                                items = uiState.pillboxItems,
+                                onItemClick = { item ->
+                                    val isTaken = item.reminder.state == ReminderState.TAKEN
+                                    if (!isTaken) {
+                                        pendingDoseReminder = item.reminder
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -359,6 +383,17 @@ fun HomeScreen(
             }
         )
     }
+
+    pendingDoseReminder?.let { reminder ->
+        DoseTakenTimeDialog(
+            scheduledTimeMillis = reminder.timeInMillis,
+            onDismiss = { pendingDoseReminder = null },
+            onConfirm = { takenAtMillis ->
+                viewModel.acknowledgeDose(reminder, ReminderState.TAKEN, takenAtMillis = takenAtMillis)
+                pendingDoseReminder = null
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -429,5 +464,85 @@ fun SummaryCard(title: String, content: String, icon: ImageVector, onClick: (() 
                 Text(text = content, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             }
         }
+    }
+}
+
+/**
+ * "Bugünün Kutusu" — Medisafe'in pillbox ana ekran görünümünden esinlenen, günün tüm
+ * dozlarını küçük ilaç ikonları halinde tek bakışta gösteren şerit. Bekleyen (veya
+ * atlanmış/kaçırılmış, düzeltilebilir) bir ikona dokunmak doğrudan "Aldım" akışını açar;
+ * ayrı bir ekrana gitmeye gerek kalmaz. Detaylı yönetim (atlama, erteleme, geçmiş) için
+ * Günlük Zaman Çizelgesi ekranı kullanılmaya devam eder.
+ */
+@Composable
+fun PillboxStrip(
+    items: List<HomePillboxItem>,
+    onItemClick: (HomePillboxItem) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.2f)
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Bugünün Kutusu",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(items, key = { it.reminder.id }) { item ->
+                    PillboxDoseIcon(item = item, onClick = { onItemClick(item) })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PillboxDoseIcon(item: HomePillboxItem, onClick: () -> Unit) {
+    val semantic = LocalCuralisColors.current
+    val isTaken = item.reminder.state == ReminderState.TAKEN
+    val isMissedOrSkipped = item.reminder.state == ReminderState.MISSED ||
+        item.reminder.state == ReminderState.SKIPPED
+
+    val tint = when {
+        isTaken -> semantic.success
+        isMissedOrSkipped -> semantic.warning
+        else -> MaterialTheme.colorScheme.primary
+    }
+    val containerAlpha = if (isTaken) 0.25f else 0.12f
+    val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(52.dp)
+    ) {
+        Surface(
+            shape = CircleShape,
+            color = tint.copy(alpha = containerAlpha),
+            border = if (!isTaken) BorderStroke(1.5.dp, tint.copy(alpha = 0.5f)) else null,
+            onClick = onClick,
+            modifier = Modifier.size(44.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = if (isTaken) Icons.Default.Check else (item.medication?.formType ?: MedicationForm.PILL).icon(),
+                    contentDescription = item.medication?.name ?: "İlaç",
+                    tint = tint,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = timeFormat.format(Date(item.reminder.timeInMillis)),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
