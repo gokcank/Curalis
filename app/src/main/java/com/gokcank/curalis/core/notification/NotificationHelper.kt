@@ -9,8 +9,10 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.gokcank.curalis.R
+import com.gokcank.curalis.domain.model.VitalType
 import com.gokcank.curalis.presentation.alarm.AlarmFullScreenActivity
 import com.gokcank.curalis.presentation.main.MainActivity
+import com.gokcank.curalis.presentation.vital.displayNameRes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -250,6 +252,28 @@ class NotificationHelper @Inject constructor(
 
     fun dismissNotification(reminderId: String) {
         notificationManager.cancel(reminderId.hashCode())
+    }
+
+    /** Bir ölçüm türü için kullanıcının kendi kurduğu "bunu ölçmeyi unutma" hatırlatıcısı. */
+    fun showVitalReminderNotification(type: VitalType) {
+        val typeName = context.getString(type.displayNameRes())
+        val contentIntent = Intent(context, MainActivity::class.java)
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            ("vital_reminder_" + type.name).hashCode(),
+            contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID_PROACTIVE)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle("$typeName ölçüm zamanı")
+            .setContentText("Bugün $typeName ölçümünüzü kaydetmeyi unutmayın.")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
+
+        notificationManager.notify(("vital_reminder_" + type.name).hashCode(), builder.build())
     }
 
     /**

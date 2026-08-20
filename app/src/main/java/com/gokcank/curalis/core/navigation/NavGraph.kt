@@ -180,6 +180,12 @@ fun NavGraph() {
         composable(route = Screen.VitalList.route) {
             VitalListScreen(
                 onAddVitalClick = { navController.navigate(Screen.AddEditVital.route) },
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToReminderSettings = { navController.navigate(Screen.VitalReminderSettings.route) }
+            )
+        }
+        composable(route = Screen.VitalReminderSettings.route) {
+            com.gokcank.curalis.presentation.vital.VitalReminderSettingsScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

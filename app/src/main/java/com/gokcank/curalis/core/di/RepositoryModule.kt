@@ -56,6 +56,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindVitalReminderRepository(
+        vitalReminderRepositoryImpl: com.gokcank.curalis.data.repository.VitalReminderRepositoryImpl
+    ): com.gokcank.curalis.domain.repository.VitalReminderRepository
+
+    @Binds
+    @Singleton
     abstract fun bindStockHistoryRepository(
         stockHistoryRepositoryImpl: com.gokcank.curalis.data.repository.StockHistoryRepositoryImpl
     ): com.gokcank.curalis.domain.repository.StockHistoryRepository
