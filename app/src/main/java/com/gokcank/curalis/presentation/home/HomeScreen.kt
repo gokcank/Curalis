@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sick
 import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -85,6 +86,7 @@ fun HomeScreen(
     onNavigateToAppointments: () -> Unit,
     onNavigateToVitals: () -> Unit,
     onNavigateToSymptoms: () -> Unit = {},
+    onNavigateToDailyNotes: () -> Unit = {},
     onNavigateToCalendar: () -> Unit = {},
     onNavigateToDailyTimeline: () -> Unit = {},
     onNavigateToSettings: () -> Unit,
@@ -359,6 +361,15 @@ fun HomeScreen(
                     title = "Semptomlar",
                     icon = Icons.Default.Sick,
                     onClick = onNavigateToSymptoms
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                DashboardCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = "Günlük Notlarım",
+                    icon = Icons.AutoMirrored.Filled.MenuBook,
+                    onClick = onNavigateToDailyNotes
                 )
             }
         }

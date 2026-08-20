@@ -35,6 +35,7 @@ fun NavGraph() {
                 onNavigateToAppointments = { navController.navigate(Screen.AppointmentList.route) },
                 onNavigateToVitals = { navController.navigate(Screen.VitalList.route) },
                 onNavigateToSymptoms = { navController.navigate(Screen.SymptomList.route) },
+                onNavigateToDailyNotes = { navController.navigate(Screen.DailyNoteList.route) },
                 onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) },
                 onNavigateToDailyTimeline = { navController.navigate(Screen.DailyTimeline.route) },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
@@ -223,6 +224,22 @@ fun NavGraph() {
         }
         composable(route = Screen.AddEditSymptom.route) {
             com.gokcank.curalis.presentation.symptom.AddEditSymptomScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Daily Notes
+        composable(route = Screen.DailyNoteList.route) {
+            com.gokcank.curalis.presentation.dailynote.DailyNoteListScreen(
+                onOpenNote = { dateMillis -> navController.navigate(Screen.AddEditDailyNote.passDateMillis(dateMillis)) },
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Screen.AddEditDailyNote.route,
+            arguments = listOf(navArgument("dateMillis") { type = NavType.LongType })
+        ) {
+            com.gokcank.curalis.presentation.dailynote.AddEditDailyNoteScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
