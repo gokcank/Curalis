@@ -544,5 +544,12 @@ private fun PillboxDoseIcon(item: HomePillboxItem, onClick: () -> Unit) {
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        if (item.reminder.isPlacebo) {
+            Text(
+                text = "Plasebo",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            )
+        }
     }
 }

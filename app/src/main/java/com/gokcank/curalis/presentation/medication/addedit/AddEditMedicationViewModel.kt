@@ -72,6 +72,7 @@ data class MedicationFormState(
     val intervalDays: String = "2",
     val activeDays: String = "21",
     val restDays: String = "7",
+    val hasPlaceboDays: Boolean = false,
     val specificDays: List<Int> = emptyList(),
     val isRefillEnabled: Boolean = false,
     val currentStock: String = "",
@@ -101,6 +102,7 @@ private fun Medication.toFormState(): MedicationFormState = MedicationFormState(
     intervalDays = (intervalDays ?: 2).toString(),
     activeDays = (activeDays ?: 21).toString(),
     restDays = (restDays ?: 7).toString(),
+    hasPlaceboDays = hasPlaceboDays,
     specificDays = specificDays,
     isRefillEnabled = isRefillReminderEnabled,
     currentStock = currentStock?.toString() ?: "",
@@ -134,6 +136,7 @@ private fun MedicationFormState.toMedication(id: String): Medication {
         specificDays = if (frequencyType == FrequencyType.SPECIFIC_DAYS) specificDays else emptyList(),
         activeDays = if (frequencyType == FrequencyType.CYCLIC) activeDays.toIntOrNull() ?: 21 else null,
         restDays = if (frequencyType == FrequencyType.CYCLIC) restDays.toIntOrNull() ?: 7 else null,
+        hasPlaceboDays = frequencyType == FrequencyType.CYCLIC && hasPlaceboDays,
         initialStock = parsedStock,
         currentStock = parsedStock,
         refillThreshold = refillThreshold.toIntOrNull() ?: 5,
@@ -281,6 +284,8 @@ class AddEditMedicationViewModel @Inject constructor(
     fun onActiveDaysChange(days: String) = _formState.update { it.copy(activeDays = days.filter { c -> c.isDigit() }) }
 
     fun onRestDaysChange(days: String) = _formState.update { it.copy(restDays = days.filter { c -> c.isDigit() }) }
+
+    fun onHasPlaceboDaysChange(enabled: Boolean) = _formState.update { it.copy(hasPlaceboDays = enabled) }
 
     fun toggleSpecificDay(day: Int) = _formState.update { state ->
         val updated = if (state.specificDays.contains(day)) {

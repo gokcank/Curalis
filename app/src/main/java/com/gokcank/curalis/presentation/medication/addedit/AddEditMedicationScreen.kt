@@ -631,6 +631,26 @@ fun AddEditMedicationScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)
                 )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Plasebo Hap Hatırlatması", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "Ara verilen günlerde de hatırlatıcı gösterilir (ör. doğum kontrol paketindeki plasebo haplar). Bu dozlar uyum yüzdesine dahil edilmez.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = formState.hasPlaceboDays,
+                        onCheckedChange = viewModel::onHasPlaceboDaysChange
+                    )
+                }
             }
 
             if (formState.frequencyType == FrequencyType.SPECIFIC_DAYS) {

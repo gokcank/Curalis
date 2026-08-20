@@ -394,12 +394,28 @@ fun TimelineCard(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text(
-                            text = med?.name ?: "İlaç",
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = med?.name ?: "İlaç",
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (item.reminder.isPlacebo) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = MaterialTheme.colorScheme.tertiaryContainer
+                                ) {
+                                    Text(
+                                        text = "Plasebo",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                        }
                         val dosageSuffix = med?.dosage?.let { " • $it ${med.unit ?: ""}".trimEnd() } ?: ""
                         val timeLine = if (item.reminder.state == ReminderState.TAKEN && takenAtMillis != null) {
                             "Saat $formattedTime$dosageSuffix • Alındı: ${timeFormat.format(Date(takenAtMillis))}"

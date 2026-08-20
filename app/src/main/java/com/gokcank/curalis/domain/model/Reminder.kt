@@ -11,5 +11,8 @@ data class Reminder(
     /** Kullanıcının dozu gerçekte aldığını belirttiği zaman — "Şimdi" / "Tam zamanında" /
      *  elle seçilen bir saat olabilir. `timeInMillis` (planlanan saat) ile karıştırılmamalı.
      *  Yalnızca state == TAKEN iken anlamlıdır. */
-    val takenAtMillis: Long? = null
+    val takenAtMillis: Long? = null,
+    /** CYCLIC bir ilacın dinlenme gününde üretilen plasebo hap dozu mu — bkz.
+     *  Medication.hasPlaceboDays. Alınabilir/atlanabilir ama uyum yüzdesine sayılmaz. */
+    val isPlacebo: Boolean = false
 )

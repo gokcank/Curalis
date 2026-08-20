@@ -86,7 +86,10 @@ class AdherenceAnalyticsViewModel @Inject constructor(
             combine(
                 getRemindersBetweenDatesUseCase(trendStart, endTime),
                 getMedicationsUseCase()
-            ) { trendReminders, medications ->
+            ) { allTrendReminders, medications ->
+                // Plasebo dozları (CYCLIC dinlenme günleri) uyum istatistiklerine dahil
+                // edilmez — bkz. Reminder.isPlacebo.
+                val trendReminders = allTrendReminders.filterNot { it.isPlacebo }
                 val monthReminders = trendReminders.filter { it.timeInMillis >= monthStart }
                 val weekReminders = monthReminders.filter { it.timeInMillis >= weekStart }
 

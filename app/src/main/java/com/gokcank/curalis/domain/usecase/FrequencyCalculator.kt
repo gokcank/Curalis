@@ -71,11 +71,50 @@ object FrequencyCalculator {
                 val restDays = (medication.restDays ?: 7).coerceAtLeast(0)
                 val cycleLength = activeDays + restDays
                 val diffDays = calendarDaysBetween(medStartCal.timeInMillis, dayStartCal.timeInMillis)
-                diffDays >= 0 && (diffDays % cycleLength) < activeDays
+                if (diffDays < 0) {
+                    false
+                } else if (medication.hasPlaceboDays) {
+                    // Plasebo hap açıksa dinlenme günlerinde de bir hatırlatıcı üretilir;
+                    // hangi günlerin plasebo olduğu isPlaceboDay ile ayrıca işaretlenir.
+                    true
+                } else {
+                    (diffDays % cycleLength) < activeDays
+                }
             }
 
             FrequencyType.AS_NEEDED -> false
         }
+    }
+
+    /**
+     * Bir CYCLIC ilacın verilen günde üretilecek dozunun plasebo (dinlenme günü) hapı olup
+     * olmadığını belirler. [shouldTakeOnDay] ile aynı gün-eşleştirme mantığını (medStartCal
+     * hizalaması) tekrarlar ki iki fonksiyon zamanla birbirinden sapmasın.
+     */
+    fun isPlaceboDay(medication: Medication, dayMillis: Long): Boolean {
+        if (medication.frequencyType != FrequencyType.CYCLIC || !medication.hasPlaceboDays) return false
+
+        val dayStartCal = Calendar.getInstance().apply {
+            timeInMillis = dayMillis
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val medStartCal = Calendar.getInstance().apply {
+            timeInMillis = medication.startDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        if (dayStartCal.timeInMillis < medStartCal.timeInMillis) return false
+
+        val activeDays = (medication.activeDays ?: 21).coerceAtLeast(1)
+        val restDays = (medication.restDays ?: 7).coerceAtLeast(0)
+        val cycleLength = activeDays + restDays
+        val diffDays = calendarDaysBetween(medStartCal.timeInMillis, dayStartCal.timeInMillis)
+        return diffDays >= 0 && (diffDays % cycleLength) >= activeDays
     }
 
     /**

@@ -21,6 +21,10 @@ data class Medication(
     val specificDays: List<Int> = emptyList(), // 1=Mon, 7=Sun
     val activeDays: Int? = null, // for cyclic (e.g. 21)
     val restDays: Int? = null, // for cyclic (e.g. 7)
+    // Yalnızca CYCLIC için anlamlıdır: açıksa dinlenme günlerinde de bir hatırlatıcı
+    // üretilir (plasebo hap — ör. doğum kontrol paketindeki boş/plasebo haplar), ama
+    // bu dozlar uyum yüzdesi hesaplarına dahil edilmez (bkz. Reminder.isPlacebo).
+    val hasPlaceboDays: Boolean = false,
     val startDate: Long = System.currentTimeMillis(),
     val initialStock: Int? = null,
     val currentStock: Int? = null,

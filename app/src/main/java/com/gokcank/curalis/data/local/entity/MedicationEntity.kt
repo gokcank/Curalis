@@ -23,6 +23,7 @@ data class MedicationEntity(
     val intervalDays: Int? = null,
     val activeDays: Int? = null,
     val restDays: Int? = null,
+    val hasPlaceboDays: Boolean = false,
     val startDate: Long = System.currentTimeMillis(),
     val initialStock: Int? = null,
     val currentStock: Int? = null,

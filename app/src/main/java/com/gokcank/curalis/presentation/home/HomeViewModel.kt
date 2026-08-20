@@ -88,8 +88,11 @@ class HomeViewModel @Inject constructor(
             val todayRemindersFlow = getRemindersBetweenDatesUseCase(startOfDay, endOfDay)
 
             combine(appointmentFlow, vitalFlow, todayRemindersFlow, medications) { nextAppt, latestVital, todayReminders, meds ->
-                val total = todayReminders.size
-                val taken = todayReminders.count { it.state == ReminderState.TAKEN }
+                // Plasebo dozları (CYCLIC dinlenme günleri) uyum ilerlemesine dahil edilmez —
+                // atlanmalarının klinik bir karşılığı yoktur, bkz. Reminder.isPlacebo.
+                val adherenceReminders = todayReminders.filterNot { it.isPlacebo }
+                val total = adherenceReminders.size
+                val taken = adherenceReminders.count { it.state == ReminderState.TAKEN }
                 val progress = if (total > 0) taken.toFloat() / total.toFloat() else 0f
 
                 val nextReminder = todayReminders
