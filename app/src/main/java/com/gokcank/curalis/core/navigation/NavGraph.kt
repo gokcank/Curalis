@@ -34,6 +34,7 @@ fun NavGraph() {
                 onNavigateToDoctors = { navController.navigate(Screen.DoctorList.route) },
                 onNavigateToAppointments = { navController.navigate(Screen.AppointmentList.route) },
                 onNavigateToVitals = { navController.navigate(Screen.VitalList.route) },
+                onNavigateToSymptoms = { navController.navigate(Screen.SymptomList.route) },
                 onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) },
                 onNavigateToDailyTimeline = { navController.navigate(Screen.DailyTimeline.route) },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
@@ -203,6 +204,19 @@ fun NavGraph() {
         }
         composable(route = Screen.Analytics.route) {
             com.gokcank.curalis.presentation.analytics.AdherenceAnalyticsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Symptoms
+        composable(route = Screen.SymptomList.route) {
+            com.gokcank.curalis.presentation.symptom.SymptomListScreen(
+                onAddSymptomClick = { navController.navigate(Screen.AddEditSymptom.route) },
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(route = Screen.AddEditSymptom.route) {
+            com.gokcank.curalis.presentation.symptom.AddEditSymptomScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
