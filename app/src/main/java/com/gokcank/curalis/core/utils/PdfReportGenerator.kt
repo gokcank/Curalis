@@ -84,7 +84,9 @@ class PdfReportGenerator @Inject constructor(
         val allMedications = medicationsDeferred.await()
         val medications = if (medicationIds.isNullOrEmpty()) allMedications else allMedications.filter { it.id in medicationIds }
         val vitals = vitalsDeferred.await()
-        val allRangeReminders = rangeRemindersDeferred.await()
+        // Plasebo dozları (CYCLIC dinlenme günleri) uyum istatistiklerine dahil edilmez —
+        // bkz. Reminder.isPlacebo.
+        val allRangeReminders = rangeRemindersDeferred.await().filterNot { it.isPlacebo }
         val rangeReminders = if (medicationIds.isNullOrEmpty()) allRangeReminders else allRangeReminders.filter { it.medicationId in medicationIds }
 
         val takenCount = rangeReminders.count { it.state == ReminderState.TAKEN }

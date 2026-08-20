@@ -121,6 +121,15 @@ val MIGRATION_17_18 = object : Migration(17, 18) {
     }
 }
 
+val MIGRATION_18_19 = object : Migration(18, 19) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Döngüsel şemada dinlenme günlerinde de plasebo hap hatırlatması gösterilsin mi
+        // (bkz. Medication.hasPlaceboDays / Reminder.isPlacebo).
+        db.execSQL("ALTER TABLE medications ADD COLUMN hasPlaceboDays INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE reminders ADD COLUMN isPlacebo INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
 val CURALIS_MIGRATIONS = arrayOf(
-    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18
+    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19
 )

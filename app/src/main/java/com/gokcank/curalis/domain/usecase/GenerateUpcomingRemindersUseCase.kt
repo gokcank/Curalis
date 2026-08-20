@@ -43,6 +43,7 @@ class GenerateUpcomingRemindersUseCase @Inject constructor(
         repeat(WINDOW_DAYS) {
             val dayMillis = dayCal.timeInMillis
             if (FrequencyCalculator.shouldTakeOnDay(medication, dayMillis)) {
+                val isPlacebo = FrequencyCalculator.isPlaceboDay(medication, dayMillis)
                 medication.times.forEach { medTime ->
                     val triggerCal = Calendar.getInstance().apply {
                         timeInMillis = dayMillis
@@ -58,7 +59,8 @@ class GenerateUpcomingRemindersUseCase @Inject constructor(
                                 id = "${medication.id}_$triggerMillis",
                                 medicationId = medication.id,
                                 timeInMillis = triggerMillis,
-                                state = ReminderState.SCHEDULED
+                                state = ReminderState.SCHEDULED,
+                                isPlacebo = isPlacebo
                             )
                         )
                     }

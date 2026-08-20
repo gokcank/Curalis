@@ -12,7 +12,8 @@ fun ReminderEntity.toDomain(): Reminder {
         timeInMillis = timeInMillis,
         state = ReminderState.valueOf(state),
         skipReason = skipReason?.let { SkipReason.valueOf(it) },
-        takenAtMillis = takenAtMillis
+        takenAtMillis = takenAtMillis,
+        isPlacebo = isPlacebo
     )
 }
 
@@ -23,6 +24,7 @@ fun Reminder.toEntity(): ReminderEntity {
         timeInMillis = timeInMillis,
         state = state.name,
         skipReason = skipReason?.name,
-        takenAtMillis = takenAtMillis
+        takenAtMillis = takenAtMillis,
+        isPlacebo = isPlacebo
     )
 }
