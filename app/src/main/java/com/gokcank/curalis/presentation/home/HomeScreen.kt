@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Sick
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -83,6 +84,7 @@ fun HomeScreen(
     onNavigateToDoctors: () -> Unit,
     onNavigateToAppointments: () -> Unit,
     onNavigateToVitals: () -> Unit,
+    onNavigateToSymptoms: () -> Unit = {},
     onNavigateToCalendar: () -> Unit = {},
     onNavigateToDailyTimeline: () -> Unit = {},
     onNavigateToSettings: () -> Unit,
@@ -349,6 +351,15 @@ fun HomeScreen(
                         onClick = onNavigateToVitals
                     )
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                DashboardCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = "Semptomlar",
+                    icon = Icons.Default.Sick,
+                    onClick = onNavigateToSymptoms
+                )
             }
         }
     }

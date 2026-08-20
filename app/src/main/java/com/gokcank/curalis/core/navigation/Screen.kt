@@ -50,4 +50,7 @@ sealed class Screen(val route: String) {
     data object DailyTimeline : Screen("daily_timeline_screen")
     data object Analytics : Screen("analytics_screen")
     data object StockHistoryList : Screen("stock_history_list_screen")
+
+    data object SymptomList : Screen("symptom_list_screen")
+    data object AddEditSymptom : Screen("add_edit_symptom_screen")
 }
