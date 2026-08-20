@@ -55,4 +55,9 @@ sealed class Screen(val route: String) {
     data object AddEditSymptom : Screen("add_edit_symptom_screen")
 
     data object VitalReminderSettings : Screen("vital_reminder_settings_screen")
+
+    data object DailyNoteList : Screen("daily_note_list_screen")
+    data object AddEditDailyNote : Screen("add_edit_daily_note_screen/{dateMillis}") {
+        fun passDateMillis(dateMillis: Long): String = "add_edit_daily_note_screen/$dateMillis"
+    }
 }

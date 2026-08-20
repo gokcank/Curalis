@@ -166,6 +166,21 @@ val MIGRATION_20_21 = object : Migration(20, 21) {
     }
 }
 
+val MIGRATION_21_22 = object : Migration(21, 22) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Günlük Notları — serbest metinli, günde bir kayıt sağlık günlüğü (bkz. DailyNote).
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS daily_notes (
+                dateMillis INTEGER NOT NULL PRIMARY KEY,
+                content TEXT NOT NULL,
+                mood TEXT
+            )
+            """
+        )
+    }
+}
+
 val CURALIS_MIGRATIONS = arrayOf(
-    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21
+    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, MIGRATION_21_22
 )
