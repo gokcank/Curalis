@@ -53,4 +53,6 @@ sealed class Screen(val route: String) {
 
     data object SymptomList : Screen("symptom_list_screen")
     data object AddEditSymptom : Screen("add_edit_symptom_screen")
+
+    data object VitalReminderSettings : Screen("vital_reminder_settings_screen")
 }

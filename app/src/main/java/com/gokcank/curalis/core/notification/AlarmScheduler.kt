@@ -252,6 +252,52 @@ class AlarmScheduler @Inject constructor(
         alarmManager.cancel(morningReminderPendingIntent())
     }
 
+    private fun vitalReminderPendingIntent(type: com.gokcank.curalis.domain.model.VitalType): PendingIntent {
+        val intent = Intent(context, VitalReminderReceiver::class.java).apply {
+            putExtra(EXTRA_VITAL_TYPE, type.name)
+        }
+        return PendingIntent.getBroadcast(
+            context,
+            ("vital_reminder_" + type.name).hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    /**
+     * Bir sonraki tetiklenme zamanını, [daysOfWeek] boşsa her gün, doluysa yalnızca o
+     * günler (1=Pzt..7=Paz) arasından bulur — mantık FrequencyCalculator'daki SPECIFIC_DAYS
+     * gün-eşleştirmesiyle aynı ISO gün numaralandırmasını kullanır.
+     */
+    private fun nextVitalReminderTrigger(hour: Int, minute: Int, daysOfWeek: List<Int>): Long {
+        val now = System.currentTimeMillis()
+        val baseCal = Calendar.getInstance()
+        repeat(8) { offset ->
+            val dayCal = (baseCal.clone() as Calendar).apply {
+                add(Calendar.DAY_OF_YEAR, offset)
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, minute)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val isoDay = if (dayCal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) 7 else dayCal.get(Calendar.DAY_OF_WEEK) - 1
+            val matchesDay = daysOfWeek.isEmpty() || daysOfWeek.contains(isoDay)
+            if (matchesDay && dayCal.timeInMillis > now) {
+                return dayCal.timeInMillis
+            }
+        }
+        return now + 24L * 3600 * 1000
+    }
+
+    fun scheduleVitalReminder(type: com.gokcank.curalis.domain.model.VitalType, hour: Int, minute: Int, daysOfWeek: List<Int>) {
+        val trigger = nextVitalReminderTrigger(hour, minute, daysOfWeek)
+        setExactAlarm(trigger, vitalReminderPendingIntent(type))
+    }
+
+    fun cancelVitalReminder(type: com.gokcank.curalis.domain.model.VitalType) {
+        alarmManager.cancel(vitalReminderPendingIntent(type))
+    }
+
     fun cancel(reminderId: String) {
         val intent = Intent(context, ReminderReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
@@ -278,5 +324,6 @@ class AlarmScheduler @Inject constructor(
         const val KIND_MEDICATION = "medication"
         const val KIND_APPOINTMENT = "appointment"
         private const val MORNING_REMINDER_REQUEST_CODE = -2001
+        const val EXTRA_VITAL_TYPE = "extra_vital_type"
     }
 }

@@ -148,6 +148,24 @@ val MIGRATION_19_20 = object : Migration(19, 20) {
     }
 }
 
+val MIGRATION_20_21 = object : Migration(20, 21) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Ölçüm başına hatırlatma — her VitalType için isteğe bağlı, bağımsız bir
+        // "bunu ölçmeyi unutma" hatırlatıcısı (bkz. VitalReminderSetting).
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS vital_reminders (
+                type TEXT NOT NULL PRIMARY KEY,
+                enabled INTEGER NOT NULL,
+                hour INTEGER NOT NULL,
+                minute INTEGER NOT NULL,
+                daysOfWeek TEXT NOT NULL
+            )
+            """
+        )
+    }
+}
+
 val CURALIS_MIGRATIONS = arrayOf(
-    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20
+    MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21
 )

@@ -67,6 +67,10 @@
             android:exported="false" />
 
         <receiver
+            android:name=".core.notification.VitalReminderReceiver"
+            android:exported="false" />
+
+        <receiver
             android:name=".core.notification.BootReceiver"
             android:enabled="true"
             android:exported="true">

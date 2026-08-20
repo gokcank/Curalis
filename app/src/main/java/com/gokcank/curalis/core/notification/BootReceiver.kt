@@ -38,6 +38,9 @@ class BootReceiver : BroadcastReceiver() {
     @Inject
     lateinit var generateUpcomingRemindersUseCase: GenerateUpcomingRemindersUseCase
 
+    @Inject
+    lateinit var vitalReminderRepository: com.gokcank.curalis.domain.repository.VitalReminderRepository
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             val pendingResult = goAsync()
@@ -72,6 +75,13 @@ class BootReceiver : BroadcastReceiver() {
 
                     // Reboot, sabah hatırlatması alarmını da siler.
                     alarmScheduler.scheduleMorningReminder()
+
+                    // Reboot, ölçüm hatırlatıcı alarmlarını da siler.
+                    vitalReminderRepository.getAllSettings().firstOrNull()
+                        ?.filter { it.enabled }
+                        ?.forEach { setting ->
+                            alarmScheduler.scheduleVitalReminder(setting.type, setting.hour, setting.minute, setting.daysOfWeek)
+                        }
                 } catch (e: Exception) {
                     Log.e(TAG, "Reboot sonrası hatırlatıcılar yeniden kurulurken hata oluştu", e)
                 } finally {

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Bloodtype
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Air
@@ -66,7 +67,8 @@ import androidx.compose.runtime.setValue
 fun VitalListScreen(
     viewModel: VitalListViewModel = hiltViewModel(),
     onAddVitalClick: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToReminderSettings: () -> Unit = {}
 ) {
     val vitals by viewModel.vitals.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
@@ -102,6 +104,11 @@ fun VitalListScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onNavigateToReminderSettings) {
+                        Icon(Icons.Default.NotificationsActive, contentDescription = "Ölçüm Hatırlatıcıları")
                     }
                 }
             )

@@ -85,6 +85,12 @@ object DatabaseModule {
 
     @Provides
     @Singleton
+    fun provideVitalReminderDao(db: CuralisDatabase): com.gokcank.curalis.data.local.dao.VitalReminderDao {
+        return db.vitalReminderDao
+    }
+
+    @Provides
+    @Singleton
     fun provideEmergencyContactDao(db: CuralisDatabase): com.gokcank.curalis.data.local.dao.EmergencyContactDao {
         return db.emergencyContactDao
     }
