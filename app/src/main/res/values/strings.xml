@@ -126,6 +126,7 @@
     <string name="app_version">Curalis %1$s (Closed Beta)</string>
     <string name="developer">Developer: %1$s</string>
     <string name="database_date_label">Database Date: %1$s</string>
+    <string name="widget_description">Shows today\'s medication doses and lets you mark them as taken directly from the home screen.</string>
     <string name="bug_report">BUG REPORT</string>
     <string name="bug_report_subject">BUG REPORT</string>
     <string name="bug_report_body">Please describe the bug you encountered here:\n\n\n\n--- System Info ---\nModel: %1$s\nAndroid Version: %2$s\nAPI: %3$s\nApp Version: %4$s</string>

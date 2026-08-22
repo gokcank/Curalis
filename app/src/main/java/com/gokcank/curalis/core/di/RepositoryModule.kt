@@ -68,6 +68,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindWidgetRefresher(
+        glanceWidgetRefresher: com.gokcank.curalis.core.widget.GlanceWidgetRefresher
+    ): com.gokcank.curalis.domain.repository.WidgetRefresher
+
+    @Binds
+    @Singleton
     abstract fun bindStockHistoryRepository(
         stockHistoryRepositoryImpl: com.gokcank.curalis.data.repository.StockHistoryRepositoryImpl
     ): com.gokcank.curalis.domain.repository.StockHistoryRepository

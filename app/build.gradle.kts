@@ -135,6 +135,10 @@ dependencies {
     // Biometrik kimlik doğrulama (uygulama kilidi)
     implementation(libs.biometric)
 
+    // Ana ekran widget'ı (Bugünün Kutusu)
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
+
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
