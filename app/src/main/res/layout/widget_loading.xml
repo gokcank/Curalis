@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Glance'in Compose içeriği hazır olana kadar gösterdiği geçici RemoteViews yerleşimi. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#3E6EA0">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Curalis"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp" />
+
+</FrameLayout>

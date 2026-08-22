@@ -126,6 +126,7 @@
     <string name="app_version">Curalis %1$s (Kapalı Beta)</string>
     <string name="developer">Geliştirici: %1$s</string>
     <string name="database_date_label">TİTCK Veritabanı Tarihi: %1$s</string>
+    <string name="widget_description">Bugünün ilaç dozlarını gösterir ve doğrudan ana ekrandan "Aldım" olarak işaretlemenizi sağlar.</string>
 
     <!-- Bug Report -->
     <string name="bug_report">HATA BİLDİR</string>
