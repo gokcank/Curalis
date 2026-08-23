@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/Room_DB-4285F4?style=for-the-badge&logo=sqlite&logoColor=white" alt="Room DB" />
   <img src="https://img.shields.io/badge/Hilt-34A853?style=for-the-badge&logo=dagger&logoColor=white" alt="Hilt" />
   <img src="https://img.shields.io/badge/Offline_First-00897B?style=for-the-badge" alt="Offline First" />
-  <img src="https://img.shields.io/badge/Version-v1.0.0-blue?style=for-the-badge" alt="Version" />
+  <img src="https://img.shields.io/badge/Version-v1.1.0-blue?style=for-the-badge" alt="Version" />
 </p>
 
 <p align="center">
@@ -25,6 +25,8 @@ Designed with a seamless and modern UI using **Jetpack Compose** and **Material 
 ## 🚀 Key Highlights & Documentation
 For full architectural details, developer documentation, and engineering guidelines, please see the [Documentation Index](docs/index.md).
 *(Mimari detaylar, geliştirici dokümanları ve mühendislik prensipleri için lütfen [Dokümantasyon](docs/index.md) dizinine göz atın.)*
+
+See [CHANGELOG.md](CHANGELOG.md) for what's new in each release.
 
 ---
 
