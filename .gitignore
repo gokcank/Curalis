@@ -39,3 +39,6 @@ captures/
 # OS Generated Files
 .DS_Store
 Thumbs.db
+
+# Local planning/scratch notes (never committed)
+scratch_notes.md
