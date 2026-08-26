@@ -11,6 +11,6 @@ abstract class MedicationDictionaryDatabase : RoomDatabase() {
 
     companion object {
         const val DATABASE_NAME = "medications.db"
-        const val DATABASE_DATE = "07.08.2026"
+        const val DATABASE_DATE = "21.08.2026"
     }
 }
