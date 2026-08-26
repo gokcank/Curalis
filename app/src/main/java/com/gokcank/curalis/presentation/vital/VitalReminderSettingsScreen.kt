@@ -55,7 +55,7 @@ fun VitalReminderSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Ölçüm Hatırlatıcıları") },
+                title = { Text(stringResource(R.string.vital_reminders_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -123,17 +123,17 @@ private fun VitalReminderCard(
             if (enabled) {
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(onClick = { showTimePicker = true }) {
-                    Text("Saat: ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}")
+                    Text(stringResource(R.string.vital_reminder_time_button, hour.toString().padStart(2, '0'), minute.toString().padStart(2, '0')))
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Günler (hiçbiri seçilmezse her gün)",
+                    text = stringResource(R.string.vital_reminder_days_label),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                val dayNames = listOf("Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz")
+                val dayNames = androidx.compose.ui.res.stringArrayResource(R.array.weekday_short_names).toList()
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -162,7 +162,7 @@ private fun VitalReminderCard(
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Hatırlatıcı Saati Seçin", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.reminder_time_picker_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(16.dp))
                     TimePicker(state = timePickerState)
                     Spacer(modifier = Modifier.height(16.dp))
@@ -171,14 +171,14 @@ private fun VitalReminderCard(
                         horizontalArrangement = Arrangement.End
                     ) {
                         OutlinedButton(onClick = { showTimePicker = false }) {
-                            Text("İptal")
+                            Text(stringResource(R.string.cancel))
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(onClick = {
                             onTimeChange(timePickerState.hour, timePickerState.minute)
                             showTimePicker = false
                         }) {
-                            Text("Tamam")
+                            Text(stringResource(R.string.ok))
                         }
                     }
                 }

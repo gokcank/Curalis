@@ -104,12 +104,12 @@ fun AddEditDoctorScreen(
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
-                        text = { Text("Bilgiler") }
+                        text = { Text(stringResource(R.string.tab_info)) }
                     )
                     Tab(
                         selected = selectedTab == 1,
                         onClick = { selectedTab = 1 },
-                        text = { Text("Randevular (${linkedAppointments.size})") }
+                        text = { Text(stringResource(R.string.tab_appointments, linkedAppointments.size)) }
                     )
                 }
             }
@@ -121,7 +121,7 @@ fun AddEditDoctorScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            "Bu doktora atanmış bir randevu yok.",
+                            stringResource(R.string.no_appointments_for_doctor),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -209,7 +209,7 @@ fun AddEditDoctorScreen(
                     )
                     if (linkedMedications.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(24.dp))
-                        Text(text = "Bu Doktora Bağlı İlaçlar", style = MaterialTheme.typography.titleMedium)
+                        Text(text = stringResource(R.string.medications_linked_to_doctor_title), style = MaterialTheme.typography.titleMedium)
                         Spacer(modifier = Modifier.height(8.dp))
                         Column {
                             linkedMedications.forEach { medication ->

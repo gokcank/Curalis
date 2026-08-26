@@ -62,7 +62,7 @@ fun AddEditSymptomScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Semptom Ekle") },
+                title = { Text(stringResource(R.string.add_symptom_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -79,7 +79,7 @@ fun AddEditSymptomScreen(
                 .padding(16.dp)
                 .verticalScroll(scrollState)
         ) {
-            Text("Semptom Türü", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.symptom_type_label), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -107,9 +107,9 @@ fun AddEditSymptomScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Şiddet", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.severity_label), style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "${severity.toInt()} — ${severityLabel(severity.toInt())}",
+                    stringResource(R.string.severity_value_label, severity.toInt(), severityLabel(severity.toInt())),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -125,8 +125,8 @@ fun AddEditSymptomScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("0 – Yok", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("10 – Dayanılmaz", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.severity_scale_none), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.severity_scale_unbearable), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             Spacer(modifier = Modifier.height(24.dp))

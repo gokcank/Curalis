@@ -1,7 +1,9 @@
 package com.gokcank.curalis.presentation.medication.list
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Reminder
@@ -17,6 +19,7 @@ import com.gokcank.curalis.domain.usecase.SearchMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.SuspendMedicationUseCase
 import com.gokcank.curalis.domain.usecase.UnarchiveMedicationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +35,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MedicationListViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val getMedicationsUseCase: GetMedicationsUseCase,
     private val searchMedicationsUseCase: SearchMedicationsUseCase,
     private val deleteMedicationUseCase: DeleteMedicationUseCase,
@@ -81,7 +85,7 @@ class MedicationListViewModel @Inject constructor(
                 cancelAlarmsFor(medication)
                 deleteMedicationUseCase(medication)
             } catch (e: Exception) {
-                _errorFlow.emit("İlaç silinirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+                _errorFlow.emit(appContext.getString(R.string.medication_delete_error, e.localizedMessage ?: appContext.getString(R.string.unknown_error)))
             }
         }
     }
@@ -93,7 +97,7 @@ class MedicationListViewModel @Inject constructor(
                 cancelAlarmsFor(medication)
                 archiveMedicationUseCase(medication)
             } catch (e: Exception) {
-                _errorFlow.emit("İlaç silinirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+                _errorFlow.emit(appContext.getString(R.string.medication_delete_error, e.localizedMessage ?: appContext.getString(R.string.unknown_error)))
             }
         }
     }
@@ -109,7 +113,7 @@ class MedicationListViewModel @Inject constructor(
                     alarmScheduler.scheduleMedicationAlarms(restored)
                 }
             } catch (e: Exception) {
-                _errorFlow.emit("İlaç arşivden çıkarılırken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+                _errorFlow.emit(appContext.getString(R.string.medication_archive_error, e.localizedMessage ?: appContext.getString(R.string.unknown_error)))
             }
         }
     }
@@ -121,7 +125,7 @@ class MedicationListViewModel @Inject constructor(
                 cancelAlarmsFor(medication)
                 suspendMedicationUseCase(medication)
             } catch (e: Exception) {
-                _errorFlow.emit("İlaç askıya alınırken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+                _errorFlow.emit(appContext.getString(R.string.medication_suspend_error, e.localizedMessage ?: appContext.getString(R.string.unknown_error)))
             }
         }
     }
@@ -135,7 +139,7 @@ class MedicationListViewModel @Inject constructor(
                 generateUpcomingRemindersUseCase(resumed)
                 alarmScheduler.scheduleMedicationAlarms(resumed)
             } catch (e: Exception) {
-                _errorFlow.emit("İlaç devam ettirilirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+                _errorFlow.emit(appContext.getString(R.string.medication_resume_error, e.localizedMessage ?: appContext.getString(R.string.unknown_error)))
             }
         }
     }
@@ -160,10 +164,10 @@ class MedicationListViewModel @Inject constructor(
                 scheduleReminderUseCase(reminder)
                 val medicationName = _activeMedications.value.firstOrNull { it.id == medicationId }?.name
                 _errorFlow.emit(
-                    if (medicationName != null) "$medicationName için doz kaydedildi" else "Doz kaydedildi"
+                    if (medicationName != null) appContext.getString(R.string.dose_saved_for_medication, medicationName) else appContext.getString(R.string.dose_saved)
                 )
             } catch (e: Exception) {
-                _errorFlow.emit("Doz kaydedilirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
+                _errorFlow.emit(appContext.getString(R.string.dose_save_error, e.localizedMessage ?: appContext.getString(R.string.unknown_error)))
             }
         }
     }

@@ -3,7 +3,9 @@ package com.gokcank.curalis.presentation.medication.addedit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.content.Context
 import android.net.Uri
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.utils.MedicationPhotoStorage
 import com.gokcank.curalis.domain.model.Doctor
@@ -27,6 +29,7 @@ import com.gokcank.curalis.domain.usecase.SearchRemoteMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.UpdateMedicationUseCase
 import com.gokcank.curalis.domain.usecase.ValidateMedicationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -152,6 +155,7 @@ private fun MedicationFormState.toMedication(id: String): Medication {
 
 @HiltViewModel
 class AddEditMedicationViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val getMedicationByIdUseCase: GetMedicationByIdUseCase,
     private val addMedicationUseCase: AddMedicationUseCase,
     private val updateMedicationUseCase: UpdateMedicationUseCase,
@@ -368,7 +372,7 @@ class AddEditMedicationViewModel @Inject constructor(
             val form = _formState.value
 
             if (!validateMedicationUseCase(form.name)) {
-                _errorMessage.value = "İlaç adı boş bırakılamaz."
+                _errorMessage.value = appContext.getString(R.string.medication_name_empty_error)
                 return@launch
             }
 
@@ -491,7 +495,7 @@ class AddEditMedicationViewModel @Inject constructor(
                 _eventFlow.emit(UiEvent.SaveSuccess)
             }
         } catch (e: Exception) {
-            _errorMessage.value = "İlaç kaydedilirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}"
+            _errorMessage.value = appContext.getString(R.string.medication_save_error, e.localizedMessage ?: appContext.getString(R.string.unknown_error))
         }
     }
 

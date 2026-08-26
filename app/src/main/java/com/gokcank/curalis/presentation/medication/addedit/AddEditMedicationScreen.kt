@@ -73,6 +73,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -123,6 +124,9 @@ fun AddEditMedicationScreen(
     fun showExtra(key: String) = viewModel.isEditMode || key in expandedExtraFields
 
     val context = LocalContext.current
+    // MedicationForm/MealInstruction display names are stored per-enum in both languages
+    // (displayNameTr/displayNameEn) rather than as string resources — pick the right one here.
+    val isEnglish = LocalConfiguration.current.locales[0].language == Locale.ENGLISH.language
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -187,12 +191,9 @@ fun AddEditMedicationScreen(
     if (showScheduleChangeScopeDialog) {
         AlertDialog(
             onDismissRequest = { showScheduleChangeScopeDialog = false },
-            title = { Text("Saat değişikliği") },
+            title = { Text(stringResource(R.string.schedule_change_dialog_title)) },
             text = {
-                Text(
-                    "İlaç saatlerinde değişiklik yaptınız. Bugün için zaten planlanmış dozlar " +
-                        "olduğu gibi kalsın mı, yoksa bu değişiklik hemen bugünden itibaren mi geçerli olsun?"
-                )
+                Text(stringResource(R.string.schedule_change_dialog_message))
             },
             confirmButton = {
                 TextButton(onClick = {
@@ -201,7 +202,7 @@ fun AddEditMedicationScreen(
                         AddEditMedicationViewModel.ScheduleChangeScope.FROM_NOW
                     )
                 }) {
-                    Text("Bugünden itibaren")
+                    Text(stringResource(R.string.schedule_change_from_now))
                 }
             },
             dismissButton = {
@@ -211,7 +212,7 @@ fun AddEditMedicationScreen(
                         AddEditMedicationViewModel.ScheduleChangeScope.FROM_TOMORROW
                     )
                 }) {
-                    Text("Yarından itibaren")
+                    Text(stringResource(R.string.schedule_change_from_tomorrow))
                 }
             }
         )
@@ -220,7 +221,7 @@ fun AddEditMedicationScreen(
     if (showPhotoChooser) {
         AlertDialog(
             onDismissRequest = { showPhotoChooser = false },
-            title = { Text("İlaç Fotoğrafı") },
+            title = { Text(stringResource(R.string.medication_photo_dialog_title)) },
             text = {
                 Column {
                     TextButton(
@@ -232,7 +233,7 @@ fun AddEditMedicationScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Kameradan Çek", modifier = Modifier.fillMaxWidth())
+                        Text(stringResource(R.string.photo_take_camera), modifier = Modifier.fillMaxWidth())
                     }
                     TextButton(
                         onClick = {
@@ -243,7 +244,7 @@ fun AddEditMedicationScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Galeriden Seç", modifier = Modifier.fillMaxWidth())
+                        Text(stringResource(R.string.photo_choose_gallery), modifier = Modifier.fillMaxWidth())
                     }
                     if (formState.photoPath != null) {
                         TextButton(
@@ -254,7 +255,7 @@ fun AddEditMedicationScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                "Fotoğrafı Kaldır",
+                                stringResource(R.string.photo_remove),
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.fillMaxWidth()
                             )
@@ -312,7 +313,7 @@ fun AddEditMedicationScreen(
                     value = formState.name,
                     onValueChange = viewModel::onNameChange,
                     label = { Text(stringResource(R.string.medication_name) + " *") },
-                    supportingText = { Text("Yazdıkça resmî ilaç listesinde aranır") },
+                    supportingText = { Text(stringResource(R.string.medication_name_supporting_text)) },
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         if (isSearching) {
@@ -388,9 +389,10 @@ fun AddEditMedicationScreen(
                 OutlinedTextField(
                     value = formState.barcode,
                     onValueChange = viewModel::onBarcodeChange,
-                    label = { Text("Barkod (Opsiyonel)") },
+                    label = { Text(stringResource(R.string.barcode_label)) },
                     supportingText = barcodeError?.let { { Text(it) } },
                     trailingIcon = {
+                        val barcodeScanFailedText = stringResource(R.string.barcode_scan_failed)
                         IconButton(onClick = {
                             barcodeError = null
                             barcodeScanner.startScan()
@@ -398,10 +400,10 @@ fun AddEditMedicationScreen(
                                     viewModel.onBarcodeChange(result.rawValue ?: "")
                                 }
                                 .addOnFailureListener {
-                                    barcodeError = "Barkod okunamadı, elle girebilirsiniz."
+                                    barcodeError = barcodeScanFailedText
                                 }
                         }) {
-                            Icon(imageVector = Icons.Default.QrCodeScanner, contentDescription = "Barkod Tara")
+                            Icon(imageVector = Icons.Default.QrCodeScanner, contentDescription = stringResource(R.string.barcode_scan_content_desc))
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -423,7 +425,7 @@ fun AddEditMedicationScreen(
                     FilterChip(
                         selected = formState.formType == form,
                         onClick = { viewModel.onFormTypeChange(form) },
-                        label = { Text(form.displayNameTr) },
+                        label = { Text(if (isEnglish) form.displayNameEn else form.displayNameTr) },
                         leadingIcon = {
                             Icon(
                                 imageVector = form.icon(),
@@ -449,12 +451,14 @@ fun AddEditMedicationScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // 2.5 İlaç Renk Seçici (Color Picker)
-                Text(text = "İlaç Renk Vurgusu", style = MaterialTheme.typography.titleMedium)
+                Text(text = stringResource(R.string.medication_color_title), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    val colorSelectedDesc = stringResource(R.string.color_selected_desc)
+                    val colorOptionDesc = stringResource(R.string.color_option_desc)
                     MedicationAccentColors.forEach { hex ->
                         val color = Color(android.graphics.Color.parseColor(hex))
                         val isSelected = formState.colorHex.equals(hex, ignoreCase = true)
@@ -464,7 +468,7 @@ fun AddEditMedicationScreen(
                                 .background(color = color, shape = CircleShape)
                                 .clickable { viewModel.onColorSelected(hex) }
                                 .semantics {
-                                    contentDescription = if (isSelected) "Seçili renk" else "Renk seçeneği"
+                                    contentDescription = if (isSelected) colorSelectedDesc else colorOptionDesc
                                 },
                             contentAlignment = Alignment.Center
                         ) {
@@ -485,7 +489,7 @@ fun AddEditMedicationScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // 2.6 İlaç Fotoğrafı — yalnızca bu cihazda saklanır, hiçbir sunucuya yüklenmez.
-                Text(text = "İlaç Fotoğrafı", style = MaterialTheme.typography.titleMedium)
+                Text(text = stringResource(R.string.medication_photo_dialog_title), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 MedicationPhotoPicker(
                     photoPath = formState.photoPath,
@@ -514,8 +518,8 @@ fun AddEditMedicationScreen(
                     OutlinedTextField(
                         value = formState.unit,
                         onValueChange = viewModel::onUnitChange,
-                        label = { Text("Birim") },
-                        placeholder = { Text("Tablet / mg") },
+                        label = { Text(stringResource(R.string.unit_label)) },
+                        placeholder = { Text(stringResource(R.string.unit_placeholder)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isUnitDropdownExpanded) },
                         modifier = Modifier.menuAnchor()
                     )
@@ -540,7 +544,7 @@ fun AddEditMedicationScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // 3.5 Yemek Talimatı (Aç Karnına / Yemekle / Tok Karnına / Fark Etmez)
-                Text(text = "Yemek Talimatı", style = MaterialTheme.typography.titleMedium)
+                Text(text = stringResource(R.string.meal_instruction_title), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier
@@ -552,7 +556,7 @@ fun AddEditMedicationScreen(
                         FilterChip(
                             selected = formState.mealInstruction == instruction,
                             onClick = { viewModel.onMealInstructionChange(instruction) },
-                            label = { Text(instruction.displayNameTr) },
+                            label = { Text(if (isEnglish) instruction.displayNameEn else instruction.displayNameTr) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = instruction.icon(),
@@ -568,7 +572,7 @@ fun AddEditMedicationScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // 4. Sıklık / Periyot Seçimi
-            Text(text = "İlaç Sıklığı / Kullanım Periyodu", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.frequency_title), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier
@@ -582,11 +586,11 @@ fun AddEditMedicationScreen(
                         onClick = { viewModel.onFrequencyTypeChange(type) },
                         label = {
                             val text = when (type) {
-                                FrequencyType.DAILY -> "Her Gün"
-                                FrequencyType.SPECIFIC_DAYS -> "Haftanın Belirli Günleri"
-                                FrequencyType.INTERVAL -> "X Günde Bir"
-                                FrequencyType.CYCLIC -> "Döngüsel (Kullan / Ara Ver)"
-                                FrequencyType.AS_NEEDED -> "İhtiyaç Halinde (PRN)"
+                                FrequencyType.DAILY -> stringResource(R.string.frequency_daily)
+                                FrequencyType.SPECIFIC_DAYS -> stringResource(R.string.frequency_specific_days)
+                                FrequencyType.INTERVAL -> stringResource(R.string.frequency_interval)
+                                FrequencyType.CYCLIC -> stringResource(R.string.frequency_cyclic)
+                                FrequencyType.AS_NEEDED -> stringResource(R.string.frequency_as_needed)
                             }
                             Text(text)
                         }
@@ -600,7 +604,7 @@ fun AddEditMedicationScreen(
                 OutlinedTextField(
                     value = formState.intervalDays,
                     onValueChange = viewModel::onIntervalDaysChange,
-                    label = { Text("Kaç günde bir alınacak?") },
+                    label = { Text(stringResource(R.string.frequency_interval_days_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -612,7 +616,7 @@ fun AddEditMedicationScreen(
                     OutlinedTextField(
                         value = formState.activeDays,
                         onValueChange = viewModel::onActiveDaysChange,
-                        label = { Text("Kaç gün kullanılacak?") },
+                        label = { Text(stringResource(R.string.cyclic_active_days_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
@@ -620,13 +624,13 @@ fun AddEditMedicationScreen(
                     OutlinedTextField(
                         value = formState.restDays,
                         onValueChange = viewModel::onRestDaysChange,
-                        label = { Text("Kaç gün ara verilecek?") },
+                        label = { Text(stringResource(R.string.cyclic_rest_days_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
                 }
                 Text(
-                    "Örn: 21 gün kullan, 7 gün ara ver — döngü başlangıç tarihinden itibaren tekrarlanır.",
+                    stringResource(R.string.cyclic_example_text),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)
@@ -639,9 +643,9 @@ fun AddEditMedicationScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Plasebo Hap Hatırlatması", style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(R.string.placebo_reminder_title), style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            "Ara verilen günlerde de hatırlatıcı gösterilir (ör. doğum kontrol paketindeki plasebo haplar). Bu dozlar uyum yüzdesine dahil edilmez.",
+                            stringResource(R.string.placebo_reminder_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -655,9 +659,9 @@ fun AddEditMedicationScreen(
 
             if (formState.frequencyType == FrequencyType.SPECIFIC_DAYS) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Gün Seçimi:", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.day_selection_label), style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(4.dp))
-                val daysOfWeekNames = listOf("Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz")
+                val daysOfWeekNames = androidx.compose.ui.res.stringArrayResource(R.array.weekday_short_names).toList()
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -678,7 +682,7 @@ fun AddEditMedicationScreen(
 
             // 5. Hatırlatıcı Saatleri Ekleme
             if (formState.frequencyType != FrequencyType.AS_NEEDED) {
-                Text(text = "Hatırlatıcı Saatleri", style = MaterialTheme.typography.titleMedium)
+                Text(text = stringResource(R.string.reminder_times_title), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 formState.times.forEach { time ->
@@ -705,12 +709,12 @@ fun AddEditMedicationScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = formattedTime + (time.dose?.let { " • Doz: $it" } ?: ""),
+                                    text = formattedTime + (time.dose?.let { stringResource(R.string.dose_suffix_label, it) } ?: ""),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                             IconButton(onClick = { viewModel.removeMedicationTime(time.id) }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Sil", tint = MaterialTheme.colorScheme.error)
+                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error)
                             }
                         }
                     }
@@ -723,7 +727,7 @@ fun AddEditMedicationScreen(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Hatırlatıcı Saat Ekle")
+                    Text(stringResource(R.string.add_reminder_time_button))
                 }
             }
 
@@ -739,25 +743,25 @@ fun AddEditMedicationScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            "Neredeyse bitti!",
+                            stringResource(R.string.almost_done_title),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Text(
-                            "İsterseniz şu ek bilgileri de ekleyebilirsiniz:",
+                            stringResource(R.string.almost_done_subtitle),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         val extraFieldOptions = listOf(
-                            "etken_madde" to "Etken Madde",
-                            "barkod" to "Barkod",
-                            "renk" to "Renk",
-                            "foto" to "Fotoğraf",
-                            "yemek" to "Yemek Talimatı",
-                            "stok" to "Stok Takibi",
-                            "doktor" to "Doktor",
-                            "ek_bilgi" to "Son Kullanma Tarihi / Notlar / Tedavi Süresi / Rx No"
+                            "etken_madde" to stringResource(R.string.active_ingredient),
+                            "barkod" to stringResource(R.string.barcode_field_label),
+                            "renk" to stringResource(R.string.color_field_label),
+                            "foto" to stringResource(R.string.photo_field_label),
+                            "yemek" to stringResource(R.string.meal_instruction_title),
+                            "stok" to stringResource(R.string.stock_tracking_field_label),
+                            "doktor" to stringResource(R.string.doctor_field_label),
+                            "ek_bilgi" to stringResource(R.string.expiry_notes_field_label)
                         )
                         androidx.compose.foundation.layout.FlowRow(
                             modifier = Modifier.fillMaxWidth(),
@@ -786,14 +790,14 @@ fun AddEditMedicationScreen(
 
             // 6. Kutu / Stok Takibi (Stok Bitmeye Yakın Uyarı Bildirimi)
             if (showExtra("stok")) {
-            Text(text = "Kutu / Stok Takibi", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.stock_tracking_title), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Stok Takibi Yapılsın mı?")
+                Text(stringResource(R.string.stock_tracking_toggle_label))
                 Switch(
                     checked = formState.isRefillEnabled,
                     onCheckedChange = viewModel::onRefillToggle
@@ -806,7 +810,7 @@ fun AddEditMedicationScreen(
                     OutlinedTextField(
                         value = formState.currentStock,
                         onValueChange = viewModel::onCurrentStockChange,
-                        label = { Text("Mevcut Stok (Kutu/Tablet)") },
+                        label = { Text(stringResource(R.string.current_stock_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
@@ -814,7 +818,7 @@ fun AddEditMedicationScreen(
                     OutlinedTextField(
                         value = formState.refillThreshold,
                         onValueChange = viewModel::onRefillThresholdChange,
-                        label = { Text("Kritik Stok Uyarısı") },
+                        label = { Text(stringResource(R.string.refill_threshold_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
@@ -826,23 +830,26 @@ fun AddEditMedicationScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(onClick = { showStockHistory = !showStockHistory }) {
-                        Text(if (showStockHistory) "Stok Geçmişini Gizle" else "Stok Geçmişini Göster (${stockHistory.size})")
+                        Text(if (showStockHistory) stringResource(R.string.stock_history_hide) else stringResource(R.string.stock_history_show, stockHistory.size))
                     }
                     if (showStockHistory) {
                         if (stockHistory.isEmpty()) {
                             Text(
-                                "Henüz bir stok değişikliği kaydedilmedi.",
+                                stringResource(R.string.stock_history_empty),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         } else {
                             val dateFormat = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
+                            val doseTakenReasonText = stringResource(R.string.dose_taken_reason)
+                            val manualEditReasonText = stringResource(R.string.manual_edit_reason)
+                            val refillReasonText = stringResource(R.string.refill_reason)
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 stockHistory.forEach { entry ->
                                     val reasonText = when (entry.reason) {
-                                        StockChangeReason.DOSE_TAKEN -> "Doz alındı"
-                                        StockChangeReason.MANUAL_EDIT -> "Elle düzenlendi"
-                                        StockChangeReason.REFILL -> "Stok eklendi"
+                                        StockChangeReason.DOSE_TAKEN -> doseTakenReasonText
+                                        StockChangeReason.MANUAL_EDIT -> manualEditReasonText
+                                        StockChangeReason.REFILL -> refillReasonText
                                     }
                                     Text(
                                         text = "${dateFormat.format(Date(entry.timestamp))} — $reasonText: " +
@@ -865,7 +872,7 @@ fun AddEditMedicationScreen(
             val doctors by viewModel.doctors.collectAsState()
             var doctorMenuExpanded by remember { mutableStateOf(false) }
             val selectedDoctor = doctors.find { it.id == formState.doctorId }
-            Text(text = "Doktor", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.doctor_field_label), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             ExposedDropdownMenuBox(
                 expanded = doctorMenuExpanded,
@@ -875,8 +882,8 @@ fun AddEditMedicationScreen(
                     value = selectedDoctor?.name ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Bu ilacı reçete eden doktor") },
-                    placeholder = { Text("Belirtilmedi") },
+                    label = { Text(stringResource(R.string.prescribing_doctor_label)) },
+                    placeholder = { Text(stringResource(R.string.not_specified)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = doctorMenuExpanded) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -887,7 +894,7 @@ fun AddEditMedicationScreen(
                     onDismissRequest = { doctorMenuExpanded = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Belirtilmedi") },
+                        text = { Text(stringResource(R.string.not_specified)) },
                         onClick = {
                             viewModel.onDoctorSelected(null)
                             doctorMenuExpanded = false
@@ -910,7 +917,7 @@ fun AddEditMedicationScreen(
 
             // 7. Ek Bilgiler & Son Kullanma Tarihi
             if (showExtra("ek_bilgi")) {
-            Text(text = "Ek Bilgiler & Son Kullanma Tarihi", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.additional_info_title), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedButton(
@@ -925,7 +932,7 @@ fun AddEditMedicationScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 val formattedExpiry = formState.expiryDate?.let {
                     SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(it))
-                } ?: "Son Kullanma Tarihi Seçin (Opsiyonel)"
+                } ?: stringResource(R.string.expiry_date_picker_placeholder)
                 Text(formattedExpiry)
             }
 
@@ -934,8 +941,8 @@ fun AddEditMedicationScreen(
             OutlinedTextField(
                 value = formState.notes,
                 onValueChange = viewModel::onNotesChange,
-                label = { Text("İlaç Notları / Açıklama") },
-                placeholder = { Text("Serin ve kuru yerde saklayınız.") },
+                label = { Text(stringResource(R.string.medication_notes_label)) },
+                placeholder = { Text(stringResource(R.string.medication_notes_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2
             )
@@ -945,9 +952,9 @@ fun AddEditMedicationScreen(
             OutlinedTextField(
                 value = formState.treatmentDurationDays,
                 onValueChange = viewModel::onTreatmentDurationChange,
-                label = { Text("Tedavi Süresi (gün, Opsiyonel)") },
-                placeholder = { Text("Örn: 10") },
-                supportingText = { Text("Kutunun son kullanma tarihinden farklıdır — bu tedavinin kaç gün süreceğidir.") },
+                label = { Text(stringResource(R.string.treatment_duration_label)) },
+                placeholder = { Text(stringResource(R.string.treatment_duration_placeholder)) },
+                supportingText = { Text(stringResource(R.string.treatment_duration_supporting_text)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -957,8 +964,8 @@ fun AddEditMedicationScreen(
             OutlinedTextField(
                 value = formState.rxNumber,
                 onValueChange = viewModel::onRxNumberChange,
-                label = { Text("Rx (Reçete) Numarası, Opsiyonel") },
-                placeholder = { Text("Eczaneden yenileme talep ederken kullanılır") },
+                label = { Text(stringResource(R.string.rx_number_label)) },
+                placeholder = { Text(stringResource(R.string.rx_number_placeholder)) },
                 modifier = Modifier.fillMaxWidth()
             )
             }
@@ -973,7 +980,7 @@ fun AddEditMedicationScreen(
                     .height(50.dp)
             ) {
                 Text(
-                    if (viewModel.isEditMode) "Güncelle"
+                    if (viewModel.isEditMode) stringResource(R.string.update_button)
                     else stringResource(R.string.save)
                 )
             }
@@ -992,7 +999,7 @@ fun AddEditMedicationScreen(
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Hatırlatıcı Saati Seçin", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.reminder_time_picker_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(16.dp))
                     TimePicker(state = timePickerState)
                     Spacer(modifier = Modifier.height(16.dp))
@@ -1001,14 +1008,14 @@ fun AddEditMedicationScreen(
                         horizontalArrangement = Arrangement.End
                     ) {
                         OutlinedButton(onClick = { showTimePickerDialog = false }) {
-                            Text("İptal")
+                            Text(stringResource(R.string.cancel))
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(onClick = {
                             viewModel.addMedicationTime(timePickerState.hour, timePickerState.minute)
                             showTimePickerDialog = false
                         }) {
-                            Text("Ekle")
+                            Text(stringResource(R.string.add))
                         }
                     }
                 }
@@ -1028,12 +1035,12 @@ fun AddEditMedicationScreen(
                     }
                     showDatePickerDialog = false
                 }) {
-                    Text("Tamam")
+                    Text(stringResource(R.string.ok))
                 }
             },
             dismissButton = {
                 OutlinedButton(onClick = { showDatePickerDialog = false }) {
-                    Text("İptal")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         ) {
@@ -1064,10 +1071,10 @@ fun SuggestionItem(
             Column {
                 Text(text = suggestion.name, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
                 suggestion.activeIngredient?.let {
-                    Text(text = "Etken Madde: $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                    Text(text = stringResource(R.string.active_ingredient_prefix, it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
                 }
             }
-            Text(text = suggestion.form ?: "İlaç", style = MaterialTheme.typography.labelSmall)
+            Text(text = suggestion.form ?: stringResource(R.string.generic_medication_label), style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -1093,14 +1100,14 @@ private fun MedicationPhotoPicker(photoPath: String?, onClick: () -> Unit) {
         if (imageBitmap != null) {
             Image(
                 bitmap = imageBitmap,
-                contentDescription = "İlaç fotoğrafı",
+                contentDescription = stringResource(R.string.medication_photo_content_desc),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
         } else {
             Icon(
                 imageVector = Icons.Default.AddAPhoto,
-                contentDescription = "Fotoğraf ekle",
+                contentDescription = stringResource(R.string.add_photo_content_desc),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(28.dp)
             )
@@ -1126,6 +1133,7 @@ private fun MedicationLivePreview(
     }
     val dosageLine = listOfNotNull(dosage.takeIf { it.isNotBlank() }, unit.takeIf { it.isNotBlank() })
         .joinToString(" ")
+    val isEnglish = LocalConfiguration.current.locales[0].language == Locale.ENGLISH.language
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -1146,13 +1154,13 @@ private fun MedicationLivePreview(
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = name.ifBlank { "İlaç Adı" },
+            text = name.ifBlank { stringResource(R.string.medication_name_placeholder) },
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = if (name.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = listOfNotNull(formType.displayNameTr, dosageLine.takeIf { it.isNotBlank() }).joinToString(" · "),
+            text = listOfNotNull(if (isEnglish) formType.displayNameEn else formType.displayNameTr, dosageLine.takeIf { it.isNotBlank() }).joinToString(" · "),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

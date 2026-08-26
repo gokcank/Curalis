@@ -1,7 +1,9 @@
 package com.gokcank.curalis.presentation.calendar
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.Reminder
@@ -9,6 +11,7 @@ import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -40,6 +43,7 @@ data class DailyReminderItem(
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class AdherenceCalendarViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase,
     private val getMedicationsUseCase: GetMedicationsUseCase
 ) : ViewModel() {
@@ -129,7 +133,7 @@ class AdherenceCalendarViewModel @Inject constructor(
             val med = medsMap[rem.medicationId]
             DailyReminderItem(
                 reminder = rem,
-                medicationName = med?.name ?: "İlaç",
+                medicationName = med?.name ?: appContext.getString(R.string.generic_medication_label),
                 medicationForm = med?.formType ?: MedicationForm.PILL,
                 dosageInfo = listOfNotNull(med?.dosage, med?.unit).joinToString(" ")
             )

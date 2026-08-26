@@ -31,6 +31,13 @@
     <string name="dashboard_title_doctors">Doctors</string>
     <string name="dashboard_title_appointments">Appointments</string>
     <string name="dashboard_title_vitals">Vitals</string>
+    <string name="dashboard_title_symptoms">Symptoms</string>
+    <string name="dashboard_title_daily_notes">My Daily Notes</string>
+
+    <!-- Medication list empty states -->
+    <string name="no_medications_description">Medications you add will be listed here, and you can manage their reminders from here.</string>
+    <string name="no_archived_medications_title">No archived medications</string>
+    <string name="no_archived_medications_description">Medications you archive will appear here, and you can restore them anytime.</string>
     <string name="next_medication">Next Medication</string>
     <string name="upcoming_appointment">Upcoming Appointment</string>
     <string name="daily_progress">Daily Progress</string>
@@ -163,6 +170,505 @@
     <string name="suggested_ministry_of_health_medications">Suggested Ministry of Health Medications:</string>
     <string name="verified_source_badge">Verified from Ministry of Health database</string>
     <string name="unverified_source_badge">Entered manually, not from a verified source</string>
+
+    <!-- Add/Edit Medication -->
+    <string name="schedule_change_dialog_title">Time change</string>
+    <string name="schedule_change_dialog_message">You changed the medication times. Should today\'s already scheduled doses stay as they are, or should this change apply starting today?</string>
+    <string name="schedule_change_from_now">From today</string>
+    <string name="schedule_change_from_tomorrow">From tomorrow</string>
+    <string name="medication_photo_dialog_title">Medication Photo</string>
+    <string name="photo_take_camera">Take with Camera</string>
+    <string name="photo_choose_gallery">Choose from Gallery</string>
+    <string name="photo_remove">Remove Photo</string>
+    <string name="medication_name_supporting_text">Searched in the official medication list as you type</string>
+    <string name="barcode_label">Barcode (Optional)</string>
+    <string name="barcode_scan_failed">Couldn\'t read the barcode, you can enter it manually.</string>
+    <string name="barcode_scan_content_desc">Scan Barcode</string>
+    <string name="medication_color_title">Medication Color Accent</string>
+    <string name="color_selected_desc">Selected color</string>
+    <string name="color_option_desc">Color option</string>
+    <string name="unit_label">Unit</string>
+    <string name="unit_placeholder">Tablet / mg</string>
+    <string name="meal_instruction_title">Meal Instruction</string>
+    <string name="frequency_title">Medication Frequency / Usage Period</string>
+    <string name="frequency_daily">Every Day</string>
+    <string name="frequency_specific_days">Specific Days of the Week</string>
+    <string name="frequency_interval">Every X Days</string>
+    <string name="frequency_cyclic">Cyclic (Use / Rest)</string>
+    <string name="frequency_as_needed">As Needed (PRN)</string>
+    <string name="frequency_interval_days_label">How many days apart?</string>
+    <string name="cyclic_active_days_label">How many days to use?</string>
+    <string name="cyclic_rest_days_label">How many days to rest?</string>
+    <string name="cyclic_example_text">E.g.: use for 21 days, rest for 7 days — repeats from the cycle start date.</string>
+    <string name="placebo_reminder_title">Placebo Pill Reminder</string>
+    <string name="placebo_reminder_desc">A reminder is also shown on rest days (e.g. placebo pills in a birth control pack). These doses are not counted toward the adherence percentage.</string>
+    <string name="day_selection_label">Day Selection:</string>
+    <string name="reminder_times_title">Reminder Times</string>
+    <string name="dose_suffix_label"> • Dose: %1$s</string>
+    <string name="add_reminder_time_button">Add Reminder Time</string>
+    <string name="almost_done_title">Almost done!</string>
+    <string name="almost_done_subtitle">You can also add these extra details if you\'d like:</string>
+    <string name="barcode_field_label">Barcode</string>
+    <string name="color_field_label">Color</string>
+    <string name="photo_field_label">Photo</string>
+    <string name="stock_tracking_field_label">Stock Tracking</string>
+    <string name="doctor_field_label">Doctor</string>
+    <string name="expiry_notes_field_label">Expiry Date / Notes / Treatment Duration / Rx No</string>
+    <string name="stock_tracking_title">Box / Stock Tracking</string>
+    <string name="stock_tracking_toggle_label">Enable Stock Tracking?</string>
+    <string name="current_stock_label">Current Stock (Boxes/Tablets)</string>
+    <string name="refill_threshold_label">Low Stock Warning</string>
+    <string name="stock_history_hide">Hide Stock History</string>
+    <string name="stock_history_show">Show Stock History (%1$d)</string>
+    <string name="stock_history_empty">No stock changes recorded yet.</string>
+    <string name="dose_taken_reason">Dose taken</string>
+    <string name="manual_edit_reason">Manually edited</string>
+    <string name="refill_reason">Stock added</string>
+    <string name="prescribing_doctor_label">Doctor who prescribed this medication</string>
+    <string name="not_specified">Not specified</string>
+    <string name="additional_info_title">Additional Info &amp; Expiry Date</string>
+    <string name="expiry_date_picker_placeholder">Select Expiry Date (Optional)</string>
+    <string name="medication_notes_label">Medication Notes / Description</string>
+    <string name="medication_notes_placeholder">Store in a cool, dry place.</string>
+    <string name="treatment_duration_label">Treatment Duration (days, Optional)</string>
+    <string name="treatment_duration_placeholder">E.g.: 10</string>
+    <string name="treatment_duration_supporting_text">Different from the box\'s expiry date — this is how many days the treatment will last.</string>
+    <string name="rx_number_label">Rx (Prescription) Number, Optional</string>
+    <string name="rx_number_placeholder">Used when requesting a refill from the pharmacy</string>
+    <string name="update_button">Update</string>
+    <string name="reminder_time_picker_title">Select Reminder Time</string>
+    <string name="active_ingredient_prefix">Active Ingredient: %1$s</string>
+    <string name="generic_medication_label">Medication</string>
+    <string name="medication_photo_content_desc">Medication photo</string>
+    <string name="add_photo_content_desc">Add photo</string>
+    <string name="medication_name_placeholder">Medication Name</string>
+    <!-- Notification Settings -->
+    <string name="notification_settings_title">Notification &amp; Reminder Settings</string>
+    <string name="reminders_not_on_time_title">Reminders not arriving on time?</string>
+    <string name="reminders_not_on_time_desc">Check Android system permissions and your phone manufacturer\'s specific settings.</string>
+    <string name="start_troubleshooting_button">Start Troubleshooting</string>
+    <string name="privacy_section_title">Privacy</string>
+    <string name="hide_med_name_lock_screen_title">Hide medication name on lock screen</string>
+    <string name="hide_med_name_lock_screen_desc">When on, the notification appears on the lock screen but your medication\'s name is hidden.</string>
+    <string name="quiet_hours_section_title">Quiet Hours</string>
+    <string name="quiet_hours_enable_title">Enable quiet hours</string>
+    <string name="quiet_hours_enable_desc">Reminders arrive silently and won\'t wake your screen during these hours; the notification still remains visible.</string>
+    <string name="quiet_hours_start_button">Start: %1$s</string>
+    <string name="quiet_hours_end_button">End: %1$s</string>
+    <string name="fullscreen_popup_title">Full-Screen Alert Popup</string>
+    <string name="fullscreen_popup_desc">When a dose reminder arrives, when should the full-screen alarm alert — which also shows on the lock screen — appear?</string>
+    <string name="fullscreen_popup_note">The popup is always shown on the last reminder before a dose is marked \"missed\", regardless of this setting.</string>
+    <string name="snooze_section_title">Snooze</string>
+    <string name="snooze_desc">How many minutes should the \"Snooze\" button on the notification postpone the dose?</string>
+    <string name="minutes_short_format">%1$d min</string>
+    <string name="hours_short_format">%1$d hr</string>
+    <string name="days_short_format">%1$d day(s)</string>
+    <string name="weeks_short_format">%1$d week(s)</string>
+    <string name="off_label">Off</string>
+    <string name="appointment_reminder_section_title">Appointment Reminder</string>
+    <string name="appointment_reminder_desc">How long before the appointment should the appointment reminder arrive?</string>
+    <string name="morning_reminder_section_title">Morning Reminder</string>
+    <string name="morning_reminder_toggle_title">Remind every morning</string>
+    <string name="morning_reminder_toggle_desc">A separate reminder is sent every morning to help you take your medications with you.</string>
+    <string name="morning_reminder_time_button">Morning time: %1$s</string>
+    <string name="weekend_mode_title">Weekend Mode</string>
+    <string name="weekend_mode_desc">Use a separate morning time for Saturdays and Sundays.</string>
+    <string name="weekend_reminder_time_button">Weekend time: %1$s</string>
+    <string name="notification_categories_title">Notification Categories</string>
+    <string name="notification_categories_desc">Dose reminders and stock warnings are now in separate notification categories. You can turn off the sound, vibration, or visibility of each one separately from system settings.</string>
+    <string name="manage_notification_categories_button">Manage Notification Categories from System Settings</string>
+    <string name="quiet_hours_start_picker_title">Quiet Hours Start</string>
+    <string name="quiet_hours_end_picker_title">Quiet Hours End</string>
+    <string name="morning_reminder_picker_title">Morning Reminder Time</string>
+    <string name="weekend_reminder_picker_title">Weekend Morning Time</string>
+    <string name="notification_popup_mode_always">Always show</string>
+    <string name="notification_popup_mode_never">Never show</string>
+    <string name="notification_popup_mode_screen_on_only">Only when screen is on</string>
+
+    <!-- Settings screen -->
+    <string name="notifications_section_title">Notifications</string>
+    <string name="notification_settings_row_title">Notification &amp; Reminder Settings</string>
+    <string name="notification_settings_row_desc">Quiet hours, lock screen privacy and notification categories</string>
+    <string name="manage_button">Manage</string>
+    <string name="timeline_slots_title">Timeline Slots</string>
+    <string name="timeline_slots_desc">Change the start times of the Morning/Afternoon/Evening slots on the Daily Timeline screen.</string>
+    <string name="morning_start_label">Morning start</string>
+    <string name="afternoon_start_label">Afternoon start</string>
+    <string name="evening_start_label">Evening start</string>
+    <string name="data_management_title">Data Management</string>
+    <string name="backup_restore_row_title">Backup &amp; Restore</string>
+    <string name="backup_restore_row_desc">Back up your data to your phone or the cloud</string>
+    <string name="google_drive_backup_tip">Tip: to avoid losing your data when you change phones, we recommend taking an encrypted backup to Google Drive.</string>
+    <string name="export_encrypted_db_title">Export Encrypted Database Copy</string>
+    <string name="export_encrypted_db_desc">Exports an encrypted copy of your database for support/technical review. The password is not included in this file and it cannot be opened on its own.</string>
+    <string name="export_button">Export</string>
+    <string name="support_section_title">Support</string>
+    <string name="help_center_row_title">Help Center / FAQ</string>
+    <string name="help_center_row_desc">Frequently asked questions and their solutions</string>
+    <string name="view_button">View</string>
+    <string name="share_app_row_title">Share the App</string>
+    <string name="share_app_row_desc">Share Curalis with your friends and family</string>
+    <string name="share_app_message">I track my medications, appointments and health measurements with Curalis — your data is stored only on your device: https://play.google.com/store/apps/details?id=%1$s</string>
+    <string name="share_app_chooser_title">Share Curalis</string>
+    <string name="share_button">Share</string>
+
+    <!-- Adherence Analytics -->
+    <string name="adherence_analytics_title">Medication Adherence Analytics</string>
+    <string name="weekly_adherence_title">Weekly Adherence</string>
+    <string name="last_7_days">Last 7 Days</string>
+    <string name="monthly_adherence_title">Monthly Adherence</string>
+    <string name="last_30_days">Last 30 Days</string>
+    <string name="adherence_trend_title">Adherence Trend (Last 8 Weeks)</string>
+    <string name="weekly_dose_stats_title">Last 7 Days Medication Dose Statistics</string>
+    <string name="total_dose_label">Total Doses</string>
+    <string name="taken_label">Taken</string>
+    <string name="not_taken_label">Missed</string>
+    <string name="medication_adherence_breakdown_title">Adherence by Medication</string>
+    <string name="no_analytics_data_title">No data to analyze yet</string>
+    <string name="no_analytics_data_desc">Once you add medications and start marking your doses, your adherence statistics will appear here.</string>
+    <string name="no_data_yet">No data yet</string>
+    <string name="taken_of_total_doses">Taken %1$d / %2$d doses • %3$d missed</string>
+    <string name="no_resolved_doses_yet">No resolved doses recorded for this medication yet</string>
+
+    <!-- Report Options Dialog -->
+    <string name="report_range_title">Select Report Range</string>
+    <string name="report_range_last_7_days">Last 7 Days</string>
+    <string name="report_range_last_30_days">Last 30 Days</string>
+    <string name="report_range_last_90_days">Last 90 Days</string>
+    <string name="report_range_this_year">This Year</string>
+    <string name="report_range_custom">Custom Range…</string>
+    <string name="report_content_title">Report Content</string>
+    <string name="all_medications">All Medications</string>
+    <string name="medication_filter_label">Medication Filter</string>
+    <string name="sections_to_include_label">Sections to Include</string>
+    <string name="adherence_summary_checkbox">Adherence Summary</string>
+    <string name="medication_cabinet_list_checkbox">Medication Cabinet List</string>
+    <string name="vitals_history_checkbox">Vitals History</string>
+    <string name="generate_report_button">Generate Report</string>
+
+    <!-- Daily Timeline -->
+    <string name="daily_timeline_title">Daily Timeline</string>
+    <string name="daily_timeline_date_header">%1$d %2$s %3$d</string>
+    <string name="daily_timeline_subtitle">Daily dose tracking sorted by time slot</string>
+    <string name="take_all_button">Take All</string>
+    <string name="skip_all_button">Skip All</string>
+    <string name="snooze_all_button">Snooze All</string>
+    <string name="no_doses_today_title">No doses scheduled for today</string>
+    <string name="no_doses_today_desc">You have no medication times for today. If you add times to your medications, doses will be listed here.</string>
+    <string name="previous_week_desc">Previous week</string>
+    <string name="next_week_desc">Next week</string>
+    <string name="placebo_badge">Placebo</string>
+    <string name="time_at_label">At %1$s%2$s</string>
+    <string name="time_at_taken_label">At %1$s%2$s • Taken: %3$s</string>
+    <string name="actually_took_it_button">I Actually Took It</string>
+    <string name="took_it_button">Took It</string>
+    <string name="skip_button">Skip</string>
+    <string name="undo_button">Undo</string>
+    <string name="timeslot_morning">Morning</string>
+    <string name="timeslot_afternoon">Afternoon</string>
+    <string name="timeslot_evening">Evening</string>
+    <string name="timeslot_night">Night</string>
+
+    <!-- Backup Screen -->
+    <string name="backup_screen_intro">You can manually back up to your device or a cloud storage service like Google Drive to keep your data safe.</string>
+    <string name="backup_export_card_title">Back Up (Export)</string>
+    <string name="backup_export_card_desc">Saves all your medication, reminder and measurement data as a file to your phone or a cloud service you choose.</string>
+    <string name="manual_backup_button">Take Manual Backup</string>
+    <string name="backup_import_card_title">Restore a Backup (Import)</string>
+    <string name="backup_import_card_desc">Replaces the current database with the data in a previously taken backup file (.json) you select. Existing data will be deleted!</string>
+    <string name="select_and_load_backup_button">Select &amp; Load Backup</string>
+    <string name="google_drive_card_title">Google Drive (Automatic)</string>
+    <string name="google_drive_card_desc">Backs up, encrypted with the password you set, to a private folder on Drive that only Curalis can see. Even if you change phones, your data comes back with the same account and password.</string>
+    <string name="sign_in_with_google_button">Sign in with Google</string>
+    <string name="connected_account_label">Connected Account: %1$s</string>
+    <string name="unknown_account">Unknown</string>
+    <string name="backup_to_drive_button">Back Up to Drive</string>
+    <string name="restore_from_drive_button">Restore from Drive</string>
+    <string name="sign_out_button">Sign Out</string>
+    <string name="google_signin_error_generic">Google Sign-In Error: %1$d - %2$s</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="signin_error_generic">An error occurred while signing in: %1$s</string>
+    <string name="set_backup_password_title">Set Backup Password</string>
+    <string name="enter_backup_password_title">Enter Backup Password</string>
+    <string name="backup_password_set_desc">This backup will be encrypted with the password you enter. If you forget the password, you won\'t be able to restore the backup.</string>
+    <string name="password_label">Password</string>
+    <string name="password_confirm_label">Password (Confirm)</string>
+    <string name="password_too_short_error">Password must be at least 4 characters.</string>
+    <string name="passwords_dont_match_error">Passwords don\'t match.</string>
+    <string name="confirm_button">Confirm</string>
+
+    <!-- Add/Edit Appointment -->
+    <string name="person_doctor_suffix">%1$s (Doctor)</string>
+    <string name="person_emergency_contact_suffix">%1$s (Emergency Contact)</string>
+    <string name="assign_person_label">Assign Person</string>
+    <string name="doctors_group_label">Doctors</string>
+    <string name="emergency_contacts_group_label">Emergency Contacts</string>
+    <string name="date_time_label">%1$s &amp; %2$s</string>
+
+    <!-- Appointment List -->
+    <string name="tab_upcoming">Upcoming</string>
+    <string name="tab_completed">Completed</string>
+    <string name="no_appointments_empty_state_desc">Add your upcoming doctor appointments here and get a reminder an hour before.</string>
+    <string name="no_upcoming_appointments_title">No upcoming appointments</string>
+    <string name="no_completed_appointments_title">No completed appointments</string>
+    <string name="no_pending_appointments_desc">You have no appointments currently pending.</string>
+    <string name="no_past_appointments_desc">You don\'t have any past appointments yet.</string>
+
+    <!-- Adherence Calendar -->
+    <string name="adherence_calendar_title">Medication Adherence Calendar</string>
+    <string name="analytics_content_desc">Analytics</string>
+    <string name="selected_day_dose_records_header">%1$d %2$s %3$d — Dose Records</string>
+    <string name="no_dose_records_title">No dose records for this day</string>
+    <string name="no_dose_records_desc">There is no scheduled medication dose on the date you selected. You can choose another day.</string>
+    <string name="previous_month_desc">Previous Month</string>
+    <string name="next_month_desc">Next Month</string>
+    <string name="calendar_month_year_header">%1$s %2$d</string>
+    <string name="day_status_all_taken">all doses taken</string>
+    <string name="day_status_partial">some doses taken</string>
+    <string name="day_status_missed">has a missed dose</string>
+    <string name="day_status_no_doses">no doses scheduled</string>
+    <string name="day_status_future">future date</string>
+    <string name="calendar_day_content_desc">%1$d: %2$s</string>
+
+    <!-- No Results State -->
+    <string name="no_results_found_title">No results found</string>
+    <string name="no_results_found_desc">No records match \"%1$s\". You can check the spelling or clear the search.</string>
+    <string name="clear_search_button">Clear Search</string>
+
+    <!-- PDF Preview Dialog -->
+    <string name="report_preview_title">Report Preview</string>
+    <string name="close_content_desc">Close</string>
+    <string name="share_content_desc">Share</string>
+    <string name="report_summary_title">Report Summary</string>
+    <string name="report_summary_subtitle">Total %1$d doses · Taken %2$d · Skipped %3$d · Missed %4$d</string>
+
+    <!-- Daily Note List -->
+    <string name="delete_note_title">Delete Note</string>
+    <string name="delete_note_message">Are you sure you want to delete this daily note?</string>
+    <string name="edit_today_note_title">Edit Today\'s Note</string>
+    <string name="add_today_note_title">Add a Note for Today</string>
+    <string name="today_note_placeholder">Record how you\'re feeling today.</string>
+    <string name="no_daily_notes_title">No daily notes yet</string>
+    <string name="no_daily_notes_desc">You can track changes over time by recording how you feel every day in short notes.</string>
+
+    <!-- Add/Edit Daily Note -->
+    <string name="how_are_you_today_title">How Are You Today?</string>
+    <string name="your_note_label">Your Note</string>
+    <string name="daily_note_placeholder">Write about how you\'re feeling today and your general health…</string>
+    <string name="mood_very_bad">Very Bad</string>
+    <string name="mood_bad">Bad</string>
+    <string name="mood_neutral">Neutral</string>
+    <string name="mood_good">Good</string>
+    <string name="mood_very_good">Very Good</string>
+
+    <!-- Doctor List -->
+    <string name="emergency_contacts_content_desc">Emergency Contacts</string>
+    <string name="no_doctors_empty_state_desc">If you save your doctors, you can associate your appointments with them.</string>
+
+    <!-- Emergency Contact List -->
+    <string name="delete_contact_title">Delete Contact</string>
+    <string name="delete_contact_message">Are you sure you want to delete %1$s?</string>
+    <string name="emergency_contacts_title">Emergency Contacts</string>
+    <string name="add_contact_content_desc">Add Contact</string>
+    <string name="no_emergency_contacts_title">You haven\'t added any emergency contacts yet</string>
+    <string name="no_emergency_contacts_desc">You can save a person to call in an emergency and assign them to appointments.</string>
+
+    <!-- Add/Edit Emergency Contact -->
+    <string name="edit_emergency_contact_title">Edit Emergency Contact</string>
+    <string name="add_emergency_contact_title">Add Emergency Contact</string>
+    <string name="full_name_label">Full Name</string>
+    <string name="relationship_label">Relationship (e.g. Spouse, Sibling)</string>
+    <string name="phone_number_label">Phone Number</string>
+    <string name="notes_label">Notes</string>
+
+    <!-- Help Center -->
+    <string name="help_center_title">Help Center</string>
+    <string name="faq_section_title">Frequently Asked Questions</string>
+    <string name="faq_q1">Reminders don\'t arrive on time, what should I do?</string>
+    <string name="faq_a1">Run the Troubleshooting wizard in Settings &gt; Notification &amp; Reminder Settings &gt; Troubleshooting. The most common cause is your phone manufacturer\'s battery optimization shutting Curalis down in the background; the wizard shows steps specific to your device.</string>
+    <string name="faq_q2">Where is my data stored?</string>
+    <string name="faq_a2">All your medication, appointment and measurement data is stored, by default, only on this device, in an encrypted database. Curalis has no server; no data is sent out automatically.</string>
+    <string name="faq_q3">Will I lose my data if I change my phone?</string>
+    <string name="faq_a3">You can take an encrypted backup to Google Drive from Settings &gt; Backup &amp; Restore. On your new phone, sign in with the same account and restore the backup to continue where you left off.</string>
+    <string name="faq_q4">Is the Google Drive backup secure?</string>
+    <string name="faq_a4">Yes. The backup is encrypted on your device before being uploaded to Drive; it is stored only in a private area belonging to your own Google account and cannot be viewed by anyone else.</string>
+    <string name="faq_q5">I accidentally deleted a medication, can I get it back?</string>
+    <string name="faq_a5">When you delete a medication on the My Medications screen, you\'re first offered the option to move it to the archive — archived medications can be restored with one tap from the \'Archive\' tab. However, records deleted with \'Delete Permanently\' cannot be recovered.</string>
+    <string name="faq_q6">I didn\'t grant notification permission, how do I turn it on later?</string>
+    <string name="faq_a6">You can turn on the permission later from your phone\'s Settings &gt; Apps &gt; Curalis &gt; Notifications section.</string>
+    <string name="faq_q7">Is the app free, are there ads?</string>
+    <string name="faq_a7">Curalis is completely free, contains no ads, and doesn\'t require you to create an account.</string>
+    <string name="faq_q8">I want to report a bug or suggestion, how do I do that?</string>
+    <string name="faq_a8">Use the \'Report Bug\' button on the Settings &gt; About screen to create an email draft with your device info automatically added.</string>
+
+    <!-- Home Screen -->
+    <string name="generate_pdf_report_content_desc">Generate PDF Report</string>
+    <string name="calendar_content_desc">Calendar</string>
+    <string name="todays_pillbox_title">Today\'s Pillbox</string>
+
+    <!-- Medication List -->
+    <string name="refill_history_content_desc">Refill History</string>
+    <string name="tab_active">Active</string>
+    <string name="tab_archive">Archive (%1$d)</string>
+    <string name="suspended_chip_label">Suspended</string>
+    <string name="treatment_days_remaining_chip">Treatment: %1$d days left</string>
+    <string name="treatment_ended_chip">Treatment period ended</string>
+    <string name="verified_source_chip">Verified Source</string>
+    <string name="manually_entered_chip">Manually Entered</string>
+    <string name="freq_every_day_chip">Every Day</string>
+    <string name="freq_specific_days_chip">Specific Days</string>
+    <string name="freq_every_x_days_chip">Every %1$d Days</string>
+    <string name="freq_cyclic_chip">%1$d/%2$d Cycle</string>
+    <string name="freq_as_needed_chip">As Needed</string>
+    <string name="stock_low_chip">Stock running low: %1$d</string>
+    <string name="stock_remaining_chip">Remaining: %1$d</string>
+    <string name="take_now_content_desc">Take Now</string>
+    <string name="resume_content_desc">Resume</string>
+    <string name="suspend_content_desc">Suspend</string>
+    <string name="unarchive_content_desc">Remove from Archive</string>
+
+    <!-- Stock History List -->
+    <string name="stock_history_no_records_title">No records yet</string>
+    <string name="stock_history_no_records_desc">Stock changes resulting from a refill, manual edit, or dose taken are listed here.</string>
+    <string name="reason_refill">Refill</string>
+    <string name="reason_dose_taken">Dose Taken</string>
+    <string name="reason_manual_edit">Manual Edit</string>
+
+    <!-- Symptom Types -->
+    <string name="symptom_type_pain">Pain</string>
+    <string name="symptom_type_nausea">Nausea</string>
+    <string name="symptom_type_fatigue">Fatigue</string>
+    <string name="severity_none">None</string>
+    <string name="severity_mild">Mild</string>
+    <string name="severity_moderate">Moderate</string>
+    <string name="severity_severe">Severe</string>
+    <string name="severity_unbearable">Unbearable</string>
+
+    <!-- Symptom List -->
+    <string name="delete_symptom_title">Delete Symptom</string>
+    <string name="delete_symptom_message">Are you sure you want to delete this symptom record?</string>
+    <string name="my_symptoms_title">My Symptoms</string>
+    <string name="add_symptom_content_desc">Add Symptom</string>
+    <string name="no_symptoms_title">No symptoms recorded yet</string>
+    <string name="no_symptoms_desc">You can track changes over time by recording symptoms like pain, nausea, or fatigue.</string>
+
+    <!-- Add/Edit Symptom -->
+    <string name="add_symptom_title">Add Symptom</string>
+    <string name="symptom_type_label">Symptom Type</string>
+    <string name="severity_label">Severity</string>
+    <string name="severity_value_label">%1$d — %2$s</string>
+    <string name="severity_scale_none">0 – None</string>
+    <string name="severity_scale_unbearable">10 – Unbearable</string>
+
+    <!-- Reminder Troubleshooting -->
+    <string name="troubleshooting_title">Reminder Troubleshooting</string>
+    <string name="troubleshooting_intro">If reminders aren\'t arriving on time, check the settings below. These are restrictions imposed by Android and your phone manufacturer, managed outside the app.</string>
+    <string name="exact_alarm_permission_title">Exact Alarm Permission</string>
+    <string name="exact_alarm_permission_desc">Without this permission, reminders may arrive a few minutes late.</string>
+    <string name="open_settings_button">Open Settings</string>
+    <string name="battery_optimization_title">Battery Optimization</string>
+    <string name="battery_optimization_desc">With battery optimization on, Android may shut the app down in the background and block alarms.</string>
+    <string name="exempt_button">Exempt</string>
+    <string name="try_open_autostart_button">Try to Open Autostart Setting</string>
+    <string name="manufacturer_xiaomi_title">Xiaomi (MIUI) Devices</string>
+    <string name="manufacturer_xiaomi_body">Go to Settings &gt; Apps &gt; Manage Apps &gt; Curalis and turn on Autostart. Then also enable Curalis in the Security app &gt; Apps &gt; Permissions &gt; Autostart list.</string>
+    <string name="manufacturer_huawei_title">Huawei / Honor Devices</string>
+    <string name="manufacturer_huawei_body">Find Curalis in Phone Manager &gt; App Launch, select \"Manage manually\", and turn on all of Auto-launch, Secondary launch, and Run in background.</string>
+    <string name="manufacturer_samsung_title">Samsung Devices</string>
+    <string name="manufacturer_samsung_body">Go to Settings &gt; Battery &gt; Background usage limits. If Curalis is in \"Sleeping apps\" or not in \"Never sleeping apps\", remove it from there and mark it \"Unrestricted\".</string>
+    <string name="manufacturer_oppo_title">Oppo (ColorOS) Devices</string>
+    <string name="manufacturer_oppo_body">Find Curalis in Settings &gt; Battery &gt; App Battery Management and select \"Allow\"; also enable it in Security Center &gt; Permissions &gt; Auto-launch list.</string>
+    <string name="manufacturer_vivo_title">Vivo (FuntouchOS) Devices</string>
+    <string name="manufacturer_vivo_body">Enable Curalis in i Manager &gt; App Management &gt; Autostart Management.</string>
+    <string name="manufacturer_oneplus_title">OnePlus (OxygenOS) Devices</string>
+    <string name="manufacturer_oneplus_body">Set Curalis to \"Not optimized\" in Settings &gt; Battery &gt; Battery Optimization; also enable it in the Settings &gt; Apps &gt; Auto-launch list.</string>
+    <string name="manufacturer_other_title">Autostart</string>
+    <string name="manufacturer_other_body">Some phone manufacturers restrict apps running in the background to save power. Select \"Unrestricted\"/\"Not optimized\" under Settings &gt; Apps &gt; Curalis &gt; Battery; also turn on any device-specific \"autostart\" setting if present.</string>
+
+    <!-- Vital List -->
+    <string name="vital_reminders_content_desc">Measurement Reminders</string>
+    <string name="no_vitals_of_type_title">No measurements of this type</string>
+    <string name="no_vitals_of_type_desc">There are no records for the measurement type you selected. You can remove the filter to see all measurements.</string>
+    <string name="remove_filter_button">Remove Filter</string>
+    <string name="no_vitals_empty_desc">You can track changes over time by recording measurements like blood pressure, blood sugar, or weight.</string>
+
+    <!-- Vital Reminder Settings -->
+    <string name="vital_reminders_title">Measurement Reminders</string>
+    <string name="vital_reminder_time_button">Time: %1$s:%2$s</string>
+    <string name="vital_reminder_days_label">Days (if none selected, every day)</string>
+
+    <!-- Full-Screen Alarm -->
+    <string name="alarm_default_medication_name">Medication Time</string>
+    <string name="alarm_medication_time_label">Medication Time</string>
+    <string name="alarm_dose_label">Dose: %1$s</string>
+    <string name="alarm_took_it_button">I Took It</string>
+    <string name="alarm_skip_dose_button">Skip This Dose</string>
+    <string name="alarm_snooze_10_min">10 min</string>
+    <string name="alarm_snooze_30_min">30 min</string>
+
+    <!-- Reminder State Badge -->
+    <string name="reminder_state_taken">Taken</string>
+    <string name="reminder_state_skipped">Skipped</string>
+    <string name="reminder_state_missed">Missed</string>
+    <string name="reminder_state_snoozed">Snoozed</string>
+    <string name="reminder_state_cancelled">Cancelled</string>
+    <string name="reminder_state_scheduled">Pending</string>
+    <string name="reminder_state_delivered">Awaiting response</string>
+
+    <!-- Backup ViewModel Messages -->
+    <string name="backup_creating_file">Creating backup file...</string>
+    <string name="backup_saved_success">Backup saved successfully.</string>
+    <string name="backup_error_generic">An error occurred during backup: %1$s</string>
+    <string name="backup_restoring">Restoring backup...</string>
+    <string name="backup_selected_file_empty">The selected file is empty.</string>
+    <string name="backup_wrong_password">Incorrect password or the backup file is corrupted.</string>
+    <string name="backup_restore_success">Data restored successfully.</string>
+    <string name="backup_restore_failed">Restore failed. The backup file may be corrupted.</string>
+    <string name="backup_restore_error_generic">An error occurred while restoring: %1$s</string>
+    <string name="backup_uploading_to_drive">Backing up to Google Drive...</string>
+    <string name="backup_drive_upload_success">Data backed up to Google Drive successfully.</string>
+    <string name="backup_drive_upload_failed">Google Drive backup failed.</string>
+    <string name="backup_error_with_message">Error: %1$s</string>
+    <string name="backup_downloading_from_drive">Restoring from Google Drive...</string>
+    <string name="backup_drive_no_backup_found">No backup found on Google Drive.</string>
+    <string name="backup_drive_restore_success">Google Drive backup restored successfully.</string>
+    <string name="backup_restore_failed_file_corrupt">Restore failed. The file may be corrupted.</string>
+
+    <!-- ViewModel validation / error messages -->
+    <string name="appointment_title_empty_error">Appointment title cannot be empty</string>
+    <string name="vital_invalid_value_error">Please enter a valid value.</string>
+    <string name="export_db_copy_error">Could not create database copy: %1$s</string>
+    <string name="daily_note_empty_error">Please write a note or select a mood.</string>
+    <string name="contact_name_empty_error">Contact name cannot be empty</string>
+    <string name="medication_delete_error">An error occurred while deleting the medication: %1$s</string>
+    <string name="medication_archive_error">An error occurred while removing the medication from the archive: %1$s</string>
+    <string name="medication_suspend_error">An error occurred while suspending the medication: %1$s</string>
+    <string name="medication_resume_error">An error occurred while resuming the medication: %1$s</string>
+    <string name="dose_saved_for_medication">Dose recorded for %1$s</string>
+    <string name="dose_saved">Dose recorded</string>
+    <string name="dose_save_error">An error occurred while saving the dose: %1$s</string>
+    <string name="doctor_name_empty_error">Doctor name cannot be empty</string>
+    <string name="no_appointments_for_doctor">No appointment assigned to this doctor.</string>
+    <string name="medications_linked_to_doctor_title">Medications Linked to This Doctor</string>
+    <string name="medication_name_empty_error">Medication name cannot be left empty.</string>
+    <string name="medication_save_error">An error occurred while saving the medication: %1$s</string>
+    <string name="week_of_label">week of %1$s</string>
+    <string name="deleted_medication_label">Deleted Medication</string>
+    <string name="email_app_not_found">No email app found.</string>
+
+    <!-- Add/Edit Doctor -->
+    <string name="tab_info">Info</string>
+    <string name="tab_appointments">Appointments (%1$d)</string>
+
+    <string-array name="weekday_short_names">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
 
     <!-- App lock -->
     <string name="security">Security</string>

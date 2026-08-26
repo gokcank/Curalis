@@ -36,39 +36,16 @@ import com.gokcank.curalis.R
 
 private data class FaqEntry(val question: String, val answer: String)
 
-private val faqEntries = listOf(
-    FaqEntry(
-        "Hatırlatıcılar zamanında gelmiyor, ne yapmalıyım?",
-        "Ayarlar > Bildirim ve Hatırlatıcı Ayarları > Sorun Giderme sihirbazını çalıştırın. En sık neden, telefon üreticinizin pil optimizasyonunun Curalis'i arka planda kapatmasıdır; sihirbaz cihazınıza özel adımları gösterir."
-    ),
-    FaqEntry(
-        "Verilerim nerede saklanıyor?",
-        "Tüm ilaç, randevu ve ölçüm verileriniz varsayılan olarak yalnızca bu cihazda, şifrelenmiş bir veritabanında saklanır. Curalis'in sunucusu yoktur; hiçbir veri otomatik olarak dışarı gönderilmez."
-    ),
-    FaqEntry(
-        "Telefonumu değiştirirsem verilerim kaybolur mu?",
-        "Ayarlar > Yedekleme & Geri Yükleme'den Google Drive'a şifreli bir yedek alabilirsiniz. Yeni telefonunuzda aynı hesapla oturum açıp yedeği geri yükleyerek kaldığınız yerden devam edebilirsiniz."
-    ),
-    FaqEntry(
-        "Google Drive yedeği güvenli mi?",
-        "Evet. Yedek, Drive'a yüklenmeden önce cihazınızda şifrelenir; yalnızca kendi Google hesabınıza ait özel bir alanda saklanır ve başka hiç kimse tarafından görüntülenemez."
-    ),
-    FaqEntry(
-        "Bir ilacı yanlışlıkla sildim, geri getirebilir miyim?",
-        "İlaçlarım ekranında bir ilacı sildiğinizde önce arşive taşıma seçeneği sunulur — arşivdeki ilaçlar 'Arşiv' sekmesinden tek dokunuşla geri alınabilir. Ancak 'Kalıcı Olarak Sil' seçeneğiyle silinen kayıtlar geri getirilemez."
-    ),
-    FaqEntry(
-        "Bildirim izni vermedim, sonradan nasıl açarım?",
-        "Telefonunuzun Ayarlar > Uygulamalar > Curalis > Bildirimler bölümünden izni daha sonra açabilirsiniz."
-    ),
-    FaqEntry(
-        "Uygulama ücretsiz mi, reklam var mı?",
-        "Curalis tamamen ücretsizdir, reklam içermez ve hesap oluşturmanızı gerektirmez."
-    ),
-    FaqEntry(
-        "Bir hata veya öneri bildirmek istiyorum, nasıl yaparım?",
-        "Ayarlar > Hakkında ekranındaki 'Hata Bildir' butonuyla, cihaz bilgileriniz otomatik eklenmiş bir e-posta taslağı oluşturabilirsiniz."
-    )
+@Composable
+private fun faqEntries(): List<FaqEntry> = listOf(
+    FaqEntry(stringResource(R.string.faq_q1), stringResource(R.string.faq_a1)),
+    FaqEntry(stringResource(R.string.faq_q2), stringResource(R.string.faq_a2)),
+    FaqEntry(stringResource(R.string.faq_q3), stringResource(R.string.faq_a3)),
+    FaqEntry(stringResource(R.string.faq_q4), stringResource(R.string.faq_a4)),
+    FaqEntry(stringResource(R.string.faq_q5), stringResource(R.string.faq_a5)),
+    FaqEntry(stringResource(R.string.faq_q6), stringResource(R.string.faq_a6)),
+    FaqEntry(stringResource(R.string.faq_q7), stringResource(R.string.faq_a7)),
+    FaqEntry(stringResource(R.string.faq_q8), stringResource(R.string.faq_a8))
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,7 +56,7 @@ fun HelpCenterScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Yardım Merkezi") },
+                title = { Text(stringResource(R.string.help_center_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -97,11 +74,11 @@ fun HelpCenterScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "Sık Sorulan Sorular",
+                text = stringResource(R.string.faq_section_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-            faqEntries.forEach { entry ->
+            faqEntries().forEach { entry ->
                 FaqItem(entry)
             }
         }

@@ -155,14 +155,14 @@ fun HomeScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Description,
-                            contentDescription = "PDF rapor oluştur",
+                            contentDescription = stringResource(R.string.generate_pdf_report_content_desc),
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                     IconButton(onClick = onNavigateToCalendar) {
                         Icon(
                             Icons.Default.DateRange,
-                            contentDescription = "Takvim",
+                            contentDescription = stringResource(R.string.calendar_content_desc),
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -358,7 +358,7 @@ fun HomeScreen(
 
                 DashboardCard(
                     modifier = Modifier.fillMaxWidth(),
-                    title = "Semptomlar",
+                    title = stringResource(R.string.dashboard_title_symptoms),
                     icon = Icons.Default.Sick,
                     onClick = onNavigateToSymptoms
                 )
@@ -367,7 +367,7 @@ fun HomeScreen(
 
                 DashboardCard(
                     modifier = Modifier.fillMaxWidth(),
-                    title = "Günlük Notlarım",
+                    title = stringResource(R.string.dashboard_title_daily_notes),
                     icon = Icons.AutoMirrored.Filled.MenuBook,
                     onClick = onNavigateToDailyNotes
                 )
@@ -511,7 +511,7 @@ fun PillboxStrip(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Bugünün Kutusu",
+                text = stringResource(R.string.todays_pillbox_title),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -554,7 +554,7 @@ private fun PillboxDoseIcon(item: HomePillboxItem, onClick: () -> Unit) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = if (isTaken) Icons.Default.Check else (item.medication?.formType ?: MedicationForm.PILL).icon(),
-                    contentDescription = item.medication?.name ?: "İlaç",
+                    contentDescription = item.medication?.name ?: stringResource(R.string.generic_medication_label),
                     tint = tint,
                     modifier = Modifier.size(20.dp)
                 )

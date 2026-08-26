@@ -179,13 +179,13 @@ fun MedicationListScreen(
                     IconButton(onClick = onNavigateToStockHistory) {
                         Icon(
                             imageVector = Icons.Default.History,
-                            contentDescription = "Yenileme Geçmişi"
+                            contentDescription = stringResource(R.string.refill_history_content_desc)
                         )
                     }
                     IconButton(onClick = { showReportOptionsDialog = true }) {
                         Icon(
                             imageVector = Icons.Default.Description,
-                            contentDescription = "PDF rapor oluştur"
+                            contentDescription = stringResource(R.string.generate_pdf_report_content_desc)
                         )
                     }
                 }
@@ -217,12 +217,12 @@ fun MedicationListScreen(
                 Tab(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
-                    text = { Text("Aktif") }
+                    text = { Text(stringResource(R.string.tab_active)) }
                 )
                 Tab(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
-                    text = { Text("Arşiv (${archivedMedications.size})") }
+                    text = { Text(stringResource(R.string.tab_archive, archivedMedications.size)) }
                 )
             }
 
@@ -241,14 +241,14 @@ fun MedicationListScreen(
                     } else if (selectedTab == 1) {
                         EmptyState(
                             icon = Icons.Default.Inventory2,
-                            title = "Arşivde ilaç yok",
-                            description = "Arşivlediğiniz ilaçlar burada görünür ve istediğiniz zaman geri alabilirsiniz."
+                            title = stringResource(R.string.no_archived_medications_title),
+                            description = stringResource(R.string.no_archived_medications_description)
                         )
                     } else {
                         EmptyState(
                             icon = Icons.Default.Medication,
                             title = stringResource(R.string.no_medications_found),
-                            description = "Eklediğiniz ilaçlar burada listelenir ve hatırlatıcıları buradan yönetilir.",
+                            description = stringResource(R.string.no_medications_description),
                             actionLabel = stringResource(R.string.add_medication),
                             onAction = { onNavigateToAddEdit(null) }
                         )
@@ -328,6 +328,9 @@ fun MedicationItem(
     onDelete: () -> Unit,
     onToggleSuspend: () -> Unit
 ) {
+    // MedicationForm/MealInstruction display names are stored per-enum in both languages
+    // (displayNameTr/displayNameEn) rather than as string resources — pick the right one here.
+    val isEnglish = androidx.compose.ui.platform.LocalConfiguration.current.locales[0].language == Locale.ENGLISH.language
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -358,7 +361,7 @@ fun MedicationItem(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = medication.formType.icon(),
-                        contentDescription = medication.formType.displayNameTr,
+                        contentDescription = if (isEnglish) medication.formType.displayNameEn else medication.formType.displayNameTr,
                         tint = Color.White,
                         modifier = Modifier.size(24.dp)
                     )
@@ -377,7 +380,7 @@ fun MedicationItem(
                 val subtitleParts = listOfNotNull(
                     medication.activeIngredient.takeIf { !it.isNullOrBlank() },
                     dosageStr.takeIf { it.isNotBlank() },
-                    medication.formType.displayNameTr
+                    if (isEnglish) medication.formType.displayNameEn else medication.formType.displayNameTr
                 ).joinToString(" • ")
 
                 if (subtitleParts.isNotBlank()) {
@@ -398,7 +401,7 @@ fun MedicationItem(
                         val semantic = LocalCuralisColors.current
                         InfoChip(
                             icon = Icons.Default.PauseCircle,
-                            text = "Askıya Alındı",
+                            text = stringResource(R.string.suspended_chip_label),
                             containerColor = semantic.warningContainer,
                             contentColor = semantic.onWarningContainer
                         )
@@ -409,7 +412,7 @@ fun MedicationItem(
                         val remaining = days - elapsedDays
                         InfoChip(
                             icon = Icons.Default.Event,
-                            text = if (remaining > 0) "Tedavi: $remaining gün kaldı" else "Tedavi süresi doldu",
+                            text = if (remaining > 0) stringResource(R.string.treatment_days_remaining_chip, remaining) else stringResource(R.string.treatment_ended_chip),
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -417,7 +420,7 @@ fun MedicationItem(
 
                     InfoChip(
                         icon = if (medication.isVerifiedSource) Icons.Default.Verified else Icons.Default.Edit,
-                        text = if (medication.isVerifiedSource) "Doğrulanmış Kaynak" else "Elle Girildi",
+                        text = if (medication.isVerifiedSource) stringResource(R.string.verified_source_chip) else stringResource(R.string.manually_entered_chip),
                         containerColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -437,18 +440,18 @@ fun MedicationItem(
                     if (medication.mealInstruction != MealInstruction.DOES_NOT_MATTER) {
                         InfoChip(
                             icon = medication.mealInstruction.icon(),
-                            text = medication.mealInstruction.displayNameTr,
+                            text = if (isEnglish) medication.mealInstruction.displayNameEn else medication.mealInstruction.displayNameTr,
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     val freqText = when (medication.frequencyType) {
-                        FrequencyType.DAILY -> "Her Gün"
-                        FrequencyType.SPECIFIC_DAYS -> "Belirli Günler"
-                        FrequencyType.INTERVAL -> "${medication.intervalDays ?: 2} Günde 1"
-                        FrequencyType.CYCLIC -> "${medication.activeDays ?: 21}/${medication.restDays ?: 7} Döngü"
-                        FrequencyType.AS_NEEDED -> "İhtiyaç Halinde"
+                        FrequencyType.DAILY -> stringResource(R.string.freq_every_day_chip)
+                        FrequencyType.SPECIFIC_DAYS -> stringResource(R.string.freq_specific_days_chip)
+                        FrequencyType.INTERVAL -> stringResource(R.string.freq_every_x_days_chip, medication.intervalDays ?: 2)
+                        FrequencyType.CYCLIC -> stringResource(R.string.freq_cyclic_chip, medication.activeDays ?: 21, medication.restDays ?: 7)
+                        FrequencyType.AS_NEEDED -> stringResource(R.string.freq_as_needed_chip)
                     }
                     InfoChip(
                         icon = Icons.Default.Event,
@@ -465,7 +468,7 @@ fun MedicationItem(
                             val semantic = LocalCuralisColors.current
                             InfoChip(
                                 icon = if (isLowStock) Icons.Default.Warning else Icons.Default.Inventory2,
-                                text = if (isLowStock) "Stok azalıyor: $stock" else "Kalan: $stock",
+                                text = if (isLowStock) stringResource(R.string.stock_low_chip, stock) else stringResource(R.string.stock_remaining_chip, stock),
                                 containerColor = if (isLowStock) semantic.warningContainer else MaterialTheme.colorScheme.surfaceVariant,
                                 contentColor = if (isLowStock) semantic.onWarningContainer else MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -478,7 +481,7 @@ fun MedicationItem(
                 IconButton(onClick = onTakeDose) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Şimdi Al",
+                        contentDescription = stringResource(R.string.take_now_content_desc),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -487,7 +490,7 @@ fun MedicationItem(
             IconButton(onClick = onToggleSuspend) {
                 Icon(
                     imageVector = if (medication.isSuspended) Icons.Default.PlayCircle else Icons.Default.PauseCircle,
-                    contentDescription = if (medication.isSuspended) "Devam Et" else "Askıya Al",
+                    contentDescription = if (medication.isSuspended) stringResource(R.string.resume_content_desc) else stringResource(R.string.suspend_content_desc),
                     tint = MaterialTheme.colorScheme.outline
                 )
             }
@@ -539,7 +542,7 @@ fun ArchivedMedicationItem(
             IconButton(onClick = onRestore) {
                 Icon(
                     imageVector = Icons.Default.Restore,
-                    contentDescription = "Arşivden Çıkar",
+                    contentDescription = stringResource(R.string.unarchive_content_desc),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }

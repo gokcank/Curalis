@@ -1,11 +1,14 @@
 package com.gokcank.curalis.presentation.emergencycontact
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.EmergencyContact
 import com.gokcank.curalis.domain.usecase.EmergencyContactUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -16,6 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditEmergencyContactViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val emergencyContactUseCases: EmergencyContactUseCases,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -65,7 +69,7 @@ class AddEditEmergencyContactViewModel @Inject constructor(
     fun saveContact() {
         viewModelScope.launch {
             if (_name.value.isBlank()) {
-                _eventFlow.emit(UiEvent.ShowSnackbar("Kişi adı boş olamaz"))
+                _eventFlow.emit(UiEvent.ShowSnackbar(appContext.getString(R.string.contact_name_empty_error)))
                 return@launch
             }
 

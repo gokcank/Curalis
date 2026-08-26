@@ -1,12 +1,15 @@
 package com.gokcank.curalis.presentation.dailynote
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.DailyNote
 import com.gokcank.curalis.domain.model.Mood
 import com.gokcank.curalis.domain.usecase.DailyNoteUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -16,6 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditDailyNoteViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val dailyNoteUseCases: DailyNoteUseCases,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -57,7 +61,7 @@ class AddEditDailyNoteViewModel @Inject constructor(
     fun saveNote() {
         viewModelScope.launch {
             if (_content.value.isBlank() && _mood.value == null) {
-                _eventFlow.emit(UiEvent.ShowSnackbar("Lütfen bir not yazın veya bir ruh hali seçin."))
+                _eventFlow.emit(UiEvent.ShowSnackbar(appContext.getString(R.string.daily_note_empty_error)))
                 return@launch
             }
             dailyNoteUseCases.saveNote(

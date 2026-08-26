@@ -1,8 +1,10 @@
 package com.gokcank.curalis.presentation.appointment
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.domain.model.Appointment
 import com.gokcank.curalis.domain.model.Doctor
@@ -11,6 +13,7 @@ import com.gokcank.curalis.domain.usecase.AppointmentUseCases
 import com.gokcank.curalis.domain.usecase.DoctorUseCases
 import com.gokcank.curalis.domain.usecase.EmergencyContactUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditAppointmentViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val appointmentUseCases: AppointmentUseCases,
     private val doctorUseCases: DoctorUseCases,
     private val emergencyContactUseCases: EmergencyContactUseCases,
@@ -127,7 +131,7 @@ class AddEditAppointmentViewModel @Inject constructor(
     fun saveAppointment() {
         viewModelScope.launch {
             if (_title.value.isBlank()) {
-                _eventFlow.emit(UiEvent.ShowSnackbar("Randevu başlığı boş olamaz"))
+                _eventFlow.emit(UiEvent.ShowSnackbar(appContext.getString(R.string.appointment_title_empty_error)))
                 return@launch
             }
 

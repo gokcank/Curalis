@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -73,8 +74,8 @@ fun DailyNoteListScreen(
     noteToDelete?.let { note ->
         AlertDialog(
             onDismissRequest = { noteToDelete = null },
-            title = { Text("Notu Sil") },
-            text = { Text("Bu günlük notunu silmek istediğinize emin misiniz?") },
+            title = { Text(stringResource(R.string.delete_note_title)) },
+            text = { Text(stringResource(R.string.delete_note_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -96,7 +97,7 @@ fun DailyNoteListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Günlük Notlarım") },
+                title = { Text(stringResource(R.string.dashboard_title_daily_notes)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -126,12 +127,12 @@ fun DailyNoteListScreen(
                 ) {
                     Column {
                         Text(
-                            text = if (todayNote != null) "Bugünkü Notu Düzenle" else "Bugün İçin Not Ekle",
+                            text = if (todayNote != null) stringResource(R.string.edit_today_note_title) else stringResource(R.string.add_today_note_title),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = todayNote?.content?.take(60) ?: "Bugün nasıl hissettiğinizi kaydedin.",
+                            text = todayNote?.content?.take(60) ?: stringResource(R.string.today_note_placeholder),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             maxLines = 1,
@@ -161,8 +162,8 @@ fun DailyNoteListScreen(
                 ) {
                     EmptyState(
                         icon = Icons.Default.MenuBook,
-                        title = "Henüz günlük notu yok",
-                        description = "Her gün nasıl hissettiğinizi kısa notlar halinde kaydederek zaman içindeki değişimi takip edebilirsiniz."
+                        title = stringResource(R.string.no_daily_notes_title),
+                        description = stringResource(R.string.no_daily_notes_desc)
                     )
                 }
             } else if (pastNotes.isNotEmpty()) {
@@ -193,8 +194,9 @@ private fun DailyNoteItem(
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val dateFormat = remember { SimpleDateFormat("dd MMMM yyyy, EEEE", Locale("tr")) }
-    val dateString = dateFormat.format(Date(note.dateMillis)).replaceFirstChar { it.titlecase(Locale("tr")) }
+    val displayLocale = LocalConfiguration.current.locales[0]
+    val dateFormat = remember(displayLocale) { SimpleDateFormat("dd MMMM yyyy, EEEE", displayLocale) }
+    val dateString = dateFormat.format(Date(note.dateMillis)).replaceFirstChar { it.titlecase(displayLocale) }
 
     Card(
         modifier = Modifier

@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,7 +66,7 @@ fun StockHistoryListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Yenileme Geçmişi") },
+                title = { Text(stringResource(R.string.refill_history_content_desc)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -84,11 +85,12 @@ fun StockHistoryListScreen(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
             ) {
+                val allMedicationsLabel = stringResource(R.string.all_medications)
                 OutlinedTextField(
                     readOnly = true,
-                    value = medicationNames.firstOrNull { it.first == selectedMedicationId }?.second ?: "Tüm İlaçlar",
+                    value = medicationNames.firstOrNull { it.first == selectedMedicationId }?.second ?: allMedicationsLabel,
                     onValueChange = {},
-                    label = { Text("İlaç Filtresi") },
+                    label = { Text(stringResource(R.string.medication_filter_label)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                     modifier = Modifier.fillMaxWidth().menuAnchor()
@@ -98,7 +100,7 @@ fun StockHistoryListScreen(
                     onDismissRequest = { expanded = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Tüm İlaçlar") },
+                        text = { Text(allMedicationsLabel) },
                         onClick = {
                             viewModel.onMedicationFilterSelected(null)
                             expanded = false
@@ -122,8 +124,8 @@ fun StockHistoryListScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     EmptyState(
                         icon = Icons.Default.History,
-                        title = "Henüz kayıt yok",
-                        description = "Stok yenileme, elle düzenleme veya doz alımı sonucu oluşan stok değişiklikleri burada listelenir."
+                        title = stringResource(R.string.stock_history_no_records_title),
+                        description = stringResource(R.string.stock_history_no_records_desc)
                     )
                 }
             } else {
@@ -143,7 +145,8 @@ fun StockHistoryListScreen(
 @Composable
 private fun StockHistoryRowItem(row: StockHistoryRow) {
     val semantic = LocalCuralisColors.current
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("tr")) }
+    val displayLocale = LocalConfiguration.current.locales[0]
+    val dateFormat = remember(displayLocale) { SimpleDateFormat("dd MMM yyyy, HH:mm", displayLocale) }
 
     val (icon, tint) = when (row.entry.reason) {
         StockChangeReason.REFILL -> Icons.Default.AddCircle to semantic.success
@@ -151,9 +154,9 @@ private fun StockHistoryRowItem(row: StockHistoryRow) {
         StockChangeReason.MANUAL_EDIT -> Icons.Default.Edit to semantic.warning
     }
     val reasonText = when (row.entry.reason) {
-        StockChangeReason.REFILL -> "Yenileme"
-        StockChangeReason.DOSE_TAKEN -> "Doz Alındı"
-        StockChangeReason.MANUAL_EDIT -> "Elle Düzenleme"
+        StockChangeReason.REFILL -> stringResource(R.string.reason_refill)
+        StockChangeReason.DOSE_TAKEN -> stringResource(R.string.reason_dose_taken)
+        StockChangeReason.MANUAL_EDIT -> stringResource(R.string.reason_manual_edit)
     }
     val changeText = if (row.entry.previousStock != null && row.entry.newStock != null) {
         "${row.entry.previousStock} → ${row.entry.newStock}"

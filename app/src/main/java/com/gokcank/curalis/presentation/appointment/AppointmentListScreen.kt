@@ -64,7 +64,7 @@ fun AppointmentListScreen(
     val completedAppointments by viewModel.completedAppointments.collectAsState()
     var appointmentToDelete by remember { mutableStateOf<Appointment?>(null) }
     var selectedTab by remember { mutableStateOf(0) }
-    val tabTitles = listOf("Yaklaşan", "Tamamlandı")
+    val tabTitles = listOf(stringResource(R.string.tab_upcoming), stringResource(R.string.tab_completed))
     val visibleAppointments = if (selectedTab == 0) upcomingAppointments else completedAppointments
 
     appointmentToDelete?.let { appt ->
@@ -134,7 +134,7 @@ fun AppointmentListScreen(
                     EmptyState(
                         icon = Icons.AutoMirrored.Filled.EventNote,
                         title = stringResource(R.string.no_appointments_found),
-                        description = "Yaklaşan doktor randevularınızı buraya ekleyip bir saat öncesinden hatırlatma alabilirsiniz.",
+                        description = stringResource(R.string.no_appointments_empty_state_desc),
                         actionLabel = stringResource(R.string.add_appointment),
                         onAction = onAddAppointmentClick
                     )
@@ -146,11 +146,11 @@ fun AppointmentListScreen(
                 ) {
                     EmptyState(
                         icon = Icons.AutoMirrored.Filled.EventNote,
-                        title = if (selectedTab == 0) "Yaklaşan randevu yok" else "Tamamlanmış randevu yok",
+                        title = if (selectedTab == 0) stringResource(R.string.no_upcoming_appointments_title) else stringResource(R.string.no_completed_appointments_title),
                         description = if (selectedTab == 0) {
-                            "Şu anda beklemede olan bir randevunuz yok."
+                            stringResource(R.string.no_pending_appointments_desc)
                         } else {
-                            "Zamanı geçmiş bir randevunuz henüz yok."
+                            stringResource(R.string.no_past_appointments_desc)
                         }
                     )
                 }

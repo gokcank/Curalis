@@ -31,6 +31,13 @@
     <string name="dashboard_title_doctors">Doktorlar</string>
     <string name="dashboard_title_appointments">Randevular</string>
     <string name="dashboard_title_vitals">Ölçümler</string>
+    <string name="dashboard_title_symptoms">Semptomlar</string>
+    <string name="dashboard_title_daily_notes">Günlük Notlarım</string>
+
+    <!-- İlaç listesi boş durumları -->
+    <string name="no_medications_description">Eklediğiniz ilaçlar burada listelenir ve hatırlatıcıları buradan yönetilir.</string>
+    <string name="no_archived_medications_title">Arşivde ilaç yok</string>
+    <string name="no_archived_medications_description">Arşivlediğiniz ilaçlar burada görünür ve istediğiniz zaman geri alabilirsiniz.</string>
     <string name="next_medication">Sıradaki İlaç</string>
     <string name="upcoming_appointment">Yaklaşan Randevu</string>
     <string name="daily_progress">Günlük İlerleme</string>
@@ -165,6 +172,505 @@
     <string name="suggested_ministry_of_health_medications">Önerilen Sağlık Bakanlığı İlaçları:</string>
     <string name="verified_source_badge">Sağlık Bakanlığı kaynağından doğrulandı</string>
     <string name="unverified_source_badge">Elle girildi, doğrulanmış kaynaktan değil</string>
+
+    <!-- İlaç Ekle/Düzenle -->
+    <string name="schedule_change_dialog_title">Saat değişikliği</string>
+    <string name="schedule_change_dialog_message">İlaç saatlerinde değişiklik yaptınız. Bugün için zaten planlanmış dozlar olduğu gibi kalsın mı, yoksa bu değişiklik hemen bugünden itibaren mi geçerli olsun?</string>
+    <string name="schedule_change_from_now">Bugünden itibaren</string>
+    <string name="schedule_change_from_tomorrow">Yarından itibaren</string>
+    <string name="medication_photo_dialog_title">İlaç Fotoğrafı</string>
+    <string name="photo_take_camera">Kameradan Çek</string>
+    <string name="photo_choose_gallery">Galeriden Seç</string>
+    <string name="photo_remove">Fotoğrafı Kaldır</string>
+    <string name="medication_name_supporting_text">Yazdıkça resmî ilaç listesinde aranır</string>
+    <string name="barcode_label">Barkod (Opsiyonel)</string>
+    <string name="barcode_scan_failed">Barkod okunamadı, elle girebilirsiniz.</string>
+    <string name="barcode_scan_content_desc">Barkod Tara</string>
+    <string name="medication_color_title">İlaç Renk Vurgusu</string>
+    <string name="color_selected_desc">Seçili renk</string>
+    <string name="color_option_desc">Renk seçeneği</string>
+    <string name="unit_label">Birim</string>
+    <string name="unit_placeholder">Tablet / mg</string>
+    <string name="meal_instruction_title">Yemek Talimatı</string>
+    <string name="frequency_title">İlaç Sıklığı / Kullanım Periyodu</string>
+    <string name="frequency_daily">Her Gün</string>
+    <string name="frequency_specific_days">Haftanın Belirli Günleri</string>
+    <string name="frequency_interval">X Günde Bir</string>
+    <string name="frequency_cyclic">Döngüsel (Kullan / Ara Ver)</string>
+    <string name="frequency_as_needed">İhtiyaç Halinde (PRN)</string>
+    <string name="frequency_interval_days_label">Kaç günde bir alınacak?</string>
+    <string name="cyclic_active_days_label">Kaç gün kullanılacak?</string>
+    <string name="cyclic_rest_days_label">Kaç gün ara verilecek?</string>
+    <string name="cyclic_example_text">Örn: 21 gün kullan, 7 gün ara ver — döngü başlangıç tarihinden itibaren tekrarlanır.</string>
+    <string name="placebo_reminder_title">Plasebo Hap Hatırlatması</string>
+    <string name="placebo_reminder_desc">Ara verilen günlerde de hatırlatıcı gösterilir (ör. doğum kontrol paketindeki plasebo haplar). Bu dozlar uyum yüzdesine dahil edilmez.</string>
+    <string name="day_selection_label">Gün Seçimi:</string>
+    <string name="reminder_times_title">Hatırlatıcı Saatleri</string>
+    <string name="dose_suffix_label"> • Doz: %1$s</string>
+    <string name="add_reminder_time_button">Hatırlatıcı Saat Ekle</string>
+    <string name="almost_done_title">Neredeyse bitti!</string>
+    <string name="almost_done_subtitle">İsterseniz şu ek bilgileri de ekleyebilirsiniz:</string>
+    <string name="barcode_field_label">Barkod</string>
+    <string name="color_field_label">Renk</string>
+    <string name="photo_field_label">Fotoğraf</string>
+    <string name="stock_tracking_field_label">Stok Takibi</string>
+    <string name="doctor_field_label">Doktor</string>
+    <string name="expiry_notes_field_label">Son Kullanma Tarihi / Notlar / Tedavi Süresi / Rx No</string>
+    <string name="stock_tracking_title">Kutu / Stok Takibi</string>
+    <string name="stock_tracking_toggle_label">Stok Takibi Yapılsın mı?</string>
+    <string name="current_stock_label">Mevcut Stok (Kutu/Tablet)</string>
+    <string name="refill_threshold_label">Kritik Stok Uyarısı</string>
+    <string name="stock_history_hide">Stok Geçmişini Gizle</string>
+    <string name="stock_history_show">Stok Geçmişini Göster (%1$d)</string>
+    <string name="stock_history_empty">Henüz bir stok değişikliği kaydedilmedi.</string>
+    <string name="dose_taken_reason">Doz alındı</string>
+    <string name="manual_edit_reason">Elle düzenlendi</string>
+    <string name="refill_reason">Stok eklendi</string>
+    <string name="prescribing_doctor_label">Bu ilacı reçete eden doktor</string>
+    <string name="not_specified">Belirtilmedi</string>
+    <string name="additional_info_title">Ek Bilgiler &amp; Son Kullanma Tarihi</string>
+    <string name="expiry_date_picker_placeholder">Son Kullanma Tarihi Seçin (Opsiyonel)</string>
+    <string name="medication_notes_label">İlaç Notları / Açıklama</string>
+    <string name="medication_notes_placeholder">Serin ve kuru yerde saklayınız.</string>
+    <string name="treatment_duration_label">Tedavi Süresi (gün, Opsiyonel)</string>
+    <string name="treatment_duration_placeholder">Örn: 10</string>
+    <string name="treatment_duration_supporting_text">Kutunun son kullanma tarihinden farklıdır — bu tedavinin kaç gün süreceğidir.</string>
+    <string name="rx_number_label">Rx (Reçete) Numarası, Opsiyonel</string>
+    <string name="rx_number_placeholder">Eczaneden yenileme talep ederken kullanılır</string>
+    <string name="update_button">Güncelle</string>
+    <string name="reminder_time_picker_title">Hatırlatıcı Saati Seçin</string>
+    <string name="active_ingredient_prefix">Etken Madde: %1$s</string>
+    <string name="generic_medication_label">İlaç</string>
+    <string name="medication_photo_content_desc">İlaç fotoğrafı</string>
+    <string name="add_photo_content_desc">Fotoğraf ekle</string>
+    <string name="medication_name_placeholder">İlaç Adı</string>
+    <!-- Bildirim Ayarları -->
+    <string name="notification_settings_title">Bildirim ve Hatırlatıcı Ayarları</string>
+    <string name="reminders_not_on_time_title">Hatırlatıcılar zamanında gelmiyor mu?</string>
+    <string name="reminders_not_on_time_desc">Android sistem izinlerini ve telefon üreticinize özel ayarları kontrol edin.</string>
+    <string name="start_troubleshooting_button">Sorun Gidermeyi Başlat</string>
+    <string name="privacy_section_title">Gizlilik</string>
+    <string name="hide_med_name_lock_screen_title">Kilit ekranında ilaç adını gizle</string>
+    <string name="hide_med_name_lock_screen_desc">Açıkken, kilitli ekranda bildirim görünür ama ilacınızın adı gizlenir.</string>
+    <string name="quiet_hours_section_title">Sessiz Saatler</string>
+    <string name="quiet_hours_enable_title">Sessiz saatleri etkinleştir</string>
+    <string name="quiet_hours_enable_desc">Bu saatler arasında hatırlatıcılar sessiz gelir ve ekranınızı uyandırmaz; bildirim yine de görünür kalır.</string>
+    <string name="quiet_hours_start_button">Başlangıç: %1$s</string>
+    <string name="quiet_hours_end_button">Bitiş: %1$s</string>
+    <string name="fullscreen_popup_title">Tam Ekran Uyarı Popup\'ı</string>
+    <string name="fullscreen_popup_desc">Bir doz hatırlatması geldiğinde, kilit ekranında da görünen tam ekran alarm uyarısı ne zaman gösterilsin?</string>
+    <string name="fullscreen_popup_note">Doz \"kaçırıldı\" olarak işaretlenmeden önceki son hatırlatmada, bu ayardan bağımsız olarak popup her zaman gösterilir.</string>
+    <string name="snooze_section_title">Erteleme</string>
+    <string name="snooze_desc">Bildirimdeki \"Ertele\" düğmesi dozu kaç dakika sonraya taşısın?</string>
+    <string name="minutes_short_format">%1$d dk</string>
+    <string name="hours_short_format">%1$d sa</string>
+    <string name="days_short_format">%1$d gün</string>
+    <string name="weeks_short_format">%1$d hafta</string>
+    <string name="off_label">Kapalı</string>
+    <string name="appointment_reminder_section_title">Randevu Hatırlatması</string>
+    <string name="appointment_reminder_desc">Randevu hatırlatıcısı, randevudan ne kadar önce gelsin?</string>
+    <string name="morning_reminder_section_title">Sabah Hatırlatması</string>
+    <string name="morning_reminder_toggle_title">Her sabah hatırlat</string>
+    <string name="morning_reminder_toggle_desc">İlaçlarınızı yanınıza almanız için her sabah ayrı bir hatırlatma gönderilir.</string>
+    <string name="morning_reminder_time_button">Sabah saati: %1$s</string>
+    <string name="weekend_mode_title">Hafta Sonu Modu</string>
+    <string name="weekend_mode_desc">Cumartesi ve Pazar günleri için ayrı bir sabah saati kullanın.</string>
+    <string name="weekend_reminder_time_button">Hafta sonu saati: %1$s</string>
+    <string name="notification_categories_title">Bildirim Kategorileri</string>
+    <string name="notification_categories_desc">Doz hatırlatmaları ve stok uyarıları artık ayrı bildirim kategorilerinde. Her birinin sesini, titreşimini veya görünürlüğünü ayrı ayrı kapatmak için sistem ayarlarını kullanabilirsiniz.</string>
+    <string name="manage_notification_categories_button">Bildirim Kategorilerini Sistem Ayarlarından Yönet</string>
+    <string name="quiet_hours_start_picker_title">Sessiz Saatler Başlangıcı</string>
+    <string name="quiet_hours_end_picker_title">Sessiz Saatler Bitişi</string>
+    <string name="morning_reminder_picker_title">Sabah Hatırlatma Saati</string>
+    <string name="weekend_reminder_picker_title">Hafta Sonu Sabah Saati</string>
+    <string name="notification_popup_mode_always">Her zaman göster</string>
+    <string name="notification_popup_mode_never">Hiç gösterme</string>
+    <string name="notification_popup_mode_screen_on_only">Yalnızca ekran açıkken</string>
+
+    <!-- Ayarlar ekranı -->
+    <string name="notifications_section_title">Bildirimler</string>
+    <string name="notification_settings_row_title">Bildirim ve Hatırlatıcı Ayarları</string>
+    <string name="notification_settings_row_desc">Sessiz saatler, kilit ekranı gizliliği ve bildirim kategorileri</string>
+    <string name="manage_button">Yönet</string>
+    <string name="timeline_slots_title">Zaman Çizelgesi Dilimleri</string>
+    <string name="timeline_slots_desc">Günlük Zaman Çizelgesi ekranındaki Sabah/Öğle/Akşam dilimlerinin başlangıç saatlerini değiştirin.</string>
+    <string name="morning_start_label">Sabah başlangıcı</string>
+    <string name="afternoon_start_label">Öğle başlangıcı</string>
+    <string name="evening_start_label">Akşam başlangıcı</string>
+    <string name="data_management_title">Veri Yönetimi</string>
+    <string name="backup_restore_row_title">Yedekleme &amp; Geri Yükleme</string>
+    <string name="backup_restore_row_desc">Verilerinizi telefonunuza veya buluta yedekleyin</string>
+    <string name="google_drive_backup_tip">İpucu: Telefon değişikliğinde verilerinizi kaybetmemek için Google Drive\'a şifreli bir yedek almanızı öneririz.</string>
+    <string name="export_encrypted_db_title">Şifreli Veritabanı Kopyasını Dışa Aktar</string>
+    <string name="export_encrypted_db_desc">Destek/teknik inceleme için veritabanınızın şifreli bir kopyasını dışa aktarır. Şifresi bu dosyada bulunmaz, tek başına açılamaz.</string>
+    <string name="export_button">Dışa Aktar</string>
+    <string name="support_section_title">Destek</string>
+    <string name="help_center_row_title">Yardım Merkezi / SSS</string>
+    <string name="help_center_row_desc">Sık sorulan sorular ve çözümleri</string>
+    <string name="view_button">Görüntüle</string>
+    <string name="share_app_row_title">Uygulamayı Paylaş</string>
+    <string name="share_app_row_desc">Curalis\'i arkadaşlarınızla ve ailenizle paylaşın</string>
+    <string name="share_app_message">İlaçlarımı, randevularımı ve sağlık ölçümlerimi Curalis ile takip ediyorum — verileriniz yalnızca cihazınızda saklanır: https://play.google.com/store/apps/details?id=%1$s</string>
+    <string name="share_app_chooser_title">Curalis\'i Paylaş</string>
+    <string name="share_button">Paylaş</string>
+
+    <!-- Uyum Analizleri -->
+    <string name="adherence_analytics_title">İlaç Uyum Analizleri</string>
+    <string name="weekly_adherence_title">Haftalık Uyum</string>
+    <string name="last_7_days">Son 7 Gün</string>
+    <string name="monthly_adherence_title">Aylık Uyum</string>
+    <string name="last_30_days">Son 30 Gün</string>
+    <string name="adherence_trend_title">Uyum Trendi (Son 8 Hafta)</string>
+    <string name="weekly_dose_stats_title">Son 7 Gün İlaç Doz İstatistikleri</string>
+    <string name="total_dose_label">Toplam Doz</string>
+    <string name="taken_label">Alınan</string>
+    <string name="not_taken_label">Alınmayan</string>
+    <string name="medication_adherence_breakdown_title">İlaç Bazlı Uyum Başarısı</string>
+    <string name="no_analytics_data_title">Henüz analiz edilecek veri yok</string>
+    <string name="no_analytics_data_desc">İlaç ekleyip dozlarınızı işaretlemeye başladığınızda uyum istatistikleriniz burada görünecek.</string>
+    <string name="no_data_yet">Henüz veri yok</string>
+    <string name="taken_of_total_doses">Alınan %1$d / %2$d doz • %3$d alınmadı</string>
+    <string name="no_resolved_doses_yet">Bu ilaç için henüz sonuçlanmış doz kaydı yok</string>
+
+    <!-- Rapor Seçenekleri Diyaloğu -->
+    <string name="report_range_title">Rapor Aralığı Seçin</string>
+    <string name="report_range_last_7_days">Son 7 Gün</string>
+    <string name="report_range_last_30_days">Son 30 Gün</string>
+    <string name="report_range_last_90_days">Son 90 Gün</string>
+    <string name="report_range_this_year">Bu Yıl</string>
+    <string name="report_range_custom">Özel Aralık…</string>
+    <string name="report_content_title">Rapor İçeriği</string>
+    <string name="all_medications">Tüm İlaçlar</string>
+    <string name="medication_filter_label">İlaç Filtresi</string>
+    <string name="sections_to_include_label">Dahil Edilecek Bölümler</string>
+    <string name="adherence_summary_checkbox">Uyum Özeti</string>
+    <string name="medication_cabinet_list_checkbox">İlaç Dolabı Listesi</string>
+    <string name="vitals_history_checkbox">Ölçümler Geçmişi</string>
+    <string name="generate_report_button">Rapor Oluştur</string>
+
+    <!-- Günlük Zaman Çizelgesi -->
+    <string name="daily_timeline_title">Günlük Zaman Çizelgesi</string>
+    <string name="daily_timeline_date_header">%1$d %2$s %3$d</string>
+    <string name="daily_timeline_subtitle">Saat dilimlerine göre sıralanmış günlük doz takibi</string>
+    <string name="take_all_button">Tümünü Al</string>
+    <string name="skip_all_button">Tümünü Atla</string>
+    <string name="snooze_all_button">Tümünü Ertele</string>
+    <string name="no_doses_today_title">Bugün için doz planlanmamış</string>
+    <string name="no_doses_today_desc">Bugüne ait bir ilaç saatiniz yok. İlaçlarınıza saat eklerseniz dozlar burada listelenir.</string>
+    <string name="previous_week_desc">Önceki hafta</string>
+    <string name="next_week_desc">Sonraki hafta</string>
+    <string name="placebo_badge">Plasebo</string>
+    <string name="time_at_label">Saat %1$s%2$s</string>
+    <string name="time_at_taken_label">Saat %1$s%2$s • Alındı: %3$s</string>
+    <string name="actually_took_it_button">Aslında Aldım</string>
+    <string name="took_it_button">Aldım</string>
+    <string name="skip_button">Atla</string>
+    <string name="undo_button">Geri Al</string>
+    <string name="timeslot_morning">Sabah</string>
+    <string name="timeslot_afternoon">Öğle</string>
+    <string name="timeslot_evening">Akşam</string>
+    <string name="timeslot_night">Gece</string>
+
+    <!-- Yedekleme Ekranı -->
+    <string name="backup_screen_intro">Verilerinizi güvende tutmak için cihazınıza veya Google Drive gibi bulut depolama alanlarınıza manuel yedek alabilirsiniz.</string>
+    <string name="backup_export_card_title">Yedek Al (Dışa Aktar)</string>
+    <string name="backup_export_card_desc">Tüm ilaç, hatırlatıcı ve ölçüm verilerinizi bir dosya olarak telefonunuza veya seçtiğiniz bir bulut servisine kaydeder.</string>
+    <string name="manual_backup_button">Manuel Yedek Al</string>
+    <string name="backup_import_card_title">Yedeği Geri Yükle (İçe Aktar)</string>
+    <string name="backup_import_card_desc">Daha önce aldığınız bir yedekleme dosyasını (.json) seçerek mevcut veritabanını o dosyadaki verilerle değiştirir. Mevcut veriler silinir!</string>
+    <string name="select_and_load_backup_button">Yedeği Seç ve Yükle</string>
+    <string name="google_drive_card_title">Google Drive (Otomatik)</string>
+    <string name="google_drive_card_desc">Drive\'da sadece Curalis\'in görebileceği gizli bir klasöre, belirlediğiniz şifreyle şifrelenmiş olarak yedekleme yapar. Telefon değiştirseniz bile aynı hesap ve şifreyle verileriniz geri gelir.</string>
+    <string name="sign_in_with_google_button">Google ile Giriş Yap</string>
+    <string name="connected_account_label">Bağlı Hesap: %1$s</string>
+    <string name="unknown_account">Bilinmiyor</string>
+    <string name="backup_to_drive_button">Drive\'a Yedekle</string>
+    <string name="restore_from_drive_button">Drive\'dan Yükle</string>
+    <string name="sign_out_button">Çıkış Yap</string>
+    <string name="google_signin_error_generic">Google Giriş Hatası: %1$d - %2$s</string>
+    <string name="unknown_error">Bilinmeyen hata</string>
+    <string name="signin_error_generic">Giriş sırasında hata oluştu: %1$s</string>
+    <string name="set_backup_password_title">Yedekleme Şifresi Belirleyin</string>
+    <string name="enter_backup_password_title">Yedekleme Şifresini Girin</string>
+    <string name="backup_password_set_desc">Bu yedek, girdiğiniz şifreyle şifrelenecek. Şifreyi unutursanız yedeği geri yükleyemezsiniz.</string>
+    <string name="password_label">Şifre</string>
+    <string name="password_confirm_label">Şifre (Tekrar)</string>
+    <string name="password_too_short_error">Şifre en az 4 karakter olmalı.</string>
+    <string name="passwords_dont_match_error">Şifreler eşleşmiyor.</string>
+    <string name="confirm_button">Onayla</string>
+
+    <!-- Randevu Ekle/Düzenle -->
+    <string name="person_doctor_suffix">%1$s (Doktor)</string>
+    <string name="person_emergency_contact_suffix">%1$s (Acil Durum Kişisi)</string>
+    <string name="assign_person_label">Kişi Ata</string>
+    <string name="doctors_group_label">Doktorlar</string>
+    <string name="emergency_contacts_group_label">Acil Durum Kişileri</string>
+    <string name="date_time_label">%1$s &amp; %2$s</string>
+
+    <!-- Randevu Listesi -->
+    <string name="tab_upcoming">Yaklaşan</string>
+    <string name="tab_completed">Tamamlandı</string>
+    <string name="no_appointments_empty_state_desc">Yaklaşan doktor randevularınızı buraya ekleyip bir saat öncesinden hatırlatma alabilirsiniz.</string>
+    <string name="no_upcoming_appointments_title">Yaklaşan randevu yok</string>
+    <string name="no_completed_appointments_title">Tamamlanmış randevu yok</string>
+    <string name="no_pending_appointments_desc">Şu anda beklemede olan bir randevunuz yok.</string>
+    <string name="no_past_appointments_desc">Zamanı geçmiş bir randevunuz henüz yok.</string>
+
+    <!-- Uyum Takvimi -->
+    <string name="adherence_calendar_title">İlaç Uyum Takvimi</string>
+    <string name="analytics_content_desc">Analizler</string>
+    <string name="selected_day_dose_records_header">%1$d %2$s %3$d — Doz Kayıtları</string>
+    <string name="no_dose_records_title">Bu gün için doz kaydı yok</string>
+    <string name="no_dose_records_desc">Seçtiğiniz tarihte planlanmış bir ilaç dozu bulunmuyor. Başka bir gün seçebilirsiniz.</string>
+    <string name="previous_month_desc">Önceki Ay</string>
+    <string name="next_month_desc">Sonraki Ay</string>
+    <string name="calendar_month_year_header">%1$s %2$d</string>
+    <string name="day_status_all_taken">tüm dozlar alındı</string>
+    <string name="day_status_partial">dozların bir kısmı alındı</string>
+    <string name="day_status_missed">kaçırılan doz var</string>
+    <string name="day_status_no_doses">planlanmış doz yok</string>
+    <string name="day_status_future">gelecek tarih</string>
+    <string name="calendar_day_content_desc">%1$d: %2$s</string>
+
+    <!-- Sonuç Yok Durumu -->
+    <string name="no_results_found_title">Sonuç bulunamadı</string>
+    <string name="no_results_found_desc">\"%1$s\" ile eşleşen bir kayıt yok. Yazımı kontrol edebilir veya aramayı temizleyebilirsiniz.</string>
+    <string name="clear_search_button">Aramayı Temizle</string>
+
+    <!-- PDF Önizleme Diyaloğu -->
+    <string name="report_preview_title">Rapor Önizleme</string>
+    <string name="close_content_desc">Kapat</string>
+    <string name="share_content_desc">Paylaş</string>
+    <string name="report_summary_title">Rapor Özeti</string>
+    <string name="report_summary_subtitle">Toplam %1$d vakit · Alınan %2$d · Atlanan %3$d · Kaçırılan %4$d</string>
+
+    <!-- Günlük Not Listesi -->
+    <string name="delete_note_title">Notu Sil</string>
+    <string name="delete_note_message">Bu günlük notunu silmek istediğinize emin misiniz?</string>
+    <string name="edit_today_note_title">Bugünkü Notu Düzenle</string>
+    <string name="add_today_note_title">Bugün İçin Not Ekle</string>
+    <string name="today_note_placeholder">Bugün nasıl hissettiğinizi kaydedin.</string>
+    <string name="no_daily_notes_title">Henüz günlük notu yok</string>
+    <string name="no_daily_notes_desc">Her gün nasıl hissettiğinizi kısa notlar halinde kaydederek zaman içindeki değişimi takip edebilirsiniz.</string>
+
+    <!-- Günlük Not Ekle/Düzenle -->
+    <string name="how_are_you_today_title">Bugün Nasılsınız?</string>
+    <string name="your_note_label">Notunuz</string>
+    <string name="daily_note_placeholder">Bugün nasıl hissettiğinizi, genel sağlık durumunuzu yazın…</string>
+    <string name="mood_very_bad">Çok Kötü</string>
+    <string name="mood_bad">Kötü</string>
+    <string name="mood_neutral">Normal</string>
+    <string name="mood_good">İyi</string>
+    <string name="mood_very_good">Çok İyi</string>
+
+    <!-- Doktor Listesi -->
+    <string name="emergency_contacts_content_desc">Acil Durum Kişileri</string>
+    <string name="no_doctors_empty_state_desc">Doktorlarınızı kaydederseniz randevularınızı onlarla ilişkilendirebilirsiniz.</string>
+
+    <!-- Acil Durum Kişileri Listesi -->
+    <string name="delete_contact_title">Kişiyi Sil</string>
+    <string name="delete_contact_message">%1$s isimli kişiyi silmek istediğinize emin misiniz?</string>
+    <string name="emergency_contacts_title">Acil Durum Kişileri</string>
+    <string name="add_contact_content_desc">Kişi Ekle</string>
+    <string name="no_emergency_contacts_title">Henüz acil durum kişisi eklemediniz</string>
+    <string name="no_emergency_contacts_desc">Acil bir durumda aranacak bir yakınınızı kaydedip randevulara atayabilirsiniz.</string>
+
+    <!-- Acil Durum Kişisi Ekle/Düzenle -->
+    <string name="edit_emergency_contact_title">Acil Durum Kişisini Düzenle</string>
+    <string name="add_emergency_contact_title">Acil Durum Kişisi Ekle</string>
+    <string name="full_name_label">Ad Soyad</string>
+    <string name="relationship_label">Yakınlık (Örn: Eş, Kardeş)</string>
+    <string name="phone_number_label">Telefon Numarası</string>
+    <string name="notes_label">Notlar</string>
+
+    <!-- Yardım Merkezi -->
+    <string name="help_center_title">Yardım Merkezi</string>
+    <string name="faq_section_title">Sık Sorulan Sorular</string>
+    <string name="faq_q1">Hatırlatıcılar zamanında gelmiyor, ne yapmalıyım?</string>
+    <string name="faq_a1">Ayarlar &gt; Bildirim ve Hatırlatıcı Ayarları &gt; Sorun Giderme sihirbazını çalıştırın. En sık neden, telefon üreticinizin pil optimizasyonunun Curalis\'i arka planda kapatmasıdır; sihirbaz cihazınıza özel adımları gösterir.</string>
+    <string name="faq_q2">Verilerim nerede saklanıyor?</string>
+    <string name="faq_a2">Tüm ilaç, randevu ve ölçüm verileriniz varsayılan olarak yalnızca bu cihazda, şifrelenmiş bir veritabanında saklanır. Curalis\'in sunucusu yoktur; hiçbir veri otomatik olarak dışarı gönderilmez.</string>
+    <string name="faq_q3">Telefonumu değiştirirsem verilerim kaybolur mu?</string>
+    <string name="faq_a3">Ayarlar &gt; Yedekleme &amp; Geri Yükleme\'den Google Drive\'a şifreli bir yedek alabilirsiniz. Yeni telefonunuzda aynı hesapla oturum açıp yedeği geri yükleyerek kaldığınız yerden devam edebilirsiniz.</string>
+    <string name="faq_q4">Google Drive yedeği güvenli mi?</string>
+    <string name="faq_a4">Evet. Yedek, Drive\'a yüklenmeden önce cihazınızda şifrelenir; yalnızca kendi Google hesabınıza ait özel bir alanda saklanır ve başka hiç kimse tarafından görüntülenemez.</string>
+    <string name="faq_q5">Bir ilacı yanlışlıkla sildim, geri getirebilir miyim?</string>
+    <string name="faq_a5">İlaçlarım ekranında bir ilacı sildiğinizde önce arşive taşıma seçeneği sunulur — arşivdeki ilaçlar \'Arşiv\' sekmesinden tek dokunuşla geri alınabilir. Ancak \'Kalıcı Olarak Sil\' seçeneğiyle silinen kayıtlar geri getirilemez.</string>
+    <string name="faq_q6">Bildirim izni vermedim, sonradan nasıl açarım?</string>
+    <string name="faq_a6">Telefonunuzun Ayarlar &gt; Uygulamalar &gt; Curalis &gt; Bildirimler bölümünden izni daha sonra açabilirsiniz.</string>
+    <string name="faq_q7">Uygulama ücretsiz mi, reklam var mı?</string>
+    <string name="faq_a7">Curalis tamamen ücretsizdir, reklam içermez ve hesap oluşturmanızı gerektirmez.</string>
+    <string name="faq_q8">Bir hata veya öneri bildirmek istiyorum, nasıl yaparım?</string>
+    <string name="faq_a8">Ayarlar &gt; Hakkında ekranındaki \'Hata Bildir\' butonuyla, cihaz bilgileriniz otomatik eklenmiş bir e-posta taslağı oluşturabilirsiniz.</string>
+
+    <!-- Ana Ekran -->
+    <string name="generate_pdf_report_content_desc">PDF rapor oluştur</string>
+    <string name="calendar_content_desc">Takvim</string>
+    <string name="todays_pillbox_title">Bugünün Kutusu</string>
+
+    <!-- İlaç Listesi -->
+    <string name="refill_history_content_desc">Yenileme Geçmişi</string>
+    <string name="tab_active">Aktif</string>
+    <string name="tab_archive">Arşiv (%1$d)</string>
+    <string name="suspended_chip_label">Askıya Alındı</string>
+    <string name="treatment_days_remaining_chip">Tedavi: %1$d gün kaldı</string>
+    <string name="treatment_ended_chip">Tedavi süresi doldu</string>
+    <string name="verified_source_chip">Doğrulanmış Kaynak</string>
+    <string name="manually_entered_chip">Elle Girildi</string>
+    <string name="freq_every_day_chip">Her Gün</string>
+    <string name="freq_specific_days_chip">Belirli Günler</string>
+    <string name="freq_every_x_days_chip">%1$d Günde 1</string>
+    <string name="freq_cyclic_chip">%1$d/%2$d Döngü</string>
+    <string name="freq_as_needed_chip">İhtiyaç Halinde</string>
+    <string name="stock_low_chip">Stok azalıyor: %1$d</string>
+    <string name="stock_remaining_chip">Kalan: %1$d</string>
+    <string name="take_now_content_desc">Şimdi Al</string>
+    <string name="resume_content_desc">Devam Et</string>
+    <string name="suspend_content_desc">Askıya Al</string>
+    <string name="unarchive_content_desc">Arşivden Çıkar</string>
+
+    <!-- Stok Geçmişi Listesi -->
+    <string name="stock_history_no_records_title">Henüz kayıt yok</string>
+    <string name="stock_history_no_records_desc">Stok yenileme, elle düzenleme veya doz alımı sonucu oluşan stok değişiklikleri burada listelenir.</string>
+    <string name="reason_refill">Yenileme</string>
+    <string name="reason_dose_taken">Doz Alındı</string>
+    <string name="reason_manual_edit">Elle Düzenleme</string>
+
+    <!-- Semptom Türleri -->
+    <string name="symptom_type_pain">Ağrı</string>
+    <string name="symptom_type_nausea">Bulantı</string>
+    <string name="symptom_type_fatigue">Yorgunluk</string>
+    <string name="severity_none">Yok</string>
+    <string name="severity_mild">Hafif</string>
+    <string name="severity_moderate">Orta</string>
+    <string name="severity_severe">Şiddetli</string>
+    <string name="severity_unbearable">Dayanılmaz</string>
+
+    <!-- Semptom Listesi -->
+    <string name="delete_symptom_title">Semptomu Sil</string>
+    <string name="delete_symptom_message">Bu semptom kaydını silmek istediğinize emin misiniz?</string>
+    <string name="my_symptoms_title">Semptomlarım</string>
+    <string name="add_symptom_content_desc">Semptom Ekle</string>
+    <string name="no_symptoms_title">Henüz semptom kaydı yok</string>
+    <string name="no_symptoms_desc">Ağrı, bulantı veya yorgunluk gibi belirtilerinizi kaydederek zaman içindeki değişimi takip edebilirsiniz.</string>
+
+    <!-- Semptom Ekle/Düzenle -->
+    <string name="add_symptom_title">Semptom Ekle</string>
+    <string name="symptom_type_label">Semptom Türü</string>
+    <string name="severity_label">Şiddet</string>
+    <string name="severity_value_label">%1$d — %2$s</string>
+    <string name="severity_scale_none">0 – Yok</string>
+    <string name="severity_scale_unbearable">10 – Dayanılmaz</string>
+
+    <!-- Hatırlatıcı Sorun Giderme -->
+    <string name="troubleshooting_title">Hatırlatıcı Sorun Giderme</string>
+    <string name="troubleshooting_intro">Hatırlatıcılar zamanında gelmiyorsa, aşağıdaki ayarları kontrol edin. Bunlar Android işletim sisteminin ve telefon üreticinizin uyguladığı, uygulama dışından yönetilen kısıtlamalardır.</string>
+    <string name="exact_alarm_permission_title">Tam Zamanlı Alarm İzni</string>
+    <string name="exact_alarm_permission_desc">Bu izin olmadan hatırlatıcılar birkaç dakika gecikmeyle gelebilir.</string>
+    <string name="open_settings_button">Ayarları Aç</string>
+    <string name="battery_optimization_title">Pil Optimizasyonu</string>
+    <string name="battery_optimization_desc">Pil optimizasyonu açıkken Android, uygulamayı arka planda kapatıp alarmları engelleyebilir.</string>
+    <string name="exempt_button">Muaf Tut</string>
+    <string name="try_open_autostart_button">Otomatik Başlatma Ayarını Açmayı Dene</string>
+    <string name="manufacturer_xiaomi_title">Xiaomi (MIUI) Cihazlar</string>
+    <string name="manufacturer_xiaomi_body">Ayarlar &gt; Uygulamalar &gt; Uygulamaları Yönet &gt; Curalis &gt; Otomatik Başlat seçeneğini açın. Ardından Güvenlik uygulaması &gt; Uygulamalar &gt; İzinler &gt; Otomatik Başlatma listesinde de Curalis\'i etkinleştirin.</string>
+    <string name="manufacturer_huawei_title">Huawei / Honor Cihazlar</string>
+    <string name="manufacturer_huawei_body">Telefon Yöneticisi &gt; Uygulama Başlatma bölümünden Curalis\'i bulun, \"Elle Yönet\"i seçip Otomatik Başlatma, İkincil Başlatma ve Arka Planda Çalışma seçeneklerinin hepsini açın.</string>
+    <string name="manufacturer_samsung_title">Samsung Cihazlar</string>
+    <string name="manufacturer_samsung_body">Ayarlar &gt; Pil &gt; Arka Plan Kullanım Sınırları\'na girin. Curalis \"Uyuyan uygulamalar\" veya \"Asla uyumayan uygulamalar dışında\" listesindeyse çıkarın; \"Kısıtlanmamış\" olarak işaretleyin.</string>
+    <string name="manufacturer_oppo_title">Oppo (ColorOS) Cihazlar</string>
+    <string name="manufacturer_oppo_body">Ayarlar &gt; Pil &gt; Uygulama Pil Yönetimi\'nden Curalis\'i bulun ve \"İzin Ver\"i seçin; ayrıca Güvenlik Merkezi &gt; İzinler &gt; Otomatik Başlatma listesinde de etkinleştirin.</string>
+    <string name="manufacturer_vivo_title">Vivo (FuntouchOS) Cihazlar</string>
+    <string name="manufacturer_vivo_body">i Yöneticisi &gt; Uygulama Yönetimi &gt; Otomatik Başlatma Yönetimi\'nden Curalis\'i etkinleştirin.</string>
+    <string name="manufacturer_oneplus_title">OnePlus (OxygenOS) Cihazlar</string>
+    <string name="manufacturer_oneplus_body">Ayarlar &gt; Pil &gt; Pil Optimizasyonu\'ndan Curalis\'i \"Optimize Edilmedi\" yapın; ayrıca Ayarlar &gt; Uygulamalar &gt; Otomatik Başlatma listesinde de etkinleştirin.</string>
+    <string name="manufacturer_other_title">Otomatik Başlatma</string>
+    <string name="manufacturer_other_body">Bazı telefon üreticileri, pil tasarrufu için arka planda çalışan uygulamaları kısıtlar. Ayarlar &gt; Uygulamalar &gt; Curalis &gt; Pil bölümünden \"Kısıtlanmamış\"/\"Optimize Edilmedi\" seçin; cihazınıza özel bir \"otomatik başlatma\" ayarı varsa onu da açın.</string>
+
+    <!-- Ölçüm Listesi -->
+    <string name="vital_reminders_content_desc">Ölçüm Hatırlatıcıları</string>
+    <string name="no_vitals_of_type_title">Bu türde ölçüm yok</string>
+    <string name="no_vitals_of_type_desc">Seçtiğiniz ölçüm türünde kayıt bulunmuyor. Filtreyi kaldırarak tüm ölçümleri görebilirsiniz.</string>
+    <string name="remove_filter_button">Filtreyi Kaldır</string>
+    <string name="no_vitals_empty_desc">Tansiyon, kan şekeri veya kilo gibi ölçümlerinizi kaydederek zaman içindeki değişimi takip edebilirsiniz.</string>
+
+    <!-- Ölçüm Hatırlatıcı Ayarları -->
+    <string name="vital_reminders_title">Ölçüm Hatırlatıcıları</string>
+    <string name="vital_reminder_time_button">Saat: %1$s:%2$s</string>
+    <string name="vital_reminder_days_label">Günler (hiçbiri seçilmezse her gün)</string>
+
+    <!-- Tam Ekran Alarm -->
+    <string name="alarm_default_medication_name">İlaç Vakti</string>
+    <string name="alarm_medication_time_label">İlaç vakti geldi</string>
+    <string name="alarm_dose_label">Doz: %1$s</string>
+    <string name="alarm_took_it_button">İlacı aldım</string>
+    <string name="alarm_skip_dose_button">Bu dozu atla</string>
+    <string name="alarm_snooze_10_min">10 dk</string>
+    <string name="alarm_snooze_30_min">30 dk</string>
+
+    <!-- Hatırlatıcı Durum Rozeti -->
+    <string name="reminder_state_taken">Alındı</string>
+    <string name="reminder_state_skipped">Atlandı</string>
+    <string name="reminder_state_missed">Kaçırıldı</string>
+    <string name="reminder_state_snoozed">Ertelendi</string>
+    <string name="reminder_state_cancelled">İptal</string>
+    <string name="reminder_state_scheduled">Bekliyor</string>
+    <string name="reminder_state_delivered">Yanıt bekleniyor</string>
+
+    <!-- Yedekleme ViewModel Mesajları -->
+    <string name="backup_creating_file">Yedekleme dosyası oluşturuluyor...</string>
+    <string name="backup_saved_success">Yedekleme başarıyla kaydedildi.</string>
+    <string name="backup_error_generic">Yedekleme sırasında bir hata oluştu: %1$s</string>
+    <string name="backup_restoring">Yedekleme geri yükleniyor...</string>
+    <string name="backup_selected_file_empty">Seçilen dosya boş.</string>
+    <string name="backup_wrong_password">Şifre yanlış veya yedek dosyası bozuk.</string>
+    <string name="backup_restore_success">Veriler başarıyla geri yüklendi.</string>
+    <string name="backup_restore_failed">Geri yükleme başarısız oldu. Yedek dosyası bozuk olabilir.</string>
+    <string name="backup_restore_error_generic">Geri yükleme sırasında bir hata oluştu: %1$s</string>
+    <string name="backup_uploading_to_drive">Google Drive\'a yedekleniyor...</string>
+    <string name="backup_drive_upload_success">Veriler Google Drive\'a başarıyla yedeklendi.</string>
+    <string name="backup_drive_upload_failed">Google Drive yedeklemesi başarısız oldu.</string>
+    <string name="backup_error_with_message">Hata: %1$s</string>
+    <string name="backup_downloading_from_drive">Google Drive\'dan geri yükleniyor...</string>
+    <string name="backup_drive_no_backup_found">Google Drive\'da yedek bulunamadı.</string>
+    <string name="backup_drive_restore_success">Google Drive yedeği başarıyla yüklendi.</string>
+    <string name="backup_restore_failed_file_corrupt">Geri yükleme başarısız oldu. Dosya bozuk olabilir.</string>
+
+    <!-- ViewModel doğrulama / hata mesajları -->
+    <string name="appointment_title_empty_error">Randevu başlığı boş olamaz</string>
+    <string name="vital_invalid_value_error">Lütfen geçerli bir değer girin.</string>
+    <string name="export_db_copy_error">Veritabanı kopyası oluşturulamadı: %1$s</string>
+    <string name="daily_note_empty_error">Lütfen bir not yazın veya bir ruh hali seçin.</string>
+    <string name="contact_name_empty_error">Kişi adı boş olamaz</string>
+    <string name="medication_delete_error">İlaç silinirken bir hata oluştu: %1$s</string>
+    <string name="medication_archive_error">İlaç arşivden çıkarılırken bir hata oluştu: %1$s</string>
+    <string name="medication_suspend_error">İlaç askıya alınırken bir hata oluştu: %1$s</string>
+    <string name="medication_resume_error">İlaç devam ettirilirken bir hata oluştu: %1$s</string>
+    <string name="dose_saved_for_medication">%1$s için doz kaydedildi</string>
+    <string name="dose_saved">Doz kaydedildi</string>
+    <string name="dose_save_error">Doz kaydedilirken bir hata oluştu: %1$s</string>
+    <string name="doctor_name_empty_error">Doktor adı boş olamaz</string>
+    <string name="no_appointments_for_doctor">Bu doktora atanmış bir randevu yok.</string>
+    <string name="medications_linked_to_doctor_title">Bu Doktora Bağlı İlaçlar</string>
+    <string name="medication_name_empty_error">İlaç adı boş bırakılamaz.</string>
+    <string name="medication_save_error">İlaç kaydedilirken bir hata oluştu: %1$s</string>
+    <string name="week_of_label">%1$s haftası</string>
+    <string name="deleted_medication_label">Silinmiş İlaç</string>
+    <string name="email_app_not_found">E-posta uygulaması bulunamadı.</string>
+
+    <!-- Doktor Ekle/Düzenle -->
+    <string name="tab_info">Bilgiler</string>
+    <string name="tab_appointments">Randevular (%1$d)</string>
+
+    <string-array name="weekday_short_names">
+        <item>Pzt</item>
+        <item>Sal</item>
+        <item>Çar</item>
+        <item>Per</item>
+        <item>Cum</item>
+        <item>Cmt</item>
+        <item>Paz</item>
+    </string-array>
 
     <!-- Uygulama kilidi -->
     <string name="security">Güvenlik</string>

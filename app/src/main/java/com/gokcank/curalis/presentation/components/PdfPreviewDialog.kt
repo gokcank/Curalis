@@ -32,9 +32,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.LocalCuralisColors
 import com.gokcank.curalis.core.utils.ReportSummary
 import com.gokcank.curalis.presentation.analytics.AdherencePercentageCard
@@ -71,15 +73,15 @@ fun PdfPreviewDialog(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Rapor Önizleme") },
+                    title = { Text(stringResource(R.string.report_preview_title)) },
                     navigationIcon = {
                         IconButton(onClick = onDismiss) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kapat")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.close_content_desc))
                         }
                     },
                     actions = {
                         IconButton(onClick = onShare) {
-                            Icon(Icons.Default.Share, contentDescription = "Paylaş")
+                            Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share_content_desc))
                         }
                     }
                 )
@@ -103,9 +105,15 @@ fun PdfPreviewDialog(
                             item {
                                 val semantic = LocalCuralisColors.current
                                 AdherencePercentageCard(
-                                    title = "Rapor Özeti",
+                                    title = stringResource(R.string.report_summary_title),
                                     percentage = summary.adherencePercentage,
-                                    subtitle = "Toplam ${summary.totalCount} vakit · Alınan ${summary.takenCount} · Atlanan ${summary.skippedCount} · Kaçırılan ${summary.missedCount}",
+                                    subtitle = stringResource(
+                                        R.string.report_summary_subtitle,
+                                        summary.totalCount,
+                                        summary.takenCount,
+                                        summary.skippedCount,
+                                        summary.missedCount
+                                    ),
                                     modifier = Modifier.fillMaxWidth(),
                                     color = semantic.success
                                 )

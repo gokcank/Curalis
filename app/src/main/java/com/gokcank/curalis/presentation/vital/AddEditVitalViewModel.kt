@@ -1,11 +1,14 @@
 package com.gokcank.curalis.presentation.vital
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Vital
 import com.gokcank.curalis.domain.model.VitalType
 import com.gokcank.curalis.domain.usecase.VitalUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -16,6 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditVitalViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val vitalUseCases: VitalUseCases
 ) : ViewModel() {
 
@@ -65,7 +69,7 @@ class AddEditVitalViewModel @Inject constructor(
         viewModelScope.launch {
             val v1 = _value1.value.toDoubleOrNull()
             if (v1 == null) {
-                _eventFlow.emit(UiEvent.ShowSnackbar("Lütfen geçerli bir değer girin."))
+                _eventFlow.emit(UiEvent.ShowSnackbar(appContext.getString(R.string.vital_invalid_value_error)))
                 return@launch
             }
 

@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -90,7 +91,7 @@ fun DailyTimelineScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Günlük Zaman Çizelgesi", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.daily_timeline_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -115,16 +116,17 @@ fun DailyTimelineScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     // Daha önce month.name kullanılıyordu; bu enum adını ("AUGUST") basıyordu.
+                    val displayLocale = LocalConfiguration.current.locales[0]
                     val monthName = selectedDate.month
-                        .getDisplayName(java.time.format.TextStyle.FULL, Locale("tr"))
-                        .replaceFirstChar { it.titlecase(Locale("tr")) }
+                        .getDisplayName(java.time.format.TextStyle.FULL, displayLocale)
+                        .replaceFirstChar { it.titlecase(displayLocale) }
                     Text(
-                        text = "${selectedDate.dayOfMonth} $monthName ${selectedDate.year}",
+                        text = stringResource(R.string.daily_timeline_date_header, selectedDate.dayOfMonth, monthName, selectedDate.year),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
-                        text = "Saat dilimlerine göre sıralanmış günlük doz takibi",
+                        text = stringResource(R.string.daily_timeline_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                     )
@@ -158,21 +160,21 @@ fun DailyTimelineScreen(
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
                     ) {
-                        Text("Tümünü Al", style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(stringResource(R.string.take_all_button), style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     OutlinedButton(
                         onClick = { showBulkSkipDialog = true },
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
                     ) {
-                        Text("Tümünü Atla", style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(stringResource(R.string.skip_all_button), style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     OutlinedButton(
                         onClick = { viewModel.snoozeAllPending() },
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
                     ) {
-                        Text("Tümünü Ertele", style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(stringResource(R.string.snooze_all_button), style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -185,8 +187,8 @@ fun DailyTimelineScreen(
                 ) {
                     EmptyState(
                         icon = Icons.Default.EventAvailable,
-                        title = "Bugün için doz planlanmamış",
-                        description = "Bugüne ait bir ilaç saatiniz yok. İlaçlarınıza saat eklerseniz dozlar burada listelenir."
+                        title = stringResource(R.string.no_doses_today_title),
+                        description = stringResource(R.string.no_doses_today_desc)
                     )
                 }
             } else {
@@ -262,7 +264,7 @@ fun WeeklyStrip(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onPreviousWeek) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Önceki hafta")
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.previous_week_desc))
         }
         Row(
             modifier = Modifier.weight(1f),
@@ -278,7 +280,7 @@ fun WeeklyStrip(
             }
         }
         IconButton(onClick = onNextWeek) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Sonraki hafta")
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.next_week_desc))
         }
     }
 }
@@ -290,7 +292,7 @@ fun DayChip(
     isToday: Boolean,
     onClick: () -> Unit
 ) {
-    val dayAbbrev = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("tr"))
+    val dayAbbrev = date.dayOfWeek.getDisplayName(TextStyle.SHORT, LocalConfiguration.current.locales[0])
     Surface(
         shape = RoundedCornerShape(10.dp),
         color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
@@ -337,7 +339,13 @@ fun TimeSlotHeader(slot: TimeSlot, bounds: TimeSlotBounds) {
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(slot.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        val slotTitle = when (slot) {
+            TimeSlot.MORNING -> stringResource(R.string.timeslot_morning)
+            TimeSlot.AFTERNOON -> stringResource(R.string.timeslot_afternoon)
+            TimeSlot.EVENING -> stringResource(R.string.timeslot_evening)
+            TimeSlot.NIGHT -> stringResource(R.string.timeslot_night)
+        }
+        Text(slotTitle, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             String.format(Locale.getDefault(), "%02d:00 – %02d:00", bounds.startHour, bounds.endHour),
@@ -396,7 +404,7 @@ fun TimelineCard(
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = med?.name ?: "İlaç",
+                                text = med?.name ?: stringResource(R.string.generic_medication_label),
                                 style = MaterialTheme.typography.titleMedium,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -408,7 +416,7 @@ fun TimelineCard(
                                     color = MaterialTheme.colorScheme.tertiaryContainer
                                 ) {
                                     Text(
-                                        text = "Plasebo",
+                                        text = stringResource(R.string.placebo_badge),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -418,9 +426,9 @@ fun TimelineCard(
                         }
                         val dosageSuffix = med?.dosage?.let { " • $it ${med.unit ?: ""}".trimEnd() } ?: ""
                         val timeLine = if (item.reminder.state == ReminderState.TAKEN && takenAtMillis != null) {
-                            "Saat $formattedTime$dosageSuffix • Alındı: ${timeFormat.format(Date(takenAtMillis))}"
+                            stringResource(R.string.time_at_taken_label, formattedTime, dosageSuffix, timeFormat.format(Date(takenAtMillis)))
                         } else {
-                            "Saat $formattedTime$dosageSuffix"
+                            stringResource(R.string.time_at_label, formattedTime, dosageSuffix)
                         }
                         Text(
                             text = timeLine,
@@ -468,7 +476,7 @@ fun TimelineCard(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                if (isCorrectable) "Aslında Aldım" else "Aldım",
+                                if (isCorrectable) stringResource(R.string.actually_took_it_button) else stringResource(R.string.took_it_button),
                                 style = MaterialTheme.typography.labelLarge
                             )
                         }
@@ -487,7 +495,7 @@ fun TimelineCard(
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Atla", style = MaterialTheme.typography.labelLarge)
+                            Text(stringResource(R.string.skip_button), style = MaterialTheme.typography.labelLarge)
                         }
                     }
                     if (isTaken) {
@@ -504,7 +512,7 @@ fun TimelineCard(
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Geri Al", style = MaterialTheme.typography.labelLarge)
+                            Text(stringResource(R.string.undo_button), style = MaterialTheme.typography.labelLarge)
                         }
                     }
                 }

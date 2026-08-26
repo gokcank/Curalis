@@ -53,10 +53,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.notification.NotificationHelper
 import com.gokcank.curalis.core.notification.ReminderActionReceiver
@@ -84,7 +86,7 @@ class AlarmFullScreenActivity : ComponentActivity() {
         startAlarmSound()
 
         val reminderId = intent.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: ""
-        val medicationName = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_NAME) ?: "İlaç Vakti"
+        val medicationName = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_NAME) ?: getString(R.string.alarm_default_medication_name)
         val medicationId = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_ID) ?: ""
         val dose = intent.getStringExtra(AlarmScheduler.EXTRA_DOSE)
 
@@ -236,7 +238,7 @@ fun AlarmFullScreenContent(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "İlaç vakti geldi",
+                    text = stringResource(R.string.alarm_medication_time_label),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -253,7 +255,7 @@ fun AlarmFullScreenContent(
                 dose?.let {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Doz: $it",
+                        text = stringResource(R.string.alarm_dose_label, it),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -275,7 +277,7 @@ fun AlarmFullScreenContent(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("İlacı aldım", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.alarm_took_it_button), style = MaterialTheme.typography.titleMedium)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -294,7 +296,7 @@ fun AlarmFullScreenContent(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Bu dozu atla")
+                    Text(stringResource(R.string.alarm_skip_dose_button))
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -314,7 +316,7 @@ fun AlarmFullScreenContent(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("10 dk", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.alarm_snooze_10_min), style = MaterialTheme.typography.labelLarge)
                     }
                     OutlinedButton(
                         onClick = { onSnoozeClick(30) },
@@ -326,7 +328,7 @@ fun AlarmFullScreenContent(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("30 dk", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.alarm_snooze_30_min), style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }
