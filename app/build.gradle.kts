@@ -62,6 +62,11 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            ndk {
+                // SQLCipher gibi yerel (native) kütüphaneler içeriyoruz; bu olmadan Play
+                // Console'a yüklenen her AAB için native çökme raporları sembolsüz kalıyor.
+                debugSymbolLevel = "FULL"
+            }
             signingConfig = if (hasReleaseSigningConfig) {
                 signingConfigs.getByName("release")
             } else {
