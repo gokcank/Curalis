@@ -158,6 +158,10 @@ class MedicationListViewModel @Inject constructor(
                     state = ReminderState.TAKEN
                 )
                 scheduleReminderUseCase(reminder)
+                val medicationName = _activeMedications.value.firstOrNull { it.id == medicationId }?.name
+                _errorFlow.emit(
+                    if (medicationName != null) "$medicationName için doz kaydedildi" else "Doz kaydedildi"
+                )
             } catch (e: Exception) {
                 _errorFlow.emit("Doz kaydedilirken bir hata oluştu: ${e.localizedMessage ?: "Bilinmeyen hata"}")
             }
