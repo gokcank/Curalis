@@ -15,6 +15,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.FilterChip
@@ -34,6 +36,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +64,20 @@ fun SettingsScreen(
     onNavigateToHelpCenter: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val exportContext = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.exportedDatabaseFile.collect { file ->
+            viewModel.shareExportedDatabase(exportContext, file)
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.exportError.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -71,7 +88,8 @@ fun SettingsScreen(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         val themeMode by viewModel.themeMode.collectAsState()
         val isAppLockEnabled by viewModel.isAppLockEnabled.collectAsState()
@@ -388,6 +406,35 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.weight(1f)
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Şifreli Veritabanı Kopyasını Dışa Aktar", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "Destek/teknik inceleme için veritabanınızın şifreli bir kopyasını dışa aktarır. Şifresi bu dosyada bulunmaz, tek başına açılamaz.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Button(
+                    onClick = { viewModel.exportEncryptedDatabase() },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Icon(imageVector = Icons.Default.Share, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Dışa Aktar")
                 }
             }
 
