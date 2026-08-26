@@ -146,6 +146,7 @@ fun AboutScreen(
                 val coroutineScope = rememberCoroutineScope()
                 
                 val bugReportSubject = stringResource(R.string.bug_report_subject)
+                val emailAppNotFoundMessage = stringResource(R.string.email_app_not_found)
                 val bugReportBodyTemplate = stringResource(R.string.bug_report_body)
                 val appVersion = BugReportUtils.getAppVersion(context)
                 val deviceModel = BugReportUtils.getDeviceModel()
@@ -191,7 +192,7 @@ fun AboutScreen(
                             try {
                                 context.startActivity(intent)
                             } catch (e: Exception) {
-                                Toast.makeText(context, "E-posta uygulaması bulunamadı.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, emailAppNotFoundMessage, Toast.LENGTH_SHORT).show()
                             }
                         }
                     },

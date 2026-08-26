@@ -42,6 +42,14 @@ fun BackupScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Compose ile ilgisi olmayan aktivite sonuç callback'leri içinde stringResource()
+    // çağrılamaz (yalnızca composition sırasında çalışabilir) — bu yüzden şablonlar
+    // burada, composable gövdesinde önceden çözülüp callback içinde String.format ile kullanılır.
+    val googleSignInErrorOauthTemplate = stringResource(R.string.google_signin_error_oauth)
+    val googleSignInErrorGenericTemplate = stringResource(R.string.google_signin_error_generic)
+    val unknownErrorText = stringResource(R.string.unknown_error)
+    val signInErrorGenericTemplate = stringResource(R.string.signin_error_generic)
+
     // Bekleyen şifre isteyen işlem: hangi eylemin şifre girildikten sonra çalıştırılacağını tutar.
     var pendingPasswordAction by remember { mutableStateOf<PendingPasswordAction?>(null) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
@@ -87,16 +95,20 @@ fun BackupScreen(
             signedInAccount = account
         } catch (e: com.google.android.gms.common.api.ApiException) {
             val errorMsg = if (e.statusCode == 10) {
-                context.getString(R.string.google_signin_error_oauth, e.statusCode)
+                String.format(googleSignInErrorOauthTemplate, e.statusCode)
             } else {
-                "Google Giriş Hatası: ${e.statusCode} - ${e.localizedMessage ?: "Bilinmeyen hata"}"
+                String.format(
+                    googleSignInErrorGenericTemplate,
+                    e.statusCode,
+                    e.localizedMessage ?: unknownErrorText
+                )
             }
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(errorMsg)
             }
         } catch (e: Exception) {
             coroutineScope.launch {
-                snackbarHostState.showSnackbar("Giriş sırasında hata oluştu: ${e.localizedMessage}")
+                snackbarHostState.showSnackbar(String.format(signInErrorGenericTemplate, e.localizedMessage))
             }
         }
     }
@@ -138,7 +150,7 @@ fun BackupScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Verilerinizi güvende tutmak için cihazınıza veya Google Drive gibi bulut depolama alanlarınıza manuel yedek alabilirsiniz.",
+                text = stringResource(R.string.backup_screen_intro),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -157,13 +169,13 @@ fun BackupScreen(
                         Icon(imageVector = Icons.Default.CloudUpload, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Yedek Al (Dışa Aktar)",
+                            text = stringResource(R.string.backup_export_card_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Text(
-                        text = "Tüm ilaç, hatırlatıcı ve ölçüm verilerinizi bir dosya olarak telefonunuza veya seçtiğiniz bir bulut servisine kaydeder.",
+                        text = stringResource(R.string.backup_export_card_desc),
                         style = MaterialTheme.typography.bodySmall
                     )
                     Button(
@@ -171,7 +183,7 @@ fun BackupScreen(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = uiState !is BackupUiState.Loading
                     ) {
-                        Text("Manuel Yedek Al")
+                        Text(stringResource(R.string.manual_backup_button))
                     }
                 }
             }
@@ -190,13 +202,13 @@ fun BackupScreen(
                         Icon(imageVector = Icons.Default.CloudDownload, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Yedeği Geri Yükle (İçe Aktar)",
+                            text = stringResource(R.string.backup_import_card_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Text(
-                        text = "Daha önce aldığınız bir yedekleme dosyasını (.json) seçerek mevcut veritabanını o dosyadaki verilerle değiştirir. Mevcut veriler silinir!",
+                        text = stringResource(R.string.backup_import_card_desc),
                         style = MaterialTheme.typography.bodySmall
                     )
                     OutlinedButton(
@@ -207,7 +219,7 @@ fun BackupScreen(
                         enabled = uiState !is BackupUiState.Loading,
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
                     ) {
-                        Text("Yedeği Seç ve Yükle")
+                        Text(stringResource(R.string.select_and_load_backup_button))
                     }
                 }
             }
@@ -242,13 +254,13 @@ fun BackupScreen(
                         Icon(imageVector = Icons.Default.Sync, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Google Drive (Otomatik)",
+                            text = stringResource(R.string.google_drive_card_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Text(
-                        text = "Drive'da sadece Curalis'in görebileceği gizli bir klasöre, belirlediğiniz şifreyle şifrelenmiş olarak yedekleme yapar. Telefon değiştirseniz bile aynı hesap ve şifreyle verileriniz geri gelir.",
+                        text = stringResource(R.string.google_drive_card_desc),
                         style = MaterialTheme.typography.bodySmall
                     )
 
@@ -258,11 +270,11 @@ fun BackupScreen(
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                         ) {
-                            Text("Google ile Giriş Yap")
+                            Text(stringResource(R.string.sign_in_with_google_button))
                         }
                     } else {
                         Text(
-                            text = "Bağlı Hesap: ${signedInAccount?.email ?: "Bilinmiyor"}",
+                            text = stringResource(R.string.connected_account_label, signedInAccount?.email ?: stringResource(R.string.unknown_account)),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onTertiaryContainer
                         )
@@ -276,7 +288,7 @@ fun BackupScreen(
                                 enabled = uiState !is BackupUiState.Loading,
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                             ) {
-                                Text("Drive'a Yedekle")
+                                Text(stringResource(R.string.backup_to_drive_button))
                             }
                             OutlinedButton(
                                 onClick = { pendingPasswordAction = PendingPasswordAction.RestoreDrive },
@@ -284,7 +296,7 @@ fun BackupScreen(
                                 enabled = uiState !is BackupUiState.Loading,
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.tertiary)
                             ) {
-                                Text("Drive'dan Yükle")
+                                Text(stringResource(R.string.restore_from_drive_button))
                             }
                         }
                         TextButton(
@@ -295,7 +307,7 @@ fun BackupScreen(
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Çıkış Yap")
+                            Text(stringResource(R.string.sign_out_button))
                         }
                     }
                 }
@@ -355,20 +367,20 @@ private fun BackupPasswordDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(if (isSettingPassword) "Yedekleme Şifresi Belirleyin" else "Yedekleme Şifresini Girin")
+            Text(if (isSettingPassword) stringResource(R.string.set_backup_password_title) else stringResource(R.string.enter_backup_password_title))
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (isSettingPassword) {
                     Text(
-                        text = "Bu yedek, girdiğiniz şifreyle şifrelenecek. Şifreyi unutursanız yedeği geri yükleyemezsiniz.",
+                        text = stringResource(R.string.backup_password_set_desc),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it; error = null },
-                    label = { Text("Şifre") },
+                    label = { Text(stringResource(R.string.password_label)) },
                     visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -377,7 +389,7 @@ private fun BackupPasswordDialog(
                     OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = { confirmPassword = it; error = null },
-                        label = { Text("Şifre (Tekrar)") },
+                        label = { Text(stringResource(R.string.password_confirm_label)) },
                         visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -389,19 +401,21 @@ private fun BackupPasswordDialog(
             }
         },
         confirmButton = {
+            val passwordTooShortError = stringResource(R.string.password_too_short_error)
+            val passwordsDontMatchError = stringResource(R.string.passwords_dont_match_error)
             TextButton(onClick = {
                 when {
-                    password.length < 4 -> error = "Şifre en az 4 karakter olmalı."
-                    isSettingPassword && password != confirmPassword -> error = "Şifreler eşleşmiyor."
+                    password.length < 4 -> error = passwordTooShortError
+                    isSettingPassword && password != confirmPassword -> error = passwordsDontMatchError
                     else -> onConfirm(password)
                 }
             }) {
-                Text("Onayla")
+                Text(stringResource(R.string.confirm_button))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("İptal")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

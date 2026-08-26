@@ -62,7 +62,7 @@ fun AddEditEmergencyContactScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (viewModel.isEditMode) "Acil Durum Kişisini Düzenle" else "Acil Durum Kişisi Ekle") },
+                title = { Text(if (viewModel.isEditMode) stringResource(R.string.edit_emergency_contact_title) else stringResource(R.string.add_emergency_contact_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -82,28 +82,28 @@ fun AddEditEmergencyContactScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = viewModel::onNameChange,
-                label = { Text("Ad Soyad") },
+                label = { Text(stringResource(R.string.full_name_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = relationship,
                 onValueChange = viewModel::onRelationshipChange,
-                label = { Text("Yakınlık (Örn: Eş, Kardeş)") },
+                label = { Text(stringResource(R.string.relationship_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = phoneNumber,
                 onValueChange = viewModel::onPhoneNumberChange,
-                label = { Text("Telefon Numarası") },
+                label = { Text(stringResource(R.string.phone_number_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = notes,
                 onValueChange = viewModel::onNotesChange,
-                label = { Text("Notlar") },
+                label = { Text(stringResource(R.string.notes_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2
             )

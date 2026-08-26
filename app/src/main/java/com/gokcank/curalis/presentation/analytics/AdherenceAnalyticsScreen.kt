@@ -41,11 +41,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.LocalCuralisColors
 import com.gokcank.curalis.presentation.components.EmptyState
 import com.gokcank.curalis.presentation.components.icon
@@ -62,13 +64,13 @@ fun AdherenceAnalyticsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("İlaç Uyum Analizleri", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.adherence_analytics_title), fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Geri"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -99,16 +101,16 @@ fun AdherenceAnalyticsScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         AdherencePercentageCard(
-                            title = "Haftalık Uyum",
+                            title = stringResource(R.string.weekly_adherence_title),
                             percentage = uiState.weeklyAdherenceRate,
-                            subtitle = "Son 7 Gün",
+                            subtitle = stringResource(R.string.last_7_days),
                             modifier = Modifier.weight(1f),
                             color = MaterialTheme.colorScheme.primary
                         )
                         AdherencePercentageCard(
-                            title = "Aylık Uyum",
+                            title = stringResource(R.string.monthly_adherence_title),
                             percentage = uiState.monthlyAdherenceRate,
-                            subtitle = "Son 30 Gün",
+                            subtitle = stringResource(R.string.last_30_days),
                             modifier = Modifier.weight(1f),
                             color = MaterialTheme.colorScheme.tertiary
                         )
@@ -119,7 +121,7 @@ fun AdherenceAnalyticsScreen(
                 if (uiState.weeklyTrend.count { it.percentage != null } >= 2) {
                     item {
                         Text(
-                            text = "Uyum Trendi (Son 8 Hafta)",
+                            text = stringResource(R.string.adherence_trend_title),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
                     }
@@ -137,7 +139,7 @@ fun AdherenceAnalyticsScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "Son 7 Gün İlaç Doz İstatistikleri",
+                                text = stringResource(R.string.weekly_dose_stats_title),
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
@@ -146,19 +148,19 @@ fun AdherenceAnalyticsScreen(
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
                                 StatBadge(
-                                    label = "Toplam Doz",
+                                    label = stringResource(R.string.total_dose_label),
                                     value = uiState.totalWeeklyDoses.toString(),
                                     icon = Icons.Default.DateRange,
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 StatBadge(
-                                    label = "Alınan",
+                                    label = stringResource(R.string.taken_label),
                                     value = uiState.takenWeeklyDoses.toString(),
                                     icon = Icons.Default.CheckCircle,
                                     tint = LocalCuralisColors.current.success
                                 )
                                 StatBadge(
-                                    label = "Alınmayan",
+                                    label = stringResource(R.string.not_taken_label),
                                     value = uiState.missedWeeklyDoses.toString(),
                                     // Kaçırılan doz bir uygulama hatası değil; Error rengi
                                     // burada kullanılmaz (design-system.md).
@@ -177,7 +179,7 @@ fun AdherenceAnalyticsScreen(
                 // 3. İlaç Bazlı Uyum Dağılımı Başlığı
                 item {
                     Text(
-                        text = "İlaç Bazlı Uyum Başarısı",
+                        text = stringResource(R.string.medication_adherence_breakdown_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -187,8 +189,8 @@ fun AdherenceAnalyticsScreen(
                     item {
                         EmptyState(
                             icon = Icons.Default.BarChart,
-                            title = "Henüz analiz edilecek veri yok",
-                            description = "İlaç ekleyip dozlarınızı işaretlemeye başladığınızda uyum istatistikleriniz burada görünecek."
+                            title = stringResource(R.string.no_analytics_data_title),
+                            description = stringResource(R.string.no_analytics_data_desc)
                         )
                     }
                 } else {
@@ -235,7 +237,7 @@ fun AdherencePercentageCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Henüz veri yok",
+                    text = stringResource(R.string.no_data_yet),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -363,13 +365,13 @@ fun MedicationStatCard(stat: MedicationStat) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Alınan ${stat.takenDoses} / ${stat.totalDoses} doz • ${stat.missedDoses} alınmadı",
+                        text = stringResource(R.string.taken_of_total_doses, stat.takenDoses, stat.totalDoses, stat.missedDoses),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
                     Text(
-                        text = "Bu ilaç için henüz sonuçlanmış doz kaydı yok",
+                        text = stringResource(R.string.no_resolved_doses_yet),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

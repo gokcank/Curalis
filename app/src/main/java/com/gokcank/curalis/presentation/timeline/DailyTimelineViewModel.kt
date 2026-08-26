@@ -1,7 +1,9 @@
 package com.gokcank.curalis.presentation.timeline
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.timeline.TimelinePreferences
@@ -14,6 +16,7 @@ import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,6 +48,7 @@ data class TimelineItem(
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DailyTimelineViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase,
     private val getMedicationsUseCase: GetMedicationsUseCase,
     private val acknowledgeReminderUseCase: AcknowledgeReminderUseCase,
@@ -169,7 +173,7 @@ class DailyTimelineViewModel @Inject constructor(
                     state = ReminderState.SCHEDULED
                 )
                 scheduleReminderUseCase(newReminder)
-                val medicationName = medsMap[item.reminder.medicationId]?.name ?: "İlaç"
+                val medicationName = medsMap[item.reminder.medicationId]?.name ?: appContext.getString(R.string.generic_medication_label)
                 alarmScheduler.schedule(newReminder, medicationName)
             }
         }

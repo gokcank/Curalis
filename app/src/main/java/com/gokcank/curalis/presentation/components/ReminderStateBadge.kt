@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.LocalCuralisColors
 import com.gokcank.curalis.domain.model.ReminderState
 
@@ -39,25 +41,25 @@ private fun styleFor(state: ReminderState): ReminderStateStyle {
     val scheme = MaterialTheme.colorScheme
     return when (state) {
         ReminderState.TAKEN -> ReminderStateStyle(
-            "Alındı", Icons.Filled.CheckCircle, semantic.successContainer, semantic.onSuccessContainer
+            stringResource(R.string.reminder_state_taken), Icons.Filled.CheckCircle, semantic.successContainer, semantic.onSuccessContainer
         )
         ReminderState.SKIPPED -> ReminderStateStyle(
-            "Atlandı", Icons.Outlined.RemoveCircle, scheme.surfaceVariant, scheme.onSurfaceVariant
+            stringResource(R.string.reminder_state_skipped), Icons.Outlined.RemoveCircle, scheme.surfaceVariant, scheme.onSurfaceVariant
         )
         ReminderState.MISSED -> ReminderStateStyle(
-            "Kaçırıldı", Icons.Filled.Warning, semantic.warningContainer, semantic.onWarningContainer
+            stringResource(R.string.reminder_state_missed), Icons.Filled.Warning, semantic.warningContainer, semantic.onWarningContainer
         )
         ReminderState.SNOOZED -> ReminderStateStyle(
-            "Ertelendi", Icons.Filled.Snooze, semantic.infoContainer, semantic.onInfoContainer
+            stringResource(R.string.reminder_state_snoozed), Icons.Filled.Snooze, semantic.infoContainer, semantic.onInfoContainer
         )
         ReminderState.CANCELLED -> ReminderStateStyle(
-            "İptal", Icons.Filled.Block, scheme.surfaceVariant, scheme.onSurfaceVariant
+            stringResource(R.string.reminder_state_cancelled), Icons.Filled.Block, scheme.surfaceVariant, scheme.onSurfaceVariant
         )
         ReminderState.SCHEDULED -> ReminderStateStyle(
-            "Bekliyor", Icons.Filled.Schedule, scheme.surfaceVariant, scheme.onSurfaceVariant
+            stringResource(R.string.reminder_state_scheduled), Icons.Filled.Schedule, scheme.surfaceVariant, scheme.onSurfaceVariant
         )
         ReminderState.DELIVERED -> ReminderStateStyle(
-            "Yanıt bekleniyor", Icons.Filled.Schedule, semantic.infoContainer, semantic.onInfoContainer
+            stringResource(R.string.reminder_state_delivered), Icons.Filled.Schedule, semantic.infoContainer, semantic.onInfoContainer
         )
     }
 }

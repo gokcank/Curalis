@@ -60,8 +60,8 @@ fun EmergencyContactListScreen(
     contactToDelete?.let { contact ->
         AlertDialog(
             onDismissRequest = { contactToDelete = null },
-            title = { Text("Kişiyi Sil") },
-            text = { Text("${contact.name} isimli kişiyi silmek istediğinize emin misiniz?") },
+            title = { Text(stringResource(R.string.delete_contact_title)) },
+            text = { Text(stringResource(R.string.delete_contact_message, contact.name)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -83,7 +83,7 @@ fun EmergencyContactListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Acil Durum Kişileri") },
+                title = { Text(stringResource(R.string.emergency_contacts_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -93,7 +93,7 @@ fun EmergencyContactListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddContactClick) {
-                Icon(Icons.Default.Add, contentDescription = "Kişi Ekle")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_contact_content_desc))
             }
         }
     ) { padding ->
@@ -104,9 +104,9 @@ fun EmergencyContactListScreen(
             ) {
                 EmptyState(
                     icon = Icons.Default.ContactEmergency,
-                    title = "Henüz acil durum kişisi eklemediniz",
-                    description = "Acil bir durumda aranacak bir yakınınızı kaydedip randevulara atayabilirsiniz.",
-                    actionLabel = "Kişi Ekle",
+                    title = stringResource(R.string.no_emergency_contacts_title),
+                    description = stringResource(R.string.no_emergency_contacts_desc),
+                    actionLabel = stringResource(R.string.add_contact_content_desc),
                     onAction = onAddContactClick
                 )
             }

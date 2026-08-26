@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,9 +60,10 @@ fun AddEditDailyNoteScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    val dateFormat = remember { SimpleDateFormat("dd MMMM yyyy, EEEE", Locale("tr")) }
-    val dateString = remember(viewModel.dateMillis) {
-        dateFormat.format(Date(viewModel.dateMillis)).replaceFirstChar { it.titlecase(Locale("tr")) }
+    val displayLocale = LocalConfiguration.current.locales[0]
+    val dateFormat = remember(displayLocale) { SimpleDateFormat("dd MMMM yyyy, EEEE", displayLocale) }
+    val dateString = remember(viewModel.dateMillis, displayLocale) {
+        dateFormat.format(Date(viewModel.dateMillis)).replaceFirstChar { it.titlecase(displayLocale) }
     }
 
     LaunchedEffect(key1 = true) {
@@ -78,8 +80,8 @@ fun AddEditDailyNoteScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Notu Sil") },
-            text = { Text("Bu günlük notunu silmek istediğinize emin misiniz?") },
+            title = { Text(stringResource(R.string.delete_note_title)) },
+            text = { Text(stringResource(R.string.delete_note_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -125,7 +127,7 @@ fun AddEditDailyNoteScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Text("Bugün Nasılsınız?", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.how_are_you_today_title), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -155,12 +157,12 @@ fun AddEditDailyNoteScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Notunuz", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.your_note_label), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = content,
                 onValueChange = viewModel::onContentChange,
-                placeholder = { Text("Bugün nasıl hissettiğinizi, genel sağlık durumunuzu yazın...") },
+                placeholder = { Text(stringResource(R.string.daily_note_placeholder)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 160.dp)

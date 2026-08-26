@@ -45,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -80,7 +81,7 @@ fun AdherenceCalendarScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("İlaç Uyum Takvimi", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.adherence_calendar_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -90,7 +91,7 @@ fun AdherenceCalendarScreen(
                     IconButton(onClick = onNavigateToAnalytics) {
                         Icon(
                             imageVector = Icons.Default.BarChart,
-                            contentDescription = "Analizler"
+                            contentDescription = stringResource(R.string.analytics_content_desc)
                         )
                     }
                 }
@@ -130,8 +131,14 @@ fun AdherenceCalendarScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // 4. Selected Day Dosage History Section
+            val displayLocale = LocalConfiguration.current.locales[0]
             Text(
-                text = "${selectedDate.dayOfMonth} ${selectedDate.month.getDisplayName(TextStyle.FULL, Locale("tr"))} ${selectedDate.year} — Doz Kayıtları",
+                text = stringResource(
+                    R.string.selected_day_dose_records_header,
+                    selectedDate.dayOfMonth,
+                    selectedDate.month.getDisplayName(TextStyle.FULL, displayLocale),
+                    selectedDate.year
+                ),
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -140,8 +147,8 @@ fun AdherenceCalendarScreen(
             if (selectedDayReminders.isEmpty()) {
                 EmptyState(
                     icon = Icons.Default.EventBusy,
-                    title = "Bu gün için doz kaydı yok",
-                    description = "Seçtiğiniz tarihte planlanmış bir ilaç dozu bulunmuyor. Başka bir gün seçebilirsiniz."
+                    title = stringResource(R.string.no_dose_records_title),
+                    description = stringResource(R.string.no_dose_records_desc)
                 )
             } else {
                 LazyColumn(
@@ -169,26 +176,27 @@ fun MonthNavigationHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onPreviousMonth) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Önceki Ay")
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.previous_month_desc))
         }
 
-        val monthName = currentYearMonth.month.getDisplayName(TextStyle.FULL, Locale("tr"))
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("tr")) else it.toString() }
+        val displayLocale = LocalConfiguration.current.locales[0]
+        val monthName = currentYearMonth.month.getDisplayName(TextStyle.FULL, displayLocale)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(displayLocale) else it.toString() }
         Text(
-            text = "$monthName ${currentYearMonth.year}",
+            text = stringResource(R.string.calendar_month_year_header, monthName, currentYearMonth.year),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )
 
         IconButton(onClick = onNextMonth) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Sonraki Ay")
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.next_month_desc))
         }
     }
 }
 
 @Composable
 fun DaysOfWeekHeader() {
-    val daysOfWeek = listOf("Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz")
+    val daysOfWeek = androidx.compose.ui.res.stringArrayResource(R.array.weekday_short_names).toList()
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround
@@ -250,12 +258,13 @@ fun CalendarGrid(
                 }
 
                 val statusDescription = when (status) {
-                    DayAdherenceStatus.PERFECT -> "tüm dozlar alındı"
-                    DayAdherenceStatus.PARTIAL -> "dozların bir kısmı alındı"
-                    DayAdherenceStatus.MISSED -> "kaçırılan doz var"
-                    DayAdherenceStatus.NO_DOSES -> "planlanmış doz yok"
-                    DayAdherenceStatus.FUTURE -> "gelecek tarih"
+                    DayAdherenceStatus.PERFECT -> stringResource(R.string.day_status_all_taken)
+                    DayAdherenceStatus.PARTIAL -> stringResource(R.string.day_status_partial)
+                    DayAdherenceStatus.MISSED -> stringResource(R.string.day_status_missed)
+                    DayAdherenceStatus.NO_DOSES -> stringResource(R.string.day_status_no_doses)
+                    DayAdherenceStatus.FUTURE -> stringResource(R.string.day_status_future)
                 }
+                val dayContentDescription = stringResource(R.string.calendar_day_content_desc, date.dayOfMonth, statusDescription)
 
                 Box(
                     modifier = Modifier
@@ -271,7 +280,7 @@ fun CalendarGrid(
                         )
                         .clickable { onDateSelected(date) }
                         .semantics {
-                            contentDescription = "${date.dayOfMonth}: $statusDescription"
+                            contentDescription = dayContentDescription
                         },
                     contentAlignment = Alignment.Center
                 ) {

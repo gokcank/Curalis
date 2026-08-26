@@ -4,13 +4,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Healing
 import androidx.compose.material.icons.filled.Sick
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.SymptomType
 
+@Composable
 fun SymptomType.displayName(): String = when (this) {
-    SymptomType.PAIN -> "Ağrı"
-    SymptomType.NAUSEA -> "Bulantı"
-    SymptomType.FATIGUE -> "Yorgunluk"
+    SymptomType.PAIN -> stringResource(R.string.symptom_type_pain)
+    SymptomType.NAUSEA -> stringResource(R.string.symptom_type_nausea)
+    SymptomType.FATIGUE -> stringResource(R.string.symptom_type_fatigue)
 }
 
 fun SymptomType.icon(): ImageVector = when (this) {
@@ -19,11 +23,12 @@ fun SymptomType.icon(): ImageVector = when (this) {
     SymptomType.FATIGUE -> Icons.Default.Bolt
 }
 
-/** 0-10 öznel şiddet skalasını kısa bir Türkçe niteleyiciye çevirir. */
+/** 0-10 öznel şiddet skalasını kısa bir niteleyiciye çevirir. */
+@Composable
 fun severityLabel(severity: Int): String = when (severity) {
-    0 -> "Yok"
-    in 1..3 -> "Hafif"
-    in 4..6 -> "Orta"
-    in 7..9 -> "Şiddetli"
-    else -> "Dayanılmaz"
+    0 -> stringResource(R.string.severity_none)
+    in 1..3 -> stringResource(R.string.severity_mild)
+    in 4..6 -> stringResource(R.string.severity_moderate)
+    in 7..9 -> stringResource(R.string.severity_severe)
+    else -> stringResource(R.string.severity_unbearable)
 }

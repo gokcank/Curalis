@@ -1,8 +1,10 @@
 package com.gokcank.curalis.presentation.doctor
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Appointment
 import com.gokcank.curalis.domain.model.Doctor
 import com.gokcank.curalis.domain.model.Medication
@@ -10,6 +12,7 @@ import com.gokcank.curalis.domain.usecase.DoctorUseCases
 import com.gokcank.curalis.domain.usecase.GetAppointmentsUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,6 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditDoctorViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val doctorUseCases: DoctorUseCases,
     getMedicationsUseCase: GetMedicationsUseCase,
     getAppointmentsUseCase: GetAppointmentsUseCase,
@@ -126,7 +130,7 @@ class AddEditDoctorViewModel @Inject constructor(
     fun saveDoctor() {
         viewModelScope.launch {
             if (_doctorName.value.isBlank()) {
-                _eventFlow.emit(UiEvent.ShowSnackbar("Doktor adı boş olamaz"))
+                _eventFlow.emit(UiEvent.ShowSnackbar(appContext.getString(R.string.doctor_name_empty_error)))
                 return@launch
             }
 

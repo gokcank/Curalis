@@ -210,7 +210,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Bildirimler",
+                text = stringResource(R.string.notifications_section_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -222,9 +222,9 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Bildirim ve Hatırlatıcı Ayarları", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.notification_settings_row_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Sessiz saatler, kilit ekranı gizliliği ve bildirim kategorileri",
+                        stringResource(R.string.notification_settings_row_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -237,20 +237,20 @@ fun SettingsScreen(
                         containerColor = MaterialTheme.colorScheme.secondary
                     )
                 ) {
-                    Text("Yönet")
+                    Text(stringResource(R.string.manage_button))
                 }
             }
 
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Zaman Çizelgesi Dilimleri",
+                text = stringResource(R.string.timeline_slots_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                "Günlük Zaman Çizelgesi ekranındaki Sabah/Öğle/Akşam dilimlerinin başlangıç saatlerini değiştirin.",
+                stringResource(R.string.timeline_slots_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -263,7 +263,7 @@ fun SettingsScreen(
             )
 
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text("Sabah başlangıcı", style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.morning_start_label), style = MaterialTheme.typography.bodyLarge)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -272,7 +272,7 @@ fun SettingsScreen(
                     FilterChip(
                         selected = timelineSlotBounds.morningStartHour == hour,
                         onClick = { viewModel.setMorningStartHour(hour) },
-                        label = { Text(String.format("%02d:00", hour)) },
+                        label = { Text(String.format(java.util.Locale.US, "%02d:00", hour)) },
                         colors = slotChipColors,
                         modifier = Modifier.weight(1f)
                     )
@@ -280,7 +280,7 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text("Öğle başlangıcı", style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.afternoon_start_label), style = MaterialTheme.typography.bodyLarge)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -289,7 +289,7 @@ fun SettingsScreen(
                     FilterChip(
                         selected = timelineSlotBounds.afternoonStartHour == hour,
                         onClick = { viewModel.setAfternoonStartHour(hour) },
-                        label = { Text(String.format("%02d:00", hour)) },
+                        label = { Text(String.format(java.util.Locale.US, "%02d:00", hour)) },
                         colors = slotChipColors,
                         modifier = Modifier.weight(1f)
                     )
@@ -297,7 +297,7 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text("Akşam başlangıcı", style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.evening_start_label), style = MaterialTheme.typography.bodyLarge)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -306,7 +306,7 @@ fun SettingsScreen(
                     FilterChip(
                         selected = timelineSlotBounds.eveningStartHour == hour,
                         onClick = { viewModel.setEveningStartHour(hour) },
-                        label = { Text(String.format("%02d:00", hour)) },
+                        label = { Text(String.format(java.util.Locale.US, "%02d:00", hour)) },
                         colors = slotChipColors,
                         modifier = Modifier.weight(1f)
                     )
@@ -353,7 +353,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Veri Yönetimi",
+                text = stringResource(R.string.data_management_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -365,9 +365,9 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Yedekleme & Geri Yükleme", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.backup_restore_row_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Verilerinizi telefonunuza veya buluta yedekleyin",
+                        stringResource(R.string.backup_restore_row_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -380,7 +380,7 @@ fun SettingsScreen(
                         containerColor = MaterialTheme.colorScheme.secondary
                     )
                 ) {
-                    Text("Yönet")
+                    Text(stringResource(R.string.manage_button))
                 }
             }
 
@@ -401,7 +401,7 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "İpucu: Telefon değişikliğinde verilerinizi kaybetmemek için Google Drive'a şifreli bir yedek almanızı öneririz.",
+                        text = stringResource(R.string.google_drive_backup_tip),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.weight(1f)
@@ -417,9 +417,9 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Şifreli Veritabanı Kopyasını Dışa Aktar", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.export_encrypted_db_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Destek/teknik inceleme için veritabanınızın şifreli bir kopyasını dışa aktarır. Şifresi bu dosyada bulunmaz, tek başına açılamaz.",
+                        stringResource(R.string.export_encrypted_db_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -434,14 +434,14 @@ fun SettingsScreen(
                 ) {
                     Icon(imageVector = Icons.Default.Share, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Dışa Aktar")
+                    Text(stringResource(R.string.export_button))
                 }
             }
 
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Destek",
+                text = stringResource(R.string.support_section_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -453,9 +453,9 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Yardım Merkezi / SSS", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.help_center_row_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Sık sorulan sorular ve çözümleri",
+                        stringResource(R.string.help_center_row_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -470,7 +470,7 @@ fun SettingsScreen(
                 ) {
                     Icon(imageVector = Icons.Default.HelpOutline, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Görüntüle")
+                    Text(stringResource(R.string.view_button))
                 }
             }
 
@@ -483,24 +483,26 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Uygulamayı Paylaş", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.share_app_row_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Curalis'i arkadaşlarınızla ve ailenizle paylaşın",
+                        stringResource(R.string.share_app_row_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
+                val shareMessage = stringResource(R.string.share_app_message, context.packageName)
+                val shareChooserTitle = stringResource(R.string.share_app_chooser_title)
                 Button(
                     onClick = {
                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(
                                 Intent.EXTRA_TEXT,
-                                "İlaçlarımı, randevularımı ve sağlık ölçümlerimi Curalis ile takip ediyorum — verileriniz yalnızca cihazınızda saklanır: https://play.google.com/store/apps/details?id=${context.packageName}"
+                                shareMessage
                             )
                         }
-                        context.startActivity(Intent.createChooser(shareIntent, "Curalis'i Paylaş"))
+                        context.startActivity(Intent.createChooser(shareIntent, shareChooserTitle))
                     },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -509,7 +511,7 @@ fun SettingsScreen(
                 ) {
                     Icon(imageVector = Icons.Default.Share, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Paylaş")
+                    Text(stringResource(R.string.share_button))
                 }
             }
         }

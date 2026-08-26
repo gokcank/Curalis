@@ -66,8 +66,8 @@ fun SymptomListScreen(
     symptomToDelete?.let { symptom ->
         AlertDialog(
             onDismissRequest = { symptomToDelete = null },
-            title = { Text("Semptomu Sil") },
-            text = { Text("Bu semptom kaydını silmek istediğinize emin misiniz?") },
+            title = { Text(stringResource(R.string.delete_symptom_title)) },
+            text = { Text(stringResource(R.string.delete_symptom_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -89,7 +89,7 @@ fun SymptomListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Semptomlarım") },
+                title = { Text(stringResource(R.string.my_symptoms_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -99,7 +99,7 @@ fun SymptomListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddSymptomClick) {
-                Icon(Icons.Default.Add, contentDescription = "Semptom Ekle")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_symptom_content_desc))
             }
         }
     ) { padding ->
@@ -139,9 +139,9 @@ fun SymptomListScreen(
                 ) {
                     EmptyState(
                         icon = Icons.Default.MonitorHeart,
-                        title = "Henüz semptom kaydı yok",
-                        description = "Ağrı, bulantı veya yorgunluk gibi belirtilerinizi kaydederek zaman içindeki değişimi takip edebilirsiniz.",
-                        actionLabel = "Semptom Ekle",
+                        title = stringResource(R.string.no_symptoms_title),
+                        description = stringResource(R.string.no_symptoms_desc),
+                        actionLabel = stringResource(R.string.add_symptom_content_desc),
                         onAction = onAddSymptomClick
                     )
                 }

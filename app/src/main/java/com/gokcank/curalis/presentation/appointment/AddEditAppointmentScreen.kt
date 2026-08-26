@@ -166,8 +166,8 @@ fun AddEditAppointmentScreen(
             val selectedDoctor = doctors.find { it.id == selectedDoctorId }
             val selectedContact = emergencyContacts.find { it.id == selectedEmergencyContactId }
             val selectedPersonLabel = when {
-                selectedDoctor != null -> "${selectedDoctor.name} (Doktor)"
-                selectedContact != null -> "${selectedContact.name} (Acil Durum Kişisi)"
+                selectedDoctor != null -> stringResource(R.string.person_doctor_suffix, selectedDoctor.name)
+                selectedContact != null -> stringResource(R.string.person_emergency_contact_suffix, selectedContact.name)
                 else -> ""
             }
             ExposedDropdownMenuBox(
@@ -178,7 +178,7 @@ fun AddEditAppointmentScreen(
                     value = selectedPersonLabel,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Kişi Ata") },
+                    label = { Text(stringResource(R.string.assign_person_label)) },
                     placeholder = { Text(stringResource(R.string.appointment_doctor_none)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = personMenuExpanded) },
                     modifier = Modifier
@@ -199,7 +199,7 @@ fun AddEditAppointmentScreen(
                     )
                     if (doctors.isNotEmpty()) {
                         Text(
-                            "Doktorlar",
+                            stringResource(R.string.doctors_group_label),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
@@ -216,7 +216,7 @@ fun AddEditAppointmentScreen(
                     }
                     if (emergencyContacts.isNotEmpty()) {
                         Text(
-                            "Acil Durum Kişileri",
+                            stringResource(R.string.emergency_contacts_group_label),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)

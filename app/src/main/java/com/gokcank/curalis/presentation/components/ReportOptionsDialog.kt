@@ -24,9 +24,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.Medication
 import java.util.Calendar
 
@@ -86,7 +88,7 @@ fun ReportOptionsDialog(
                         horizontalArrangement = Arrangement.End
                     ) {
                         TextButton(onClick = { showCustomRangePicker = false }) {
-                            Text("İptal")
+                            Text(stringResource(R.string.cancel))
                         }
                         TextButton(
                             onClick = {
@@ -99,7 +101,7 @@ fun ReportOptionsDialog(
                             },
                             enabled = rangeState.selectedStartDateMillis != null && rangeState.selectedEndDateMillis != null
                         ) {
-                            Text("Tamam")
+                            Text(stringResource(R.string.ok))
                         }
                     }
                 }
@@ -112,20 +114,20 @@ fun ReportOptionsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Rapor Aralığı Seçin") },
+        title = { Text(stringResource(R.string.report_range_title)) },
         text = {
             Column {
-                RangeOptionRow("Son 7 Gün") { selectedRange = now - daysInMillis(7) to now }
-                RangeOptionRow("Son 30 Gün") { selectedRange = now - daysInMillis(30) to now }
-                RangeOptionRow("Son 90 Gün") { selectedRange = now - daysInMillis(90) to now }
-                RangeOptionRow("Bu Yıl") { selectedRange = startOfYear(now) to now }
-                RangeOptionRow("Özel Aralık…") { showCustomRangePicker = true }
+                RangeOptionRow(stringResource(R.string.report_range_last_7_days)) { selectedRange = now - daysInMillis(7) to now }
+                RangeOptionRow(stringResource(R.string.report_range_last_30_days)) { selectedRange = now - daysInMillis(30) to now }
+                RangeOptionRow(stringResource(R.string.report_range_last_90_days)) { selectedRange = now - daysInMillis(90) to now }
+                RangeOptionRow(stringResource(R.string.report_range_this_year)) { selectedRange = startOfYear(now) to now }
+                RangeOptionRow(stringResource(R.string.report_range_custom)) { showCustomRangePicker = true }
             }
         },
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("İptal")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -152,8 +154,9 @@ private fun ReportContentOptionsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Rapor İçeriği") },
+        title = { Text(stringResource(R.string.report_content_title)) },
         text = {
+            val allMedicationsLabel = stringResource(R.string.all_medications)
             Column {
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -161,9 +164,9 @@ private fun ReportContentOptionsDialog(
                 ) {
                     OutlinedTextField(
                         readOnly = true,
-                        value = medications.firstOrNull { it.id == selectedMedicationId }?.name ?: "Tüm İlaçlar",
+                        value = medications.firstOrNull { it.id == selectedMedicationId }?.name ?: allMedicationsLabel,
                         onValueChange = {},
-                        label = { Text("İlaç Filtresi") },
+                        label = { Text(stringResource(R.string.medication_filter_label)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                         modifier = Modifier.fillMaxWidth().menuAnchor()
@@ -173,7 +176,7 @@ private fun ReportContentOptionsDialog(
                         onDismissRequest = { expanded = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Tüm İlaçlar") },
+                            text = { Text(allMedicationsLabel) },
                             onClick = { selectedMedicationId = null; expanded = false }
                         )
                         medications.forEach { med ->
@@ -186,10 +189,10 @@ private fun ReportContentOptionsDialog(
                 }
 
                 Column(modifier = Modifier.padding(top = 12.dp)) {
-                    Text("Dahil Edilecek Bölümler", style = MaterialTheme.typography.labelLarge)
-                    ContentCheckboxRow("Uyum Özeti", includeAdherence) { includeAdherence = it }
-                    ContentCheckboxRow("İlaç Dolabı Listesi", includeMedList) { includeMedList = it }
-                    ContentCheckboxRow("Ölçümler Geçmişi", includeVitals) { includeVitals = it }
+                    Text(stringResource(R.string.sections_to_include_label), style = MaterialTheme.typography.labelLarge)
+                    ContentCheckboxRow(stringResource(R.string.adherence_summary_checkbox), includeAdherence) { includeAdherence = it }
+                    ContentCheckboxRow(stringResource(R.string.medication_cabinet_list_checkbox), includeMedList) { includeMedList = it }
+                    ContentCheckboxRow(stringResource(R.string.vitals_history_checkbox), includeVitals) { includeVitals = it }
                 }
             }
         },
@@ -198,12 +201,12 @@ private fun ReportContentOptionsDialog(
                 onClick = { onConfirm(selectedMedicationId, includeAdherence, includeMedList, includeVitals) },
                 enabled = includeAdherence || includeMedList || includeVitals
             ) {
-                Text("Rapor Oluştur")
+                Text(stringResource(R.string.generate_report_button))
             }
         },
         dismissButton = {
             TextButton(onClick = onBack) {
-                Text("Geri")
+                Text(stringResource(R.string.back))
             }
         }
     )

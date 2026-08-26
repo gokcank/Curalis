@@ -13,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.CuralisIconSize
 import com.gokcank.curalis.core.theme.CuralisSpacing
 
@@ -87,9 +89,9 @@ fun NoResultsState(
 ) {
     EmptyState(
         icon = icon,
-        title = "Sonuç bulunamadı",
-        description = "\"$query\" ile eşleşen bir kayıt yok. Yazımı kontrol edebilir veya aramayı temizleyebilirsiniz.",
-        actionLabel = onClearSearch?.let { "Aramayı Temizle" },
+        title = stringResource(R.string.no_results_found_title),
+        description = stringResource(R.string.no_results_found_desc, query),
+        actionLabel = onClearSearch?.let { stringResource(R.string.clear_search_button) },
         onAction = onClearSearch,
         modifier = modifier
     )

@@ -108,7 +108,7 @@ fun VitalListScreen(
                 },
                 actions = {
                     IconButton(onClick = onNavigateToReminderSettings) {
-                        Icon(Icons.Default.NotificationsActive, contentDescription = "Ölçüm Hatırlatıcıları")
+                        Icon(Icons.Default.NotificationsActive, contentDescription = stringResource(R.string.vital_reminders_content_desc))
                     }
                 }
             )
@@ -163,16 +163,16 @@ fun VitalListScreen(
                         // Kayıt var, yalnızca bu filtreye uyan yok.
                         EmptyState(
                             icon = Icons.Default.FilterAlt,
-                            title = "Bu türde ölçüm yok",
-                            description = "Seçtiğiniz ölçüm türünde kayıt bulunmuyor. Filtreyi kaldırarak tüm ölçümleri görebilirsiniz.",
-                            actionLabel = "Filtreyi Kaldır",
+                            title = stringResource(R.string.no_vitals_of_type_title),
+                            description = stringResource(R.string.no_vitals_of_type_desc),
+                            actionLabel = stringResource(R.string.remove_filter_button),
                             onAction = { viewModel.setFilterType(null) }
                         )
                     } else {
                         EmptyState(
                             icon = Icons.Default.MonitorHeart,
                             title = stringResource(R.string.no_vitals_found),
-                            description = "Tansiyon, kan şekeri veya kilo gibi ölçümlerinizi kaydederek zaman içindeki değişimi takip edebilirsiniz.",
+                            description = stringResource(R.string.no_vitals_empty_desc),
                             actionLabel = stringResource(R.string.add_vital),
                             onAction = onAddVitalClick
                         )

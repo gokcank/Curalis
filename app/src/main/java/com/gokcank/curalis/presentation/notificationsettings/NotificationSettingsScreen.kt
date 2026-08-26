@@ -42,9 +42,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gokcank.curalis.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,12 +68,13 @@ fun NotificationSettingsScreen(
         return String.format("%02d:%02d", h, m)
     }
 
+    @Composable
     fun formatAppointmentLead(minutes: Int): String = when (minutes) {
-        0 -> "Kapalı"
-        in 1..59 -> "$minutes dk"
-        in 60..1439 -> "${minutes / 60} saat"
-        in 1440..10079 -> "${minutes / 1440} gün"
-        else -> "${minutes / (7 * 1440)} hafta"
+        0 -> stringResource(R.string.off_label)
+        in 1..59 -> stringResource(R.string.minutes_short_format, minutes)
+        in 60..1439 -> stringResource(R.string.hours_short_format, minutes / 60)
+        in 1440..10079 -> stringResource(R.string.days_short_format, minutes / 1440)
+        else -> stringResource(R.string.weeks_short_format, minutes / (7 * 1440))
     }
 
     val themeChipColors = FilterChipDefaults.filterChipColors(
@@ -84,10 +87,10 @@ fun NotificationSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Bildirim ve Hatırlatıcı Ayarları") },
+                title = { Text(stringResource(R.string.notification_settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -106,17 +109,17 @@ fun NotificationSettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "Hatırlatıcılar zamanında gelmiyor mu?",
+                        stringResource(R.string.reminders_not_on_time_title),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
-                        "Android sistem izinlerini ve telefon üreticinize özel ayarları kontrol edin.",
+                        stringResource(R.string.reminders_not_on_time_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Button(onClick = onNavigateToTroubleshooting) {
-                        Text("Sorun Gidermeyi Başlat")
+                        Text(stringResource(R.string.start_troubleshooting_button))
                     }
                 }
             }
@@ -124,7 +127,7 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Gizlilik",
+                text = stringResource(R.string.privacy_section_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -136,9 +139,9 @@ fun NotificationSettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Kilit ekranında ilaç adını gizle", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.hide_med_name_lock_screen_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Açıkken, kilitli ekranda bildirim görünür ama ilacınızın adı gizlenir.",
+                        stringResource(R.string.hide_med_name_lock_screen_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -152,7 +155,7 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Sessiz Saatler",
+                text = stringResource(R.string.quiet_hours_section_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -164,9 +167,9 @@ fun NotificationSettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Sessiz saatleri etkinleştir", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.quiet_hours_enable_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "Bu saatler arasında hatırlatıcılar sessiz gelir ve ekranınızı uyandırmaz; bildirim yine de görünür kalır.",
+                        stringResource(R.string.quiet_hours_enable_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -187,13 +190,13 @@ fun NotificationSettingsScreen(
                         onClick = { showStartTimePicker = true },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Başlangıç: ${formatMinutes(uiState.quietHoursStartMinutes)}")
+                        Text(stringResource(R.string.quiet_hours_start_button, formatMinutes(uiState.quietHoursStartMinutes)))
                     }
                     OutlinedButton(
                         onClick = { showEndTimePicker = true },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Bitiş: ${formatMinutes(uiState.quietHoursEndMinutes)}")
+                        Text(stringResource(R.string.quiet_hours_end_button, formatMinutes(uiState.quietHoursEndMinutes)))
                     }
                 }
             }
@@ -201,13 +204,13 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Tam Ekran Uyarı Popup'ı",
+                text = stringResource(R.string.fullscreen_popup_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                "Bir doz hatırlatması geldiğinde, kilit ekranında da görünen tam ekran alarm uyarısı ne zaman gösterilsin?",
+                stringResource(R.string.fullscreen_popup_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -217,17 +220,22 @@ fun NotificationSettingsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 NotificationPopupMode.entries.forEach { mode ->
+                    val modeLabel = when (mode) {
+                        NotificationPopupMode.ALWAYS -> stringResource(R.string.notification_popup_mode_always)
+                        NotificationPopupMode.NEVER -> stringResource(R.string.notification_popup_mode_never)
+                        NotificationPopupMode.SCREEN_ON_ONLY -> stringResource(R.string.notification_popup_mode_screen_on_only)
+                    }
                     FilterChip(
                         selected = uiState.popupMode == mode,
                         onClick = { viewModel.onPopupModeChanged(mode) },
-                        label = { Text(mode.displayNameTr) },
+                        label = { Text(modeLabel) },
                         colors = themeChipColors,
                         modifier = Modifier.weight(1f)
                     )
                 }
             }
             Text(
-                "Doz \"kaçırıldı\" olarak işaretlenmeden önceki son hatırlatmada, bu ayardan bağımsız olarak popup her zaman gösterilir.",
+                stringResource(R.string.fullscreen_popup_note),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)
@@ -236,13 +244,13 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Erteleme",
+                text = stringResource(R.string.snooze_section_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                "Bildirimdeki \"Ertele\" düğmesi dozu kaç dakika sonraya taşısın?",
+                stringResource(R.string.snooze_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -255,7 +263,7 @@ fun NotificationSettingsScreen(
                     FilterChip(
                         selected = uiState.snoozeMinutes == minutes,
                         onClick = { viewModel.onSnoozeMinutesChanged(minutes) },
-                        label = { Text("$minutes dk") },
+                        label = { Text(stringResource(R.string.minutes_short_format, minutes)) },
                         colors = themeChipColors,
                         modifier = Modifier.weight(1f)
                     )
@@ -265,13 +273,13 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Randevu Hatırlatması",
+                text = stringResource(R.string.appointment_reminder_section_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                "Randevu hatırlatıcısı, randevudan ne kadar önce gelsin?",
+                stringResource(R.string.appointment_reminder_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -294,7 +302,7 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Sabah Hatırlatması",
+                text = stringResource(R.string.morning_reminder_section_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -306,9 +314,9 @@ fun NotificationSettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Her sabah hatırlat", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.morning_reminder_toggle_title), style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "İlaçlarınızı yanınıza almanız için her sabah ayrı bir hatırlatma gönderilir.",
+                        stringResource(R.string.morning_reminder_toggle_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -325,7 +333,7 @@ fun NotificationSettingsScreen(
                     onClick = { showMorningTimePicker = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Sabah saati: ${formatMinutes(uiState.morningReminderMinutes)}")
+                    Text(stringResource(R.string.morning_reminder_time_button, formatMinutes(uiState.morningReminderMinutes)))
                 }
 
                 Spacer(modifier = Modifier.padding(vertical = 12.dp))
@@ -336,9 +344,9 @@ fun NotificationSettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Hafta Sonu Modu", style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(R.string.weekend_mode_title), style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            "Cumartesi ve Pazar günleri için ayrı bir sabah saati kullanın.",
+                            stringResource(R.string.weekend_mode_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -355,7 +363,7 @@ fun NotificationSettingsScreen(
                         onClick = { showWeekendTimePicker = true },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Hafta sonu saati: ${formatMinutes(uiState.weekendMorningReminderMinutes)}")
+                        Text(stringResource(R.string.weekend_reminder_time_button, formatMinutes(uiState.weekendMorningReminderMinutes)))
                     }
                 }
             }
@@ -363,7 +371,7 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
-                text = "Bildirim Kategorileri",
+                text = stringResource(R.string.notification_categories_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -375,8 +383,7 @@ fun NotificationSettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "Doz hatırlatmaları ve stok uyarıları artık ayrı bildirim kategorilerinde. " +
-                            "Her birinin sesini, titreşimini veya görünürlüğünü ayrı ayrı kapatmak için sistem ayarlarını kullanabilirsiniz.",
+                        stringResource(R.string.notification_categories_desc),
                         style = MaterialTheme.typography.bodySmall
                     )
                     Button(
@@ -388,7 +395,7 @@ fun NotificationSettingsScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                     ) {
-                        Text("Bildirim Kategorilerini Sistem Ayarlarından Yönet")
+                        Text(stringResource(R.string.manage_notification_categories_button))
                     }
                 }
             }
@@ -405,19 +412,19 @@ fun NotificationSettingsScreen(
         Dialog(onDismissRequest = { showStartTimePicker = false }) {
             Card(modifier = Modifier.padding(16.dp)) {
                 Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Sessiz Saatler Başlangıcı", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.quiet_hours_start_picker_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.padding(vertical = 8.dp))
                     TimePicker(state = timePickerState)
                     Spacer(modifier = Modifier.padding(vertical = 8.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         androidx.compose.material3.TextButton(onClick = { showStartTimePicker = false }) {
-                            Text("İptal")
+                            Text(stringResource(R.string.cancel))
                         }
                         Button(onClick = {
                             viewModel.onQuietHoursStartChanged(timePickerState.hour * 60 + timePickerState.minute)
                             showStartTimePicker = false
                         }) {
-                            Text("Tamam")
+                            Text(stringResource(R.string.ok))
                         }
                     }
                 }
@@ -435,19 +442,19 @@ fun NotificationSettingsScreen(
         Dialog(onDismissRequest = { showEndTimePicker = false }) {
             Card(modifier = Modifier.padding(16.dp)) {
                 Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Sessiz Saatler Bitişi", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.quiet_hours_end_picker_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.padding(vertical = 8.dp))
                     TimePicker(state = timePickerState)
                     Spacer(modifier = Modifier.padding(vertical = 8.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         androidx.compose.material3.TextButton(onClick = { showEndTimePicker = false }) {
-                            Text("İptal")
+                            Text(stringResource(R.string.cancel))
                         }
                         Button(onClick = {
                             viewModel.onQuietHoursEndChanged(timePickerState.hour * 60 + timePickerState.minute)
                             showEndTimePicker = false
                         }) {
-                            Text("Tamam")
+                            Text(stringResource(R.string.ok))
                         }
                     }
                 }
@@ -465,19 +472,19 @@ fun NotificationSettingsScreen(
         Dialog(onDismissRequest = { showMorningTimePicker = false }) {
             Card(modifier = Modifier.padding(16.dp)) {
                 Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Sabah Hatırlatma Saati", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.morning_reminder_picker_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.padding(vertical = 8.dp))
                     TimePicker(state = timePickerState)
                     Spacer(modifier = Modifier.padding(vertical = 8.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         androidx.compose.material3.TextButton(onClick = { showMorningTimePicker = false }) {
-                            Text("İptal")
+                            Text(stringResource(R.string.cancel))
                         }
                         Button(onClick = {
                             viewModel.onMorningReminderMinutesChanged(timePickerState.hour * 60 + timePickerState.minute)
                             showMorningTimePicker = false
                         }) {
-                            Text("Tamam")
+                            Text(stringResource(R.string.ok))
                         }
                     }
                 }
@@ -495,19 +502,19 @@ fun NotificationSettingsScreen(
         Dialog(onDismissRequest = { showWeekendTimePicker = false }) {
             Card(modifier = Modifier.padding(16.dp)) {
                 Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Hafta Sonu Sabah Saati", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.weekend_reminder_picker_title), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.padding(vertical = 8.dp))
                     TimePicker(state = timePickerState)
                     Spacer(modifier = Modifier.padding(vertical = 8.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         androidx.compose.material3.TextButton(onClick = { showWeekendTimePicker = false }) {
-                            Text("İptal")
+                            Text(stringResource(R.string.cancel))
                         }
                         Button(onClick = {
                             viewModel.onWeekendMorningReminderMinutesChanged(timePickerState.hour * 60 + timePickerState.minute)
                             showWeekendTimePicker = false
                         }) {
-                            Text("Tamam")
+                            Text(stringResource(R.string.ok))
                         }
                     }
                 }

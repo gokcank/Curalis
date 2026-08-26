@@ -70,7 +70,7 @@ fun ReminderTroubleshootingScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Hatırlatıcı Sorun Giderme") },
+                title = { Text(stringResource(R.string.troubleshooting_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -87,18 +87,16 @@ fun ReminderTroubleshootingScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                "Hatırlatıcılar zamanında gelmiyorsa, aşağıdaki ayarları kontrol edin. " +
-                    "Bunlar Android işletim sisteminin ve telefon üreticinizin uyguladığı, " +
-                    "uygulama dışından yönetilen kısıtlamalardır.",
+                stringResource(R.string.troubleshooting_intro),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             TroubleshootingItem(
-                title = "Tam Zamanlı Alarm İzni",
-                description = "Bu izin olmadan hatırlatıcılar birkaç dakika gecikmeyle gelebilir.",
+                title = stringResource(R.string.exact_alarm_permission_title),
+                description = stringResource(R.string.exact_alarm_permission_desc),
                 isOk = uiState.exactAlarmGranted,
-                actionLabel = "Ayarları Aç",
+                actionLabel = stringResource(R.string.open_settings_button),
                 onAction = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
@@ -110,10 +108,10 @@ fun ReminderTroubleshootingScreen(
             )
 
             TroubleshootingItem(
-                title = "Pil Optimizasyonu",
-                description = "Pil optimizasyonu açıkken Android, uygulamayı arka planda kapatıp alarmları engelleyebilir.",
+                title = stringResource(R.string.battery_optimization_title),
+                description = stringResource(R.string.battery_optimization_desc),
                 isOk = uiState.batteryOptimizationIgnored,
-                actionLabel = "Muaf Tut",
+                actionLabel = stringResource(R.string.exempt_button),
                 onAction = {
                     val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
                         data = "package:${context.packageName}".toUri()
@@ -143,7 +141,7 @@ fun ReminderTroubleshootingScreen(
                             }
                         }
                     ) {
-                        Text("Otomatik Başlatma Ayarını Açmayı Dene")
+                        Text(stringResource(R.string.try_open_autostart_button))
                     }
                 }
             }
@@ -193,27 +191,21 @@ private fun TroubleshootingItem(
     }
 }
 
+@Composable
 private fun manufacturerInstructions(manufacturer: ManufacturerAutostartHelper.KnownManufacturer): Pair<String, String> =
     when (manufacturer) {
-        ManufacturerAutostartHelper.KnownManufacturer.XIAOMI -> "Xiaomi (MIUI) Cihazlar" to
-            "Ayarlar > Uygulamalar > Uygulamaları Yönet > Curalis > Otomatik Başlat seçeneğini açın. " +
-            "Ardından Güvenlik uygulaması > Uygulamalar > İzinler > Otomatik Başlatma listesinde de Curalis'i etkinleştirin."
-        ManufacturerAutostartHelper.KnownManufacturer.HUAWEI -> "Huawei / Honor Cihazlar" to
-            "Telefon Yöneticisi > Uygulama Başlatma bölümünden Curalis'i bulun, \"Elle Yönet\"i seçip " +
-            "Otomatik Başlatma, İkincil Başlatma ve Arka Planda Çalışma seçeneklerinin hepsini açın."
-        ManufacturerAutostartHelper.KnownManufacturer.SAMSUNG -> "Samsung Cihazlar" to
-            "Ayarlar > Pil > Arka Plan Kullanım Sınırları'na girin. Curalis \"Uyuyan uygulamalar\" veya " +
-            "\"Asla uyumayan uygulamalar dışında\" listesindeyse çıkarın; \"Kısıtlanmamış\" olarak işaretleyin."
-        ManufacturerAutostartHelper.KnownManufacturer.OPPO -> "Oppo (ColorOS) Cihazlar" to
-            "Ayarlar > Pil > Uygulama Pil Yönetimi'nden Curalis'i bulun ve \"İzin Ver\"i seçin; ayrıca " +
-            "Güvenlik Merkezi > İzinler > Otomatik Başlatma listesinde de etkinleştirin."
-        ManufacturerAutostartHelper.KnownManufacturer.VIVO -> "Vivo (FuntouchOS) Cihazlar" to
-            "i Yöneticisi > Uygulama Yönetimi > Otomatik Başlatma Yönetimi'nden Curalis'i etkinleştirin."
-        ManufacturerAutostartHelper.KnownManufacturer.ONEPLUS -> "OnePlus (OxygenOS) Cihazlar" to
-            "Ayarlar > Pil > Pil Optimizasyonu'ndan Curalis'i \"Optimize Edilmedi\" yapın; ayrıca " +
-            "Ayarlar > Uygulamalar > Otomatik Başlatma listesinde de etkinleştirin."
-        ManufacturerAutostartHelper.KnownManufacturer.OTHER -> "Otomatik Başlatma" to
-            "Bazı telefon üreticileri, pil tasarrufu için arka planda çalışan uygulamaları kısıtlar. " +
-            "Ayarlar > Uygulamalar > Curalis > Pil bölümünden \"Kısıtlanmamış\"/\"Optimize Edilmedi\" seçin; " +
-            "cihazınıza özel bir \"otomatik başlatma\" ayarı varsa onu da açın."
+        ManufacturerAutostartHelper.KnownManufacturer.XIAOMI ->
+            stringResource(R.string.manufacturer_xiaomi_title) to stringResource(R.string.manufacturer_xiaomi_body)
+        ManufacturerAutostartHelper.KnownManufacturer.HUAWEI ->
+            stringResource(R.string.manufacturer_huawei_title) to stringResource(R.string.manufacturer_huawei_body)
+        ManufacturerAutostartHelper.KnownManufacturer.SAMSUNG ->
+            stringResource(R.string.manufacturer_samsung_title) to stringResource(R.string.manufacturer_samsung_body)
+        ManufacturerAutostartHelper.KnownManufacturer.OPPO ->
+            stringResource(R.string.manufacturer_oppo_title) to stringResource(R.string.manufacturer_oppo_body)
+        ManufacturerAutostartHelper.KnownManufacturer.VIVO ->
+            stringResource(R.string.manufacturer_vivo_title) to stringResource(R.string.manufacturer_vivo_body)
+        ManufacturerAutostartHelper.KnownManufacturer.ONEPLUS ->
+            stringResource(R.string.manufacturer_oneplus_title) to stringResource(R.string.manufacturer_oneplus_body)
+        ManufacturerAutostartHelper.KnownManufacturer.OTHER ->
+            stringResource(R.string.manufacturer_other_title) to stringResource(R.string.manufacturer_other_body)
     }

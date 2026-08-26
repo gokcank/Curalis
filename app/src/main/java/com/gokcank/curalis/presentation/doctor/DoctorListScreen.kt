@@ -93,7 +93,7 @@ fun DoctorListScreen(
                 },
                 actions = {
                     IconButton(onClick = onNavigateToEmergencyContacts) {
-                        Icon(Icons.Default.ContactEmergency, contentDescription = "Acil Durum Kişileri")
+                        Icon(Icons.Default.ContactEmergency, contentDescription = stringResource(R.string.emergency_contacts_content_desc))
                     }
                 }
             )
@@ -114,7 +114,7 @@ fun DoctorListScreen(
                 EmptyState(
                     icon = Icons.Default.Person,
                     title = stringResource(R.string.no_doctors_found),
-                    description = "Doktorlarınızı kaydederseniz randevularınızı onlarla ilişkilendirebilirsiniz.",
+                    description = stringResource(R.string.no_doctors_empty_state_desc),
                     actionLabel = stringResource(R.string.add_doctor),
                     onAction = onAddDoctorClick
                 )

@@ -4,10 +4,12 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.core.security.BackupCrypto
 import com.gokcank.curalis.data.backup.GoogleDriveManagerFactory
 import com.gokcank.curalis.domain.repository.BackupManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BackupViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val backupManager: BackupManager,
     private val googleDriveManagerFactory: GoogleDriveManagerFactory
 ) : ViewModel() {
@@ -25,13 +28,15 @@ class BackupViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<BackupUiState>(BackupUiState.Idle)
     val uiState: StateFlow<BackupUiState> = _uiState.asStateFlow()
 
+    private fun str(resId: Int, vararg args: Any): String = appContext.getString(resId, *args)
+
     fun resetState() {
         _uiState.value = BackupUiState.Idle
     }
 
     fun exportDataToUri(context: Context, uri: Uri, password: String) {
         viewModelScope.launch {
-            _uiState.value = BackupUiState.Loading("Yedekleme dosyası oluşturuluyor...")
+            _uiState.value = BackupUiState.Loading(str(R.string.backup_creating_file))
             try {
                 val jsonString = backupManager.exportData()
                 val encrypted = BackupCrypto.encrypt(jsonString, password)
@@ -40,17 +45,17 @@ class BackupViewModel @Inject constructor(
                     outputStream.write(encrypted.toByteArray(Charsets.UTF_8))
                 }
 
-                _uiState.value = BackupUiState.Success("Yedekleme başarıyla kaydedildi.")
+                _uiState.value = BackupUiState.Success(str(R.string.backup_saved_success))
             } catch (e: Exception) {
                 e.printStackTrace()
-                _uiState.value = BackupUiState.Error("Yedekleme sırasında bir hata oluştu: ${e.localizedMessage}")
+                _uiState.value = BackupUiState.Error(str(R.string.backup_error_generic, e.localizedMessage ?: ""))
             }
         }
     }
 
     fun importDataFromUri(context: Context, uri: Uri, password: String) {
         viewModelScope.launch {
-            _uiState.value = BackupUiState.Loading("Yedekleme geri yükleniyor...")
+            _uiState.value = BackupUiState.Loading(str(R.string.backup_restoring))
             try {
                 val jsonBuilder = java.lang.StringBuilder()
                 context.contentResolver.openInputStream(uri)?.use { inputStream ->
@@ -65,7 +70,7 @@ class BackupViewModel @Inject constructor(
 
                 val fileContent = jsonBuilder.toString()
                 if (fileContent.isBlank()) {
-                    _uiState.value = BackupUiState.Error("Seçilen dosya boş.")
+                    _uiState.value = BackupUiState.Error(str(R.string.backup_selected_file_empty))
                     return@launch
                 }
 
@@ -73,7 +78,7 @@ class BackupViewModel @Inject constructor(
                     try {
                         BackupCrypto.decrypt(fileContent, password)
                     } catch (e: Exception) {
-                        _uiState.value = BackupUiState.Error("Şifre yanlış veya yedek dosyası bozuk.")
+                        _uiState.value = BackupUiState.Error(str(R.string.backup_wrong_password))
                         return@launch
                     }
                 } else {
@@ -83,20 +88,20 @@ class BackupViewModel @Inject constructor(
 
                 val success = backupManager.importData(jsonString)
                 if (success) {
-                    _uiState.value = BackupUiState.Success("Veriler başarıyla geri yüklendi.")
+                    _uiState.value = BackupUiState.Success(str(R.string.backup_restore_success))
                 } else {
-                    _uiState.value = BackupUiState.Error("Geri yükleme başarısız oldu. Yedek dosyası bozuk olabilir.")
+                    _uiState.value = BackupUiState.Error(str(R.string.backup_restore_failed))
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _uiState.value = BackupUiState.Error("Geri yükleme sırasında bir hata oluştu: ${e.localizedMessage}")
+                _uiState.value = BackupUiState.Error(str(R.string.backup_restore_error_generic, e.localizedMessage ?: ""))
             }
         }
     }
 
     fun uploadToGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount, password: String) {
         viewModelScope.launch {
-            _uiState.value = BackupUiState.Loading("Google Drive'a yedekleniyor...")
+            _uiState.value = BackupUiState.Loading(str(R.string.backup_uploading_to_drive))
             try {
                 val jsonString = backupManager.exportData()
                 val encrypted = BackupCrypto.encrypt(jsonString, password)
@@ -104,26 +109,26 @@ class BackupViewModel @Inject constructor(
 
                 val success = driveManager.uploadBackupToDrive(encrypted, "curalis_drive_backup.json")
                 if (success) {
-                    _uiState.value = BackupUiState.Success("Veriler Google Drive'a başarıyla yedeklendi.")
+                    _uiState.value = BackupUiState.Success(str(R.string.backup_drive_upload_success))
                 } else {
-                    _uiState.value = BackupUiState.Error("Google Drive yedeklemesi başarısız oldu.")
+                    _uiState.value = BackupUiState.Error(str(R.string.backup_drive_upload_failed))
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _uiState.value = BackupUiState.Error("Hata: ${e.localizedMessage}")
+                _uiState.value = BackupUiState.Error(str(R.string.backup_error_with_message, e.localizedMessage ?: ""))
             }
         }
     }
 
     fun downloadFromGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount, password: String) {
         viewModelScope.launch {
-            _uiState.value = BackupUiState.Loading("Google Drive'dan geri yükleniyor...")
+            _uiState.value = BackupUiState.Loading(str(R.string.backup_downloading_from_drive))
             try {
                 val driveManager = googleDriveManagerFactory.create(account)
                 val fileContent = driveManager.downloadBackupFromDrive("curalis_drive_backup.json")
 
                 if (fileContent.isNullOrBlank()) {
-                    _uiState.value = BackupUiState.Error("Google Drive'da yedek bulunamadı.")
+                    _uiState.value = BackupUiState.Error(str(R.string.backup_drive_no_backup_found))
                     return@launch
                 }
 
@@ -131,7 +136,7 @@ class BackupViewModel @Inject constructor(
                     try {
                         BackupCrypto.decrypt(fileContent, password)
                     } catch (e: Exception) {
-                        _uiState.value = BackupUiState.Error("Şifre yanlış veya yedek dosyası bozuk.")
+                        _uiState.value = BackupUiState.Error(str(R.string.backup_wrong_password))
                         return@launch
                     }
                 } else {
@@ -140,13 +145,13 @@ class BackupViewModel @Inject constructor(
 
                 val success = backupManager.importData(jsonString)
                 if (success) {
-                    _uiState.value = BackupUiState.Success("Google Drive yedeği başarıyla yüklendi.")
+                    _uiState.value = BackupUiState.Success(str(R.string.backup_drive_restore_success))
                 } else {
-                    _uiState.value = BackupUiState.Error("Geri yükleme başarısız oldu. Dosya bozuk olabilir.")
+                    _uiState.value = BackupUiState.Error(str(R.string.backup_restore_failed_file_corrupt))
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _uiState.value = BackupUiState.Error("Hata: ${e.localizedMessage}")
+                _uiState.value = BackupUiState.Error(str(R.string.backup_error_with_message, e.localizedMessage ?: ""))
             }
         }
     }

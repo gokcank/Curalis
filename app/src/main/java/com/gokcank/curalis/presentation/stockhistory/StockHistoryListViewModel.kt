@@ -1,11 +1,14 @@
 package com.gokcank.curalis.presentation.stockhistory
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.R
 import com.gokcank.curalis.domain.model.StockHistoryEntry
 import com.gokcank.curalis.domain.repository.StockHistoryRepository
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +24,7 @@ data class StockHistoryRow(
 
 @HiltViewModel
 class StockHistoryListViewModel @Inject constructor(
+    @ApplicationContext appContext: Context,
     stockHistoryRepository: StockHistoryRepository,
     getMedicationsUseCase: GetMedicationsUseCase
 ) : ViewModel() {
@@ -38,7 +42,7 @@ class StockHistoryListViewModel @Inject constructor(
     ) { history, medications ->
         val nameById = medications.associate { it.id to it.name }
         history.map { entry ->
-            StockHistoryRow(entry = entry, medicationName = nameById[entry.medicationId] ?: "Silinmiş İlaç")
+            StockHistoryRow(entry = entry, medicationName = nameById[entry.medicationId] ?: appContext.getString(R.string.deleted_medication_label))
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 

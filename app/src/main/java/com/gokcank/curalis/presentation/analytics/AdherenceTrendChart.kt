@@ -23,7 +23,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.gokcank.curalis.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -59,7 +61,7 @@ fun AdherenceTrendChart(points: List<WeeklyAdherencePoint>) {
                 color = lineColor
             )
             Text(
-                text = "${dateFormat.format(Date(selected.weekStartMillis))} haftası",
+                text = stringResource(R.string.week_of_label, dateFormat.format(Date(selected.weekStartMillis))),
                 style = MaterialTheme.typography.bodySmall,
                 color = labelColor
             )
