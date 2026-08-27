@@ -14,11 +14,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +45,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.SectionAccentVitals
 import com.gokcank.curalis.domain.model.VitalType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,10 +81,14 @@ fun AddEditVitalScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.add_vital)) },
+                title = { Text(stringResource(R.string.add_vital), color = SectionAccentVitals) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = SectionAccentVitals
+                        )
                     }
                 }
             )
@@ -165,12 +172,20 @@ fun AddEditVitalScreen(
                         FilterChip(
                             selected = weightUnit == "kg",
                             onClick = { viewModel.onWeightUnitSelected("kg") },
-                            label = { Text("kg") }
+                            label = { Text("kg") },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = SectionAccentVitals,
+                                selectedLabelColor = androidx.compose.ui.graphics.Color.White
+                            )
                         )
                         FilterChip(
                             selected = weightUnit == "lb",
                             onClick = { viewModel.onWeightUnitSelected("lb") },
-                            label = { Text("lb") }
+                            label = { Text("lb") },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = SectionAccentVitals,
+                                selectedLabelColor = androidx.compose.ui.graphics.Color.White
+                            )
                         )
                     }
                 } else {
@@ -195,7 +210,8 @@ fun AddEditVitalScreen(
             Button(
                 onClick = { viewModel.saveVital() },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = SectionAccentVitals, contentColor = androidx.compose.ui.graphics.Color.White)
             ) {
                 Text(stringResource(R.string.save))
             }
