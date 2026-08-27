@@ -47,7 +47,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.gokcank.curalis.core.theme.LocalCuralisColors
+import com.gokcank.curalis.core.theme.SectionAccentAppointments
+import com.gokcank.curalis.core.theme.SectionAccentDoctors
+import com.gokcank.curalis.core.theme.SectionAccentMedications
+import com.gokcank.curalis.core.theme.SectionAccentNotes
+import com.gokcank.curalis.core.theme.SectionAccentSymptoms
+import com.gokcank.curalis.core.theme.SectionAccentVitals
+import com.gokcank.curalis.core.theme.SectionAdherenceGreen
+import com.gokcank.curalis.core.theme.SectionStreakFlame
 import com.gokcank.curalis.core.theme.ThemeMode
+import com.gokcank.curalis.core.theme.sectionBackgroundModifier
 import com.gokcank.curalis.core.utils.PdfReportGeneratorEntryPoint
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.Reminder
@@ -81,21 +90,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.Calendar
-
-// Ana ekran renk kimliği: her bölümün kendi doygun rengi var, açık temada yumuşak bir
-// gradyan zemin kullanılır. design-system.md'nin "dekoratif renk kullanılmaz" kuralına
-// istisna — burada renk dekoratif değil, bölümü tanımlayan bir kimlik.
-private val HomeGradientTop = Color(0xFFE9F1FE)
-private val HomeGradientMid = Color(0xFFEAF6EE)
-private val HomeGradientBottom = Color(0xFFFDF3E4)
-private val HomeStreakFlame = Color(0xFFE8834A)
-private val HomeAdherenceGreen = Color(0xFF2E7D6B)
-private val HomeAccentMedications = Color(0xFF3B6FE0)
-private val HomeAccentDoctors = Color(0xFF4F46E5)
-private val HomeAccentAppointments = Color(0xFF9333EA)
-private val HomeAccentVitals = Color(0xFFDC2626)
-private val HomeAccentSymptoms = Color(0xFFD97706)
-private val HomeAccentNotes = Color(0xFF0F766E)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -205,23 +199,11 @@ fun HomeScreen(
         }
     ) { padding ->
         val themeMode by viewModel.themeMode.collectAsState()
-        // Açık temada canlı, yumuşak bir gradyan zemin; koyu/AMOLED'de düz zemin kullanılır —
-        // gradyan koyu temada iki ucu birbirine çok yakın olup 8-bit bantlanma yaratabilir ve
-        // AMOLED'in pil avantajı düz siyahtan geliyor (bkz. eski gradyan yorumundaki gerekçe).
-        val backgroundModifier = if (themeMode == ThemeMode.LIGHT) {
-            Modifier.background(
-                Brush.verticalGradient(
-                    listOf(HomeGradientTop, HomeGradientMid, HomeGradientBottom)
-                )
-            )
-        } else {
-            Modifier.background(MaterialTheme.colorScheme.background)
-        }
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .then(backgroundModifier)
+                .then(sectionBackgroundModifier(themeMode))
         ) {
             // Content
             Column(
@@ -280,7 +262,7 @@ fun HomeScreen(
                                     Icon(
                                         imageVector = Icons.Default.Whatshot,
                                         contentDescription = null,
-                                        tint = HomeStreakFlame,
+                                        tint = SectionStreakFlame,
                                         modifier = Modifier.size(15.dp)
                                     )
                                     Text(
@@ -297,7 +279,7 @@ fun HomeScreen(
                                 text = "%$pct",
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = HomeAdherenceGreen,
+                                color = SectionAdherenceGreen,
                                 modifier = Modifier.padding(top = 6.dp)
                             )
                         }
@@ -367,7 +349,7 @@ fun HomeScreen(
                         title = stringResource(R.string.dashboard_title_medications),
                         subtitle = stringResource(R.string.home_active_medications_count, uiState.activeMedicationCount),
                         icon = Icons.AutoMirrored.Outlined.List,
-                        containerColor = HomeAccentMedications,
+                        containerColor = SectionAccentMedications,
                         onClick = onNavigateToMedications
                     )
                     ColorDashboardCard(
@@ -375,7 +357,7 @@ fun HomeScreen(
                         title = stringResource(R.string.dashboard_title_doctors),
                         subtitle = null,
                         icon = Icons.Default.Person,
-                        containerColor = HomeAccentDoctors,
+                        containerColor = SectionAccentDoctors,
                         onClick = onNavigateToDoctors
                     )
                 }
@@ -393,7 +375,7 @@ fun HomeScreen(
                             SimpleDateFormat("dd MMM HH:mm", Locale.getDefault()).format(Date(it.timeInMillis))
                         },
                         icon = Icons.Default.DateRange,
-                        containerColor = HomeAccentAppointments,
+                        containerColor = SectionAccentAppointments,
                         onClick = onNavigateToAppointments
                     )
                     ColorDashboardCard(
@@ -401,7 +383,7 @@ fun HomeScreen(
                         title = stringResource(R.string.dashboard_title_vitals),
                         subtitle = null,
                         icon = Icons.Default.Favorite,
-                        containerColor = HomeAccentVitals,
+                        containerColor = SectionAccentVitals,
                         onClick = onNavigateToVitals
                     )
                 }
@@ -417,7 +399,7 @@ fun HomeScreen(
                         title = stringResource(R.string.dashboard_title_symptoms),
                         subtitle = null,
                         icon = Icons.Default.Sick,
-                        containerColor = HomeAccentSymptoms,
+                        containerColor = SectionAccentSymptoms,
                         onClick = onNavigateToSymptoms
                     )
                     ColorDashboardCard(
@@ -425,7 +407,7 @@ fun HomeScreen(
                         title = stringResource(R.string.dashboard_title_daily_notes),
                         subtitle = null,
                         icon = Icons.AutoMirrored.Filled.MenuBook,
-                        containerColor = HomeAccentNotes,
+                        containerColor = SectionAccentNotes,
                         onClick = onNavigateToDailyNotes
                     )
                 }
@@ -506,7 +488,7 @@ fun NextDoseHero(
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surface,
             shadowElevation = 10.dp,
-            border = BorderStroke(5.dp, HomeAccentMedications.copy(alpha = 0.18f)),
+            border = BorderStroke(5.dp, SectionAccentMedications.copy(alpha = 0.18f)),
             modifier = Modifier.size(156.dp)
         ) {
             Column(
@@ -514,7 +496,7 @@ fun NextDoseHero(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Surface(shape = RoundedCornerShape(16.dp), color = HomeAccentMedications, modifier = Modifier.size(48.dp)) {
+                Surface(shape = RoundedCornerShape(16.dp), color = SectionAccentMedications, modifier = Modifier.size(48.dp)) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.List,
@@ -543,7 +525,7 @@ fun NextDoseHero(
             text = stringResource(R.string.home_take_now_hint),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = HomeAccentMedications
+            color = SectionAccentMedications
         )
     }
 }
