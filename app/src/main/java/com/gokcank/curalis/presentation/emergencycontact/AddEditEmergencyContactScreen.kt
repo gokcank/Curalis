@@ -62,10 +62,19 @@ fun AddEditEmergencyContactScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (viewModel.isEditMode) stringResource(R.string.edit_emergency_contact_title) else stringResource(R.string.add_emergency_contact_title)) },
+                title = {
+                    Text(
+                        if (viewModel.isEditMode) stringResource(R.string.edit_emergency_contact_title) else stringResource(R.string.add_emergency_contact_title),
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.primary
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             )
