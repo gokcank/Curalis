@@ -56,6 +56,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.SectionAccentMedications
+import com.gokcank.curalis.core.theme.rememberSectionThemeMode
+import com.gokcank.curalis.core.theme.sectionBackgroundModifier
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
@@ -88,6 +91,8 @@ fun DailyTimelineScreen(
             it.reminder.state == ReminderState.SNOOZED
     }
 
+    val themeMode by rememberSectionThemeMode()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -96,13 +101,16 @@ fun DailyTimelineScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
-                }
+                },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
-        }
+        },
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .then(sectionBackgroundModifier(themeMode))
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
@@ -112,7 +120,7 @@ fun DailyTimelineScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                colors = CardDefaults.cardColors(containerColor = SectionAccentMedications)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     // Daha önce month.name kullanılıyordu; bu enum adını ("AUGUST") basıyordu.
@@ -123,12 +131,12 @@ fun DailyTimelineScreen(
                     Text(
                         text = stringResource(R.string.daily_timeline_date_header, selectedDate.dayOfMonth, monthName, selectedDate.year),
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = Color.White
                     )
                     Text(
                         text = stringResource(R.string.daily_timeline_subtitle),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                        color = Color.White.copy(alpha = 0.8f)
                     )
                 }
             }
@@ -295,7 +303,7 @@ fun DayChip(
     val dayAbbrev = date.dayOfWeek.getDisplayName(TextStyle.SHORT, LocalConfiguration.current.locales[0])
     Surface(
         shape = RoundedCornerShape(10.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+        color = if (isSelected) SectionAccentMedications else MaterialTheme.colorScheme.surfaceVariant,
         onClick = onClick,
         modifier = Modifier.size(width = 40.dp, height = 56.dp)
     ) {
