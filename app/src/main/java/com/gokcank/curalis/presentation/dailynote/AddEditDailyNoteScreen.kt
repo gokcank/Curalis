@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.SectionAccentNotes
 import com.gokcank.curalis.domain.model.Mood
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -103,10 +105,14 @@ fun AddEditDailyNoteScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(dateString) },
+                title = { Text(dateString, color = SectionAccentNotes) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = SectionAccentNotes
+                        )
                     }
                 },
                 actions = {
@@ -137,7 +143,7 @@ fun AddEditDailyNoteScreen(
                     val isSelected = mood == m
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                        color = if (isSelected) SectionAccentNotes else MaterialTheme.colorScheme.surfaceVariant,
                         onClick = { viewModel.onMoodSelected(m) }
                     ) {
                         Column(
@@ -148,7 +154,7 @@ fun AddEditDailyNoteScreen(
                             Text(
                                 text = m.label(),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                                color = if (isSelected) androidx.compose.ui.graphics.Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -173,7 +179,8 @@ fun AddEditDailyNoteScreen(
             Button(
                 onClick = { viewModel.saveNote() },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = SectionAccentNotes, contentColor = androidx.compose.ui.graphics.Color.White)
             ) {
                 Text(stringResource(R.string.save))
             }
