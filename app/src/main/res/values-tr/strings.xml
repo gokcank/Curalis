@@ -508,6 +508,15 @@
     <string name="calendar_content_desc">Takvim</string>
     <string name="todays_pillbox_title">Bugünün Kutusu</string>
 
+    <!-- Ana ekran: seri / uyum başlığı -->
+    <string name="home_streak_days">%1$d gün</string>
+    <string name="home_monthly_adherence_label">Bu ay uyum oranı</string>
+    <string name="home_next_up_label">Sırada</string>
+    <string name="home_take_now_hint">Dokun, aldım de</string>
+    <string name="home_other_section_label">Diğer</string>
+    <string name="home_active_medications_count">%1$d aktif</string>
+    <string name="placebo_label">Plasebo</string>
+
     <!-- İlaç Listesi -->
     <string name="refill_history_content_desc">Yenileme Geçmişi</string>
     <string name="tab_active">Aktif</string>
