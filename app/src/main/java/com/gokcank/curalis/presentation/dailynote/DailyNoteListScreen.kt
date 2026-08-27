@@ -39,12 +39,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.SectionAccentNotes
+import com.gokcank.curalis.core.theme.rememberSectionThemeMode
+import com.gokcank.curalis.core.theme.sectionBackgroundModifier
 import com.gokcank.curalis.domain.model.DailyNote
 import com.gokcank.curalis.presentation.components.EmptyState
 import java.text.SimpleDateFormat
@@ -94,6 +98,8 @@ fun DailyNoteListScreen(
         )
     }
 
+    val themeMode by rememberSectionThemeMode()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -102,13 +108,16 @@ fun DailyNoteListScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
-                }
+                },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
-        }
+        },
+        containerColor = Color.Transparent
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .then(sectionBackgroundModifier(themeMode))
                 .padding(padding)
         ) {
             Card(
@@ -116,7 +125,7 @@ fun DailyNoteListScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                colors = CardDefaults.cardColors(containerColor = SectionAccentNotes)
             ) {
                 Row(
                     modifier = Modifier
@@ -129,12 +138,12 @@ fun DailyNoteListScreen(
                         Text(
                             text = if (todayNote != null) stringResource(R.string.edit_today_note_title) else stringResource(R.string.add_today_note_title),
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = Color.White
                         )
                         Text(
                             text = todayNote?.content?.take(60) ?: stringResource(R.string.today_note_placeholder),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            color = Color.White.copy(alpha = 0.85f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -145,7 +154,7 @@ fun DailyNoteListScreen(
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = Color.White
                         )
                     }
                 }
@@ -204,7 +213,8 @@ private fun DailyNoteItem(
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onDelete
-            )
+            ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(
             modifier = Modifier
