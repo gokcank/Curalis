@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -32,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -39,11 +42,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.SectionAccentVitals
+import com.gokcank.curalis.core.theme.rememberSectionThemeMode
+import com.gokcank.curalis.core.theme.sectionBackgroundModifier
 import com.gokcank.curalis.domain.model.Vital
 import com.gokcank.curalis.domain.model.VitalType
 import com.gokcank.curalis.presentation.components.EmptyState
@@ -97,6 +104,8 @@ fun VitalListScreen(
         )
     }
 
+    val themeMode by rememberSectionThemeMode()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -110,18 +119,25 @@ fun VitalListScreen(
                     IconButton(onClick = onNavigateToReminderSettings) {
                         Icon(Icons.Default.NotificationsActive, contentDescription = stringResource(R.string.vital_reminders_content_desc))
                     }
-                }
+                },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddVitalClick) {
+            FloatingActionButton(
+                onClick = onAddVitalClick,
+                containerColor = SectionAccentVitals,
+                contentColor = Color.White
+            ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_vital))
             }
-        }
+        },
+        containerColor = Color.Transparent
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .then(sectionBackgroundModifier(themeMode))
                 .padding(padding)
         ) {
             LazyRow(
@@ -219,7 +235,8 @@ fun VitalItem(
             .combinedClickable(
                 onClick = {},
                 onLongClick = onDelete
-            )
+            ),
+        colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(
             modifier = Modifier
@@ -232,26 +249,35 @@ fun VitalItem(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = when (vital.type) {
-                        VitalType.BLOOD_PRESSURE -> Icons.Default.MonitorHeart
-                        VitalType.BLOOD_SUGAR -> Icons.Default.Bloodtype
-                        VitalType.HEART_RATE -> Icons.Default.Favorite
-                        VitalType.WEIGHT -> Icons.Default.Scale
-                        VitalType.TEMPERATURE -> Icons.Default.Thermostat
-                        VitalType.OXYGEN_SATURATION -> Icons.Default.Air
-                        VitalType.CHOLESTEROL -> Icons.Default.WaterDrop
-                        VitalType.A1C -> Icons.Default.Science
-                        VitalType.HDL_CHOLESTEROL -> Icons.Default.WaterDrop
-                        VitalType.LDL_CHOLESTEROL -> Icons.Default.WaterDrop
-                        VitalType.TRIGLYCERIDES -> Icons.Default.WaterDrop
-                        VitalType.BODY_FAT -> Icons.Default.Scale
-                        VitalType.STEP_COUNT -> Icons.Default.DirectionsWalk
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.padding(end = 16.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Surface(
+                    shape = CircleShape,
+                    color = SectionAccentVitals,
+                    modifier = Modifier.size(44.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = when (vital.type) {
+                                VitalType.BLOOD_PRESSURE -> Icons.Default.MonitorHeart
+                                VitalType.BLOOD_SUGAR -> Icons.Default.Bloodtype
+                                VitalType.HEART_RATE -> Icons.Default.Favorite
+                                VitalType.WEIGHT -> Icons.Default.Scale
+                                VitalType.TEMPERATURE -> Icons.Default.Thermostat
+                                VitalType.OXYGEN_SATURATION -> Icons.Default.Air
+                                VitalType.CHOLESTEROL -> Icons.Default.WaterDrop
+                                VitalType.A1C -> Icons.Default.Science
+                                VitalType.HDL_CHOLESTEROL -> Icons.Default.WaterDrop
+                                VitalType.LDL_CHOLESTEROL -> Icons.Default.WaterDrop
+                                VitalType.TRIGLYCERIDES -> Icons.Default.WaterDrop
+                                VitalType.BODY_FAT -> Icons.Default.Scale
+                                VitalType.STEP_COUNT -> Icons.Default.DirectionsWalk
+                            },
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(
                         text = stringResource(vital.type.displayNameRes()),
