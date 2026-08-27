@@ -14,8 +14,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.SectionAccentSymptoms
 import com.gokcank.curalis.domain.model.SymptomType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,10 +65,14 @@ fun AddEditSymptomScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.add_symptom_title)) },
+                title = { Text(stringResource(R.string.add_symptom_title), color = SectionAccentSymptoms) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = SectionAccentSymptoms
+                        )
                     }
                 }
             )
@@ -96,7 +103,12 @@ fun AddEditSymptomScreen(
                                 contentDescription = null,
                                 modifier = Modifier.height(18.dp)
                             )
-                        }
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = SectionAccentSymptoms,
+                            selectedLabelColor = androidx.compose.ui.graphics.Color.White,
+                            selectedLeadingIconColor = androidx.compose.ui.graphics.Color.White
+                        )
                     )
                 }
             }
@@ -111,7 +123,7 @@ fun AddEditSymptomScreen(
                 Text(
                     stringResource(R.string.severity_value_label, severity.toInt(), severityLabel(severity.toInt())),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = SectionAccentSymptoms
                 )
             }
             Slider(
@@ -143,7 +155,8 @@ fun AddEditSymptomScreen(
             Button(
                 onClick = { viewModel.saveSymptom() },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = SectionAccentSymptoms, contentColor = androidx.compose.ui.graphics.Color.White)
             ) {
                 Text(stringResource(R.string.save))
             }
