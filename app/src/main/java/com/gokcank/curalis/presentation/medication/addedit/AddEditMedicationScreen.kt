@@ -278,14 +278,16 @@ fun AddEditMedicationScreen(
                 title = {
                     Text(
                         if (viewModel.isEditMode) stringResource(R.string.edit_medication)
-                        else stringResource(R.string.add_medication)
+                        else stringResource(R.string.add_medication),
+                        color = com.gokcank.curalis.core.theme.SectionAccentMedications
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(R.string.back),
+                            tint = com.gokcank.curalis.core.theme.SectionAccentMedications
                         )
                     }
                 }
@@ -977,7 +979,11 @@ fun AddEditMedicationScreen(
                 onClick = viewModel::saveMedication,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(50.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = com.gokcank.curalis.core.theme.SectionAccentMedications,
+                    contentColor = androidx.compose.ui.graphics.Color.White
+                )
             ) {
                 Text(
                     if (viewModel.isEditMode) stringResource(R.string.update_button)
