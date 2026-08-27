@@ -3,9 +3,17 @@ package com.gokcank.curalis.core.theme
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
 /**
  * Bölüm kimliği renkleri: önce yalnızca HomeScreen.kt içindeydi (design-system.md'nin
@@ -39,3 +47,26 @@ fun sectionBackgroundModifier(themeMode: ThemeMode): Modifier =
     } else {
         Modifier.background(MaterialTheme.colorScheme.background)
     }
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+private interface ThemeControllerEntryPoint {
+    fun themeController(): ThemeController
+}
+
+/**
+ * ViewModel'i değiştirmeden ekranın geçerli [ThemeMode]'unu okumak için — liste/hub
+ * ekranlarının çoğu ThemeController'ı zaten inject etmiyordu, her birine ayrı ayrı
+ * eklemek yerine PdfReportGeneratorEntryPoint'teki gibi doğrudan EntryPoint kullanılır.
+ */
+@Composable
+fun rememberSectionThemeMode(): State<ThemeMode> {
+    val context = LocalContext.current
+    val themeController = remember {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ThemeControllerEntryPoint::class.java
+        ).themeController()
+    }
+    return themeController.themeMode.collectAsState()
+}

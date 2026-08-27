@@ -77,6 +77,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.LocalCuralisColors
+import com.gokcank.curalis.core.theme.SectionAccentMedications
+import com.gokcank.curalis.core.theme.rememberSectionThemeMode
+import com.gokcank.curalis.core.theme.sectionBackgroundModifier
 import com.gokcank.curalis.core.utils.PdfReportGenerator
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.MealInstruction
@@ -165,11 +168,13 @@ fun MedicationListScreen(
         )
     }
 
+    val themeMode by rememberSectionThemeMode()
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.my_medications)) },
+                title = { Text(stringResource(R.string.my_medications), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -188,18 +193,25 @@ fun MedicationListScreen(
                             contentDescription = stringResource(R.string.generate_pdf_report_content_desc)
                         )
                     }
-                }
+                },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onNavigateToAddEdit(null) }) {
+            FloatingActionButton(
+                onClick = { onNavigateToAddEdit(null) },
+                containerColor = SectionAccentMedications,
+                contentColor = Color.White
+            ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add))
             }
-        }
+        },
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .then(sectionBackgroundModifier(themeMode))
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
