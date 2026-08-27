@@ -131,10 +131,14 @@ fun BackupScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.backup_restore_title)) },
+                title = { Text(stringResource(R.string.backup_restore_title), color = androidx.compose.material3.MaterialTheme.colorScheme.primary) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             )
