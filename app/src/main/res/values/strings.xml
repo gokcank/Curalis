@@ -506,6 +506,15 @@
     <string name="calendar_content_desc">Calendar</string>
     <string name="todays_pillbox_title">Today\'s Pillbox</string>
 
+    <!-- Home: streak / adherence hero -->
+    <string name="home_streak_days">%1$d days</string>
+    <string name="home_monthly_adherence_label">This month\'s adherence</string>
+    <string name="home_next_up_label">Up next</string>
+    <string name="home_take_now_hint">Tap to mark as taken</string>
+    <string name="home_other_section_label">Other</string>
+    <string name="home_active_medications_count">%1$d active</string>
+    <string name="placebo_label">Placebo</string>
+
     <!-- Medication List -->
     <string name="refill_history_content_desc">Refill History</string>
     <string name="tab_active">Active</string>
