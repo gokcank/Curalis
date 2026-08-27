@@ -76,7 +76,7 @@ fun AppLockSettingsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.app_lock)) },
+                title = { Text(stringResource(R.string.app_lock), color = MaterialTheme.colorScheme.primary) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -87,7 +87,8 @@ fun AppLockSettingsScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(R.string.back),
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
