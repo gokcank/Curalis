@@ -64,13 +64,18 @@ fun AdherenceAnalyticsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(R.string.adherence_analytics_title), fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(R.string.adherence_analytics_title),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(R.string.back),
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
