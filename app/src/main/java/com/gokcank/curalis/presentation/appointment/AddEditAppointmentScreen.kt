@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -56,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.theme.SectionAccentAppointments
 import com.gokcank.curalis.presentation.components.ExactAlarmPermissionDialog
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -120,10 +122,19 @@ fun AddEditAppointmentScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(if (viewModel.isEditMode) R.string.edit_appointment else R.string.add_appointment)) },
+                title = {
+                    Text(
+                        stringResource(if (viewModel.isEditMode) R.string.edit_appointment else R.string.add_appointment),
+                        color = SectionAccentAppointments
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = SectionAccentAppointments
+                        )
                     }
                 }
             )
@@ -300,7 +311,8 @@ fun AddEditAppointmentScreen(
             Button(
                 onClick = { viewModel.saveAppointment() },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = SectionAccentAppointments, contentColor = androidx.compose.ui.graphics.Color.White)
             ) {
                 Text(stringResource(R.string.save))
             }
