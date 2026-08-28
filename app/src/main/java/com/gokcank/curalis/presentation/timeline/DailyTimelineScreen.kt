@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -69,7 +70,6 @@ import com.gokcank.curalis.presentation.components.SkipReasonDialog
 import com.gokcank.curalis.presentation.components.icon
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.format.TextStyle
 import java.util.Date
 import java.util.Locale
 
@@ -300,7 +300,11 @@ fun DayChip(
     isToday: Boolean,
     onClick: () -> Unit
 ) {
-    val dayAbbrev = date.dayOfWeek.getDisplayName(TextStyle.SHORT, LocalConfiguration.current.locales[0])
+    // Cihazın kendi dil kütüphanesinden (DayOfWeek.getDisplayName) gelen kısaltma bazı
+    // cihaz/dil kombinasyonlarında günün tam adına düşüyor ve dar sabit kutuya sığmayıp
+    // harf harf bölünüyordu — ilaç ekleme ekranındaki gibi sabit, garantili kısaltma
+    // listesi kullanılır.
+    val dayAbbrev = stringArrayResource(R.array.weekday_short_names)[date.dayOfWeek.value - 1]
     Surface(
         shape = RoundedCornerShape(10.dp),
         color = if (isSelected) SectionAccentMedications else MaterialTheme.colorScheme.surfaceVariant,
@@ -315,7 +319,8 @@ fun DayChip(
             Text(
                 text = dayAbbrev,
                 style = MaterialTheme.typography.labelSmall,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
             )
             Text(
                 text = date.dayOfMonth.toString(),
