@@ -682,9 +682,14 @@ fun AddEditMedicationScreen(
                 Text(stringResource(R.string.day_selection_label), style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(4.dp))
                 val daysOfWeekNames = androidx.compose.ui.res.stringArrayResource(R.array.weekday_short_names).toList()
-                Row(
+                // Sabit genişlikli tek satır Row, 7 kısaltmanın toplam doğal genişliği dar
+                // ekranlarda satır genişliğini aşınca son kısaltmayı harf harf sıkıştırıyordu
+                // (bkz. kullanıcı geri bildirimi). FlowRow, sığmayan öğeleri bütün olarak bir
+                // sonraki satıra taşır — kelime asla bölünmez.
+                androidx.compose.foundation.layout.FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     daysOfWeekNames.forEachIndexed { index, dayName ->
                         val dayNumber = index + 1

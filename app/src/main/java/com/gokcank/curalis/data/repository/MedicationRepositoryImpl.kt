@@ -1,6 +1,7 @@
 package com.gokcank.curalis.data.repository
 
 import com.gokcank.curalis.data.local.dao.MedicationDao
+import com.gokcank.curalis.data.local.entity.MedicationDaysEntity
 import com.gokcank.curalis.data.mapper.toDomain
 import com.gokcank.curalis.data.mapper.toEntity
 import com.gokcank.curalis.domain.model.Medication
@@ -18,7 +19,8 @@ class MedicationRepositoryImpl @Inject constructor(
         return dao.getAllMedications().map { entities ->
             entities.map { entity ->
                 val times = dao.getMedicationTimes(entity.id).firstOrNull() ?: emptyList()
-                entity.toDomain(times = times.map { it.toDomain() })
+                val days = dao.getMedicationDays(entity.id).firstOrNull() ?: emptyList()
+                entity.toDomain(times = times.map { it.toDomain() }, specificDays = days.map { it.dayOfWeek })
             }
         }
     }
@@ -28,7 +30,8 @@ class MedicationRepositoryImpl @Inject constructor(
             if (entity == null) null
             else {
                 val times = dao.getMedicationTimes(entity.id).firstOrNull() ?: emptyList()
-                entity.toDomain(times = times.map { it.toDomain() })
+                val days = dao.getMedicationDays(entity.id).firstOrNull() ?: emptyList()
+                entity.toDomain(times = times.map { it.toDomain() }, specificDays = days.map { it.dayOfWeek })
             }
         }
     }
@@ -37,7 +40,8 @@ class MedicationRepositoryImpl @Inject constructor(
         return dao.searchMedications(query).map { entities ->
             entities.map { entity ->
                 val times = dao.getMedicationTimes(entity.id).firstOrNull() ?: emptyList()
-                entity.toDomain(times = times.map { it.toDomain() })
+                val days = dao.getMedicationDays(entity.id).firstOrNull() ?: emptyList()
+                entity.toDomain(times = times.map { it.toDomain() }, specificDays = days.map { it.dayOfWeek })
             }
         }
     }
@@ -48,6 +52,10 @@ class MedicationRepositoryImpl @Inject constructor(
         if (medication.times.isNotEmpty()) {
             dao.insertMedicationTimes(medication.times.map { it.toEntity(medication.id) })
         }
+        dao.deleteMedicationDays(medication.id)
+        if (medication.specificDays.isNotEmpty()) {
+            dao.insertMedicationDays(medication.specificDays.map { MedicationDaysEntity(medication.id, it) })
+        }
     }
 
     override suspend fun updateMedication(medication: Medication) {
@@ -56,10 +64,15 @@ class MedicationRepositoryImpl @Inject constructor(
         if (medication.times.isNotEmpty()) {
             dao.insertMedicationTimes(medication.times.map { it.toEntity(medication.id) })
         }
+        dao.deleteMedicationDays(medication.id)
+        if (medication.specificDays.isNotEmpty()) {
+            dao.insertMedicationDays(medication.specificDays.map { MedicationDaysEntity(medication.id, it) })
+        }
     }
 
     override suspend fun deleteMedication(medication: Medication) {
         dao.deleteMedicationTimes(medication.id)
+        dao.deleteMedicationDays(medication.id)
         dao.deleteMedication(medication.toEntity())
     }
 }
