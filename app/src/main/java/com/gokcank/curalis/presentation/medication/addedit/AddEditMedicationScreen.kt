@@ -121,7 +121,25 @@ fun AddEditMedicationScreen(
     // Düzenleme modunda (viewModel.isEditMode) bu kısıtlama uygulanmaz — mevcut bir kaydın
     // alanları kullanıcıdan gizlenmez, hepsi her zaman gösterilir (bkz. aşağıdaki `showExtra`).
     var expandedExtraFields by remember { mutableStateOf(emptySet<String>()) }
-    fun showExtra(key: String) = viewModel.isEditMode || key in expandedExtraFields
+    // Resmi listeden bir öneri seçildiğinde etken madde gibi alanlar kullanıcı hiç
+    // dokunmadan otomatik doluyor; alan doluysa bölüm de görünür olmalı, yoksa kullanıcı
+    // "Neredeyse bitti!" listesindeki onay işaretini görüp bölümü hiç açmadan bilgiyi
+    // göremiyor (bkz. kullanıcı geri bildirimi).
+    fun hasExtraValue(key: String) = when (key) {
+        "etken_madde" -> formState.activeIngredient.isNotBlank()
+        "barkod" -> formState.barcode.isNotBlank()
+        "renk" -> formState.colorHex != "#1E88E5"
+        "foto" -> formState.photoPath != null
+        "yemek" -> formState.mealInstruction != MealInstruction.DOES_NOT_MATTER
+        "stok" -> formState.isRefillEnabled
+        "doktor" -> formState.doctorId != null
+        "ek_bilgi" -> formState.expiryDate != null ||
+            formState.notes.isNotBlank() ||
+            formState.treatmentDurationDays.isNotBlank() ||
+            formState.rxNumber.isNotBlank()
+        else -> false
+    }
+    fun showExtra(key: String) = viewModel.isEditMode || key in expandedExtraFields || hasExtraValue(key)
 
     val context = LocalContext.current
     // MedicationForm/MealInstruction display names are stored per-enum in both languages
@@ -755,8 +773,14 @@ fun AddEditMedicationScreen(
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        val extraFieldOptions = listOf(
-                            "etken_madde" to stringResource(R.string.active_ingredient),
+                        val extraFieldOptions = listOfNotNull(
+                            // Onaylı (resmi listeden seçilmiş) bir ilaçta etken madde zaten
+                            // otomatik doluyor ve alan kendiliğinden görünüyor — bu durumda
+                            // tıklanacak bir şey kalmadığı için düğme listede gösterilmez;
+                            // yalnızca elle girilen ilaçlarda kullanıcı isterse ekleyebilsin
+                            // diye gösterilir.
+                            ("etken_madde" to stringResource(R.string.active_ingredient))
+                                .takeIf { !formState.isVerifiedSource },
                             "barkod" to stringResource(R.string.barcode_field_label),
                             "renk" to stringResource(R.string.color_field_label),
                             "foto" to stringResource(R.string.photo_field_label),
@@ -768,20 +792,6 @@ fun AddEditMedicationScreen(
                         // Kullanıcı bu alana daha önce bir değer girdiyse düğmede küçük bir
                         // onay işareti gösterilir — "Neredeyse bitti!" listesinde hangi ek
                         // bilgilerin zaten dolu olduğu tek bakışta belli olsun diye.
-                        fun hasValue(key: String) = when (key) {
-                            "etken_madde" -> formState.activeIngredient.isNotBlank()
-                            "barkod" -> formState.barcode.isNotBlank()
-                            "renk" -> formState.colorHex != "#1E88E5"
-                            "foto" -> formState.photoPath != null
-                            "yemek" -> formState.mealInstruction != MealInstruction.DOES_NOT_MATTER
-                            "stok" -> formState.isRefillEnabled
-                            "doktor" -> formState.doctorId != null
-                            "ek_bilgi" -> formState.expiryDate != null ||
-                                formState.notes.isNotBlank() ||
-                                formState.treatmentDurationDays.isNotBlank() ||
-                                formState.rxNumber.isNotBlank()
-                            else -> false
-                        }
                         androidx.compose.foundation.layout.FlowRow(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -798,7 +808,7 @@ fun AddEditMedicationScreen(
                                         }
                                     },
                                     label = { Text(label) },
-                                    leadingIcon = if (hasValue(key)) {
+                                    leadingIcon = if (hasExtraValue(key)) {
                                         { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                                     } else null
                                 )
