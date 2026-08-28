@@ -765,6 +765,23 @@ fun AddEditMedicationScreen(
                             "doktor" to stringResource(R.string.doctor_field_label),
                             "ek_bilgi" to stringResource(R.string.expiry_notes_field_label)
                         )
+                        // Kullanıcı bu alana daha önce bir değer girdiyse düğmede küçük bir
+                        // onay işareti gösterilir — "Neredeyse bitti!" listesinde hangi ek
+                        // bilgilerin zaten dolu olduğu tek bakışta belli olsun diye.
+                        fun hasValue(key: String) = when (key) {
+                            "etken_madde" -> formState.activeIngredient.isNotBlank()
+                            "barkod" -> formState.barcode.isNotBlank()
+                            "renk" -> formState.colorHex != "#1E88E5"
+                            "foto" -> formState.photoPath != null
+                            "yemek" -> formState.mealInstruction != MealInstruction.DOES_NOT_MATTER
+                            "stok" -> formState.isRefillEnabled
+                            "doktor" -> formState.doctorId != null
+                            "ek_bilgi" -> formState.expiryDate != null ||
+                                formState.notes.isNotBlank() ||
+                                formState.treatmentDurationDays.isNotBlank() ||
+                                formState.rxNumber.isNotBlank()
+                            else -> false
+                        }
                         androidx.compose.foundation.layout.FlowRow(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -780,7 +797,10 @@ fun AddEditMedicationScreen(
                                             expandedExtraFields + key
                                         }
                                     },
-                                    label = { Text(label) }
+                                    label = { Text(label) },
+                                    leadingIcon = if (hasValue(key)) {
+                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                    } else null
                                 )
                             }
                         }
