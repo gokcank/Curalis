@@ -8,7 +8,7 @@ import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.MedicationTime
 
-fun MedicationEntity.toDomain(times: List<MedicationTime> = emptyList()): Medication {
+fun MedicationEntity.toDomain(times: List<MedicationTime> = emptyList(), specificDays: List<Int> = emptyList()): Medication {
     val freqType = try {
         FrequencyType.valueOf(frequencyType)
     } catch (e: Exception) {
@@ -46,7 +46,8 @@ fun MedicationEntity.toDomain(times: List<MedicationTime> = emptyList()): Medica
         rxNumber = rxNumber,
         photoPath = photoPath,
         doctorId = doctorId,
-        times = times
+        times = times,
+        specificDays = specificDays
     )
 }
 
