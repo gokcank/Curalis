@@ -61,7 +61,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             ndk {
                 // SQLCipher gibi yerel (native) kütüphaneler içeriyoruz; bu olmadan Play
                 // Console'a yüklenen her AAB için native çökme raporları sembolsüz kalıyor.
