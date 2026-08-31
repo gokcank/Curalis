@@ -122,6 +122,38 @@ class GetRemindersBetweenDatesUseCaseTest {
     }
 
     @Test
+    fun `does not add a virtual reminder at the medication's new time when today already has a real reminder at the old time`() = runBlocking {
+        // Saat değişikliği "yarından itibaren" uygulandığında, bugünün eski saatteki
+        // gerçek kaydı bilinçli olarak korunur ve ilacın güncel (yeni) saati o gün
+        // için hiç veritabanına yazılmaz. Bu durumda ekran hesaplaması, bugünü ilacın
+        // yeni saatiyle tekrar doldurup çift doz göstermemeli.
+        val medication = Medication(
+            name = "Tansiyon ilacı",
+            frequencyType = FrequencyType.DAILY,
+            times = listOf(MedicationTime(hour = 21, minute = 0)), // güncel (yeni) saat
+            startDate = dayStart(-10)
+        )
+        val oldTimeToday = Calendar.getInstance().apply {
+            timeInMillis = dayStart(0)
+            set(Calendar.HOUR_OF_DAY, 20)
+            set(Calendar.MINUTE, 0)
+        }.timeInMillis
+        val realReminderAtOldTime = Reminder(
+            medicationId = medication.id,
+            timeInMillis = oldTimeToday,
+            state = ReminderState.SCHEDULED
+        )
+        val useCase = GetRemindersBetweenDatesUseCase(
+            FakeReminderRepository(listOf(realReminderAtOldTime)),
+            FakeMedicationRepository(listOf(medication))
+        )
+
+        val result = useCase(dayStart(0), dayEnd(0)).first()
+        assertEquals(1, result.size)
+        assertEquals(oldTimeToday, result.first().timeInMillis)
+    }
+
+    @Test
     fun `medication does not produce reminders before its start date`() = runBlocking {
         val medication = Medication(
             name = "Yeni başlanan ilaç",
