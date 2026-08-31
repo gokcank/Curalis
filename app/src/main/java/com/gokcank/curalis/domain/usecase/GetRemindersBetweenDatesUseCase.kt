@@ -23,7 +23,22 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
             
             val virtualReminders = mutableListOf<Reminder>()
             val dbReminderMap = dbReminders.associateBy { "${it.medicationId}_${it.timeInMillis}" }
-            
+            // Bir ilacın bir günü için veritabanında zaten en az bir gerçek kayıt varsa,
+            // o gün ilacın güncel saatleriyle hayali olarak tekrar doldurulmaz. Aksi halde,
+            // örneğin saat değişikliği "yarından itibaren" uygulandığında bugün için
+            // bilinçli olarak korunan eski saatteki gerçek kaydın yanına, ilacın yeni
+            // saatiyle hayali bir ikinci kayıt daha eklenir (çift doz görünümü).
+            val dbReminderDayKeys = dbReminders.mapTo(mutableSetOf()) { reminder ->
+                val dayCal = Calendar.getInstance().apply {
+                    timeInMillis = reminder.timeInMillis
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                "${reminder.medicationId}_${dayCal.timeInMillis}"
+            }
+
             val startCal = Calendar.getInstance().apply { 
                 timeInMillis = start
                 set(Calendar.HOUR_OF_DAY, 0)
@@ -64,6 +79,7 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
 
                 daysInMillis.forEach { dayMillis ->
                     if (dayMillis < medStartCal.timeInMillis) return@forEach
+                    if ("${medication.id}_$dayMillis" in dbReminderDayKeys) return@forEach
 
                     if (FrequencyCalculator.shouldTakeOnDay(medication, dayMillis)) {
                         medication.times.forEach { time ->
