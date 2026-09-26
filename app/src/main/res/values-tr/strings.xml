@@ -129,8 +129,9 @@
     <string name="theme_amoled">AMOLED</string>
     <string name="language">Dil / Language</string>
     <string name="language_desc">Uygulama dilini değiştirir (Türkçe, English)</string>
+    <string name="language_system_default">Sistem Diline Göre</string>
     <string name="about">Hakkında</string>
-    <string name="app_version">Curalis %1$s (Kapalı Beta)</string>
+    <string name="app_version">Curalis %1$s</string>
     <string name="developer">Geliştirici: %1$s</string>
     <string name="database_date_label">TİTCK Veritabanı Tarihi: %1$s</string>
     <string name="widget_description">Bugünün ilaç dozlarını gösterir ve doğrudan ana ekrandan "Aldım" olarak işaretlemenizi sağlar.</string>
