@@ -86,9 +86,9 @@ class BackupViewModel @Inject constructor(
                     fileContent
                 }
 
-                val success = backupManager.importData(jsonString)
-                if (success) {
-                    _uiState.value = BackupUiState.Success(str(R.string.backup_restore_success))
+                val recordCount = backupManager.importData(jsonString)
+                if (recordCount != null) {
+                    _uiState.value = BackupUiState.Success(str(R.string.backup_restore_success, recordCount))
                 } else {
                     _uiState.value = BackupUiState.Error(str(R.string.backup_restore_failed))
                 }
@@ -143,9 +143,9 @@ class BackupViewModel @Inject constructor(
                     fileContent
                 }
 
-                val success = backupManager.importData(jsonString)
-                if (success) {
-                    _uiState.value = BackupUiState.Success(str(R.string.backup_drive_restore_success))
+                val recordCount = backupManager.importData(jsonString)
+                if (recordCount != null) {
+                    _uiState.value = BackupUiState.Success(str(R.string.backup_drive_restore_success, recordCount))
                 } else {
                     _uiState.value = BackupUiState.Error(str(R.string.backup_restore_failed_file_corrupt))
                 }

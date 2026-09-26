@@ -30,7 +30,7 @@ class LocalBackupManager @Inject constructor(
         return@withContext gson.toJson(backupData)
     }
 
-    override suspend fun importData(jsonString: String): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun importData(jsonString: String): Int? = withContext(Dispatchers.IO) {
         try {
             val backupData = gson.fromJson(jsonString, BackupData::class.java)
 
@@ -48,10 +48,15 @@ class LocalBackupManager @Inject constructor(
                 backupDao.insertAppointments(backupData.appointments)
                 backupDao.insertVitals(backupData.vitals)
             }
-            true
+            // Bir yedeğin gerçekten anlamlı içerik taşıyıp taşımadığını kullanıcıya
+            // göstermek için — "başarılı" mesajı tek başına, boş/eski bir test
+            // yedeğinin sessizce geri yüklenmesiyle gerçek bir yedeğin geri
+            // yüklenmesini birbirinden ayırt ettirmiyordu.
+            backupData.medications.size + backupData.doctors.size +
+                backupData.appointments.size + backupData.vitals.size
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            null
         }
     }
 }

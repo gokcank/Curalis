@@ -634,7 +634,7 @@
     <string name="backup_restoring">Yedekleme geri yükleniyor...</string>
     <string name="backup_selected_file_empty">Seçilen dosya boş.</string>
     <string name="backup_wrong_password">Şifre yanlış veya yedek dosyası bozuk.</string>
-    <string name="backup_restore_success">Veriler başarıyla geri yüklendi.</string>
+    <string name="backup_restore_success">Veriler geri yüklendi (%1$d kayıt).</string>
     <string name="backup_restore_failed">Geri yükleme başarısız oldu. Yedek dosyası bozuk olabilir.</string>
     <string name="backup_restore_error_generic">Geri yükleme sırasında bir hata oluştu: %1$s</string>
     <string name="backup_uploading_to_drive">Google Drive\'a yedekleniyor...</string>
@@ -643,7 +643,7 @@
     <string name="backup_error_with_message">Hata: %1$s</string>
     <string name="backup_downloading_from_drive">Google Drive\'dan geri yükleniyor...</string>
     <string name="backup_drive_no_backup_found">Google Drive\'da yedek bulunamadı.</string>
-    <string name="backup_drive_restore_success">Google Drive yedeği başarıyla yüklendi.</string>
+    <string name="backup_drive_restore_success">Google Drive yedeği geri yüklendi (%1$d kayıt).</string>
     <string name="backup_restore_failed_file_corrupt">Geri yükleme başarısız oldu. Dosya bozuk olabilir.</string>
 
     <!-- ViewModel doğrulama / hata mesajları -->
