@@ -632,7 +632,7 @@
     <string name="backup_restoring">Restoring backup...</string>
     <string name="backup_selected_file_empty">The selected file is empty.</string>
     <string name="backup_wrong_password">Incorrect password or the backup file is corrupted.</string>
-    <string name="backup_restore_success">Data restored successfully.</string>
+    <string name="backup_restore_success">Data restored (%1$d records).</string>
     <string name="backup_restore_failed">Restore failed. The backup file may be corrupted.</string>
     <string name="backup_restore_error_generic">An error occurred while restoring: %1$s</string>
     <string name="backup_uploading_to_drive">Backing up to Google Drive...</string>
@@ -641,7 +641,7 @@
     <string name="backup_error_with_message">Error: %1$s</string>
     <string name="backup_downloading_from_drive">Restoring from Google Drive...</string>
     <string name="backup_drive_no_backup_found">No backup found on Google Drive.</string>
-    <string name="backup_drive_restore_success">Google Drive backup restored successfully.</string>
+    <string name="backup_drive_restore_success">Google Drive backup restored (%1$d records).</string>
     <string name="backup_restore_failed_file_corrupt">Restore failed. The file may be corrupted.</string>
 
     <!-- ViewModel validation / error messages -->
