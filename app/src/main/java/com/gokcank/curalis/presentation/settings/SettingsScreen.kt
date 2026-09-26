@@ -176,8 +176,15 @@ fun SettingsScreen(
                 
                 var expanded by remember { mutableStateOf(false) }
                 val currentLocales = AppCompatDelegate.getApplicationLocales()
-                val isEnglish = currentLocales.toLanguageTags().contains("en")
-                val currentLangName = if (isEnglish) "English" else "Türkçe"
+                // Kullanıcı elle bir dil seçmediyse (uygulama sistem diline göre
+                // otomatik açılıyorsa) bu liste boş döner — bu durumda butonda
+                // sanki "Türkçe seçili" gibi yanıltıcı bir isim göstermek yerine
+                // sistem dilini takip ettiğimizi belirten nötr bir etiket gösterilir.
+                val currentLangName = when {
+                    currentLocales.isEmpty -> stringResource(R.string.language_system_default)
+                    currentLocales.toLanguageTags().contains("en") -> "English"
+                    else -> "Türkçe"
+                }
 
                 Box {
                     Button(
@@ -193,6 +200,13 @@ fun SettingsScreen(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.language_system_default)) },
+                            onClick = {
+                                expanded = false
+                                AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+                            }
+                        )
                         DropdownMenuItem(
                             text = { Text("Türkçe") },
                             onClick = {

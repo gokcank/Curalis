@@ -129,8 +129,9 @@
     <string name="theme_amoled">AMOLED</string>
     <string name="language">Dil / Language</string>
     <string name="language_desc">Change app language (Türkçe, English)</string>
+    <string name="language_system_default">Follow system language</string>
     <string name="about">About</string>
-    <string name="app_version">Curalis %1$s (Closed Beta)</string>
+    <string name="app_version">Curalis %1$s</string>
     <string name="developer">Developer: %1$s</string>
     <string name="database_date_label">Database Date: %1$s</string>
     <string name="widget_description">Shows today\'s medication doses and lets you mark them as taken directly from the home screen.</string>
