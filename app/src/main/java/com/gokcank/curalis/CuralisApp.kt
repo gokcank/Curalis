@@ -11,6 +11,15 @@ import javax.inject.Inject
 @HiltAndroidApp
 class CuralisApp : Application(), Configuration.Provider {
 
+    companion object {
+        init {
+            // sqlcipher-android (eski android-database-sqlcipher'ın 16 KB bellek sayfası
+            // destekli halefi) native kütüphaneyi artık kendiliğinden yüklemiyor —
+            // herhangi bir SQLiteDatabase kullanılmadan önce bir kez yüklenmesi gerekiyor.
+            System.loadLibrary("sqlcipher")
+        }
+    }
+
     // Bildirim kanalları kullanıcının Ayarlar > Uygulamalar > Bildirimler'de görebilmesi için
     // ilk hatırlatıcı tetiklenmesini beklemeden, uygulama açılışında oluşturulmalı.
     @Inject
