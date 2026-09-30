@@ -10,7 +10,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import net.sqlcipher.database.SupportFactory
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import javax.inject.Singleton
 
 @Module
@@ -36,7 +36,7 @@ object DatabaseModule {
             CuralisDatabase::class.java,
             CuralisDatabase.DATABASE_NAME
         )
-        .openHelperFactory(SupportFactory(passphrase.toByteArray(Charsets.UTF_8)))
+        .openHelperFactory(SupportOpenHelperFactory(passphrase.toByteArray(Charsets.UTF_8)))
         .addMigrations(*com.gokcank.curalis.data.local.CURALIS_MIGRATIONS)
         .build()
     }

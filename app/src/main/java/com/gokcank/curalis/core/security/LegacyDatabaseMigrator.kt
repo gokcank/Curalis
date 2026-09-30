@@ -2,7 +2,7 @@ package com.gokcank.curalis.core.security
 
 import android.content.Context
 import android.util.Log
-import net.sqlcipher.database.SQLiteDatabase as SQLCipherDatabase
+import net.zetetic.database.sqlcipher.SQLiteDatabase as SQLCipherDatabase
 import java.io.File
 
 /**
@@ -19,11 +19,9 @@ object LegacyDatabaseMigrator {
         val dbFile = context.getDatabasePath(databaseName)
         if (!dbFile.exists()) return
 
-        SQLCipherDatabase.loadLibs(context)
-
         val alreadyEncrypted = runCatching {
             SQLCipherDatabase.openDatabase(
-                dbFile.path, passphrase, null, SQLCipherDatabase.OPEN_READONLY
+                dbFile.path, passphrase, null, SQLCipherDatabase.OPEN_READONLY, null
             ).use { db ->
                 // Basit open+close anahtarı doğrulamaz — SQLCipher'da anahtar yalnızca
                 // gerçek bir sayfa okunduğunda (HMAC kontrolüyle) doğrulanır. Bu sorgu
@@ -36,7 +34,7 @@ object LegacyDatabaseMigrator {
         // SQLCipher motoru, gerçek bir anahtar verilmediğinde ("") düz metin (şifresiz)
         // bir SQLite dosyasını da açabilir — resmi migration deseni buna dayanır.
         val plainDb = runCatching {
-            SQLCipherDatabase.openDatabase(dbFile.path, "", null, SQLCipherDatabase.OPEN_READWRITE)
+            SQLCipherDatabase.openDatabase(dbFile.path, "", null, SQLCipherDatabase.OPEN_READWRITE, null)
         }.getOrNull()
 
         if (plainDb == null) {
