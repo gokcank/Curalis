@@ -500,6 +500,7 @@
     <string name="generate_pdf_report_content_desc">PDF rapor oluştur</string>
     <string name="calendar_content_desc">Takvim</string>
     <string name="todays_pillbox_title">Bugünün Kutusu</string>
+    <string name="todays_summary_link">Bugünün Özeti</string>
 
     <!-- Ana ekran: seri / uyum başlığı -->
     <string name="home_streak_days">%1$d gün</string>

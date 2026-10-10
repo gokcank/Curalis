@@ -3,6 +3,7 @@ package com.gokcank.curalis.presentation.home
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sick
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -323,7 +325,8 @@ fun HomeScreen(
                                 if (!isTaken) {
                                     pendingDoseReminder = item.reminder
                                 }
-                            }
+                            },
+                            onSummaryClick = onNavigateToDailyTimeline
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -615,12 +618,13 @@ fun SummaryCard(title: String, content: String, icon: ImageVector, onClick: (() 
  * dozlarını küçük ilaç ikonları halinde tek bakışta gösteren şerit. Bekleyen (veya
  * atlanmış/kaçırılmış, düzeltilebilir) bir ikona dokunmak doğrudan "Aldım" akışını açar;
  * ayrı bir ekrana gitmeye gerek kalmaz. Detaylı yönetim (atlama, erteleme, geçmiş) için
- * Günlük Zaman Çizelgesi ekranı kullanılmaya devam eder.
+ * başlıktaki "Bugünün Özeti" bağlantısıyla açılan Günlük Zaman Çizelgesi ekranı kullanılır.
  */
 @Composable
 fun PillboxStrip(
     items: List<HomePillboxItem>,
-    onItemClick: (HomePillboxItem) -> Unit
+    onItemClick: (HomePillboxItem) -> Unit,
+    onSummaryClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -631,12 +635,32 @@ fun PillboxStrip(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(R.string.todays_pillbox_title),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.todays_pillbox_title),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f)
+                )
+                TextButton(
+                    onClick = onSummaryClick,
+                    contentPadding = PaddingValues(start = 8.dp, end = 0.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.todays_summary_link),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(items, key = { it.reminder.id }) { item ->
                     PillboxDoseIcon(item = item, onClick = { onItemClick(item) })
