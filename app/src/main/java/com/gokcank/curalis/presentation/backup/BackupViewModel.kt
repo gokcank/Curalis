@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.notification.ReminderRescheduler
 import com.gokcank.curalis.core.security.BackupCrypto
 import com.gokcank.curalis.data.backup.GoogleDriveManagerFactory
 import com.gokcank.curalis.domain.repository.BackupManager
@@ -22,7 +23,8 @@ import javax.inject.Inject
 class BackupViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val backupManager: BackupManager,
-    private val googleDriveManagerFactory: GoogleDriveManagerFactory
+    private val googleDriveManagerFactory: GoogleDriveManagerFactory,
+    private val reminderRescheduler: ReminderRescheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BackupUiState>(BackupUiState.Idle)
@@ -32,6 +34,19 @@ class BackupViewModel @Inject constructor(
 
     fun resetState() {
         _uiState.value = BackupUiState.Idle
+    }
+
+    /**
+     * Restores the backup and then swaps the alarms over to the restored data. The old
+     * alarms are only cancelled once the import has succeeded — a failed import rolls back
+     * and leaves the old data, whose alarms are still correct.
+     */
+    private suspend fun restoreAndRescheduleAlarms(jsonString: String): Int? {
+        val previousAlarms = reminderRescheduler.snapshot()
+        val recordCount = backupManager.importData(jsonString) ?: return null
+        reminderRescheduler.cancel(previousAlarms)
+        reminderRescheduler.scheduleAll()
+        return recordCount
     }
 
     fun exportDataToUri(context: Context, uri: Uri, password: String) {
@@ -86,7 +101,7 @@ class BackupViewModel @Inject constructor(
                     fileContent
                 }
 
-                val recordCount = backupManager.importData(jsonString)
+                val recordCount = restoreAndRescheduleAlarms(jsonString)
                 if (recordCount != null) {
                     _uiState.value = BackupUiState.Success(str(R.string.backup_restore_success, recordCount))
                 } else {
@@ -143,7 +158,7 @@ class BackupViewModel @Inject constructor(
                     fileContent
                 }
 
-                val recordCount = backupManager.importData(jsonString)
+                val recordCount = restoreAndRescheduleAlarms(jsonString)
                 if (recordCount != null) {
                     _uiState.value = BackupUiState.Success(str(R.string.backup_drive_restore_success, recordCount))
                 } else {
