@@ -498,6 +498,7 @@
     <string name="generate_pdf_report_content_desc">Generate PDF Report</string>
     <string name="calendar_content_desc">Calendar</string>
     <string name="todays_pillbox_title">Today\'s Pillbox</string>
+    <string name="todays_summary_link">Today\'s Summary</string>
 
     <!-- Home: streak / adherence hero -->
     <string name="home_streak_days">%1$d days</string>
