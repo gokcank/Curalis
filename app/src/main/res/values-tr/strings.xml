@@ -302,9 +302,6 @@
     <string name="backup_restore_row_title">Yedekleme &amp; Geri Yükleme</string>
     <string name="backup_restore_row_desc">Verilerinizi telefonunuza veya buluta yedekleyin</string>
     <string name="google_drive_backup_tip">İpucu: Telefon değişikliğinde verilerinizi kaybetmemek için Google Drive\'a şifreli bir yedek almanızı öneririz.</string>
-    <string name="export_encrypted_db_title">Şifreli Veritabanı Kopyasını Dışa Aktar</string>
-    <string name="export_encrypted_db_desc">Destek/teknik inceleme için veritabanınızın şifreli bir kopyasını dışa aktarır. Şifresi bu dosyada bulunmaz, tek başına açılamaz.</string>
-    <string name="export_button">Dışa Aktar</string>
     <string name="support_section_title">Destek</string>
     <string name="help_center_row_title">Yardım Merkezi / SSS</string>
     <string name="help_center_row_desc">Sık sorulan sorular ve çözümleri</string>
@@ -485,7 +482,7 @@
     <string name="faq_q1">Hatırlatıcılar zamanında gelmiyor, ne yapmalıyım?</string>
     <string name="faq_a1">Ayarlar &gt; Bildirim ve Hatırlatıcı Ayarları &gt; Sorun Giderme sihirbazını çalıştırın. En sık neden, telefon üreticinizin pil optimizasyonunun Curalis\'i arka planda kapatmasıdır; sihirbaz cihazınıza özel adımları gösterir.</string>
     <string name="faq_q2">Verilerim nerede saklanıyor?</string>
-    <string name="faq_a2">Tüm ilaç, randevu ve ölçüm verileriniz varsayılan olarak yalnızca bu cihazda, şifrelenmiş bir veritabanında saklanır. Curalis\'in sunucusu yoktur; hiçbir veri otomatik olarak dışarı gönderilmez.</string>
+    <string name="faq_a2">Tüm ilaç, randevu ve ölçüm verileriniz varsayılan olarak yalnızca bu cihazda, uygulamanın diğer uygulamalara kapalı kendi alanında saklanır. Curalis\'in sunucusu yoktur; hiçbir veri otomatik olarak dışarı gönderilmez.</string>
     <string name="faq_q3">Telefonumu değiştirirsem verilerim kaybolur mu?</string>
     <string name="faq_a3">Ayarlar &gt; Yedekleme &amp; Geri Yükleme\'den Google Drive\'a şifreli bir yedek alabilirsiniz. Yeni telefonunuzda aynı hesapla oturum açıp yedeği geri yükleyerek kaldığınız yerden devam edebilirsiniz.</string>
     <string name="faq_q4">Google Drive yedeği güvenli mi?</string>
@@ -644,7 +641,6 @@
     <!-- ViewModel doğrulama / hata mesajları -->
     <string name="appointment_title_empty_error">Randevu başlığı boş olamaz</string>
     <string name="vital_invalid_value_error">Lütfen geçerli bir değer girin.</string>
-    <string name="export_db_copy_error">Veritabanı kopyası oluşturulamadı: %1$s</string>
     <string name="daily_note_empty_error">Lütfen bir not yazın veya bir ruh hali seçin.</string>
     <string name="contact_name_empty_error">Kişi adı boş olamaz</string>
     <string name="medication_delete_error">İlaç silinirken bir hata oluştu: %1$s</string>

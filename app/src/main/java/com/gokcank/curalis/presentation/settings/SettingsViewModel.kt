@@ -1,23 +1,14 @@
 package com.gokcank.curalis.presentation.settings
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.gokcank.curalis.R
 import com.gokcank.curalis.core.security.AppLockPreferences
 import com.gokcank.curalis.core.theme.ThemeController
 import com.gokcank.curalis.core.theme.ThemeMode
 import com.gokcank.curalis.core.timeline.TimelinePreferences
-import com.gokcank.curalis.core.utils.DatabaseExporter
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 data class TimelineSlotBoundsUiState(
@@ -28,35 +19,12 @@ data class TimelineSlotBoundsUiState(
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
     private val themeController: ThemeController,
     appLockPreferences: AppLockPreferences,
-    private val timelinePreferences: TimelinePreferences,
-    private val databaseExporter: DatabaseExporter
+    private val timelinePreferences: TimelinePreferences
 ) : ViewModel() {
 
     val themeMode = themeController.themeMode
-
-    private val _exportedDatabaseFile = MutableSharedFlow<File>()
-    val exportedDatabaseFile = _exportedDatabaseFile.asSharedFlow()
-
-    private val _exportError = MutableSharedFlow<String>()
-    val exportError = _exportError.asSharedFlow()
-
-    fun exportEncryptedDatabase() {
-        viewModelScope.launch {
-            try {
-                val file = databaseExporter.exportEncryptedCopy()
-                _exportedDatabaseFile.emit(file)
-            } catch (e: Exception) {
-                _exportError.emit(appContext.getString(R.string.export_db_copy_error, e.localizedMessage ?: appContext.getString(R.string.unknown_error)))
-            }
-        }
-    }
-
-    fun shareExportedDatabase(context: android.content.Context, file: File) {
-        databaseExporter.shareExportedCopy(context, file)
-    }
 
     val isAppLockEnabled = appLockPreferences.lockEnabledState
 

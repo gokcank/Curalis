@@ -300,9 +300,6 @@
     <string name="backup_restore_row_title">Backup &amp; Restore</string>
     <string name="backup_restore_row_desc">Back up your data to your phone or the cloud</string>
     <string name="google_drive_backup_tip">Tip: to avoid losing your data when you change phones, we recommend taking an encrypted backup to Google Drive.</string>
-    <string name="export_encrypted_db_title">Export Encrypted Database Copy</string>
-    <string name="export_encrypted_db_desc">Exports an encrypted copy of your database for support/technical review. The password is not included in this file and it cannot be opened on its own.</string>
-    <string name="export_button">Export</string>
     <string name="support_section_title">Support</string>
     <string name="help_center_row_title">Help Center / FAQ</string>
     <string name="help_center_row_desc">Frequently asked questions and their solutions</string>
@@ -483,7 +480,7 @@
     <string name="faq_q1">Reminders don\'t arrive on time, what should I do?</string>
     <string name="faq_a1">Run the Troubleshooting wizard in Settings &gt; Notification &amp; Reminder Settings &gt; Troubleshooting. The most common cause is your phone manufacturer\'s battery optimization shutting Curalis down in the background; the wizard shows steps specific to your device.</string>
     <string name="faq_q2">Where is my data stored?</string>
-    <string name="faq_a2">All your medication, appointment and measurement data is stored, by default, only on this device, in an encrypted database. Curalis has no server; no data is sent out automatically.</string>
+    <string name="faq_a2">All your medication, appointment and measurement data is stored, by default, only on this device, in the app\'s private storage that other apps cannot access. Curalis has no server; no data is sent out automatically.</string>
     <string name="faq_q3">Will I lose my data if I change my phone?</string>
     <string name="faq_a3">You can take an encrypted backup to Google Drive from Settings &gt; Backup &amp; Restore. On your new phone, sign in with the same account and restore the backup to continue where you left off.</string>
     <string name="faq_q4">Is the Google Drive backup secure?</string>
@@ -642,7 +639,6 @@
     <!-- ViewModel validation / error messages -->
     <string name="appointment_title_empty_error">Appointment title cannot be empty</string>
     <string name="vital_invalid_value_error">Please enter a valid value.</string>
-    <string name="export_db_copy_error">Could not create database copy: %1$s</string>
     <string name="daily_note_empty_error">Please write a note or select a mood.</string>
     <string name="contact_name_empty_error">Contact name cannot be empty</string>
     <string name="medication_delete_error">An error occurred while deleting the medication: %1$s</string>
