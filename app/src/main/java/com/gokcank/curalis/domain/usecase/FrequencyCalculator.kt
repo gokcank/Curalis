@@ -137,8 +137,11 @@ object FrequencyCalculator {
     ): Long? {
         if (medication.frequencyType == FrequencyType.AS_NEEDED) return null
 
+        // Saatler "yarından itibaren" değiştirildiyse yeni saatler o andan önce tetiklenmez.
+        val effectiveFromMillis = maxOf(fromMillis, (medication.timesEffectiveFrom ?: 0L) - 1)
+
         val dayCal = Calendar.getInstance().apply {
-            timeInMillis = fromMillis
+            timeInMillis = effectiveFromMillis
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
@@ -151,7 +154,7 @@ object FrequencyCalculator {
                     set(Calendar.HOUR_OF_DAY, medTime.hour)
                     set(Calendar.MINUTE, medTime.minute)
                 }
-                if (triggerCal.timeInMillis > fromMillis) {
+                if (triggerCal.timeInMillis > effectiveFromMillis) {
                     return triggerCal.timeInMillis
                 }
             }

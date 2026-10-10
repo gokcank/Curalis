@@ -52,6 +52,10 @@ data class Medication(
     val photoPath: String? = null,
     // Bu ilacı reçete eden/takip eden doktor (bkz. Doctor). İsteğe bağlıdır.
     val doctorId: String? = null,
+    // Saatler "yarından itibaren" değiştirildiyse yeni [times] listesinin geçerli olduğu an
+    // (yarının başlangıcı). Bu andan önce yeni saatler için doz kaydı üretilmez ve alarm
+    // kurulmaz; bugünün eski saatteki dozları korunur. null = saatler zaten geçerli.
+    val timesEffectiveFrom: Long? = null,
     val times: List<MedicationTime> = emptyList()
 )
 

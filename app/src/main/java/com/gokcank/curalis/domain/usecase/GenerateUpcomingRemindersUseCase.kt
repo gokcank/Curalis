@@ -31,8 +31,13 @@ class GenerateUpcomingRemindersUseCase @Inject constructor(
         if (medication.frequencyType == FrequencyType.AS_NEEDED) return
         if (medication.times.isEmpty()) return
 
+        // Saatler "yarından itibaren" değiştirildiyse, yeni saatler için o andan önce kayıt
+        // üretilmez — aksi halde pencere "şu andan" tazelendiğinde (alarm çaldığında, gece
+        // görevi ya da yeniden başlatma sonrası) bugünün yeni saatli dozu geri gelirdi.
+        val generateFromMillis = maxOf(fromMillis, (medication.timesEffectiveFrom ?: 0L) - 1)
+
         val dayCal = Calendar.getInstance().apply {
-            timeInMillis = fromMillis
+            timeInMillis = generateFromMillis
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
@@ -53,7 +58,7 @@ class GenerateUpcomingRemindersUseCase @Inject constructor(
                         set(Calendar.MILLISECOND, 0)
                     }
                     val triggerMillis = triggerCal.timeInMillis
-                    if (triggerMillis > fromMillis) {
+                    if (triggerMillis > generateFromMillis) {
                         reminders.add(
                             Reminder(
                                 id = "${medication.id}_$triggerMillis",

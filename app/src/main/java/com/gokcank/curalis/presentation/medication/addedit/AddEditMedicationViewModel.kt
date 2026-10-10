@@ -381,15 +381,25 @@ class AddEditMedicationViewModel @Inject constructor(
             // İlaçlarım listesinden yapılır); form burada bunları sıfırlarsa, askıya
             // alınmış bir ilacı düzenleyip kaydetmek sessizce "devam ediyor" durumuna
             // döndürürdü.
-            val medication = form.toMedication(medicationId).let { med ->
-                originalMedication?.let { med.copy(isArchived = it.isArchived, isSuspended = it.isSuspended) } ?: med
+            val original = originalMedication
+            val formMedication = form.toMedication(medicationId)
+            val timesChanged = original != null && original.times != formMedication.times
+            val medication = formMedication.let { med ->
+                original?.let {
+                    med.copy(
+                        isArchived = it.isArchived,
+                        isSuspended = it.isSuspended,
+                        // Saatler değişmediyse önceki "yarından itibaren" kararı korunur;
+                        // değiştiyse kapsam yeniden sorulur (bkz. persistMedication).
+                        timesEffectiveFrom = if (timesChanged) null else it.timesEffectiveFrom
+                    )
+                } ?: med
             }
 
             // Saatler değiştiyse (eklendi/çıkarıldı/saati değişti) ve bekleyen gelecek
             // dozlar varsa, kullanıcıya bu değişikliğin kapsamını sor — aksi halde eski
             // saatteki bekleyen kayıtlar hiç temizlenmeden sistemde asılı kalıyordu.
-            val original = originalMedication
-            if (original != null && original.times != medication.times) {
+            if (timesChanged) {
                 val hasPendingFutureReminders = reminderRepository.getRemindersForMedication(medicationId)
                     .firstOrNull()
                     ?.any {
@@ -417,7 +427,14 @@ class AddEditMedicationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun persistMedication(medication: Medication, scope: ScheduleChangeScope) {
+    private suspend fun persistMedication(medicationToSave: Medication, scope: ScheduleChangeScope) {
+        // "Yarından itibaren": yeni saatler yarının başlangıcından önce ne doz kaydı ne
+        // alarm üretir (bkz. Medication.timesEffectiveFrom).
+        val medication = if (scope == ScheduleChangeScope.FROM_TOMORROW) {
+            medicationToSave.copy(timesEffectiveFrom = startOfTomorrowMillis())
+        } else {
+            medicationToSave
+        }
         val medicationId = medication.id
         try {
             // Bu ilaca ait önceden kurulmuş tüm alarmları iptal et (düzenlemede

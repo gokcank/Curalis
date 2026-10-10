@@ -10,14 +10,18 @@ import com.gokcank.curalis.domain.model.Appointment
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Reminder
+import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.repository.ReminderRepository
 import com.gokcank.curalis.domain.usecase.FrequencyCalculator
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.firstOrNull
 import java.util.Calendar
 import javax.inject.Inject
 
 class AlarmScheduler @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val notificationPreferences: NotificationPreferences
+    private val notificationPreferences: NotificationPreferences,
+    private val reminderRepository: ReminderRepository
 ) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
@@ -97,9 +101,11 @@ class AlarmScheduler @Inject constructor(
         }
     }
 
-    fun scheduleMedicationAlarms(medication: Medication) {
+    suspend fun scheduleMedicationAlarms(medication: Medication) {
         if (medication.isSuspended || medication.isArchived) return
         if (medication.frequencyType == FrequencyType.AS_NEEDED) return
+
+        scheduleDosesBeforeTimesTakeEffect(medication)
 
         medication.times.forEach { medTime ->
             val nextTriggerMillis = FrequencyCalculator.calculateNextTriggerTime(medication, medTime) ?: return@forEach
@@ -129,6 +135,22 @@ class AlarmScheduler @Inject constructor(
 
             setExactAlarm(nextTriggerMillis, pendingIntent)
         }
+    }
+
+    /**
+     * Saatler "yarından itibaren" değiştirildiyse, saat dilimi alarmları yeni saatlerle
+     * yarından başlar; bugün hâlâ bekleyen (eski saatteki) dozların alarmı ise burada, her
+     * doz kaydı için ayrı ayrı kurulur. Yeniden başlatma, saat dilimi değişikliği gibi her
+     * yeniden kurulumda tekrar çağrıldığı için bu alarmlar da kaybolmaz.
+     */
+    private suspend fun scheduleDosesBeforeTimesTakeEffect(medication: Medication) {
+        val effectiveFrom = medication.timesEffectiveFrom ?: return
+        val now = System.currentTimeMillis()
+        if (effectiveFrom <= now) return
+
+        reminderRepository.getRemindersForMedication(medication.id).firstOrNull().orEmpty()
+            .filter { it.state == ReminderState.SCHEDULED && it.timeInMillis in (now + 1) until effectiveFrom }
+            .forEach { schedule(it, medication.name) }
     }
 
     /**

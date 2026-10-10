@@ -92,7 +92,9 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
                             }
                             
                             val timeInMillis = triggerCal.timeInMillis
-                            if (timeInMillis in start..end) {
+                            val isBeforeTimesTakeEffect = medication.timesEffectiveFrom
+                                ?.let { timeInMillis < it } ?: false
+                            if (timeInMillis in start..end && !isBeforeTimesTakeEffect) {
                                 val key = "${medication.id}_${timeInMillis}"
                                 if (!dbReminderMap.containsKey(key)) {
                                     virtualReminders.add(
