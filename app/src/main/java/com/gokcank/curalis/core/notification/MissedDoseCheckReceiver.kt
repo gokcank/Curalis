@@ -6,6 +6,7 @@ import android.content.Intent
 import android.util.Log
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.ReminderRepository
 import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersForMedicationUseCase
@@ -42,6 +43,9 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
     @Inject
     lateinit var alarmScheduler: AlarmScheduler
 
+    @Inject
+    lateinit var medicationRepository: MedicationRepository
+
     override fun onReceive(context: Context, intent: Intent) {
         val reminderId = intent.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: return
         val medicationId = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_ID) ?: return
@@ -52,6 +56,12 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // Silinen ilaçların alarmları iptal edilse de bu tekrar kontrolü ayrı bir
+                // alarm olarak kalabiliyor; artık geçerli olmayan bir ilaç için ne bildirim
+                // gösterilir ne de sahipsiz bir "kaçırıldı" kaydı açılır.
+                val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
+                if (medication == null || medication.isArchived || medication.isSuspended) return@launch
+
                 val reminders = getRemindersForMedicationUseCase(medicationId).firstOrNull() ?: emptyList()
                 val targetReminder = reminders.find { it.id == reminderId }
 

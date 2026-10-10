@@ -41,53 +41,62 @@ class ReminderReceiver : BroadcastReceiver() {
         val timeInMillis = intent.getLongExtra(AlarmScheduler.EXTRA_TIME_MILLIS, System.currentTimeMillis())
         val kind = intent.getStringExtra(AlarmScheduler.EXTRA_REMINDER_KIND) ?: AlarmScheduler.KIND_MEDICATION
 
-        notificationHelper.showReminderNotification(reminderId, medicationName, medicationId)
-
         // Randevu hatırlatıcıları Reminder tablosunda doz takibi yapmaz; yalnızca
         // ilaç hatırlatıcıları için "iletildi" durumu kaydedilir ve kaçırılma kontrolü kurulur.
-        if (kind == AlarmScheduler.KIND_MEDICATION && medicationId.isNotBlank()) {
-            val pendingResult = goAsync()
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    // Alarmın gerçekten tetiklendiğini kalıcı olarak işaretle. Bu satır
-                    // olmadan "alarm hiç çalmadı" (SCHEDULED kalır) ile "çaldı ama
-                    // yanıtlanmadı" ayrımı yapılamıyordu.
-                    val existing = reminderRepository.getReminderById(reminderId)
-                    if (existing == null) {
-                        reminderRepository.insertReminder(
-                            Reminder(
-                                id = reminderId,
-                                medicationId = medicationId,
-                                timeInMillis = timeInMillis,
-                                state = ReminderState.DELIVERED
-                            )
-                        )
-                    } else if (existing.state == ReminderState.SCHEDULED) {
-                        reminderRepository.updateReminder(existing.copy(state = ReminderState.DELIVERED))
-                    }
+        if (kind != AlarmScheduler.KIND_MEDICATION || medicationId.isBlank()) {
+            notificationHelper.showReminderNotification(reminderId, medicationName, medicationId)
+            return
+        }
 
-                    // Tekrarlayan (günlük/haftalık vb.) ilaçlarda tek seferlik alarm burada
-                    // tükeniyor; bir sonraki tetiklenmeyi yeniden kurmazsak alarm ilk günden
-                    // sonra sessizce donuyordu. Aynı çağrı, pencereyi de ileriye taşır.
-                    val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
-                    if (medication != null && !medication.isArchived && !medication.isSuspended) {
-                        generateUpcomingRemindersUseCase(medication)
-                        alarmScheduler.scheduleMedicationAlarms(medication)
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Hatırlatıcı 'iletildi' olarak işaretlenirken hata oluştu", e)
-                } finally {
-                    pendingResult.finish()
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // AlarmManager'daki alarm, ilaç silindikten / arşivlendikten / askıya
+                // alındıktan sonra da (ör. yedekten geri yüklemede veritabanı tümden
+                // değiştiğinde) çalabilir; bu durumda bildirim gösterilmez ve kayıt açılmaz.
+                val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
+                if (medication == null || medication.isArchived || medication.isSuspended) {
+                    Log.i(TAG, "Artık geçerli olmayan bir ilaç için alarm yok sayıldı: $medicationId")
+                    return@launch
                 }
-            }
 
-            alarmScheduler.scheduleMissedDoseCheck(
-                reminderId = reminderId,
-                medicationId = medicationId,
-                medicationName = medicationName,
-                delayMinutes = MissedDoseCheckReceiver.RETRY_INTERVAL_MINUTES,
-                attempt = 1
-            )
+                notificationHelper.showReminderNotification(reminderId, medicationName, medicationId)
+
+                // Alarmın gerçekten tetiklendiğini kalıcı olarak işaretle. Bu satır
+                // olmadan "alarm hiç çalmadı" (SCHEDULED kalır) ile "çaldı ama
+                // yanıtlanmadı" ayrımı yapılamıyordu.
+                val existing = reminderRepository.getReminderById(reminderId)
+                if (existing == null) {
+                    reminderRepository.insertReminder(
+                        Reminder(
+                            id = reminderId,
+                            medicationId = medicationId,
+                            timeInMillis = timeInMillis,
+                            state = ReminderState.DELIVERED
+                        )
+                    )
+                } else if (existing.state == ReminderState.SCHEDULED) {
+                    reminderRepository.updateReminder(existing.copy(state = ReminderState.DELIVERED))
+                }
+
+                alarmScheduler.scheduleMissedDoseCheck(
+                    reminderId = reminderId,
+                    medicationId = medicationId,
+                    medicationName = medicationName,
+                    delayMinutes = MissedDoseCheckReceiver.RETRY_INTERVAL_MINUTES,
+                    attempt = 1
+                )
+
+                // Tekrarlayan (günlük/haftalık vb.) ilaçlarda tek seferlik alarm burada
+                // tükeniyor; bir sonraki tetiklenmeyi yeniden kurmazsak alarm ilk günden
+                // sonra sessizce donuyordu. Aynı çağrı, pencereyi de ileriye taşır.
+                generateUpcomingRemindersUseCase(medication)
+                alarmScheduler.scheduleMedicationAlarms(medication)
+            } catch (e: Exception) {
+                Log.e(TAG, "Hatırlatıcı 'iletildi' olarak işaretlenirken hata oluştu", e)
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 

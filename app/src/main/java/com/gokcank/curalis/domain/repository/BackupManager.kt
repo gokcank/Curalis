@@ -12,9 +12,11 @@ interface BackupManager {
 
     /**
      * Imports a JSON string representing BackupData and overwrites the local database.
+     * Data types a backup does not contain (older backup versions) are left untouched.
      * @param jsonString The JSON string to parse and import
-     * @return the number of medications/doctors/appointments/vitals records restored,
-     * or null if the import failed (e.g. malformed JSON)
+     * @return the number of user-visible records restored (medications, doctors,
+     * appointments, vitals, emergency contacts, symptoms, daily notes), or null if the
+     * import failed (e.g. malformed JSON)
      */
     suspend fun importData(jsonString: String): Int?
 }
