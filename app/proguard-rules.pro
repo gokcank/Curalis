@@ -3,8 +3,8 @@
 # Room, Hilt, WorkManager, biometric ve Glance kendi consumer-rules.pro'larını AAR'larıyla
 # birlikte getiriyor (Room/Hilt/WorkManager sürümleri bunu destekliyor) — burada elle
 # tekrarlanmıyor. Aşağıdaki kurallar yalnızca yansıma (reflection) tabanlı, R8'in kod
-# küçültme/gizleme adımlarında kırılabilecek üç alan için: (1) Gson ile elle serileştirdiğimiz
-# yedekleme verisi, (2) Google Drive REST istemcisi, (3) SQLCipher.
+# küçültme/gizleme adımlarında kırılabilecek iki alan için: (1) Gson ile elle serileştirdiğimiz
+# yedekleme verisi, (2) Google Drive REST istemcisi.
 
 # ---------- Gson (bkz. LocalBackupManager.kt — Room varlıkları BackupData içinde JSON'a
 # çevriliyor; alan adları @SerializedName ile eşlenmiyor, doğrudan alan adı okunuyor) ----------
@@ -23,10 +23,6 @@
 -dontwarn com.google.api.client.**
 -dontwarn org.apache.http.**
 -dontwarn org.joda.time.**
-
-# ---------- SQLCipher (bkz. DatabaseModule.kt, LegacyDatabaseMigrator.kt) ----------
--keep class net.sqlcipher.** { *; }
--dontwarn net.sqlcipher.**
 
 # ---------- Hilt Worker (bkz. ReminderWindowWorker.kt) ----------
 -keep class com.gokcank.curalis.core.work.ReminderWindowWorker { *; }

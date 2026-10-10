@@ -62,11 +62,6 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
-            ndk {
-                // SQLCipher gibi yerel (native) kütüphaneler içeriyoruz; bu olmadan Play
-                // Console'a yüklenen her AAB için native çökme raporları sembolsüz kalıyor.
-                debugSymbolLevel = "FULL"
-            }
             signingConfig = if (hasReleaseSigningConfig) {
                 signingConfigs.getByName("release")
             } else {
@@ -146,11 +141,6 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
-
-    // Yerel veritabanı şifreleme (bkz. DatabaseModule, DatabaseKeyProvider)
-    implementation(libs.sqlcipher.android)
-    implementation(libs.androidx.sqlite)
-    implementation(libs.androidx.security.crypto)
 
     // Google Drive & Auth
     implementation(libs.play.services.auth)
