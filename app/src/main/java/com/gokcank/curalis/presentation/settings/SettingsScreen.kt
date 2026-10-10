@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import android.content.Intent
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.ThemeMode
 
@@ -489,47 +488,6 @@ fun SettingsScreen(
                     Icon(imageVector = Icons.Default.HelpOutline, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.view_button))
-                }
-            }
-
-            Spacer(modifier = Modifier.padding(vertical = 12.dp))
-
-            val context = LocalContext.current
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.share_app_row_title), style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        stringResource(R.string.share_app_row_desc),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                val shareMessage = stringResource(R.string.share_app_message, context.packageName)
-                val shareChooserTitle = stringResource(R.string.share_app_chooser_title)
-                Button(
-                    onClick = {
-                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(
-                                Intent.EXTRA_TEXT,
-                                shareMessage
-                            )
-                        }
-                        context.startActivity(Intent.createChooser(shareIntent, shareChooserTitle))
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
-                ) {
-                    Icon(imageVector = Icons.Default.Share, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.share_button))
                 }
             }
         }
