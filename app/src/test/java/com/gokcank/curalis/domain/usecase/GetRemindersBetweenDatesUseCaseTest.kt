@@ -169,4 +169,25 @@ class GetRemindersBetweenDatesUseCaseTest {
         val result = useCase(dayStart(0), dayEnd(3)).first()
         assertEquals(2, result.size) // yalnızca gün 2 ve 3
     }
+
+    @Test
+    fun `no virtual reminder for the new time before it takes effect`() = runBlocking {
+        val medication = Medication(
+            name = "Tansiyon ilacı",
+            frequencyType = FrequencyType.DAILY,
+            times = listOf(MedicationTime(hour = 21, minute = 0)),
+            startDate = dayStart(-10),
+            timesEffectiveFrom = dayStart(1)
+        )
+        val useCase = GetRemindersBetweenDatesUseCase(
+            FakeReminderRepository(emptyList()),
+            FakeMedicationRepository(listOf(medication))
+        )
+
+        val today = useCase(dayStart(0), dayEnd(0)).first()
+        val tomorrow = useCase(dayStart(1), dayEnd(1)).first()
+
+        assertTrue(today.isEmpty())
+        assertEquals(1, tomorrow.size)
+    }
 }

@@ -35,5 +35,6 @@ data class MedicationEntity(
     val treatmentDurationDays: Int? = null,
     val rxNumber: String? = null,
     val photoPath: String? = null,
-    val doctorId: String? = null
+    val doctorId: String? = null,
+    val timesEffectiveFrom: Long? = null
 )

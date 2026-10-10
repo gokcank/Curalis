@@ -124,4 +124,23 @@ class GenerateUpcomingRemindersUseCaseTest {
         // Bugünün 09:00'ı zaten geçtiği için WINDOW_DAYS'ten bir eksik üretilmeli (bugün hariç).
         assertEquals(GenerateUpcomingRemindersUseCase.WINDOW_DAYS - 1, repository.inserted.size)
     }
+
+    @Test
+    fun `times changed from tomorrow generate nothing for today, even when refreshed from now`() = runBlocking {
+        val repository = RecordingReminderRepository()
+        // The new time is 23:59 so that today's occurrence is (almost) always still ahead.
+        val medication = Medication(
+            name = "Tansiyon ilacı",
+            frequencyType = FrequencyType.DAILY,
+            times = listOf(MedicationTime(hour = 23, minute = 59)),
+            startDate = dayStart(-10),
+            timesEffectiveFrom = dayStart(1)
+        )
+
+        // Alarm receiver / daily worker / boot all refresh the window "from now".
+        GenerateUpcomingRemindersUseCase(repository)(medication)
+
+        assertTrue(repository.inserted.isNotEmpty())
+        assertTrue(repository.inserted.all { it.timeInMillis >= dayStart(1) })
+    }
 }
