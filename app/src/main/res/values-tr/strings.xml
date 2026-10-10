@@ -309,11 +309,6 @@
     <string name="help_center_row_title">Yardım Merkezi / SSS</string>
     <string name="help_center_row_desc">Sık sorulan sorular ve çözümleri</string>
     <string name="view_button">Görüntüle</string>
-    <string name="share_app_row_title">Uygulamayı Paylaş</string>
-    <string name="share_app_row_desc">Curalis\'i arkadaşlarınızla ve ailenizle paylaşın</string>
-    <string name="share_app_message">İlaçlarımı, randevularımı ve sağlık ölçümlerimi Curalis ile takip ediyorum — verileriniz yalnızca cihazınızda saklanır: https://play.google.com/store/apps/details?id=%1$s</string>
-    <string name="share_app_chooser_title">Curalis\'i Paylaş</string>
-    <string name="share_button">Paylaş</string>
 
     <!-- Uyum Analizleri -->
     <string name="adherence_analytics_title">İlaç Uyum Analizleri</string>
