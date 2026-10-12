@@ -38,16 +38,14 @@
     <string name="no_medications_description">Eklediğiniz ilaçlar burada listelenir ve hatırlatıcıları buradan yönetilir.</string>
     <string name="no_archived_medications_title">Arşivde ilaç yok</string>
     <string name="no_archived_medications_description">Arşivlediğiniz ilaçlar burada görünür ve istediğiniz zaman geri alabilirsiniz.</string>
-    <string name="next_medication">Sıradaki İlaç</string>
     <string name="upcoming_appointment">Yaklaşan Randevu</string>
-    <string name="daily_progress">Günlük İlerleme</string>
-    <string name="medication_tracking">İlaç Takibi</string>
 
     <!-- Medications -->
     <string name="my_medications">İlaçlarım</string>
     <string name="add_medication">İlaç Ekle / Kaydet</string>
     <string name="edit_medication">İlacı Düzenle</string>
-    <string name="medication_name">İlaç Adı * (API\'de ara)</string>
+    <string name="medication_name">İlaç Adı</string>
+    <string name="medication_list_search_hint">İlaç adı, etken madde veya barkod ara</string>
     <string name="medication_dosage">Dozaj (Örn: 500)</string>
     <string name="active_ingredient">Etken Madde</string>
     <string name="no_medications_found">Henüz hiç ilaç eklemediniz.</string>
@@ -87,7 +85,6 @@
     <string name="appointment_title">Randevu Başlığı (Örn: Kardiyoloji Kontrolü)</string>
     <string name="appointment_location">Konum (Hastane, Oda)</string>
     <string name="appointment_notes">Notlar</string>
-    <string name="appointment_doctor">Doktor</string>
     <string name="appointment_doctor_none">Doktor seçilmedi</string>
     <string name="no_appointments_found">Henüz hiç randevu eklemediniz.</string>
     <string name="add_to_calendar">Takvime Ekle</string>
@@ -405,7 +402,6 @@
     <string name="assign_person_label">Kişi Ata</string>
     <string name="doctors_group_label">Doktorlar</string>
     <string name="emergency_contacts_group_label">Acil Durum Kişileri</string>
-    <string name="date_time_label">%1$s &amp; %2$s</string>
 
     <!-- Randevu Listesi -->
     <string name="tab_upcoming">Yaklaşan</string>
@@ -511,7 +507,6 @@
 
     <!-- Ana ekran: seri / uyum başlığı -->
     <string name="home_streak_days">%1$d gün</string>
-    <string name="home_monthly_adherence_label">Bu ay uyum oranı</string>
     <string name="home_next_up_label">Sırada</string>
     <string name="home_take_now_hint">Dokun, aldım de</string>
     <string name="home_other_section_label">Diğer</string>

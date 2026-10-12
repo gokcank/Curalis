@@ -46,19 +46,11 @@ class AlarmScheduler @Inject constructor(
             return setInexactAlarm(triggerAtMillis, pendingIntent)
         }
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerAtMillis,
-                    pendingIntent
-                )
-            } else {
-                alarmManager.setExact(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerAtMillis,
-                    pendingIntent
-                )
-            }
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerAtMillis,
+                pendingIntent
+            )
             true
         } catch (e: SecurityException) {
             Log.e(TAG, "Alarm kurulurken izin hatası, yaklaşık zamanlı alarma düşülüyor.", e)
@@ -68,11 +60,7 @@ class AlarmScheduler @Inject constructor(
 
     private fun setInexactAlarm(triggerAtMillis: Long, pendingIntent: PendingIntent): Boolean {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
-            } else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
-            }
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
             true
         } catch (e: SecurityException) {
             Log.e(TAG, "Yaklaşık zamanlı alarm da kurulamadı.", e)

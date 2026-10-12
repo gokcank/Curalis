@@ -26,7 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -44,7 +44,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.SectionAccentDoctors
 import java.text.SimpleDateFormat
@@ -106,7 +106,7 @@ fun AddEditDoctorScreen(
                 .padding(padding)
         ) {
             if (isEditMode) {
-                TabRow(selectedTabIndex = selectedTab, contentColor = SectionAccentDoctors) {
+                SecondaryTabRow(selectedTabIndex = selectedTab, contentColor = SectionAccentDoctors) {
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },

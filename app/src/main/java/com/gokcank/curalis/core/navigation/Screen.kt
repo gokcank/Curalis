@@ -40,11 +40,7 @@ sealed class Screen(val route: String) {
     }
     
     data object VitalList : Screen("vital_list_screen")
-    data object AddEditVital : Screen("add_edit_vital_screen?vitalId={vitalId}") {
-        fun passVitalId(vitalId: String?): String {
-            return "add_edit_vital_screen?vitalId=$vitalId"
-        }
-    }
+    data object AddEditVital : Screen("add_edit_vital_screen?vitalId={vitalId}")
     
     data object Calendar : Screen("calendar_screen")
     data object DailyTimeline : Screen("daily_timeline_screen")

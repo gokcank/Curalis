@@ -102,7 +102,7 @@ object DatabaseModule {
             com.gokcank.curalis.data.local.MedicationDictionaryDatabase.DATABASE_NAME
         )
         .createFromAsset("database/medications.db")
-        .fallbackToDestructiveMigration()
+        .fallbackToDestructiveMigration(dropAllTables = true)
         .build()
     }
 

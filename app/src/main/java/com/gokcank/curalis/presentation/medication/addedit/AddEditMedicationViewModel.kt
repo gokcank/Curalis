@@ -355,7 +355,6 @@ class AddEditMedicationViewModel @Inject constructor(
 
     fun onColorSelected(colorHex: String) = _formState.update { it.copy(colorHex = colorHex) }
 
-    fun onIconShapeSelected(shape: String) = _formState.update { it.copy(iconShape = shape) }
 
     fun onNotesChange(notes: String) = _formState.update { it.copy(notes = notes) }
 

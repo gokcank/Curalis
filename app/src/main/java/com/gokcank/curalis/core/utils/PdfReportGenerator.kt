@@ -180,7 +180,7 @@ class PdfReportGenerator @Inject constructor(
         canvas.drawText("CURALİS SAĞLIK & İLAÇ UYUM RAPORU", 40f, y, titlePaint)
         y += 24f
 
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("tr"))
+        val dateFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.forLanguageTag("tr"))
         val currentDateStr = dateFormat.format(Date())
         canvas.drawText("Rapor Oluşturma Tarihi: $currentDateStr", 40f, y, bodyPaint)
         y += 18f
@@ -192,7 +192,7 @@ class PdfReportGenerator @Inject constructor(
             val totalScheduled = takenCount + skippedCount + missedCount
             val adherenceRate = if (totalScheduled > 0) (takenCount * 100) / totalScheduled else 100
 
-            val rangeDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale("tr"))
+            val rangeDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.forLanguageTag("tr"))
             canvas.drawText("${sectionNumber++}. İlaç Kullanım Uyum Özet İstatistiği", 40f, y, subTitlePaint)
             y += 18f
             canvas.drawText(

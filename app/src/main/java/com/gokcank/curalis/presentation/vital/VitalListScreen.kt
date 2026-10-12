@@ -23,7 +23,7 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Air
-import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Card
@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.SectionAccentVitals
 import com.gokcank.curalis.core.theme.rememberSectionThemeMode
@@ -269,7 +269,7 @@ fun VitalItem(
                                 VitalType.LDL_CHOLESTEROL -> Icons.Default.WaterDrop
                                 VitalType.TRIGLYCERIDES -> Icons.Default.WaterDrop
                                 VitalType.BODY_FAT -> Icons.Default.Scale
-                                VitalType.STEP_COUNT -> Icons.Default.DirectionsWalk
+                                VitalType.STEP_COUNT -> Icons.AutoMirrored.Filled.DirectionsWalk
                             },
                             contentDescription = null,
                             tint = Color.White,
