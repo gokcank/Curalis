@@ -2,6 +2,17 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.3.2] — versionCode 9
+
+- Exact alarms now use USE_EXACT_ALARM on Android 13+, granted at install and not
+  revocable, so reminders no longer depend on the user approving "Alarms & reminders"
+  (Android 12 keeps the approval-based permission). Possible because Curalis is no
+  longer distributed through Google Play.
+- Onboarding also asks for the full-screen notification permission (Android 14+ may keep
+  it off, which silently turns full-screen reminders into plain notifications) and opens
+  the battery optimization exemption dialog directly; only missing permissions are listed.
+- The reminder troubleshooting screen checks the full-screen permission too.
+
 ## [1.3.1] — versionCode 8
 
 - Timeline slot start hours (Settings → Zaman Çizelgesi Dilimleri) are now picked from
