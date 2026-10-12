@@ -21,6 +21,10 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -252,63 +256,27 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            val slotChipColors = FilterChipDefaults.filterChipColors(
-                selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                containerColor = MaterialTheme.colorScheme.surface,
-                labelColor = MaterialTheme.colorScheme.onSurface
+            Spacer(modifier = Modifier.padding(vertical = 8.dp))
+            TimelineSlotDropdown(
+                label = stringResource(R.string.morning_start_label),
+                selectedHour = timelineSlotBounds.morningStartHour,
+                options = TimelinePreferences.MORNING_START_OPTIONS,
+                onSelect = viewModel::setMorningStartHour
             )
-
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text(stringResource(R.string.morning_start_label), style = MaterialTheme.typography.bodyLarge)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                TimelinePreferences.MORNING_START_OPTIONS.forEach { hour ->
-                    FilterChip(
-                        selected = timelineSlotBounds.morningStartHour == hour,
-                        onClick = { viewModel.setMorningStartHour(hour) },
-                        label = { Text(String.format(java.util.Locale.US, "%02d:00", hour)) },
-                        colors = slotChipColors,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text(stringResource(R.string.afternoon_start_label), style = MaterialTheme.typography.bodyLarge)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                TimelinePreferences.AFTERNOON_START_OPTIONS.forEach { hour ->
-                    FilterChip(
-                        selected = timelineSlotBounds.afternoonStartHour == hour,
-                        onClick = { viewModel.setAfternoonStartHour(hour) },
-                        label = { Text(String.format(java.util.Locale.US, "%02d:00", hour)) },
-                        colors = slotChipColors,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text(stringResource(R.string.evening_start_label), style = MaterialTheme.typography.bodyLarge)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                TimelinePreferences.EVENING_START_OPTIONS.forEach { hour ->
-                    FilterChip(
-                        selected = timelineSlotBounds.eveningStartHour == hour,
-                        onClick = { viewModel.setEveningStartHour(hour) },
-                        label = { Text(String.format(java.util.Locale.US, "%02d:00", hour)) },
-                        colors = slotChipColors,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.padding(vertical = 6.dp))
+            TimelineSlotDropdown(
+                label = stringResource(R.string.afternoon_start_label),
+                selectedHour = timelineSlotBounds.afternoonStartHour,
+                options = TimelinePreferences.AFTERNOON_START_OPTIONS,
+                onSelect = viewModel::setAfternoonStartHour
+            )
+            Spacer(modifier = Modifier.padding(vertical = 6.dp))
+            TimelineSlotDropdown(
+                label = stringResource(R.string.evening_start_label),
+                selectedHour = timelineSlotBounds.eveningStartHour,
+                options = TimelinePreferences.EVENING_START_OPTIONS,
+                onSelect = viewModel::setEveningStartHour
+            )
 
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
@@ -440,6 +408,46 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.view_button))
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Zaman çizelgesi diliminin başlangıç saatini seçen açılır menü. Önceden her saat ayrı
+ * bir düğmeydi; altı seçenekli akşam satırında düğmeler daralıp saatler ikiye bölünüyordu.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimelineSlotDropdown(
+    label: String,
+    selectedHour: Int,
+    options: List<Int>,
+    onSelect: (Int) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    fun format(hour: Int) = String.format(java.util.Locale.US, "%02d:00", hour)
+
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+        OutlinedTextField(
+            value = format(selectedHour),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { hour ->
+                DropdownMenuItem(
+                    text = { Text(format(hour)) },
+                    onClick = {
+                        onSelect(hour)
+                        expanded = false
+                    }
+                )
             }
         }
     }
