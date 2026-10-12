@@ -2,6 +2,51 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.3.0] — versionCode 7
+
+Changes since 1.2.2 (versionCode 6).
+
+### Upgrade note
+
+- **On-device database encryption (SQLCipher) has been removed.** Installing 1.3.0
+  over a 1.2.x install starts with an empty database, so take a backup in 1.2.x first
+  and restore it after a clean install. Backups themselves are still encrypted with
+  your password. The APK shrank from about 14 MB to 6 MB.
+
+### New
+
+- **Fill a medication by scanning its box** — the scan button in the medication name
+  field reads the barcode or the İTS karekod (DataMatrix) and looks the product up in
+  the official TİTCK list. A match fills the name and active ingredient and locks them
+  until the barcode is cleared; if a different name is already entered, Curalis asks
+  first. Codes not in the list only keep the number.
+- **Daily Timeline from the home screen** — a "Bugünün Özeti" link on the Today's
+  Pillbox card opens it again.
+
+### Fixes
+
+- Backups now include every kind of data (symptoms, daily notes, emergency contacts,
+  stock history and measurement reminders were missing). Older backups still restore
+  without wiping the tables they never contained.
+- Alarms are rescheduled right after a restore, and deleted, archived or suspended
+  medications no longer get reminders.
+- Changing a dose time "from tomorrow" keeps today's dose at its old time, with its own
+  alarm.
+- TİTCK list updates now actually reach installed apps; previously the first copied
+  list stayed in place while the About screen showed the new date.
+- The onboarding screen now shows the exact-alarm permission as granted after returning
+  from system settings.
+- The medication name label no longer reads "İlaç Adı * (API'de ara) *", and the
+  medication list search box has its own hint.
+
+### Other
+
+- TİTCK medication list updated to 09.10.2026, with the generator script added under
+  `tools/`.
+- Removed the "Share the App" row from Settings and the encrypted database export.
+- Tests for every database migration path (version 7 → 23) and for barcode parsing.
+- Removed dead code and replaced deprecated APIs.
+
 ## [1.1.0] — versionCode 3
 
 A large feature round based on a detailed feature-by-feature comparison against
