@@ -1,11 +1,9 @@
 package com.gokcank.curalis.presentation.troubleshooting
 
-import android.app.AlarmManager
 import android.content.Context
-import android.os.Build
-import android.os.PowerManager
 import androidx.lifecycle.ViewModel
 import com.gokcank.curalis.core.notification.ManufacturerAutostartHelper
+import com.gokcank.curalis.core.notification.ReminderPermissions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,12 +13,13 @@ import javax.inject.Inject
 
 data class TroubleshootingUiState(
     val exactAlarmGranted: Boolean = true,
+    val fullScreenIntentGranted: Boolean = true,
     val batteryOptimizationIgnored: Boolean = true,
     val manufacturer: ManufacturerAutostartHelper.KnownManufacturer = ManufacturerAutostartHelper.KnownManufacturer.OTHER
 )
 
 /**
- * Hatırlatıcı Sorun Giderme ekranının durumu. Her iki izin de dış Ayarlar ekranlarından
+ * Hatırlatıcı Sorun Giderme ekranının durumu. Bu izinlerin hepsi dış Ayarlar ekranlarından
  * değiştirildiği için (uygulama içinden doğrudan değiştirilemez), ekran her ön plana
  * geldiğinde [refresh] çağrılarak yeniden okunur.
  */
@@ -39,19 +38,10 @@ class ReminderTroubleshootingViewModel @Inject constructor(
     }
 
     fun refresh() {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val exactAlarmGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            alarmManager.canScheduleExactAlarms()
-        } else {
-            true
-        }
-
-        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        val batteryOptimizationIgnored = powerManager.isIgnoringBatteryOptimizations(context.packageName)
-
         _uiState.value = _uiState.value.copy(
-            exactAlarmGranted = exactAlarmGranted,
-            batteryOptimizationIgnored = batteryOptimizationIgnored
+            exactAlarmGranted = ReminderPermissions.canScheduleExactAlarms(context),
+            fullScreenIntentGranted = ReminderPermissions.canUseFullScreenIntent(context),
+            batteryOptimizationIgnored = ReminderPermissions.isIgnoringBatteryOptimizations(context)
         )
     }
 }

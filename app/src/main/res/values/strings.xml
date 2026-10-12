@@ -570,6 +570,8 @@
     <string name="troubleshooting_intro">If reminders aren\'t arriving on time, check the settings below. These are restrictions imposed by Android and your phone manufacturer, managed outside the app.</string>
     <string name="exact_alarm_permission_title">Exact Alarm Permission</string>
     <string name="exact_alarm_permission_desc">Without this permission, reminders may arrive a few minutes late.</string>
+    <string name="full_screen_permission_title">Full-Screen Reminder Permission</string>
+    <string name="full_screen_permission_desc">Without this permission full-screen reminders can\'t be shown; a regular notification appears instead.</string>
     <string name="open_settings_button">Open Settings</string>
     <string name="battery_optimization_title">Battery Optimization</string>
     <string name="battery_optimization_desc">With battery optimization on, Android may shut the app down in the background and block alarms.</string>
@@ -710,12 +712,16 @@
     <!-- Onboarding -->
     <string name="onboarding_welcome_title">Welcome to Curalis</string>
     <string name="onboarding_welcome_message">Curalis helps you keep track of your medications, appointments and health measurements — reminders, adherence history and reports are stored only on this device by default; you can optionally back up an encrypted copy to Google Drive.</string>
-    <string name="onboarding_permissions_title">Two quick permissions</string>
+    <string name="onboarding_permissions_title">Permissions for reminders</string>
     <string name="onboarding_permissions_message">Curalis needs these so your reminders actually reach you on time. You can change them later in your device settings.</string>
     <string name="onboarding_permission_notifications_title">Notifications</string>
     <string name="onboarding_permission_notifications_desc">Needed to show you a reminder when it\'s time for a dose.</string>
     <string name="onboarding_permission_exact_alarm_title">Alarms &amp; reminders</string>
     <string name="onboarding_permission_exact_alarm_desc">Needed so reminders fire exactly on time, not late.</string>
+    <string name="onboarding_permission_full_screen_title">Full-screen reminders</string>
+    <string name="onboarding_permission_full_screen_desc">Lets a dose reminder appear full screen, including on the lock screen.</string>
+    <string name="onboarding_permission_battery_title">Battery optimization exemption</string>
+    <string name="onboarding_permission_battery_desc">Keeps the phone from putting Curalis to sleep in the background and delaying reminders.</string>
     <string name="onboarding_permission_enable">Enable</string>
     <string name="onboarding_permission_granted">Enabled</string>
     <string name="onboarding_continue">Continue</string>

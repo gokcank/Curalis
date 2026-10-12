@@ -1,9 +1,7 @@
 package com.gokcank.curalis.presentation.startup
 
 import android.Manifest
-import android.content.Intent
 import android.os.Build
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
@@ -19,10 +17,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.BatteryChargingFull
+import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.Button
@@ -49,18 +51,16 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import com.gokcank.curalis.R
-import com.gokcank.curalis.core.notification.AlarmScheduler
+import com.gokcank.curalis.core.notification.ReminderPermissions
 
 /**
  * Hesap gerektirmeyen, iki ekranlık ilk kurulum karşılaması. Yalnızca uygulamanın ne işe
- * yaradığını kısaca anlatır ve bildirim/tam-zamanlı-alarm izinlerini nazikçe açıklar;
+ * yaradığını kısaca anlatır ve hatırlatmalar için gereken izinleri nazikçe açıklar;
  * herhangi bir kişisel bilgi toplamaz, atlanabilir/geri dönülemez bir kayıt adımı yoktur.
  */
 @Composable
 fun OnboardingScreen(
-    alarmScheduler: AlarmScheduler,
     onFinished: () -> Unit
 ) {
     var page by remember { mutableIntStateOf(0) }
@@ -74,7 +74,7 @@ fun OnboardingScreen(
         Box(modifier = Modifier.weight(1f)) {
             when (page) {
                 0 -> WelcomePage()
-                else -> PermissionsPage(alarmScheduler = alarmScheduler)
+                else -> PermissionsPage()
             }
         }
 
@@ -171,7 +171,7 @@ private fun WelcomePage() {
 }
 
 @Composable
-private fun PermissionsPage(alarmScheduler: AlarmScheduler) {
+private fun PermissionsPage() {
     val context = LocalContext.current
 
     var notificationsGranted by remember {
@@ -183,15 +183,26 @@ private fun PermissionsPage(alarmScheduler: AlarmScheduler) {
                 ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         )
     }
-    var exactAlarmGranted by remember { mutableStateOf(alarmScheduler.canScheduleExactAlarms()) }
+    var exactAlarmGranted by remember { mutableStateOf(ReminderPermissions.canScheduleExactAlarms(context)) }
+    var fullScreenGranted by remember { mutableStateOf(ReminderPermissions.canUseFullScreenIntent(context)) }
+    var batteryExempt by remember { mutableStateOf(ReminderPermissions.isIgnoringBatteryOptimizations(context)) }
 
-    // Alarm izni sistem ayarlarında veriliyor; kullanıcı oradan dönünce durum yeniden
-    // okunur, yoksa izin verilmiş olsa da satır "Etkinleştir" olarak kalıyordu.
+    // Yalnızca sayfa açıldığında eksik olan izinlerin satırı gösterilir: Android 13+ tam zamanlı
+    // alarm iznini kendiliğinden verir, yeni cihazlarda tam ekran izni de çoğu zaman açıktır.
+    // Bildirim satırı her zaman gösterilir. Satırlar sonradan izin verilince kaybolmaz,
+    // "Etkin" olarak kalır.
+    val showExactAlarm = remember { !exactAlarmGranted }
+    val showFullScreen = remember { !fullScreenGranted }
+    val showBattery = remember { !batteryExempt }
+
+    // Bu izinler sistem ayarlarında veriliyor; kullanıcı oradan dönünce durum yeniden okunur.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                exactAlarmGranted = alarmScheduler.canScheduleExactAlarms()
+                exactAlarmGranted = ReminderPermissions.canScheduleExactAlarms(context)
+                fullScreenGranted = ReminderPermissions.canUseFullScreenIntent(context)
+                batteryExempt = ReminderPermissions.isIgnoringBatteryOptimizations(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -206,6 +217,7 @@ private fun PermissionsPage(alarmScheduler: AlarmScheduler) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 32.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -239,22 +251,38 @@ private fun PermissionsPage(alarmScheduler: AlarmScheduler) {
             }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        if (showExactAlarm) {
+            Spacer(modifier = Modifier.height(16.dp))
+            PermissionRow(
+                icon = Icons.Default.Alarm,
+                title = stringResource(R.string.onboarding_permission_exact_alarm_title),
+                description = stringResource(R.string.onboarding_permission_exact_alarm_desc),
+                isGranted = exactAlarmGranted,
+                onRequestClick = { ReminderPermissions.openExactAlarmSettings(context) }
+            )
+        }
 
-        PermissionRow(
-            icon = Icons.Default.Alarm,
-            title = stringResource(R.string.onboarding_permission_exact_alarm_title),
-            description = stringResource(R.string.onboarding_permission_exact_alarm_desc),
-            isGranted = exactAlarmGranted,
-            onRequestClick = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                        data = "package:${context.packageName}".toUri()
-                    }
-                    context.startActivity(intent)
-                }
-            }
-        )
+        if (showFullScreen) {
+            Spacer(modifier = Modifier.height(16.dp))
+            PermissionRow(
+                icon = Icons.Default.Fullscreen,
+                title = stringResource(R.string.onboarding_permission_full_screen_title),
+                description = stringResource(R.string.onboarding_permission_full_screen_desc),
+                isGranted = fullScreenGranted,
+                onRequestClick = { ReminderPermissions.openFullScreenIntentSettings(context) }
+            )
+        }
+
+        if (showBattery) {
+            Spacer(modifier = Modifier.height(16.dp))
+            PermissionRow(
+                icon = Icons.Default.BatteryChargingFull,
+                title = stringResource(R.string.onboarding_permission_battery_title),
+                description = stringResource(R.string.onboarding_permission_battery_desc),
+                isGranted = batteryExempt,
+                onRequestClick = { ReminderPermissions.requestIgnoreBatteryOptimizations(context) }
+            )
+        }
     }
 }
 

@@ -572,6 +572,8 @@
     <string name="troubleshooting_intro">Hatırlatıcılar zamanında gelmiyorsa, aşağıdaki ayarları kontrol edin. Bunlar Android işletim sisteminin ve telefon üreticinizin uyguladığı, uygulama dışından yönetilen kısıtlamalardır.</string>
     <string name="exact_alarm_permission_title">Tam Zamanlı Alarm İzni</string>
     <string name="exact_alarm_permission_desc">Bu izin olmadan hatırlatıcılar birkaç dakika gecikmeyle gelebilir.</string>
+    <string name="full_screen_permission_title">Tam Ekran Hatırlatma İzni</string>
+    <string name="full_screen_permission_desc">Bu izin kapalıyken tam ekran hatırlatma gösterilemez, yerine sıradan bir bildirim gelir.</string>
     <string name="open_settings_button">Ayarları Aç</string>
     <string name="battery_optimization_title">Pil Optimizasyonu</string>
     <string name="battery_optimization_desc">Pil optimizasyonu açıkken Android, uygulamayı arka planda kapatıp alarmları engelleyebilir.</string>
@@ -713,12 +715,16 @@
     <!-- İlk kurulum -->
     <string name="onboarding_welcome_title">Curalis\'e Hoş Geldiniz</string>
     <string name="onboarding_welcome_message">Curalis; ilaçlarınızı, randevularınızı ve sağlık ölçümlerinizi takip etmenize yardımcı olur — hatırlatıcılar, uyum geçmişi ve raporlar varsayılan olarak yalnızca bu cihazda saklanır; dilerseniz şifreli bir yedeğini Google Drive\'a da alabilirsiniz.</string>
-    <string name="onboarding_permissions_title">İki kısa izin</string>
+    <string name="onboarding_permissions_title">Hatırlatıcılar için izinler</string>
     <string name="onboarding_permissions_message">Hatırlatıcılarınızın size gerçekten zamanında ulaşması için Curalis\'in bunlara ihtiyacı var. Dilediğinizde cihaz ayarlarınızdan değiştirebilirsiniz.</string>
     <string name="onboarding_permission_notifications_title">Bildirimler</string>
     <string name="onboarding_permission_notifications_desc">Bir dozun saati geldiğinde size hatırlatma gösterebilmek için gerekli.</string>
     <string name="onboarding_permission_exact_alarm_title">Alarmlar ve hatırlatıcılar</string>
     <string name="onboarding_permission_exact_alarm_desc">Hatırlatıcıların geç değil, tam zamanında çalması için gerekli.</string>
+    <string name="onboarding_permission_full_screen_title">Tam ekran hatırlatma</string>
+    <string name="onboarding_permission_full_screen_desc">Doz hatırlatmasının kilit ekranında da tam ekran görünebilmesi için gerekli.</string>
+    <string name="onboarding_permission_battery_title">Pil optimizasyonu muafiyeti</string>
+    <string name="onboarding_permission_battery_desc">Telefonun Curalis\'i arka planda uyutup hatırlatmaları geciktirmemesi için gerekli.</string>
     <string name="onboarding_permission_enable">Etkinleştir</string>
     <string name="onboarding_permission_granted">Etkin</string>
     <string name="onboarding_continue">Devam Et</string>
