@@ -13,7 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.gokcank.curalis.core.navigation.NavGraph
-import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.onboarding.OnboardingPreferences
 import com.gokcank.curalis.core.security.AppLockController
 import com.gokcank.curalis.core.theme.CuralisTheme
@@ -44,9 +43,6 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var onboardingPreferences: OnboardingPreferences
-
-    @Inject
-    lateinit var alarmScheduler: AlarmScheduler
 
     override fun onStart() {
         super.onStart()
@@ -93,7 +89,6 @@ class MainActivity : AppCompatActivity() {
                     // Hesap gerektirmeyen, tek seferlik karşılama; veritabanı zaten
                     // hazır olduğu için bundan sonra gösterilir.
                     !hasCompletedOnboarding -> OnboardingScreen(
-                        alarmScheduler = alarmScheduler,
                         onFinished = {
                             onboardingPreferences.hasCompletedOnboarding = true
                             hasCompletedOnboarding = true

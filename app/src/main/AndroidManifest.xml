@@ -4,16 +4,19 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- USE_EXACT_ALARM kasıtlı olarak kullanılmıyor: Play Console yalnızca çalar saat/takvim
-         uygulamalarına otomatik onay veriyor, Curalis bu kategoriye girmiyor. SCHEDULE_EXACT_ALARM
-         (kullanıcı onayı gerektiren, herkese açık izin) tek başına yeterli — bkz. AlarmScheduler
-         ve AddEditMedicationViewModel'deki izin kontrolü/yönlendirmesi. -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Tam zamanlı alarm: Android 13+ cihazlarda USE_EXACT_ALARM kurulumda kendiliğinden
+         verilir ve kullanıcı tarafından kapatılamaz. Play bu izni yalnızca çalar saat/takvim
+         uygulamalarına tanıyor; Curalis Play'de dağıtılmadığı için kullanılabiliyor. Android 12'de
+         bu izin yok, orada kullanıcı onaylı SCHEDULE_EXACT_ALARM kullanılır (bkz. ReminderPermissions). -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!-- Hatırlatıcı Sorun Giderme ekranındaki "Pil optimizasyonundan muaf tut" kısayolu için
-         (bkz. ReminderTroubleshootingScreen). Kullanıcı onayı gerektiren, herkese açık bir izin. -->
+    <!-- Karşılama ve Hatırlatıcı Sorun Giderme ekranlarında doğrudan "pil optimizasyonundan muaf
+         tutulsun mu?" penceresini açmak için (bkz. ReminderPermissions). -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <!-- OEM'lerin kendi "otomatik başlatma" ayar ekranlarını açabilmek için (bkz.

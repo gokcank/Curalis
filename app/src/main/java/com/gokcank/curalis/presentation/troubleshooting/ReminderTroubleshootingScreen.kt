@@ -2,9 +2,10 @@ package com.gokcank.curalis.presentation.troubleshooting
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,12 +39,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.ManufacturerAutostartHelper
+import com.gokcank.curalis.core.notification.ReminderPermissions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,7 +56,7 @@ fun ReminderTroubleshootingScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Her iki izin de yalnızca dış Ayarlar ekranlarından değiştirilebiliyor; kullanıcı
+    // Bu izinler yalnızca dış Ayarlar ekranlarından değiştirilebiliyor; kullanıcı
     // oradan geri döndüğünde durumu yeniden okumamız gerekiyor.
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -87,6 +88,7 @@ fun ReminderTroubleshootingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -101,14 +103,15 @@ fun ReminderTroubleshootingScreen(
                 description = stringResource(R.string.exact_alarm_permission_desc),
                 isOk = uiState.exactAlarmGranted,
                 actionLabel = stringResource(R.string.open_settings_button),
-                onAction = {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                            data = "package:${context.packageName}".toUri()
-                        }
-                        context.startActivity(intent)
-                    }
-                }
+                onAction = { ReminderPermissions.openExactAlarmSettings(context) }
+            )
+
+            TroubleshootingItem(
+                title = stringResource(R.string.full_screen_permission_title),
+                description = stringResource(R.string.full_screen_permission_desc),
+                isOk = uiState.fullScreenIntentGranted,
+                actionLabel = stringResource(R.string.open_settings_button),
+                onAction = { ReminderPermissions.openFullScreenIntentSettings(context) }
             )
 
             TroubleshootingItem(
@@ -116,14 +119,7 @@ fun ReminderTroubleshootingScreen(
                 description = stringResource(R.string.battery_optimization_desc),
                 isOk = uiState.batteryOptimizationIgnored,
                 actionLabel = stringResource(R.string.exempt_button),
-                onAction = {
-                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                        data = "package:${context.packageName}".toUri()
-                    }
-                    runCatching { context.startActivity(intent) }.onFailure {
-                        context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
-                    }
-                }
+                onAction = { ReminderPermissions.requestIgnoreBatteryOptimizations(context) }
             )
 
             val (title, body) = manufacturerInstructions(uiState.manufacturer)
