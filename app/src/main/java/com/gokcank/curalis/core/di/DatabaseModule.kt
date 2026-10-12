@@ -94,8 +94,9 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideMedicationDictionaryDatabase(app: Application): com.gokcank.curalis.data.local.MedicationDictionaryDatabase {
-        // Bu veritabanı kullanıcı verisi içermiyor; her güncellemede assets'ten yeniden
-        // kopyalanan salt okunur bir ilaç sözlüğü. Bu yüzden yıkıcı migration burada güvenli.
+        // Bu veritabanı kullanıcı verisi içermiyor; assets'ten kopyalanan salt okunur bir
+        // ilaç sözlüğü. Sözlük sürümü arttığında yıkıcı migration eski kopyayı silip yeni
+        // listeyi kopyalatır (bkz. MedicationDictionaryDatabase.VERSION).
         return Room.databaseBuilder(
             app,
             com.gokcank.curalis.data.local.MedicationDictionaryDatabase::class.java,
