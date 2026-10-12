@@ -2,6 +2,12 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.3.1] — versionCode 8
+
+- Timeline slot start hours (Settings → Zaman Çizelgesi Dilimleri) are now picked from
+  dropdowns instead of rows of chips; the six evening options no longer squeeze the
+  hours onto two lines.
+
 ## [1.3.0] — versionCode 7
 
 Changes since 1.2.2 (versionCode 6).
