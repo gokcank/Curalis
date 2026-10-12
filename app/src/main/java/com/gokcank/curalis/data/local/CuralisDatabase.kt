@@ -59,6 +59,5 @@ abstract class CuralisDatabase : RoomDatabase() {
     
     companion object {
         const val DATABASE_NAME = "curalis_db"
-        const val DATABASE_DATE = "07.08.2026"
     }
 }

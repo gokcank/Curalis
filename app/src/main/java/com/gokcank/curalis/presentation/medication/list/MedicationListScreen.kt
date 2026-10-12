@@ -51,7 +51,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -74,7 +74,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.LocalCuralisColors
 import com.gokcank.curalis.core.theme.SectionAccentMedications
@@ -220,12 +220,12 @@ fun MedicationListScreen(
                 value = searchQuery,
                 onValueChange = viewModel::onSearchQueryChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(stringResource(R.string.medication_name)) },
+                placeholder = { Text(stringResource(R.string.medication_list_search_hint)) },
                 singleLine = true
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-            TabRow(selectedTabIndex = selectedTab) {
+            SecondaryTabRow(selectedTabIndex = selectedTab) {
                 Tab(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },

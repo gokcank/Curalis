@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -55,7 +56,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.SectionAccentAppointments
 import com.gokcank.curalis.presentation.components.ExactAlarmPermissionDialog
@@ -194,7 +195,7 @@ fun AddEditAppointmentScreen(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = personMenuExpanded) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor()
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                 )
                 ExposedDropdownMenu(
                     expanded = personMenuExpanded,

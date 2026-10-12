@@ -86,7 +86,7 @@ import android.app.Activity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gokcank.curalis.core.utils.PdfReportGenerator
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.gokcank.curalis.R
 import java.text.SimpleDateFormat
 import java.util.Date

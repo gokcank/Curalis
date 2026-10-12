@@ -38,16 +38,14 @@
     <string name="no_medications_description">Medications you add will be listed here, and you can manage their reminders from here.</string>
     <string name="no_archived_medications_title">No archived medications</string>
     <string name="no_archived_medications_description">Medications you archive will appear here, and you can restore them anytime.</string>
-    <string name="next_medication">Next Medication</string>
     <string name="upcoming_appointment">Upcoming Appointment</string>
-    <string name="daily_progress">Daily Progress</string>
-    <string name="medication_tracking">Med Tracker</string>
 
     <!-- Medications -->
     <string name="my_medications">My Medications</string>
     <string name="add_medication">Save Medication</string>
     <string name="edit_medication">Edit Medication</string>
-    <string name="medication_name">Medication Name * (Type to search API)</string>
+    <string name="medication_name">Medication Name</string>
+    <string name="medication_list_search_hint">Search by name, active ingredient or barcode</string>
     <string name="medication_dosage">Dosage (e.g. 500)</string>
     <string name="active_ingredient">Active Ingredient</string>
     <string name="no_medications_found">No medications added yet.</string>
@@ -87,7 +85,6 @@
     <string name="appointment_title">Appointment Title (e.g. Checkup)</string>
     <string name="appointment_location">Location (Hospital, Room)</string>
     <string name="appointment_notes">Notes</string>
-    <string name="appointment_doctor">Doctor</string>
     <string name="appointment_doctor_none">No doctor selected</string>
     <string name="no_appointments_found">No appointments added yet.</string>
     <string name="add_to_calendar">Add to Calendar</string>
@@ -403,7 +400,6 @@
     <string name="assign_person_label">Assign Person</string>
     <string name="doctors_group_label">Doctors</string>
     <string name="emergency_contacts_group_label">Emergency Contacts</string>
-    <string name="date_time_label">%1$s &amp; %2$s</string>
 
     <!-- Appointment List -->
     <string name="tab_upcoming">Upcoming</string>
@@ -509,7 +505,6 @@
 
     <!-- Home: streak / adherence hero -->
     <string name="home_streak_days">%1$d days</string>
-    <string name="home_monthly_adherence_label">This month\'s adherence</string>
     <string name="home_next_up_label">Up next</string>
     <string name="home_take_now_hint">Tap to mark as taken</string>
     <string name="home_other_section_label">Other</string>

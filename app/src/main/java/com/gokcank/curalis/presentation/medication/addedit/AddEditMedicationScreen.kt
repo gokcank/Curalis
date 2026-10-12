@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -90,7 +91,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.MedicationAccentColors
 import com.gokcank.curalis.domain.model.StockChangeReason
@@ -608,7 +609,7 @@ fun AddEditMedicationScreen(
                         label = { Text(stringResource(R.string.unit_label)) },
                         placeholder = { Text(stringResource(R.string.unit_placeholder)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isUnitDropdownExpanded) },
-                        modifier = Modifier.menuAnchor()
+                        modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                     )
                     ExposedDropdownMenu(
                         expanded = isUnitDropdownExpanded,
@@ -991,7 +992,7 @@ fun AddEditMedicationScreen(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = doctorMenuExpanded) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor()
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                 )
                 ExposedDropdownMenu(
                     expanded = doctorMenuExpanded,

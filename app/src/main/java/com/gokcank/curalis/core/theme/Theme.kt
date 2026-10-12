@@ -87,8 +87,6 @@ object CuralisSpacing {
     val md = 12.dp
     val lg = 16.dp
     val xl = 24.dp
-    val xxl = 32.dp
-    val xxxl = 48.dp
 }
 
 /** Sınırlı köşe yarıçapı ölçeği (design-system.md "Radius"). */

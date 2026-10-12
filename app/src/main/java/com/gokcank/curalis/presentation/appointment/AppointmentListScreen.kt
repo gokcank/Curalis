@@ -25,7 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -37,7 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.SectionAccentAppointments
 import com.gokcank.curalis.core.theme.rememberSectionThemeMode
@@ -131,7 +131,7 @@ fun AppointmentListScreen(
                 .padding(padding)
         ) {
             if (hasAnyAppointments) {
-                TabRow(selectedTabIndex = selectedTab) {
+                SecondaryTabRow(selectedTabIndex = selectedTab) {
                     tabTitles.forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTab == index,

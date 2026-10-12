@@ -88,7 +88,7 @@ class CuralisPillboxWidget : GlanceAppWidget() {
 
 @Composable
 private fun WidgetContent(items: List<Reminder>, medsMap: Map<String, Medication>) {
-    val dateFormat = remember { SimpleDateFormat("dd MMMM", Locale("tr")) }
+    val dateFormat = remember { SimpleDateFormat("dd MMMM", Locale.forLanguageTag("tr")) }
     val context = LocalContext.current
 
     Column(
