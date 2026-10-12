@@ -22,4 +22,11 @@ class ProviderManager @Inject constructor(
         }
         return emptyList()
     }
+
+    suspend fun findByBarcode(gtin: String): ProviderMedication? {
+        for (provider in providers) {
+            provider.findByBarcode(gtin)?.let { return it }
+        }
+        return null
+    }
 }

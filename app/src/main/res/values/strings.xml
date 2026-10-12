@@ -183,8 +183,15 @@
     <string name="photo_remove">Remove Photo</string>
     <string name="medication_name_supporting_text">Searched in the official medication list as you type</string>
     <string name="barcode_label">Barcode (Optional)</string>
-    <string name="barcode_scan_failed">Couldn\'t read the barcode, you can enter it manually.</string>
+    <string name="barcode_scan_failed">Couldn\'t read the barcode; try again or type the medication name.</string>
     <string name="barcode_scan_content_desc">Scan Barcode</string>
+    <string name="medication_name_locked_by_barcode">Filled from the barcode; clear the barcode to change it</string>
+    <string name="barcode_clear_content_desc">Clear Barcode</string>
+    <string name="barcode_not_recognized">This code wasn\'t recognised as a medication barcode.</string>
+    <string name="barcode_not_in_list">This barcode isn\'t in the official medication list; only the number was saved.</string>
+    <string name="barcode_match_dialog_title">Medication Found</string>
+    <string name="barcode_match_dialog_message">%1$s\n\nReplace the medication name and active ingredient with this?</string>
+    <string name="barcode_match_replace">Replace</string>
     <string name="medication_color_title">Medication Color Accent</string>
     <string name="color_selected_desc">Selected color</string>
     <string name="color_option_desc">Color option</string>

@@ -185,8 +185,15 @@
     <string name="photo_remove">Fotoğrafı Kaldır</string>
     <string name="medication_name_supporting_text">Yazdıkça resmî ilaç listesinde aranır</string>
     <string name="barcode_label">Barkod (Opsiyonel)</string>
-    <string name="barcode_scan_failed">Barkod okunamadı, elle girebilirsiniz.</string>
+    <string name="barcode_scan_failed">Barkod okunamadı; tekrar deneyin ya da ilaç adını yazın.</string>
     <string name="barcode_scan_content_desc">Barkod Tara</string>
+    <string name="medication_name_locked_by_barcode">Barkoddan dolduruldu; değiştirmek için barkodu silin</string>
+    <string name="barcode_clear_content_desc">Barkodu Sil</string>
+    <string name="barcode_not_recognized">Bu kod bir ilaç barkodu olarak tanınamadı.</string>
+    <string name="barcode_not_in_list">Bu barkod resmi ilaç listesinde yok; yalnızca numarası kaydedildi.</string>
+    <string name="barcode_match_dialog_title">Barkoddaki İlaç Bulundu</string>
+    <string name="barcode_match_dialog_message">%1$s\n\nİlaç adı ve etken madde bununla değiştirilsin mi?</string>
+    <string name="barcode_match_replace">Değiştir</string>
     <string name="medication_color_title">İlaç Renk Vurgusu</string>
     <string name="color_selected_desc">Seçili renk</string>
     <string name="color_option_desc">Renk seçeneği</string>
