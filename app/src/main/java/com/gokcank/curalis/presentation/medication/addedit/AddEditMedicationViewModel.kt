@@ -7,6 +7,7 @@ import android.content.Context
 import android.net.Uri
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
+import com.gokcank.curalis.core.utils.MedicationBarcode
 import com.gokcank.curalis.core.utils.MedicationPhotoStorage
 import com.gokcank.curalis.domain.model.Doctor
 import com.gokcank.curalis.domain.usecase.DoctorUseCases
@@ -22,6 +23,7 @@ import com.gokcank.curalis.domain.model.StockHistoryEntry
 import com.gokcank.curalis.domain.repository.ReminderRepository
 import com.gokcank.curalis.domain.repository.StockHistoryRepository
 import com.gokcank.curalis.domain.usecase.AddMedicationUseCase
+import com.gokcank.curalis.domain.usecase.FindMedicationByBarcodeUseCase
 import com.gokcank.curalis.domain.usecase.GenerateUpcomingRemindersUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationByIdUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersForMedicationUseCase
@@ -85,7 +87,15 @@ data class MedicationFormState(
     val times: List<MedicationTime> = emptyList(),
     val treatmentDurationDays: String = "",
     val rxNumber: String = ""
-)
+) {
+    /**
+     * Barkodu olan ve resmi listeden gelen bir ilaçta ad ve etken madde kilitlidir: bu
+     * bilgiler barkoda aittir, elle değiştirilirse barkodla çelişir. Değiştirmek için
+     * önce barkod silinir.
+     */
+    val isLockedByBarcode: Boolean
+        get() = barcode.isNotBlank() && isVerifiedSource
+}
 
 /** Kayıtlı bir ilacı forma yükler. [MedicationFormState.toMedication] ile simetriktir. */
 private fun Medication.toFormState(): MedicationFormState = MedicationFormState(
@@ -163,6 +173,7 @@ class AddEditMedicationViewModel @Inject constructor(
     private val generateUpcomingRemindersUseCase: GenerateUpcomingRemindersUseCase,
     private val getRemindersForMedicationUseCase: GetRemindersForMedicationUseCase,
     private val searchRemoteMedicationsUseCase: SearchRemoteMedicationsUseCase,
+    private val findMedicationByBarcodeUseCase: FindMedicationByBarcodeUseCase,
     private val alarmScheduler: AlarmScheduler,
     private val reminderRepository: ReminderRepository,
     private val stockHistoryRepository: StockHistoryRepository,
@@ -183,6 +194,14 @@ class AddEditMedicationViewModel @Inject constructor(
 
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
+
+    // Okutulan barkod resmi listede bulundu ama formda zaten farklı bir ilaç adı var —
+    // kullanıcıya ad ve etken maddenin bununla değiştirilip değiştirilmeyeceği sorulur.
+    private val _pendingBarcodeMatch = MutableStateFlow<ProviderMedication?>(null)
+    val pendingBarcodeMatch = _pendingBarcodeMatch.asStateFlow()
+    // Sorulan eşleşmenin barkodu; kullanıcı onaylayana kadar forma yazılmaz, yoksa
+    // "İptal" sonrası ad bir ilaca, barkod başka bir ilaca ait kalırdı.
+    private var pendingBarcode: String? = null
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage = _errorMessage.asStateFlow()
@@ -222,6 +241,7 @@ class AddEditMedicationViewModel @Inject constructor(
     }
 
     fun onNameChange(name: String) {
+        if (_formState.value.isLockedByBarcode) return
         // Kullanıcı ismi elle değiştiriyor; artık resmi öneriyle birebir eşleştiği garanti değil.
         _formState.update { it.copy(name = name, isVerifiedSource = false) }
         _errorMessage.value = null
@@ -257,7 +277,71 @@ class AddEditMedicationViewModel @Inject constructor(
         _suggestions.value = emptyList()
     }
 
-    fun onActiveIngredientChange(value: String) = _formState.update { it.copy(activeIngredient = value) }
+    /**
+     * Kutudan okutulan barkod/karekod: ürün numarası resmi listede aranır. Bulunursa ad
+     * boşken (ya da zaten aynı ilaçken) form ve barkod doğrudan doldurulur; farklı bir ad
+     * girilmişse önce kullanıcıya sorulur ve barkod ancak onaylanınca yazılır. Listede
+     * yoksa yalnızca barkod numarası kaydedilir.
+     */
+    fun onBarcodeScanned(rawValue: String) {
+        val gtin = MedicationBarcode.extractGtin(rawValue)
+        if (gtin == null) {
+            viewModelScope.launch { _eventFlow.emit(UiEvent.BarcodeNotRecognized) }
+            return
+        }
+        viewModelScope.launch {
+            _isSearching.value = true
+            val match = try {
+                findMedicationByBarcodeUseCase(gtin)
+            } catch (e: Exception) {
+                null
+            } finally {
+                _isSearching.value = false
+            }
+            val currentName = _formState.value.name.trim()
+            when {
+                match == null -> {
+                    // Listeden gelen ad başka bir ürüne ait; yeni barkodla çelişmesin diye
+                    // temizlenir. Kullanıcının elle yazdığı ada dokunulmaz.
+                    _formState.update {
+                        if (it.isVerifiedSource) {
+                            it.copy(barcode = gtin, name = "", activeIngredient = "", isVerifiedSource = false)
+                        } else {
+                            it.copy(barcode = gtin)
+                        }
+                    }
+                    _eventFlow.emit(UiEvent.BarcodeNotInList)
+                }
+                currentName.isEmpty() || currentName.equals(match.name, ignoreCase = true) ->
+                    applyBarcodeMatch(match, gtin)
+                else -> {
+                    pendingBarcode = gtin
+                    _pendingBarcodeMatch.value = match
+                }
+            }
+        }
+    }
+
+    fun confirmBarcodeMatch() {
+        val match = _pendingBarcodeMatch.value
+        val gtin = pendingBarcode
+        if (match != null && gtin != null) applyBarcodeMatch(match, gtin)
+        dismissBarcodeMatch()
+    }
+
+    fun dismissBarcodeMatch() {
+        _pendingBarcodeMatch.value = null
+        pendingBarcode = null
+    }
+
+    private fun applyBarcodeMatch(match: ProviderMedication, gtin: String) {
+        _formState.update { it.copy(barcode = gtin) }
+        onSuggestionSelected(match)
+    }
+
+    fun onActiveIngredientChange(value: String) = _formState.update {
+        if (it.isLockedByBarcode) it else it.copy(activeIngredient = value)
+    }
 
     fun onFormTypeChange(form: MedicationForm) = _formState.update { it.copy(formType = form) }
 
@@ -533,5 +617,7 @@ class AddEditMedicationViewModel @Inject constructor(
         data object SaveSuccess : UiEvent()
         data object ExactAlarmPermissionMissing : UiEvent()
         data object ConfirmScheduleChangeScope : UiEvent()
+        data object BarcodeNotRecognized : UiEvent()
+        data object BarcodeNotInList : UiEvent()
     }
 }

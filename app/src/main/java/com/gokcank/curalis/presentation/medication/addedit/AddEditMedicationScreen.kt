@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
@@ -54,6 +55,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
@@ -66,6 +69,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,12 +79,16 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.curalis.R
@@ -94,6 +102,7 @@ import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.ProviderMedication
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -111,6 +120,8 @@ fun AddEditMedicationScreen(
     val suggestions by viewModel.suggestions.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
     val error by viewModel.errorMessage.collectAsState()
+    val pendingBarcodeMatch by viewModel.pendingBarcodeMatch.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var showTimePickerDialog by remember { mutableStateOf(false) }
     var isUnitDropdownExpanded by remember { mutableStateOf(false) }
@@ -193,6 +204,12 @@ fun AddEditMedicationScreen(
                 is AddEditMedicationViewModel.UiEvent.ConfirmScheduleChangeScope -> {
                     showScheduleChangeScopeDialog = true
                 }
+                is AddEditMedicationViewModel.UiEvent.BarcodeNotRecognized -> {
+                    snackbarHostState.showSnackbar(context.getString(R.string.barcode_not_recognized))
+                }
+                is AddEditMedicationViewModel.UiEvent.BarcodeNotInList -> {
+                    snackbarHostState.showSnackbar(context.getString(R.string.barcode_not_in_list))
+                }
             }
         }
     }
@@ -202,6 +219,24 @@ fun AddEditMedicationScreen(
             onDismiss = {
                 showExactAlarmDialog = false
                 onNavigateBack()
+            }
+        )
+    }
+
+    pendingBarcodeMatch?.let { match ->
+        AlertDialog(
+            onDismissRequest = viewModel::dismissBarcodeMatch,
+            title = { Text(stringResource(R.string.barcode_match_dialog_title)) },
+            text = { Text(stringResource(R.string.barcode_match_dialog_message, match.name)) },
+            confirmButton = {
+                TextButton(onClick = viewModel::confirmBarcodeMatch) {
+                    Text(stringResource(R.string.barcode_match_replace))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::dismissBarcodeMatch) {
+                    Text(stringResource(R.string.cancel))
+                }
             }
         )
     }
@@ -290,7 +325,32 @@ fun AddEditMedicationScreen(
         )
     }
 
+    // Barkod/karekod okutma: Google Play Hizmetleri'nin tarayıcısı kamera iznini ve
+    // arayüzünü kendisi yönetir. Okunan kod resmi listede aranıp formu doldurur.
+    // Yalnızca ilaç kutularındaki biçimler (EAN-13/EAN-8 barkod, İTS karekodu) kabul
+    // edilir; diğer biçimlere izin verilince bulanık bir EAN-13 bazen geçerli ama yanlış
+    // bir UPC-A numarası olarak okunabiliyor.
+    val barcodeScanner = remember {
+        val options = GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_EAN_13, Barcode.FORMAT_EAN_8, Barcode.FORMAT_DATA_MATRIX)
+            .enableAutoZoom()
+            .build()
+        GmsBarcodeScanning.getClient(context, options)
+    }
+    val barcodeScanFailedText = stringResource(R.string.barcode_scan_failed)
+    val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
+    fun startBarcodeScan() {
+        // Ad kutusu seçili kalırsa tarayıcıdan dönünce klavye açılıyor ve sonuç
+        // bildirimini (snackbar) örtüyor.
+        focusManager.clearFocus()
+        barcodeScanner.startScan()
+            .addOnSuccessListener { result -> viewModel.onBarcodeScanned(result.rawValue.orEmpty()) }
+            .addOnFailureListener { scope.launch { snackbarHostState.showSnackbar(barcodeScanFailedText) } }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -332,12 +392,27 @@ fun AddEditMedicationScreen(
                 OutlinedTextField(
                     value = formState.name,
                     onValueChange = viewModel::onNameChange,
+                    readOnly = formState.isLockedByBarcode,
                     label = { Text(stringResource(R.string.medication_name) + " *") },
-                    supportingText = { Text(stringResource(R.string.medication_name_supporting_text)) },
+                    supportingText = {
+                        Text(
+                            stringResource(
+                                if (formState.isLockedByBarcode) R.string.medication_name_locked_by_barcode
+                                else R.string.medication_name_supporting_text
+                            )
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         if (isSearching) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                        } else {
+                            IconButton(onClick = ::startBarcodeScan) {
+                                Icon(
+                                    imageVector = Icons.Default.QrCodeScanner,
+                                    contentDescription = stringResource(R.string.barcode_scan_content_desc)
+                                )
+                            }
                         }
                     }
                 )
@@ -392,17 +467,15 @@ fun AddEditMedicationScreen(
                 OutlinedTextField(
                     value = formState.activeIngredient,
                     onValueChange = viewModel::onActiveIngredientChange,
+                    readOnly = formState.isLockedByBarcode,
                     label = { Text(stringResource(R.string.active_ingredient)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            // Barkod: kutunun üzerindeki barkodu okutarak veya elle girerek kaydedilir.
-            // TİTCK yerel veritabanında barkod eşlemesi bulunmadığı için otomatik ilaç
-            // eşleştirmesi yapılmaz; yalnızca kullanıcının kendi kutusunu tanımasına yarar.
-            val barcodeScanner = remember { com.google.mlkit.vision.codescanner.GmsBarcodeScanning.getClient(context) }
-            var barcodeError by remember { mutableStateOf<String?>(null) }
-
+            // Barkod: ilaç adı alanındaki düğmeyle okutulunca ürün numarası buraya yazılır;
+            // bu alan numarayı gösterir ve elle girip düzeltmeye yarar. Silme düğmesi barkodu
+            // kaldırır; böylece barkoddan gelen ad ve etken madde yeniden düzenlenebilir.
             if (showExtra("barkod")) {
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -410,22 +483,16 @@ fun AddEditMedicationScreen(
                     value = formState.barcode,
                     onValueChange = viewModel::onBarcodeChange,
                     label = { Text(stringResource(R.string.barcode_label)) },
-                    supportingText = barcodeError?.let { { Text(it) } },
-                    trailingIcon = {
-                        val barcodeScanFailedText = stringResource(R.string.barcode_scan_failed)
-                        IconButton(onClick = {
-                            barcodeError = null
-                            barcodeScanner.startScan()
-                                .addOnSuccessListener { result ->
-                                    viewModel.onBarcodeChange(result.rawValue ?: "")
-                                }
-                                .addOnFailureListener {
-                                    barcodeError = barcodeScanFailedText
-                                }
-                        }) {
-                            Icon(imageVector = Icons.Default.QrCodeScanner, contentDescription = stringResource(R.string.barcode_scan_content_desc))
+                    trailingIcon = if (formState.barcode.isNotEmpty()) {
+                        {
+                            IconButton(onClick = { viewModel.onBarcodeChange("") }) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = stringResource(R.string.barcode_clear_content_desc)
+                                )
+                            }
                         }
-                    },
+                    } else null,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
