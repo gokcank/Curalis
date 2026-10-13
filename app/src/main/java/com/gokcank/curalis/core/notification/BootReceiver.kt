@@ -55,7 +55,9 @@ class BootReceiver : BroadcastReceiver() {
                         // alarmı artık kesin olarak kaybolmuştur — tetiklenmeyi bekleyen bir
                         // "hayalet" kayıt olarak kalmasın diye MISSED olarak işaretlenir.
                         getRemindersForMedicationUseCase(medication.id).firstOrNull()
-                            ?.filter { it.state == ReminderState.SCHEDULED && it.timeInMillis < now }
+                            // Yeniden planlanmış doz yeni zamanına göre değerlendirilir; yeni zamanı
+                            // henüz gelmediyse kaçırılmış sayılmaz (alarmı aşağıda yeniden kurulur).
+                            ?.filter { it.state == ReminderState.SCHEDULED && (it.rescheduledToMillis ?: it.timeInMillis) < now }
                             ?.forEach { staleReminder ->
                                 reminderRepository.updateReminder(staleReminder.copy(state = ReminderState.MISSED))
                             }

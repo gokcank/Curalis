@@ -34,6 +34,7 @@ private class FakeReminderRepository(private val reminders: List<Reminder> = emp
     override suspend fun insertReminders(reminders: List<Reminder>) {}
     override suspend fun updateReminder(reminder: Reminder) {}
     override suspend fun deleteReminder(reminder: Reminder) {}
+    override suspend fun deleteUpcomingScheduledReminders(medicationId: String, after: Long) {}
     override suspend fun getReminderById(id: String): Reminder? = null
     override fun getRemindersForMedication(medicationId: String): Flow<List<Reminder>> =
         flowOf(reminders.filter { it.medicationId == medicationId })
