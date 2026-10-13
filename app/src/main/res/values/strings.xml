@@ -357,6 +357,7 @@
     <string name="placebo_badge">Placebo</string>
     <string name="time_at_label">At %1$s%2$s</string>
     <string name="time_at_taken_label">At %1$s%2$s • Taken: %3$s</string>
+    <string name="edit_taken_time_action">Edit time taken</string>
     <string name="actually_took_it_button">I Actually Took It</string>
     <string name="took_it_button">Took It</string>
     <string name="skip_button">Skip</string>

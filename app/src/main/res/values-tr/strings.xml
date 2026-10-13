@@ -359,6 +359,7 @@
     <string name="placebo_badge">Plasebo</string>
     <string name="time_at_label">Saat %1$s%2$s</string>
     <string name="time_at_taken_label">Saat %1$s%2$s • Alındı: %3$s</string>
+    <string name="edit_taken_time_action">Alınma saatini düzelt</string>
     <string name="actually_took_it_button">Aslında Aldım</string>
     <string name="took_it_button">Aldım</string>
     <string name="skip_button">Atla</string>

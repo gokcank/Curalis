@@ -31,9 +31,10 @@ private enum class DoseTakenTimeChoice { NOW, ON_TIME, PICK }
 
 /**
  * Doz "Aldım" ile işaretlenirken ne zaman alındığını sorar — Şimdi / Tam zamanında / elle
- * seçilen bir saat. Bildirimdeki tek dokunuşluk "Al" eyleminde gösterilmez (SkipReasonDialog
- * ile aynı gerekçeyle: bildirim akışının hızı korunuyor); yalnızca uygulama içi Zaman
- * Çizelgesi ekranında kullanılır.
+ * seçilen bir saat; alınmış bir dozun alınma saatini düzeltmek için de kullanılır. Bildirimdeki
+ * tek dokunuşluk "Al" eyleminde gösterilmez, orada alınma saati o an kaydedilir (SkipReasonDialog
+ * ile aynı gerekçeyle: bildirim akışının hızı korunuyor); yalnızca uygulama içinde (ana ekran
+ * ve Zaman Çizelgesi) kullanılır.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
