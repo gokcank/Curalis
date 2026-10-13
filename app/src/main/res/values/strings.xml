@@ -392,12 +392,13 @@
     <string name="select_and_load_backup_button">Select &amp; Load Backup</string>
     <string name="google_drive_card_title">Google Drive (Automatic)</string>
     <string name="google_drive_card_desc">Backs up, encrypted with the password you set, to a private folder on Drive that only Curalis can see. Even if you change phones, your data comes back with the same account and password.</string>
-    <string name="sign_in_with_google_button">Sign in with Google</string>
+    <string name="sign_in_with_google_button">Connect Google Drive</string>
     <string name="connected_account_label">Connected Account: %1$s</string>
+    <string name="drive_connect_failed">Could not connect to Google Drive. Check your internet connection and try again.</string>
     <string name="unknown_account">Unknown</string>
     <string name="backup_to_drive_button">Back Up to Drive</string>
     <string name="restore_from_drive_button">Restore from Drive</string>
-    <string name="sign_out_button">Sign Out</string>
+    <string name="sign_out_button">Disconnect</string>
     <string name="google_signin_error_generic">Google Sign-In Error: %1$d - %2$s</string>
     <string name="unknown_error">Unknown error</string>
     <string name="signin_error_generic">An error occurred while signing in: %1$s</string>

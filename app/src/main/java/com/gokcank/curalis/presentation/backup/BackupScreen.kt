@@ -1,7 +1,10 @@
 package com.gokcank.curalis.presentation.backup
 
+import android.accounts.Account
+import android.app.Activity
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -23,8 +26,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.gokcank.curalis.BuildConfig
 import com.gokcank.curalis.R
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.auth.api.identity.AuthorizationRequest
+import com.google.android.gms.auth.api.identity.AuthorizationResult
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.identity.RevokeAccessRequest
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.api.services.drive.DriveScopes
 import kotlinx.coroutines.launch
@@ -76,43 +82,90 @@ fun BackupScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    // Google Sign-In setup
-    val gso = remember {
-        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestScopes(Scope(DriveScopes.DRIVE_APPDATA))
-            .build()
-    }
-    val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
-    var signedInAccount by remember { mutableStateOf(GoogleSignIn.getLastSignedInAccount(context)) }
+    // Google Drive izni: kullanımdan kalkan Google Sign-In yerine Authorization API. Yalnızca
+    // Drive'daki gizli uygulama klasörü (drive.appdata) izni istenir; her Drive işleminden önce
+    // aynı hesap için taze bir erişim anahtarı alınır. İzin daha önce verildiyse ekran açılmaz.
+    val driveAccountEmail by viewModel.driveAccountEmail.collectAsState()
+    val authorizationClient = remember { Identity.getAuthorizationClient(context) }
+    val driveScopes = remember { listOf(Scope(DriveScopes.DRIVE_APPDATA)) }
+    // İzin ekranı açıldıysa, kullanıcı onayladıktan sonra hangi işlemin süreceğini tutar.
+    var pendingDriveOperation by remember { mutableStateOf<DriveOperation?>(null) }
 
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
-            signedInAccount = account
-        } catch (e: com.google.android.gms.common.api.ApiException) {
-            val errorMsg = if (e.statusCode == 10) {
+    fun showDriveError(e: Exception) {
+        val errorMsg = if (e is ApiException) {
+            if (e.statusCode == 10) {
                 String.format(googleSignInErrorOauthTemplate, e.statusCode)
             } else {
-                String.format(
-                    googleSignInErrorGenericTemplate,
-                    e.statusCode,
-                    e.localizedMessage ?: unknownErrorText
-                )
+                String.format(googleSignInErrorGenericTemplate, e.statusCode, e.localizedMessage ?: unknownErrorText)
             }
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(errorMsg)
-            }
-        } catch (e: Exception) {
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(String.format(signInErrorGenericTemplate, e.localizedMessage))
-            }
+        } else {
+            String.format(signInErrorGenericTemplate, e.localizedMessage ?: unknownErrorText)
+        }
+        coroutineScope.launch { snackbarHostState.showSnackbar(errorMsg) }
+    }
+
+    fun runDriveOperation(operation: DriveOperation, accessToken: String) {
+        when (operation) {
+            DriveOperation.Connect -> viewModel.connectDrive(accessToken)
+            is DriveOperation.Backup -> viewModel.uploadToGoogleDrive(accessToken, operation.password)
+            is DriveOperation.Restore -> viewModel.downloadFromGoogleDrive(accessToken, operation.password)
         }
     }
 
+    val driveAuthorizationLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        val operation = pendingDriveOperation
+        pendingDriveOperation = null
+        if (operation == null || result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+        try {
+            val token = authorizationClient.getAuthorizationResultFromIntent(result.data).accessToken
+            if (token != null) runDriveOperation(operation, token)
+        } catch (e: Exception) {
+            showDriveError(e)
+        }
+    }
+
+    fun withDriveAccess(operation: DriveOperation) {
+        val request = AuthorizationRequest.builder()
+            .setRequestedScopes(driveScopes)
+            .apply {
+                val email = driveAccountEmail
+                if (operation == DriveOperation.Connect || email == null) {
+                    // Bağlanırken hangi Google hesabının kullanılacağı her zaman sorulur.
+                    setPrompt(AuthorizationRequest.Prompt.SELECT_ACCOUNT)
+                } else {
+                    setAccount(Account(email, GOOGLE_ACCOUNT_TYPE))
+                }
+            }
+            .build()
+        authorizationClient.authorize(request)
+            .addOnSuccessListener { result: AuthorizationResult ->
+                val pendingIntent = result.pendingIntent
+                val token = result.accessToken
+                if (result.hasResolution() && pendingIntent != null) {
+                    pendingDriveOperation = operation
+                    driveAuthorizationLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+                } else if (token != null) {
+                    runDriveOperation(operation, token)
+                }
+            }
+            .addOnFailureListener { e -> showDriveError(e) }
+    }
+
+    fun disconnectDrive() {
+        val email = driveAccountEmail
+        viewModel.disconnectDrive()
+        if (email != null) {
+            // Verilen Drive iznini de geri al; başarısız olsa bile uygulama bağlantıyı unutur.
+            authorizationClient.revokeAccess(
+                RevokeAccessRequest.builder()
+                    .setAccount(Account(email, GOOGLE_ACCOUNT_TYPE))
+                    .setScopes(driveScopes)
+                    .build()
+            )
+        }
+    }
 
     LaunchedEffect(uiState) {
         when (uiState) {
@@ -268,9 +321,9 @@ fun BackupScreen(
                         style = MaterialTheme.typography.bodySmall
                     )
 
-                    if (signedInAccount == null) {
+                    if (driveAccountEmail == null) {
                         Button(
-                            onClick = { googleSignInLauncher.launch(googleSignInClient.signInIntent) },
+                            onClick = { withDriveAccess(DriveOperation.Connect) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                         ) {
@@ -278,7 +331,7 @@ fun BackupScreen(
                         }
                     } else {
                         Text(
-                            text = stringResource(R.string.connected_account_label, signedInAccount?.email ?: stringResource(R.string.unknown_account)),
+                            text = stringResource(R.string.connected_account_label, driveAccountEmail ?: stringResource(R.string.unknown_account)),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onTertiaryContainer
                         )
@@ -304,11 +357,7 @@ fun BackupScreen(
                             }
                         }
                         TextButton(
-                            onClick = {
-                                googleSignInClient.signOut().addOnCompleteListener {
-                                    signedInAccount = null
-                                }
-                            },
+                            onClick = { disconnectDrive() },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(stringResource(R.string.sign_out_button))
@@ -339,10 +388,10 @@ fun BackupScreen(
                         pendingImportUri = null
                     }
                     PendingPasswordAction.BackupDrive -> {
-                        signedInAccount?.let { viewModel.uploadToGoogleDrive(it, password) }
+                        withDriveAccess(DriveOperation.Backup(password))
                     }
                     PendingPasswordAction.RestoreDrive -> {
-                        signedInAccount?.let { viewModel.downloadFromGoogleDrive(it, password) }
+                        withDriveAccess(DriveOperation.Restore(password))
                     }
                 }
                 pendingPasswordAction = null
@@ -424,3 +473,12 @@ private fun BackupPasswordDialog(
         }
     )
 }
+
+/** Drive izni alındıktan sonra yapılacak işlem. */
+private sealed class DriveOperation {
+    data object Connect : DriveOperation()
+    data class Backup(val password: String) : DriveOperation()
+    data class Restore(val password: String) : DriveOperation()
+}
+
+private const val GOOGLE_ACCOUNT_TYPE = "com.google"

@@ -394,12 +394,13 @@
     <string name="select_and_load_backup_button">Yedeği Seç ve Yükle</string>
     <string name="google_drive_card_title">Google Drive (Otomatik)</string>
     <string name="google_drive_card_desc">Drive\'da sadece Curalis\'in görebileceği gizli bir klasöre, belirlediğiniz şifreyle şifrelenmiş olarak yedekleme yapar. Telefon değiştirseniz bile aynı hesap ve şifreyle verileriniz geri gelir.</string>
-    <string name="sign_in_with_google_button">Google ile Giriş Yap</string>
+    <string name="sign_in_with_google_button">Google Drive\'a Bağlan</string>
     <string name="connected_account_label">Bağlı Hesap: %1$s</string>
+    <string name="drive_connect_failed">Google Drive\'a bağlanılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.</string>
     <string name="unknown_account">Bilinmiyor</string>
     <string name="backup_to_drive_button">Drive\'a Yedekle</string>
     <string name="restore_from_drive_button">Drive\'dan Yükle</string>
-    <string name="sign_out_button">Çıkış Yap</string>
+    <string name="sign_out_button">Bağlantıyı Kes</string>
     <string name="google_signin_error_generic">Google Giriş Hatası: %1$d - %2$s</string>
     <string name="unknown_error">Bilinmeyen hata</string>
     <string name="signin_error_generic">Giriş sırasında hata oluştu: %1$s</string>

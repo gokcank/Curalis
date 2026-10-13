@@ -1,45 +1,43 @@
 package com.gokcank.curalis.data.backup
 
-import android.content.Context
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.http.InputStreamContent
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
-import com.google.api.services.drive.DriveScopes
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
-/** Hilt bu fabrikayı enjekte eder; hesap yalnızca kullanıcı giriş yaptığında elde edilen bir
- * çalışma zamanı değeri olduğu için [GoogleDriveManager]'ın kendisi enjekte edilemez. */
-class GoogleDriveManagerFactory @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
-    fun create(account: GoogleSignInAccount): GoogleDriveManager = GoogleDriveManager(context, account)
+/** Hilt bu fabrikayı enjekte eder; erişim anahtarı yalnızca kullanıcı Drive iznini verdikten
+ * sonra elde edilen bir çalışma zamanı değeri olduğu için [GoogleDriveManager] enjekte edilemez. */
+class GoogleDriveManagerFactory @Inject constructor() {
+    fun create(accessToken: String): GoogleDriveManager = GoogleDriveManager(accessToken)
 }
 
-class GoogleDriveManager(private val context: Context, private val account: GoogleSignInAccount) {
+/**
+ * Drive'daki gizli uygulama klasörüne (appDataFolder) yedek yazar ve okur. Erişim anahtarı
+ * Google'ın Authorization API'siyle (bkz. DriveAuthorization) yalnızca drive.appdata izni için
+ * alınır; kullanımdan kalkan Google Sign-In hesabına artık gerek yoktur.
+ */
+class GoogleDriveManager(accessToken: String) {
 
-    private val driveService: Drive
+    private val driveService: Drive = Drive.Builder(
+        NetHttpTransport(),
+        GsonFactory.getDefaultInstance()
+    ) { request -> request.headers.authorization = "Bearer $accessToken" }
+        .setApplicationName("Curalis")
+        .build()
 
-    init {
-        val credential = GoogleAccountCredential.usingOAuth2(
-            context, listOf(DriveScopes.DRIVE_APPDATA)
-        )
-        credential.selectedAccount = account.account
-
-        driveService = Drive.Builder(
-            NetHttpTransport(),
-            GsonFactory.getDefaultInstance(),
-            credential
-        )
-            .setApplicationName("Curalis")
-            .build()
+    /** İzni veren Google hesabının e-posta adresi; ekranda "Bağlı hesap" olarak gösterilir. */
+    suspend fun fetchAccountEmail(): String? = withContext(Dispatchers.IO) {
+        try {
+            driveService.about().get().setFields("user(emailAddress)").execute().user?.emailAddress
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     suspend fun uploadBackupToDrive(jsonString: String, fileName: String): Boolean = withContext(Dispatchers.IO) {
