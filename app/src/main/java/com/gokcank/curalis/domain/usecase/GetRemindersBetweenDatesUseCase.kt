@@ -102,7 +102,8 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
                                             id = key,
                                             medicationId = medication.id,
                                             timeInMillis = timeInMillis,
-                                            state = ReminderState.SCHEDULED
+                                            state = ReminderState.SCHEDULED,
+                                            isPlacebo = FrequencyCalculator.isPlaceboDay(medication, dayMillis)
                                         )
                                     )
                                 }
@@ -112,7 +113,16 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
                 }
             }
             
-            (dbReminders + virtualReminders).sortedBy { it.timeInMillis }
+            // Askıya alınmış/arşivlenmiş ilacın önceden yazılmış gelecek dozları gösterilmez
+            // (eski sürümlerde askıya alınırken silinmiyorlardı); geçmiş kayıtlar korunur.
+            val now = System.currentTimeMillis()
+            val inactiveMedicationIds = medications.filter { it.isArchived || it.isSuspended }.mapTo(mutableSetOf()) { it.id }
+            val visibleDbReminders = dbReminders.filterNot {
+                it.medicationId in inactiveMedicationIds && it.state == ReminderState.SCHEDULED &&
+                    (it.rescheduledToMillis ?: it.timeInMillis) > now
+            }
+
+            (visibleDbReminders + virtualReminders).sortedBy { it.timeInMillis }
         }
     }
 }

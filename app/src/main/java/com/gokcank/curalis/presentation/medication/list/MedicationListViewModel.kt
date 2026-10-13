@@ -149,6 +149,7 @@ class MedicationListViewModel @Inject constructor(
     private suspend fun cancelAlarmsFor(medication: Medication) {
         getRemindersForMedicationUseCase(medication.id).firstOrNull()?.forEach { reminder ->
             alarmScheduler.cancel(reminder.id)
+            alarmScheduler.cancelRescheduledDose(reminder.id)
         }
         alarmScheduler.cancelMedicationAlarms(medication)
     }

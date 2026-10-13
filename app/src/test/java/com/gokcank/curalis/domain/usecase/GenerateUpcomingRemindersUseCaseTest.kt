@@ -20,6 +20,7 @@ private class RecordingReminderRepository : ReminderRepository {
     override suspend fun insertReminders(reminders: List<Reminder>) { inserted.addAll(reminders) }
     override suspend fun updateReminder(reminder: Reminder) {}
     override suspend fun deleteReminder(reminder: Reminder) {}
+    override suspend fun deleteUpcomingScheduledReminders(medicationId: String, after: Long) {}
     override suspend fun getReminderById(id: String): Reminder? = null
     override fun getRemindersForMedication(medicationId: String): Flow<List<Reminder>> = flowOf(emptyList())
     override fun getRemindersBetweenDates(start: Long, end: Long): Flow<List<Reminder>> = flowOf(emptyList())

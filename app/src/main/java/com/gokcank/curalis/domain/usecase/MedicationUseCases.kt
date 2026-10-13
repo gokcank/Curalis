@@ -3,6 +3,7 @@ package com.gokcank.curalis.domain.usecase
 import com.gokcank.curalis.core.utils.MedicationPhotoStorage
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.repository.MedicationRepository
+import com.gokcank.curalis.domain.repository.ReminderRepository
 import javax.inject.Inject
 
 class AddMedicationUseCase @Inject constructor(
@@ -39,10 +40,15 @@ class DeleteMedicationUseCase @Inject constructor(
  * geçmişi ilaç silindikten sonra da anlamlı kalır.
  */
 class ArchiveMedicationUseCase @Inject constructor(
-    private val repository: MedicationRepository
+    private val repository: MedicationRepository,
+    private val reminderRepository: ReminderRepository
 ) {
-    suspend operator fun invoke(medication: Medication) {
+    suspend operator fun invoke(medication: Medication, now: Long = System.currentTimeMillis()) {
         repository.updateMedication(medication.copy(isArchived = true))
+        // Önümüzdeki günler için önceden yazılmış dozlar silinir; yoksa zaman çizelgesinde
+        // 30 gün boyunca görünmeye devam eder, ilaç yeniden başlatılınca da aradaki günler
+        // "kaçırıldı" sayılabilirdi. Devam ettirilince dozlar yeniden üretilir.
+        reminderRepository.deleteUpcomingScheduledReminders(medication.id, now)
     }
 }
 
@@ -59,10 +65,15 @@ class UnarchiveMedicationUseCase @Inject constructor(
 /** İlacı geçici olarak duraklatır — arşivden farklı, ilaç listede kalır ama yeni
  *  hatırlatıcı üretilmez/alarm kurulmaz. */
 class SuspendMedicationUseCase @Inject constructor(
-    private val repository: MedicationRepository
+    private val repository: MedicationRepository,
+    private val reminderRepository: ReminderRepository
 ) {
-    suspend operator fun invoke(medication: Medication) {
+    suspend operator fun invoke(medication: Medication, now: Long = System.currentTimeMillis()) {
         repository.updateMedication(medication.copy(isSuspended = true))
+        // Önümüzdeki günler için önceden yazılmış dozlar silinir; yoksa zaman çizelgesinde
+        // 30 gün boyunca görünmeye devam eder, ilaç yeniden başlatılınca da aradaki günler
+        // "kaçırıldı" sayılabilirdi. Devam ettirilince dozlar yeniden üretilir.
+        reminderRepository.deleteUpcomingScheduledReminders(medication.id, now)
     }
 }
 

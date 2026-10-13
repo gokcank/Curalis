@@ -28,6 +28,16 @@ interface ReminderDao {
     @Delete
     suspend fun deleteReminder(reminder: ReminderEntity)
 
+    /**
+     * Bir ilacın [after] anından sonraya düşen, yanıtlanmamış dozlarını siler (askıya alma ve
+     * arşivleme). Yeniden planlanmış doz yeni zamanına göre değerlendirilir.
+     */
+    @Query(
+        "DELETE FROM reminders WHERE medicationId = :medicationId AND state = 'SCHEDULED' " +
+            "AND COALESCE(rescheduledToMillis, timeInMillis) > :after"
+    )
+    suspend fun deleteUpcomingScheduledReminders(medicationId: String, after: Long)
+
     @Query("SELECT * FROM reminders WHERE id = :id")
     suspend fun getReminderById(id: String): ReminderEntity?
 

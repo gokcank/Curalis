@@ -21,9 +21,11 @@ private class FakeReminderRepository(private val reminders: List<Reminder>) : Re
     override suspend fun insertReminders(reminders: List<Reminder>) {}
     override suspend fun updateReminder(reminder: Reminder) {}
     override suspend fun deleteReminder(reminder: Reminder) {}
+    override suspend fun deleteUpcomingScheduledReminders(medicationId: String, after: Long) {}
     override suspend fun getReminderById(id: String): Reminder? = null
     override fun getRemindersForMedication(medicationId: String): Flow<List<Reminder>> = flowOf(emptyList())
-    override fun getRemindersBetweenDates(start: Long, end: Long): Flow<List<Reminder>> = flowOf(reminders)
+    override fun getRemindersBetweenDates(start: Long, end: Long): Flow<List<Reminder>> =
+        flowOf(reminders.filter { it.timeInMillis in start..end })
 }
 
 private class FakeMedicationRepository(private val medications: List<Medication>) : MedicationRepository {
@@ -189,5 +191,82 @@ class GetRemindersBetweenDatesUseCaseTest {
 
         assertTrue(today.isEmpty())
         assertEquals(1, tomorrow.size)
+    }
+
+    private fun at(daysFromNow: Int, hour: Int): Long = dayStart(daysFromNow) + hour * 3_600_000L
+
+    @Test
+    fun `days after the 30-day window are filled from the plan without gaps or duplicates`() = runBlocking {
+        val medication = Medication(
+            id = "m1",
+            name = "Günlük ilaç",
+            frequencyType = FrequencyType.DAILY,
+            times = listOf(MedicationTime(hour = 9, minute = 0), MedicationTime(hour = 21, minute = 0)),
+            startDate = dayStart(-10)
+        )
+        // Veritabanında yalnızca 30 günlük pencere var (gün 1..29).
+        val stored = (1..29).flatMap { day ->
+            listOf(9, 21).map { hour -> Reminder(id = "m1_${at(day, hour)}", medicationId = "m1", timeInMillis = at(day, hour)) }
+        }
+        val useCase = GetRemindersBetweenDatesUseCase(
+            FakeReminderRepository(stored),
+            FakeMedicationRepository(listOf(medication))
+        )
+
+        val result = useCase(dayStart(27), dayEnd(40)).first()
+        val expected = (27..40).flatMap { day -> listOf(at(day, 9), at(day, 21)) }
+        assertEquals(expected, result.map { it.timeInMillis })
+    }
+
+    @Test
+    fun `upcoming stored doses of a suspended or archived medication are hidden, past ones kept`() = runBlocking {
+        val suspended = Medication(id = "s", name = "Askıda", times = listOf(MedicationTime(hour = 9, minute = 0)), startDate = dayStart(-10), isSuspended = true)
+        val archived = Medication(id = "a", name = "Arşivde", times = listOf(MedicationTime(hour = 9, minute = 0)), startDate = dayStart(-10), isArchived = true)
+        val stored = listOf(
+            Reminder(id = "s-past", medicationId = "s", timeInMillis = at(-1, 9), state = ReminderState.TAKEN),
+            Reminder(id = "s-past-open", medicationId = "s", timeInMillis = at(-1, 10)),
+            Reminder(id = "s-future", medicationId = "s", timeInMillis = at(2, 9)),
+            Reminder(id = "a-future", medicationId = "a", timeInMillis = at(3, 9))
+        )
+        val useCase = GetRemindersBetweenDatesUseCase(
+            FakeReminderRepository(stored),
+            FakeMedicationRepository(listOf(suspended, archived))
+        )
+
+        val result = useCase(dayStart(-1), dayEnd(5)).first()
+        assertEquals(listOf("s-past", "s-past-open"), result.map { it.id })
+    }
+
+    @Test
+    fun `virtual doses on rest days of a cyclic medication are marked as placebo`() = runBlocking {
+        val medication = Medication(
+            name = "Doğum kontrol",
+            frequencyType = FrequencyType.CYCLIC,
+            activeDays = 2,
+            restDays = 1,
+            hasPlaceboDays = true,
+            times = listOf(MedicationTime(hour = 9, minute = 0)),
+            startDate = dayStart(40)
+        )
+        val useCase = GetRemindersBetweenDatesUseCase(
+            FakeReminderRepository(emptyList()),
+            FakeMedicationRepository(listOf(medication))
+        )
+
+        val result = useCase(dayStart(40), dayEnd(45)).first()
+        assertEquals(listOf(false, false, true, false, false, true), result.map { it.isPlacebo })
+    }
+
+    @Test
+    fun `a dose rescheduled to another day stays on its own day`() = runBlocking {
+        val medication = Medication(id = "m1", name = "Akşam ilacı", times = listOf(MedicationTime(hour = 21, minute = 0)), startDate = dayStart(-10))
+        val moved = Reminder(id = "m1_${at(2, 21)}", medicationId = "m1", timeInMillis = at(2, 21), rescheduledToMillis = at(3, 8))
+        val useCase = GetRemindersBetweenDatesUseCase(
+            FakeReminderRepository(listOf(moved)),
+            FakeMedicationRepository(listOf(medication))
+        )
+
+        val day2 = useCase(dayStart(2), dayEnd(2)).first()
+        assertEquals(listOf(moved), day2)
     }
 }

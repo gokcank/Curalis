@@ -38,6 +38,11 @@ class ReminderRepositoryImpl @Inject constructor(
         widgetRefresher.refresh()
     }
 
+    override suspend fun deleteUpcomingScheduledReminders(medicationId: String, after: Long) {
+        dao.deleteUpcomingScheduledReminders(medicationId, after)
+        widgetRefresher.refresh()
+    }
+
     override suspend fun getReminderById(id: String): Reminder? {
         return dao.getReminderById(id)?.toDomain()
     }

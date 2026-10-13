@@ -8,6 +8,8 @@ interface ReminderRepository {
     suspend fun insertReminders(reminders: List<Reminder>)
     suspend fun updateReminder(reminder: Reminder)
     suspend fun deleteReminder(reminder: Reminder)
+    /** Bir ilacın [after] anından sonraya düşen, yanıtlanmamış dozlarını siler. */
+    suspend fun deleteUpcomingScheduledReminders(medicationId: String, after: Long)
     suspend fun getReminderById(id: String): Reminder?
     fun getRemindersForMedication(medicationId: String): Flow<List<Reminder>>
     fun getRemindersBetweenDates(start: Long, end: Long): Flow<List<Reminder>>
