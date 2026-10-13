@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
+import com.gokcank.curalis.core.notification.NotificationHelper
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.timeline.TimelinePreferences
 import com.gokcank.curalis.domain.model.Medication
@@ -15,6 +16,7 @@ import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
+import com.gokcank.curalis.domain.usecase.RescheduleDoseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,6 +56,8 @@ class DailyTimelineViewModel @Inject constructor(
     private val acknowledgeReminderUseCase: AcknowledgeReminderUseCase,
     private val scheduleReminderUseCase: ScheduleReminderUseCase,
     private val alarmScheduler: AlarmScheduler,
+    private val notificationHelper: NotificationHelper,
+    private val rescheduleDoseUseCase: RescheduleDoseUseCase,
     private val notificationPreferences: NotificationPreferences,
     timelinePreferences: TimelinePreferences
 ) : ViewModel() {
@@ -128,6 +132,22 @@ class DailyTimelineViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             acknowledgeReminderUseCase(reminder, newState, skipReason, takenAtMillis)
+        }
+    }
+
+    /**
+     * Bekleyen bir dozu yalnızca o seferlik [rescheduledToMillis] zamanına alır: varsa
+     * gösterilen bildirimi kapatır, tekrar hatırlatma zincirini durdurur ve yeni zamana
+     * tek seferlik alarm kurar.
+     */
+    fun rescheduleDose(reminder: Reminder, rescheduledToMillis: Long) {
+        viewModelScope.launch {
+            val updated = rescheduleDoseUseCase(reminder, rescheduledToMillis)
+            notificationHelper.dismissNotification(reminder.id)
+            alarmScheduler.cancelMissedDoseCheck(reminder.id)
+            val medicationName = medicationsMap.value[reminder.medicationId]?.name
+                ?: appContext.getString(R.string.generic_medication_label)
+            alarmScheduler.scheduleRescheduledDose(updated, medicationName)
         }
     }
 

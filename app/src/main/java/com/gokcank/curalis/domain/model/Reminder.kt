@@ -14,5 +14,9 @@ data class Reminder(
     val takenAtMillis: Long? = null,
     /** CYCLIC bir ilacın dinlenme gününde üretilen plasebo hap dozu mu — bkz.
      *  Medication.hasPlaceboDays. Alınabilir/atlanabilir ama uyum yüzdesine sayılmaz. */
-    val isPlacebo: Boolean = false
+    val isPlacebo: Boolean = false,
+    /** Bu doz tek seferliğine yeniden planlandıysa hatırlatmanın geleceği zaman. Doz planlanan
+     *  saatinde (`timeInMillis`) listede kalır; o saatte hatırlatma gelmez, bunun yerine bu
+     *  zamanda gelir. İlacın planı değişmez. */
+    val rescheduledToMillis: Long? = null
 )

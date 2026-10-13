@@ -41,7 +41,7 @@ import com.gokcank.curalis.data.local.entity.VitalReminderEntity
         VitalReminderEntity::class,
         DailyNoteEntity::class
     ],
-    version = 23,
+    version = 24,
     exportSchema = true
 )
 abstract class CuralisDatabase : RoomDatabase() {
