@@ -12,10 +12,12 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -28,12 +30,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Medication
-import androidx.compose.material.icons.filled.Snooze
-import androidx.compose.material.icons.outlined.RemoveCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -44,6 +47,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,9 +69,13 @@ import com.gokcank.curalis.core.notification.ReminderActionReceiver
 import com.gokcank.curalis.core.theme.CuralisTheme
 import com.gokcank.curalis.core.theme.ThemeController
 import com.gokcank.curalis.domain.model.SkipReason
+import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.presentation.components.SkipReasonDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class AlarmFullScreenActivity : ComponentActivity() {
@@ -77,6 +86,8 @@ class AlarmFullScreenActivity : ComponentActivity() {
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
 
+    private val viewModel: AlarmFullScreenViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -84,37 +95,63 @@ class AlarmFullScreenActivity : ComponentActivity() {
         showOverLockScreen()
         startAlarmSound()
 
-        val reminderId = intent.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: ""
-        val medicationName = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_NAME) ?: getString(R.string.alarm_default_medication_name)
-        val medicationId = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_ID) ?: ""
-        val dose = intent.getStringExtra(AlarmScheduler.EXTRA_DOSE)
+        // Liste veritabanından gelene kadar (ya da doz kaydı henüz yazılmamışsa) ekranı açan
+        // dozu göstermek için yedek satır.
+        val launchingDose = intent.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID)?.let { reminderId ->
+            AlarmDose(
+                reminder = Reminder(
+                    id = reminderId,
+                    medicationId = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_ID) ?: "",
+                    timeInMillis = System.currentTimeMillis()
+                ),
+                medicationName = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_NAME)
+                    ?: getString(R.string.alarm_default_medication_name),
+                dosage = intent.getStringExtra(AlarmScheduler.EXTRA_DOSE)
+            )
+        }
 
         setContent {
             val themeMode by themeController.themeMode.collectAsState()
+            val loadedDoses by viewModel.doses.collectAsState()
+            var userActed by remember { mutableStateOf(false) }
+            var skipTarget by remember { mutableStateOf<AlarmDose?>(null) }
+
+            // Kullanıcı yanıt verdikçe dozlar listeden düşer; hepsi yanıtlanınca ekran kapanır.
+            // Açılış anında liste boşsa (doz kaydı henüz yazılmamış olabilir) ekranı açan doz gösterilir.
+            val doses = loadedDoses?.takeIf { it.isNotEmpty() || userActed } ?: listOfNotNull(launchingDose)
+            LaunchedEffect(userActed, loadedDoses) {
+                if (userActed && loadedDoses?.isEmpty() == true) finish()
+            }
 
             CuralisTheme(themeMode = themeMode) {
-                var showSkipReasonDialog by remember { mutableStateOf(false) }
-
                 AlarmFullScreenContent(
-                    medicationName = medicationName,
-                    dose = dose,
-                    onTakeClick = {
-                        sendAction(NotificationHelper.ACTION_TAKEN, reminderId, medicationId, medicationName)
-                        finish()
+                    doses = doses,
+                    onTakeClick = { dose ->
+                        userActed = true
+                        sendAction(NotificationHelper.ACTION_TAKEN, dose)
+                        if (doses.size <= 1) finish()
                     },
-                    onSkipClick = { showSkipReasonDialog = true },
-                    onSnoozeClick = { minutes ->
-                        sendAction(NotificationHelper.ACTION_SNOOZE, reminderId, medicationId, medicationName, minutes)
+                    onSkipClick = { dose -> skipTarget = dose },
+                    onSnoozeClick = { dose, minutes ->
+                        userActed = true
+                        sendAction(NotificationHelper.ACTION_SNOOZE, dose, snoozeMinutes = minutes)
+                        if (doses.size <= 1) finish()
+                    },
+                    onTakeAllClick = {
+                        userActed = true
+                        doses.forEach { sendAction(NotificationHelper.ACTION_TAKEN, it) }
                         finish()
                     }
                 )
 
-                if (showSkipReasonDialog) {
+                skipTarget?.let { dose ->
                     SkipReasonDialog(
-                        onDismiss = { showSkipReasonDialog = false },
+                        onDismiss = { skipTarget = null },
                         onConfirm = { reason ->
-                            sendAction(NotificationHelper.ACTION_SKIP, reminderId, medicationId, medicationName, skipReason = reason)
-                            finish()
+                            userActed = true
+                            sendAction(NotificationHelper.ACTION_SKIP, dose, skipReason = reason)
+                            skipTarget = null
+                            if (doses.size <= 1) finish()
                         }
                     )
                 }
@@ -122,20 +159,29 @@ class AlarmFullScreenActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Ekran açıkken başka bir dozun hatırlatması gelirse ekran yeniden kurulmaz (önceden yeni
+     * gelen eskisinin yerine geçiyordu); liste veritabanından kendiliğinden güncellenir. Kullanıcı
+     * sesi bir yanıtla susturduysa yeni doz için yeniden çalınır.
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (ringtone?.isPlaying != true) startAlarmSound()
+    }
+
     private fun sendAction(
         action: String,
-        reminderId: String,
-        medicationId: String,
-        medicationName: String,
+        dose: AlarmDose,
         snoozeMinutes: Int = 10,
         skipReason: SkipReason? = null
     ) {
         stopAlarmSound()
         val intent = Intent(this, ReminderActionReceiver::class.java).apply {
             this.action = action
-            putExtra(NotificationHelper.EXTRA_REMINDER_ID, reminderId)
-            putExtra(NotificationHelper.EXTRA_MEDICATION_ID, medicationId)
-            putExtra(NotificationHelper.EXTRA_MEDICATION_NAME, medicationName)
+            putExtra(NotificationHelper.EXTRA_REMINDER_ID, dose.reminder.id)
+            putExtra(NotificationHelper.EXTRA_MEDICATION_ID, dose.reminder.medicationId)
+            putExtra(NotificationHelper.EXTRA_MEDICATION_NAME, dose.medicationName)
             putExtra(NotificationHelper.EXTRA_SNOOZE_MINUTES, snoozeMinutes)
             skipReason?.let { putExtra(NotificationHelper.EXTRA_SKIP_REASON, it.name) }
         }
@@ -196,141 +242,164 @@ class AlarmFullScreenActivity : ComponentActivity() {
 
 @Composable
 fun AlarmFullScreenContent(
-    medicationName: String,
-    dose: String?,
-    onTakeClick: () -> Unit,
-    onSkipClick: () -> Unit,
-    onSnoozeClick: (minutes: Int) -> Unit
+    doses: List<AlarmDose>,
+    onTakeClick: (AlarmDose) -> Unit,
+    onSkipClick: (AlarmDose) -> Unit,
+    onSnoozeClick: (AlarmDose, minutes: Int) -> Unit,
+    onTakeAllClick: () -> Unit
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Card(
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-            modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier.height(12.dp))
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer,
+            modifier = Modifier.size(64.dp)
         ) {
-            Column(
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Filled.Medication,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.alarm_medication_time_label),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+        if (doses.size > 1) {
+            Text(
+                text = pluralStringResource(R.plurals.alarm_doses_count, doses.size, doses.size),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+        ) {
+            items(doses, key = { it.reminder.id }) { dose ->
+                AlarmDoseCard(
+                    dose = dose,
+                    showTime = doses.size > 1,
+                    onTakeClick = { onTakeClick(dose) },
+                    onSkipClick = { onSkipClick(dose) },
+                    onSnoozeClick = { minutes -> onSnoozeClick(dose, minutes) }
+                )
+            }
+        }
+
+        if (doses.size > 1) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onTakeAllClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .height(52.dp),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.size(72.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Filled.Medication,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(36.dp)
-                        )
-                    }
-                }
+                Icon(imageVector = Icons.Filled.DoneAll, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.alarm_take_all_button), style = MaterialTheme.typography.titleMedium)
+            }
+        }
+    }
+}
 
-                Spacer(modifier = Modifier.height(16.dp))
-
+@Composable
+private fun AlarmDoseCard(
+    dose: AlarmDose,
+    showTime: Boolean,
+    onTakeClick: () -> Unit,
+    onSkipClick: () -> Unit,
+    onSnoozeClick: (minutes: Int) -> Unit
+) {
+    val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = dose.medicationName,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            if (showTime) {
+                val planned = timeFormat.format(Date(dose.reminder.timeInMillis))
+                val rescheduledTo = dose.reminder.rescheduledToMillis
                 Text(
-                    text = stringResource(R.string.alarm_medication_time_label),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    text = if (rescheduledTo != null) {
+                        stringResource(R.string.alarm_dose_rescheduled_label, planned, timeFormat.format(Date(rescheduledTo)))
+                    } else {
+                        stringResource(R.string.alarm_dose_time_label, planned)
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
+            }
+            dose.dosage?.let {
                 Text(
-                    text = medicationName,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
+                    text = stringResource(R.string.alarm_dose_label, it),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
 
-                dose?.let {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.alarm_dose_label, it),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(28.dp))
+            Button(
+                onClick = onTakeClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(imageVector = Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.alarm_took_it_button), style = MaterialTheme.typography.titleMedium)
+            }
 
-                // ALINDI
-                Button(
-                    onClick = onTakeClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.alarm_took_it_button), style = MaterialTheme.typography.titleMedium)
-                }
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // ATLANDI
-                OutlinedButton(
-                    onClick = onSkipClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.RemoveCircle,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.alarm_skip_dose_button))
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // SNOOZE (ERTELE)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Üç düğme yan yana sığsın diye simgesiz ve tek satır.
+                listOf(
+                    stringResource(R.string.alarm_snooze_10_min) to { onSnoozeClick(10) },
+                    stringResource(R.string.alarm_snooze_30_min) to { onSnoozeClick(30) },
+                    stringResource(R.string.alarm_skip_short_button) to onSkipClick
+                ).forEach { (label, onClick) ->
                     OutlinedButton(
-                        onClick = { onSnoozeClick(10) },
-                        modifier = Modifier.weight(1f)
+                        onClick = onClick,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Snooze,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(stringResource(R.string.alarm_snooze_10_min), style = MaterialTheme.typography.labelLarge)
-                    }
-                    OutlinedButton(
-                        onClick = { onSnoozeClick(30) },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Snooze,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(stringResource(R.string.alarm_snooze_30_min), style = MaterialTheme.typography.labelLarge)
+                        Text(label, style = MaterialTheme.typography.labelLarge, maxLines = 1)
                     }
                 }
             }

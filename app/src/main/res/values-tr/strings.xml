@@ -619,9 +619,16 @@
     <string name="alarm_medication_time_label">İlaç vakti geldi</string>
     <string name="alarm_dose_label">Doz: %1$s</string>
     <string name="alarm_took_it_button">İlacı aldım</string>
-    <string name="alarm_skip_dose_button">Bu dozu atla</string>
     <string name="alarm_snooze_10_min">10 dk</string>
     <string name="alarm_snooze_30_min">30 dk</string>
+    <plurals name="alarm_doses_count">
+        <item quantity="one">%1$d ilaç bekliyor</item>
+        <item quantity="other">%1$d ilaç bekliyor</item>
+    </plurals>
+    <string name="alarm_take_all_button">Tümünü aldım</string>
+    <string name="alarm_skip_short_button">Atla</string>
+    <string name="alarm_dose_time_label">Saat %1$s</string>
+    <string name="alarm_dose_rescheduled_label">Saat %1$s • Yeniden planlandı: %2$s</string>
 
     <!-- Hatırlatıcı Durum Rozeti -->
     <string name="reminder_state_taken">Alındı</string>

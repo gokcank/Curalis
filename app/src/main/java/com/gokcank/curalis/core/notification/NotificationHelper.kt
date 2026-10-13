@@ -120,7 +120,9 @@ class NotificationHelper @Inject constructor(
             putExtra(AlarmScheduler.EXTRA_REMINDER_ID, reminderId)
             putExtra(AlarmScheduler.EXTRA_MEDICATION_NAME, medicationName)
             putExtra(AlarmScheduler.EXTRA_MEDICATION_ID, medicationId)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            // Ekran zaten açıksa yeniden kurulmaz (CLEAR_TOP yeni gelen dozu eskisinin yerine
+            // koyuyordu); liste aynı dakikadaki tüm dozları kendisi gösterir.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
         val fullScreenPendingIntent = PendingIntent.getActivity(
             context,
