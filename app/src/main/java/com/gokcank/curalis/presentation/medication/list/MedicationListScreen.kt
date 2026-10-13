@@ -29,8 +29,10 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Medication
@@ -90,6 +92,7 @@ import com.gokcank.curalis.core.utils.PdfReportGenerator
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.Medication
+import com.gokcank.curalis.domain.usecase.FrequencyCalculator
 import com.gokcank.curalis.presentation.components.EmptyState
 import com.gokcank.curalis.presentation.components.InfoChip
 import com.gokcank.curalis.presentation.components.NoResultsState
@@ -108,6 +111,7 @@ fun MedicationListScreen(
     val archivedMedications by viewModel.archivedMedications.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     var medicationToDelete by remember { mutableStateOf<Medication?>(null) }
+    var medicationToEnd by remember { mutableStateOf<Medication?>(null) }
     var selectedTab by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -168,6 +172,31 @@ fun MedicationListScreen(
             },
             dismissButton = {
                 TextButton(onClick = { medicationToDelete = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    medicationToEnd?.let { med ->
+        AlertDialog(
+            onDismissRequest = { medicationToEnd = null },
+            title = { Text(stringResource(R.string.end_treatment_dialog_title)) },
+            text = { Text(stringResource(R.string.end_treatment_dialog_message, med.name)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        // Tedaviyi bitirmek arşivlemektir: hatırlatmalar ve gelecek dozlar kalkar,
+                        // geçmiş korunur, ilaç Arşiv sekmesinden geri alınabilir.
+                        viewModel.archiveMedication(med)
+                        medicationToEnd = null
+                    }
+                ) {
+                    Text(stringResource(R.string.end_treatment_action))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { medicationToEnd = null }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -290,6 +319,7 @@ fun MedicationListScreen(
                                 onClick = { onNavigateToAddEdit(medication.id) },
                                 onTakeDose = { viewModel.takeDose(medication.id) },
                                 onDelete = { medicationToDelete = medication },
+                                onEndTreatment = { medicationToEnd = medication },
                                 onToggleSuspend = {
                                     if (medication.isSuspended) {
                                         viewModel.resumeMedication(medication)
@@ -344,7 +374,8 @@ fun MedicationItem(
     onClick: () -> Unit,
     onTakeDose: () -> Unit,
     onDelete: () -> Unit,
-    onToggleSuspend: () -> Unit
+    onToggleSuspend: () -> Unit,
+    onEndTreatment: () -> Unit
 ) {
     // MedicationForm/MealInstruction display names are stored per-enum in both languages
     // (displayNameTr/displayNameEn) rather than as string resources — pick the right one here.
@@ -425,10 +456,32 @@ fun MedicationItem(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
+                // Durum etiketleri (askıda, tedavi bitti) kart kapalıyken de görünür.
+                val remainingTreatmentDays = FrequencyCalculator.remainingTreatmentDays(medication)
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
+                    if (medication.isSuspended) {
+                        val semantic = LocalCuralisColors.current
+                        InfoChip(
+                            icon = Icons.Default.PauseCircle,
+                            text = stringResource(R.string.suspended_chip_label),
+                            containerColor = semantic.warningContainer,
+                            contentColor = semantic.onWarningContainer
+                        )
+                    }
+
+                    if (remainingTreatmentDays == 0) {
+                        val semantic = LocalCuralisColors.current
+                        InfoChip(
+                            icon = Icons.Default.EventBusy,
+                            text = stringResource(R.string.treatment_ended_chip),
+                            containerColor = semantic.warningContainer,
+                            contentColor = semantic.onWarningContainer
+                        )
+                    }
+
                     if (medication.times.isNotEmpty()) {
                         val timesStr = medication.times.joinToString(", ") {
                             String.format(Locale.getDefault(), "%02d:%02d", it.hour, it.minute)
@@ -470,22 +523,10 @@ fun MedicationItem(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            if (medication.isSuspended) {
-                                val semantic = LocalCuralisColors.current
-                                InfoChip(
-                                    icon = Icons.Default.PauseCircle,
-                                    text = stringResource(R.string.suspended_chip_label),
-                                    containerColor = semantic.warningContainer,
-                                    contentColor = semantic.onWarningContainer
-                                )
-                            }
-
-                            medication.treatmentDurationDays?.let { days ->
-                                val elapsedDays = ((System.currentTimeMillis() - medication.startDate) / (24 * 60 * 60 * 1000L)).toInt()
-                                val remaining = days - elapsedDays
+                            if (remainingTreatmentDays != null && remainingTreatmentDays > 0) {
                                 InfoChip(
                                     icon = Icons.Default.Event,
-                                    text = if (remaining > 0) stringResource(R.string.treatment_days_remaining_chip, remaining) else stringResource(R.string.treatment_ended_chip),
+                                    text = stringResource(R.string.treatment_days_remaining_chip, remainingTreatmentDays),
                                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -518,12 +559,13 @@ fun MedicationItem(
                         // Düzenleme, askıya alma ve silme sık kullanılmadığı için burada durur;
                         // kapalı kart böylece tek satıra sığar.
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            CardActionButton(Icons.Default.Edit, stringResource(R.string.edit_medication), onClick)
+                            CardActionButton(Icons.Default.Edit, stringResource(R.string.edit_short), onClick)
                             CardActionButton(
                                 icon = if (medication.isSuspended) Icons.Default.PlayCircle else Icons.Default.PauseCircle,
                                 label = if (medication.isSuspended) stringResource(R.string.resume_content_desc) else stringResource(R.string.suspend_content_desc),
                                 onClick = onToggleSuspend
                             )
+                            CardActionButton(Icons.Default.Flag, stringResource(R.string.end_treatment_action), onEndTreatment)
                             CardActionButton(Icons.Default.Delete, stringResource(R.string.delete), onDelete)
                         }
                     }

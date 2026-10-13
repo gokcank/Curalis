@@ -47,6 +47,10 @@
     <string name="edit_medication">İlacı Düzenle</string>
     <string name="show_details">Ayrıntıları göster</string>
     <string name="hide_details">Ayrıntıları gizle</string>
+    <string name="edit_short">Düzenle</string>
+    <string name="end_treatment_action">Tedaviyi Bitir</string>
+    <string name="end_treatment_dialog_title">Tedavi bitirilsin mi?</string>
+    <string name="end_treatment_dialog_message">%1$s için bundan sonraki hatırlatmalar kalkar ve ilaç Arşiv\'e taşınır. Geçmiş dozlar, uyum yüzdesi ve raporlar korunur; ilacı Arşiv sekmesinden geri alabilirsiniz.</string>
     <string name="medication_name">İlaç Adı</string>
     <string name="medication_list_search_hint">İlaç adı, etken madde veya barkod ara</string>
     <string name="medication_dosage">Dozaj (Örn: 500)</string>
@@ -242,7 +246,7 @@
     <string name="medication_notes_placeholder">Serin ve kuru yerde saklayınız.</string>
     <string name="treatment_duration_label">Tedavi Süresi (gün, Opsiyonel)</string>
     <string name="treatment_duration_placeholder">Örn: 10</string>
-    <string name="treatment_duration_supporting_text">Kutunun son kullanma tarihinden farklıdır — bu tedavinin kaç gün süreceğidir.</string>
+    <string name="treatment_duration_supporting_text">Başlangıç tarihinden itibaren kaç gün süreceği; süre dolunca hatırlatmalar durur. Kutunun son kullanma tarihinden farklıdır.</string>
     <string name="rx_number_label">Rx (Reçete) Numarası, Opsiyonel</string>
     <string name="rx_number_placeholder">Eczaneden yenileme talep ederken kullanılır</string>
     <string name="update_button">Güncelle</string>

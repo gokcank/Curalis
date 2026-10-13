@@ -50,4 +50,22 @@ class ReminderDaoTest {
         val remaining = db.reminderDao.getRemindersBetweenDates(0, Long.MAX_VALUE).first().map { it.toDomain().id }
         assertEquals(setOf("past", "future-taken", "future-moved-back", "other-med"), remaining.toSet())
     }
+
+    @Test
+    fun `deleting doses from the end of a treatment keeps answered ones and earlier days`() = runBlocking {
+        db.medicationDao.insertMedication(Medication(id = "m1", name = "A").toEntity())
+        db.reminderDao.insertReminders(
+            listOf(
+                dose("last-day", "m1", now - hour),
+                dose("last-day-moved-past-end", "m1", now - hour, rescheduledTo = now + hour),
+                dose("after-end", "m1", now),
+                dose("after-end-taken", "m1", now + hour, ReminderState.TAKEN)
+            )
+        )
+
+        db.reminderDao.deleteScheduledRemindersFrom("m1", now)
+
+        val remaining = db.reminderDao.getRemindersBetweenDates(0, Long.MAX_VALUE).first().map { it.toDomain().id }
+        assertEquals(setOf("last-day", "last-day-moved-past-end", "after-end-taken"), remaining.toSet())
+    }
 }

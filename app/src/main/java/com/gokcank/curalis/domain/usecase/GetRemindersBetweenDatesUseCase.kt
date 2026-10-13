@@ -115,11 +115,18 @@ class GetRemindersBetweenDatesUseCase @Inject constructor(
             
             // Askıya alınmış/arşivlenmiş ilacın önceden yazılmış gelecek dozları gösterilmez
             // (eski sürümlerde askıya alınırken silinmiyorlardı); geçmiş kayıtlar korunur.
+            // Tedavi süresi dolan ilacın bitişten sonraya yazılmış dozları da gösterilmez
+            // (GenerateUpcomingRemindersUseCase bir sonraki çalışmasında onları siler).
             val now = System.currentTimeMillis()
-            val inactiveMedicationIds = medications.filter { it.isArchived || it.isSuspended }.mapTo(mutableSetOf()) { it.id }
-            val visibleDbReminders = dbReminders.filterNot {
-                it.medicationId in inactiveMedicationIds && it.state == ReminderState.SCHEDULED &&
-                    (it.rescheduledToMillis ?: it.timeInMillis) > now
+            val medicationsById = medications.associateBy { it.id }
+            val visibleDbReminders = dbReminders.filterNot { reminder ->
+                val medication = medicationsById[reminder.medicationId] ?: return@filterNot false
+                if (reminder.state != ReminderState.SCHEDULED) return@filterNot false
+                val hiddenAsInactive = (medication.isArchived || medication.isSuspended) &&
+                    (reminder.rescheduledToMillis ?: reminder.timeInMillis) > now
+                val afterTreatment = FrequencyCalculator.treatmentEndMillis(medication)
+                    ?.let { reminder.timeInMillis >= it } == true
+                hiddenAsInactive || afterTreatment
             }
 
             (visibleDbReminders + virtualReminders).sortedBy { it.timeInMillis }

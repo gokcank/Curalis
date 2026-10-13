@@ -31,6 +31,13 @@ class GenerateUpcomingRemindersUseCase @Inject constructor(
         if (medication.frequencyType == FrequencyType.AS_NEEDED) return
         if (medication.times.isEmpty()) return
 
+        // Tedavi süresi dolduysa ya da kısaltıldıysa, bitişten sonraya önceden yazılmış dozlar
+        // silinir; aksi halde saatleri geçince "kaçırıldı" sayılırlardı. Bitişten sonrası için
+        // aşağıda zaten doz üretilmez (bkz. FrequencyCalculator.shouldTakeOnDay).
+        FrequencyCalculator.treatmentEndMillis(medication)?.let { end ->
+            reminderRepository.deleteScheduledRemindersFrom(medication.id, end)
+        }
+
         // Saatler "yarından itibaren" değiştirildiyse, yeni saatler için o andan önce kayıt
         // üretilmez — aksi halde pencere "şu andan" tazelendiğinde (alarm çaldığında, gece
         // görevi ya da yeniden başlatma sonrası) bugünün yeni saatli dozu geri gelirdi.

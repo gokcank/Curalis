@@ -47,6 +47,10 @@
     <string name="edit_medication">Edit Medication</string>
     <string name="show_details">Show details</string>
     <string name="hide_details">Hide details</string>
+    <string name="edit_short">Edit</string>
+    <string name="end_treatment_action">End treatment</string>
+    <string name="end_treatment_dialog_title">End treatment?</string>
+    <string name="end_treatment_dialog_message">Upcoming reminders for %1$s are removed and the medication moves to the Archive. Past doses, adherence and reports are kept; you can restore it from the Archive tab.</string>
     <string name="medication_name">Medication Name</string>
     <string name="medication_list_search_hint">Search by name, active ingredient or barcode</string>
     <string name="medication_dosage">Dosage (e.g. 500)</string>
@@ -240,7 +244,7 @@
     <string name="medication_notes_placeholder">Store in a cool, dry place.</string>
     <string name="treatment_duration_label">Treatment Duration (days, Optional)</string>
     <string name="treatment_duration_placeholder">E.g.: 10</string>
-    <string name="treatment_duration_supporting_text">Different from the box\'s expiry date — this is how many days the treatment will last.</string>
+    <string name="treatment_duration_supporting_text">How many days from the start date the treatment lasts; reminders stop when it ends. Different from the box\'s expiry date.</string>
     <string name="rx_number_label">Rx (Prescription) Number, Optional</string>
     <string name="rx_number_placeholder">Used when requesting a refill from the pharmacy</string>
     <string name="update_button">Update</string>

@@ -46,6 +46,8 @@ object FrequencyCalculator {
             set(Calendar.MILLISECOND, 0)
         }
         if (dayStartCal.timeInMillis < medStartCal.timeInMillis) return false
+        // Tedavi süresi dolduktan sonra doz yoktur.
+        treatmentEndMillis(medication)?.let { end -> if (dayStartCal.timeInMillis >= end) return false }
 
         return when (medication.frequencyType) {
             FrequencyType.DAILY -> true
@@ -84,6 +86,25 @@ object FrequencyCalculator {
 
             FrequencyType.AS_NEEDED -> false
         }
+    }
+
+    /**
+     * Tedavi süresi girilmiş ilacın tedavisinin bittiği an: başlangıç gününden
+     * treatmentDurationDays takvim günü sonrasının başlangıcı (ör. 10 günlük tedavi 1'inde
+     * başladıysa 11'inin 00:00'ı). Süresiz ilaçlarda null.
+     */
+    fun treatmentEndMillis(medication: Medication): Long? {
+        val days = medication.treatmentDurationDays?.takeIf { it > 0 } ?: return null
+        val zone = ZoneId.systemDefault()
+        return Instant.ofEpochMilli(medication.startDate).atZone(zone).toLocalDate()
+            .plusDays(days.toLong())
+            .atStartOfDay(zone).toInstant().toEpochMilli()
+    }
+
+    /** Tedavinin bugün dahil kaç günü kaldığı; süresizse null, bittiyse 0. */
+    fun remainingTreatmentDays(medication: Medication, now: Long = System.currentTimeMillis()): Int? {
+        val end = treatmentEndMillis(medication) ?: return null
+        return calendarDaysBetween(now, end).coerceAtLeast(0)
     }
 
     /**

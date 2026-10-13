@@ -97,7 +97,11 @@ class AlarmScheduler @Inject constructor(
         scheduleRescheduledDoses(medication)
 
         medication.times.forEach { medTime ->
-            val nextTriggerMillis = FrequencyCalculator.calculateNextTriggerTime(medication, medTime) ?: return@forEach
+            // Sonraki doz yoksa (ör. tedavi süresi doldu) önceden kurulmuş alarm da kaldırılır.
+            val nextTriggerMillis = FrequencyCalculator.calculateNextTriggerTime(medication, medTime) ?: run {
+                cancel("${medication.id}_${medTime.id}")
+                return@forEach
+            }
             // Bu ilaç+saat dilimi için AlarmManager'daki alarmın kimliği (iptal ederken de
             // kullanılır, bkz. cancelMedicationAlarms) — gün değişse de sabit kalır.
             val pendingIntentKey = "${medication.id}_${medTime.id}"

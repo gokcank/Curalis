@@ -488,6 +488,10 @@ class AddEditMedicationViewModel @Inject constructor(
                     med.copy(
                         isArchived = it.isArchived,
                         isSuspended = it.isSuspended,
+                        // Başlangıç tarihi formda yok; korunmazsa her düzenlemede "şimdi"ye
+                        // dönüyor, tedavi süresi baştan başlıyor ve "X günde bir"/döngülü
+                        // ilaçların takvimi kayıyordu.
+                        startDate = it.startDate,
                         // Saatler değişmediyse önceki "yarından itibaren" kararı korunur;
                         // değiştiyse kapsam yeniden sorulur (bkz. persistMedication).
                         timesEffectiveFrom = if (timesChanged) null else it.timesEffectiveFrom
