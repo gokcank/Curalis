@@ -277,6 +277,34 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
+                text = stringResource(R.string.late_dose_section_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                stringResource(R.string.late_dose_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NotificationPreferences.LATE_DOSE_THRESHOLD_OPTIONS_MINUTES.forEach { minutes ->
+                    FilterChip(
+                        selected = uiState.lateDoseThresholdMinutes == minutes,
+                        onClick = { viewModel.onLateDoseThresholdChanged(minutes) },
+                        label = { Text(formatAppointmentLead(minutes)) },
+                        colors = themeChipColors,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
                 text = stringResource(R.string.appointment_reminder_section_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,

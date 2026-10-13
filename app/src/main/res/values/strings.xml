@@ -268,6 +268,8 @@
     <string name="snooze_desc">How many minutes should the \"Snooze\" button on the notification postpone the dose?</string>
     <string name="minutes_short_format">%1$d min</string>
     <string name="hours_short_format">%1$d hr</string>
+    <string name="late_dose_section_title">Late doses</string>
+    <string name="late_dose_desc">A dose taken more than this long after its scheduled time counts as \"Taken late\" and as half a dose in adherence.</string>
     <string name="days_short_format">%1$d day(s)</string>
     <string name="weeks_short_format">%1$d week(s)</string>
     <string name="off_label">Off</string>
@@ -427,8 +429,8 @@
     <string name="previous_month_desc">Previous Month</string>
     <string name="next_month_desc">Next Month</string>
     <string name="calendar_month_year_header">%1$s %2$d</string>
-    <string name="day_status_all_taken">all doses taken</string>
-    <string name="day_status_partial">some doses taken</string>
+    <string name="day_status_all_taken">all doses taken on time</string>
+    <string name="day_status_partial">some doses not taken or taken late</string>
     <string name="day_status_missed">has a missed dose</string>
     <string name="day_status_no_doses">no doses scheduled</string>
     <string name="day_status_future">future date</string>
@@ -630,6 +632,7 @@
 
     <!-- Reminder State Badge -->
     <string name="reminder_state_taken">Taken</string>
+    <string name="reminder_state_taken_late">Taken late</string>
     <string name="reminder_state_skipped">Skipped</string>
     <string name="reminder_state_missed">Missed</string>
     <string name="reminder_state_snoozed">Snoozed</string>

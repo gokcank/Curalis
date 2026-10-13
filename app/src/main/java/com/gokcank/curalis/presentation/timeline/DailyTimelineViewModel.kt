@@ -13,6 +13,7 @@ import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.model.SkipReason
 import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
+import com.gokcank.curalis.domain.usecase.DoseAdherence
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
@@ -44,7 +45,9 @@ data class TimeSlotBounds(val startHour: Int, val endHour: Int)
 data class TimelineItem(
     val reminder: Reminder,
     val medication: Medication?,
-    val slot: TimeSlot
+    val slot: TimeSlot,
+    /** Alınmış doz geç alındı mı; bkz. DoseAdherence.isLate. */
+    val isLate: Boolean = false
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -103,7 +106,7 @@ class DailyTimelineViewModel @Inject constructor(
             }
 
             getRemindersBetweenDatesUseCase(startCal.timeInMillis, endCal.timeInMillis)
-                .combine(MutableStateFlow(medsMap)) { reminders, map ->
+                .combine(notificationPreferences.lateDoseThresholdMinutesFlow) { reminders, lateThreshold ->
                     val items = reminders.map { rem ->
                         val cal = Calendar.getInstance().apply { timeInMillis = rem.timeInMillis }
                         val hour = cal.get(Calendar.HOUR_OF_DAY)
@@ -115,8 +118,9 @@ class DailyTimelineViewModel @Inject constructor(
 
                         TimelineItem(
                             reminder = rem,
-                            medication = map[rem.medicationId],
-                            slot = slot
+                            medication = medsMap[rem.medicationId],
+                            slot = slot,
+                            isLate = DoseAdherence.isLate(rem, lateThreshold)
                         )
                     }
                     items.groupBy { it.slot }

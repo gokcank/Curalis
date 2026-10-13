@@ -3,6 +3,9 @@ package com.gokcank.curalis.core.notification
 import android.content.Context
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -75,6 +78,21 @@ class NotificationPreferences @Inject constructor(
         get() = prefs.getInt(KEY_APPOINTMENT_LEAD_MINUTES, DEFAULT_APPOINTMENT_LEAD_MINUTES)
         set(value) = prefs.edit { putInt(KEY_APPOINTMENT_LEAD_MINUTES, value) }
 
+    private val _lateDoseThresholdMinutes = MutableStateFlow(
+        prefs.getInt(KEY_LATE_DOSE_THRESHOLD_MINUTES, DEFAULT_LATE_DOSE_THRESHOLD_MINUTES)
+    )
+
+    /** Uyum yüzdeleri ayar değişince yeniden hesaplansın diye akış olarak da sunulur. */
+    val lateDoseThresholdMinutesFlow: StateFlow<Int> = _lateDoseThresholdMinutes.asStateFlow()
+
+    /** Planlanan saatinden bu kadar dakikadan fazla sonra alınan doz "geç alındı" sayılır. */
+    var lateDoseThresholdMinutes: Int
+        get() = _lateDoseThresholdMinutes.value
+        set(value) {
+            prefs.edit { putInt(KEY_LATE_DOSE_THRESHOLD_MINUTES, value) }
+            _lateDoseThresholdMinutes.value = value
+        }
+
     fun isWithinQuietHours(): Boolean {
         if (!quietHoursEnabled) return false
         val now = Calendar.getInstance()
@@ -108,11 +126,16 @@ class NotificationPreferences @Inject constructor(
         const val DEFAULT_QUIET_END = 7 * 60 // 07:00
         const val DEFAULT_SNOOZE_MINUTES = 10
         const val DEFAULT_APPOINTMENT_LEAD_MINUTES = 60 // 1 saat önce
+        private const val KEY_LATE_DOSE_THRESHOLD_MINUTES = "late_dose_threshold_minutes"
+        const val DEFAULT_LATE_DOSE_THRESHOLD_MINUTES = 60
 
         /** Ayarlar ekranındaki ertele süresi seçenekleri (dakika). */
         val SNOOZE_OPTIONS_MINUTES = listOf(5, 10, 15, 30)
 
         /** Ayarlar ekranındaki randevu hatırlatma zamanı seçenekleri (dakika); 0 = kapalı. */
         val APPOINTMENT_LEAD_OPTIONS_MINUTES = listOf(0, 10, 30, 60, 8 * 60, 12 * 60, 24 * 60, 7 * 24 * 60)
+
+        /** Ayarlar ekranındaki "geç alındı" eşiği seçenekleri (dakika). */
+        val LATE_DOSE_THRESHOLD_OPTIONS_MINUTES = listOf(30, 60, 120)
     }
 }

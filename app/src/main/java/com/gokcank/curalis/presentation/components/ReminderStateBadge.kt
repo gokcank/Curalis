@@ -36,13 +36,20 @@ private data class ReminderStateStyle(
 )
 
 @Composable
-private fun styleFor(state: ReminderState): ReminderStateStyle {
+private fun styleFor(state: ReminderState, isLate: Boolean): ReminderStateStyle {
     val semantic = LocalCuralisColors.current
     val scheme = MaterialTheme.colorScheme
     return when (state) {
-        ReminderState.TAKEN -> ReminderStateStyle(
-            stringResource(R.string.reminder_state_taken), Icons.Filled.CheckCircle, semantic.successContainer, semantic.onSuccessContainer
-        )
+        // Geç alınan doz uyum yüzdesine yarım girer; "Kaçırıldı" gibi dikkat rengiyle gösterilir.
+        ReminderState.TAKEN -> if (isLate) {
+            ReminderStateStyle(
+                stringResource(R.string.reminder_state_taken_late), Icons.Filled.CheckCircle, semantic.warningContainer, semantic.onWarningContainer
+            )
+        } else {
+            ReminderStateStyle(
+                stringResource(R.string.reminder_state_taken), Icons.Filled.CheckCircle, semantic.successContainer, semantic.onSuccessContainer
+            )
+        }
         ReminderState.SKIPPED -> ReminderStateStyle(
             stringResource(R.string.reminder_state_skipped), Icons.Outlined.RemoveCircle, scheme.surfaceVariant, scheme.onSurfaceVariant
         )
@@ -67,9 +74,11 @@ private fun styleFor(state: ReminderState): ReminderStateStyle {
 @Composable
 fun ReminderStateBadge(
     state: ReminderState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Alınmış doz geç alındıysa "Geç alındı" gösterilir; bkz. DoseAdherence.isLate. */
+    isLate: Boolean = false
 ) {
-    val style = styleFor(state)
+    val style = styleFor(state, isLate)
     InfoChip(
         icon = style.icon,
         text = style.label,

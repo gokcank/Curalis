@@ -360,7 +360,7 @@ fun DailyReminderCard(item: DailyReminderItem) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            ReminderStateBadge(state = item.reminder.state)
+            ReminderStateBadge(state = item.reminder.state, isLate = item.isLate)
         }
     }
 }
