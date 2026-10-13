@@ -16,6 +16,7 @@ data class NotificationSettingsUiState(
     val quietHoursStartMinutes: Int = NotificationPreferences.DEFAULT_QUIET_START,
     val quietHoursEndMinutes: Int = NotificationPreferences.DEFAULT_QUIET_END,
     val snoozeMinutes: Int = NotificationPreferences.DEFAULT_SNOOZE_MINUTES,
+    val lateDoseThresholdMinutes: Int = NotificationPreferences.DEFAULT_LATE_DOSE_THRESHOLD_MINUTES,
     val appointmentReminderMinutesBefore: Int = NotificationPreferences.DEFAULT_APPOINTMENT_LEAD_MINUTES,
     val popupMode: NotificationPopupMode = NotificationPopupMode.ALWAYS,
     val morningReminderEnabled: Boolean = false,
@@ -37,6 +38,7 @@ class NotificationSettingsViewModel @Inject constructor(
             quietHoursStartMinutes = preferences.quietHoursStartMinutes,
             quietHoursEndMinutes = preferences.quietHoursEndMinutes,
             snoozeMinutes = preferences.snoozeMinutes,
+            lateDoseThresholdMinutes = preferences.lateDoseThresholdMinutes,
             appointmentReminderMinutesBefore = preferences.appointmentReminderMinutesBefore,
             popupMode = preferences.popupMode,
             morningReminderEnabled = preferences.morningReminderEnabled,
@@ -70,6 +72,11 @@ class NotificationSettingsViewModel @Inject constructor(
     fun onSnoozeMinutesChanged(minutes: Int) {
         preferences.snoozeMinutes = minutes
         _uiState.value = _uiState.value.copy(snoozeMinutes = minutes)
+    }
+
+    fun onLateDoseThresholdChanged(minutes: Int) {
+        preferences.lateDoseThresholdMinutes = minutes
+        _uiState.value = _uiState.value.copy(lateDoseThresholdMinutes = minutes)
     }
 
     fun onAppointmentReminderLeadChanged(minutes: Int) {

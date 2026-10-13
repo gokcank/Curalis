@@ -11,8 +11,10 @@ import com.gokcank.curalis.domain.repository.AppointmentRepository
 import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.VitalRepository
 import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
+import com.gokcank.curalis.domain.usecase.DoseAdherence
 import com.gokcank.curalis.domain.usecase.GetAdherenceStreakUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
+import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.theme.ThemeController
 import com.gokcank.curalis.core.theme.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,6 +62,7 @@ class HomeViewModel @Inject constructor(
     private val medicationRepository: MedicationRepository,
     private val acknowledgeReminderUseCase: AcknowledgeReminderUseCase,
     private val getAdherenceStreakUseCase: GetAdherenceStreakUseCase,
+    private val notificationPreferences: NotificationPreferences,
     themeController: ThemeController
 ) : ViewModel() {
 
@@ -114,9 +117,13 @@ class HomeViewModel @Inject constructor(
                 set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
             }.timeInMillis
-            val monthRemindersFlow = getRemindersBetweenDatesUseCase(monthStart, now)
+            // Ayardaki "geç alındı" eşiği değişince yüzde yeniden hesaplansın diye eşikle birleşir.
+            val monthlyPercentageFlow = getRemindersBetweenDatesUseCase(monthStart, now)
+                .combine(notificationPreferences.lateDoseThresholdMinutesFlow) { monthReminders, lateThreshold ->
+                    DoseAdherence.percentage(monthReminders, lateThreshold)
+                }
 
-            combine(appointmentFlow, vitalFlow, todayRemindersFlow, monthRemindersFlow, medications) { nextAppt, latestVital, todayReminders, monthReminders, meds ->
+            combine(appointmentFlow, vitalFlow, todayRemindersFlow, monthlyPercentageFlow, medications) { nextAppt, latestVital, todayReminders, monthlyPercentage, meds ->
                 // Plasebo dozları (CYCLIC dinlenme günleri) uyum ilerlemesine dahil edilmez —
                 // atlanmalarının klinik bir karşılığı yoktur, bkz. Reminder.isPlacebo.
                 val adherenceReminders = todayReminders.filterNot { it.isPlacebo }
@@ -138,14 +145,6 @@ class HomeViewModel @Inject constructor(
                 val pillboxItems = todayReminders
                     .sortedBy { it.timeInMillis }
                     .map { HomePillboxItem(reminder = it, medication = medsMap[it.medicationId]) }
-
-                // Uyum yüzdesi yalnızca sonuçlanmış (alınmış/atlanmış/kaçırılmış) dozlar
-                // üzerinden hesaplanır — bkz. AdherenceAnalyticsViewModel'deki aynı desen.
-                val resolvedMonthly = monthReminders.filterNot { it.isPlacebo }
-                    .filter { it.state == ReminderState.TAKEN || it.state == ReminderState.SKIPPED || it.state == ReminderState.MISSED }
-                val monthlyPercentage = if (resolvedMonthly.isNotEmpty()) {
-                    (resolvedMonthly.count { it.state == ReminderState.TAKEN } * 100) / resolvedMonthly.size
-                } else null
 
                 HomeUiState(
                     nextMedication = nextMedInfo,

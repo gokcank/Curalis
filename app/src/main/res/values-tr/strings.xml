@@ -270,6 +270,8 @@
     <string name="snooze_desc">Bildirimdeki \"Ertele\" düğmesi dozu kaç dakika sonraya taşısın?</string>
     <string name="minutes_short_format">%1$d dk</string>
     <string name="hours_short_format">%1$d sa</string>
+    <string name="late_dose_section_title">Geç alınan doz</string>
+    <string name="late_dose_desc">Planlanan saatinden bu süreden fazla sonra alınan doz \"Geç alındı\" sayılır ve uyum yüzdesine yarım doz olarak girer.</string>
     <string name="days_short_format">%1$d gün</string>
     <string name="weeks_short_format">%1$d hafta</string>
     <string name="off_label">Kapalı</string>
@@ -429,8 +431,8 @@
     <string name="previous_month_desc">Önceki Ay</string>
     <string name="next_month_desc">Sonraki Ay</string>
     <string name="calendar_month_year_header">%1$s %2$d</string>
-    <string name="day_status_all_taken">tüm dozlar alındı</string>
-    <string name="day_status_partial">dozların bir kısmı alındı</string>
+    <string name="day_status_all_taken">tüm dozlar zamanında alındı</string>
+    <string name="day_status_partial">dozların bir kısmı alınmadı ya da geç alındı</string>
     <string name="day_status_missed">kaçırılan doz var</string>
     <string name="day_status_no_doses">planlanmış doz yok</string>
     <string name="day_status_future">gelecek tarih</string>
@@ -632,6 +634,7 @@
 
     <!-- Hatırlatıcı Durum Rozeti -->
     <string name="reminder_state_taken">Alındı</string>
+    <string name="reminder_state_taken_late">Geç alındı</string>
     <string name="reminder_state_skipped">Atlandı</string>
     <string name="reminder_state_missed">Kaçırıldı</string>
     <string name="reminder_state_snoozed">Ertelendi</string>

@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.usecase.DoseAdherence
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,8 +28,8 @@ import java.util.Calendar
 import javax.inject.Inject
 
 enum class DayAdherenceStatus {
-    PERFECT,         // Tüm dozlar alınmış
-    PARTIAL,         // Bir kısmı alınmış, bir kısmı atlanmış/ertelenmiş
+    PERFECT,         // Tüm dozlar zamanında alınmış
+    PARTIAL,         // Bir kısmı alınmış, bir kısmı atlanmış/ertelenmiş ya da geç alınmış
     MISSED,          // En az bir kaçırılmış doz var
     NO_DOSES,        // Bu gün için planlanmış doz yok
     FUTURE           // Gelecek tarih; henüz değerlendirilemez
@@ -37,7 +39,9 @@ data class DailyReminderItem(
     val reminder: Reminder,
     val medicationName: String,
     val medicationForm: MedicationForm,
-    val dosageInfo: String
+    val dosageInfo: String,
+    /** Alınmış doz geç alındı mı; bkz. DoseAdherence.isLate. */
+    val isLate: Boolean = false
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -45,8 +49,11 @@ data class DailyReminderItem(
 class AdherenceCalendarViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase,
-    private val getMedicationsUseCase: GetMedicationsUseCase
+    private val getMedicationsUseCase: GetMedicationsUseCase,
+    notificationPreferences: NotificationPreferences
 ) : ViewModel() {
+
+    private val lateThreshold = notificationPreferences.lateDoseThresholdMinutesFlow
 
     private val _currentYearMonth = MutableStateFlow(YearMonth.now())
     val currentYearMonth: StateFlow<YearMonth> = _currentYearMonth.asStateFlow()
@@ -76,8 +83,9 @@ class AdherenceCalendarViewModel @Inject constructor(
 
     val dayStatusMap: StateFlow<Map<LocalDate, DayAdherenceStatus>> = combine(
         monthReminders,
-        _currentYearMonth
-    ) { reminders, ym ->
+        _currentYearMonth,
+        lateThreshold
+    ) { reminders, ym, threshold ->
         val map = mutableMapOf<LocalDate, DayAdherenceStatus>()
         val today = LocalDate.now()
 
@@ -102,13 +110,14 @@ class AdherenceCalendarViewModel @Inject constructor(
                 map[date] = DayAdherenceStatus.NO_DOSES
             } else {
                 val hasMissed = dayReminders.any { it.state == ReminderState.MISSED }
-                val hasTaken = dayReminders.any { it.state == ReminderState.TAKEN }
-                val allTaken = dayReminders.all { it.state == ReminderState.TAKEN }
+                // Geç alınan doz uyum yüzdesine yarım girdiği için o gün "tam" sayılmaz.
+                val allTakenOnTime = dayReminders.all {
+                    it.state == ReminderState.TAKEN && !DoseAdherence.isLate(it, threshold)
+                }
 
                 when {
-                    allTaken -> map[date] = DayAdherenceStatus.PERFECT
+                    allTakenOnTime -> map[date] = DayAdherenceStatus.PERFECT
                     hasMissed -> map[date] = DayAdherenceStatus.MISSED
-                    hasTaken -> map[date] = DayAdherenceStatus.PARTIAL
                     else -> map[date] = DayAdherenceStatus.PARTIAL
                 }
             }
@@ -119,8 +128,9 @@ class AdherenceCalendarViewModel @Inject constructor(
     val selectedDayReminders: StateFlow<List<DailyReminderItem>> = combine(
         monthReminders,
         _selectedDate,
-        medicationsMap
-    ) { reminders, date, medsMap ->
+        medicationsMap,
+        lateThreshold
+    ) { reminders, date, medsMap, threshold ->
         reminders.filter { rem ->
             val cal = Calendar.getInstance().apply { timeInMillis = rem.timeInMillis }
             val remDate = LocalDate.of(
@@ -135,7 +145,8 @@ class AdherenceCalendarViewModel @Inject constructor(
                 reminder = rem,
                 medicationName = med?.name ?: appContext.getString(R.string.generic_medication_label),
                 medicationForm = med?.formType ?: MedicationForm.PILL,
-                dosageInfo = listOfNotNull(med?.dosage, med?.unit).joinToString(" ")
+                dosageInfo = listOfNotNull(med?.dosage, med?.unit).joinToString(" "),
+                isLate = DoseAdherence.isLate(rem, threshold)
             )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

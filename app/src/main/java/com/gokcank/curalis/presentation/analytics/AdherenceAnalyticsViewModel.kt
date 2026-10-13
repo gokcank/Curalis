@@ -2,8 +2,10 @@ package com.gokcank.curalis.presentation.analytics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.ReminderState
+import com.gokcank.curalis.domain.usecase.DoseAdherence
 import com.gokcank.curalis.domain.usecase.GetMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +48,8 @@ data class AdherenceAnalyticsUiState(
 @HiltViewModel
 class AdherenceAnalyticsViewModel @Inject constructor(
     private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase,
-    private val getMedicationsUseCase: GetMedicationsUseCase
+    private val getMedicationsUseCase: GetMedicationsUseCase,
+    private val notificationPreferences: NotificationPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdherenceAnalyticsUiState())
@@ -85,45 +88,34 @@ class AdherenceAnalyticsViewModel @Inject constructor(
 
             combine(
                 getRemindersBetweenDatesUseCase(trendStart, endTime),
-                getMedicationsUseCase()
-            ) { allTrendReminders, medications ->
+                getMedicationsUseCase(),
+                notificationPreferences.lateDoseThresholdMinutesFlow
+            ) { allTrendReminders, medications, lateThreshold ->
                 // Plasebo dozları (CYCLIC dinlenme günleri) uyum istatistiklerine dahil
                 // edilmez — bkz. Reminder.isPlacebo.
                 val trendReminders = allTrendReminders.filterNot { it.isPlacebo }
                 val monthReminders = trendReminders.filter { it.timeInMillis >= monthStart }
                 val weekReminders = monthReminders.filter { it.timeInMillis >= weekStart }
 
-                // Weekly stats
-                // Uyum oranı yalnızca sonuçlanmış (alınmış/atlanmış/kaçırılmış) dozlar üzerinden
-                // hesaplanır; henüz saati gelmemiş dozlar oranı haksız yere düşürmemeli.
-                fun isResolved(state: ReminderState) =
-                    state == ReminderState.TAKEN || state == ReminderState.SKIPPED || state == ReminderState.MISSED
-
-                val resolvedWeekly = weekReminders.filter { isResolved(it.state) }
+                // Uyum oranı DoseAdherence kuralıyla hesaplanır: yalnızca sonuçlanmış dozlar
+                // sayılır, geç alınan doz yarım girer.
+                val resolvedWeekly = weekReminders.filter { DoseAdherence.isResolved(it.state) }
                 val totalWeekly = resolvedWeekly.size
                 val takenWeekly = resolvedWeekly.count { it.state == ReminderState.TAKEN }
                 val missedWeekly = resolvedWeekly.count { it.state == ReminderState.MISSED || it.state == ReminderState.SKIPPED }
-                val weeklyPercentage = if (totalWeekly > 0) (takenWeekly * 100) / totalWeekly else null
+                val weeklyPercentage = DoseAdherence.percentage(weekReminders, lateThreshold)
 
-                // Monthly stats
-                val resolvedMonthly = monthReminders.filter { isResolved(it.state) }
-                val totalMonthly = resolvedMonthly.size
-                val takenMonthly = resolvedMonthly.count { it.state == ReminderState.TAKEN }
-                val monthlyPercentage = if (totalMonthly > 0) (takenMonthly * 100) / totalMonthly else null
+                val monthlyPercentage = DoseAdherence.percentage(monthReminders, lateThreshold)
 
                 // Per-medication stats
                 val medStats = medications.map { med ->
-                    val medReminders = monthReminders.filter { it.medicationId == med.id && isResolved(it.state) }
-                    val total = medReminders.size
-                    val taken = medReminders.count { it.state == ReminderState.TAKEN }
-                    val missed = medReminders.count { it.state == ReminderState.MISSED || it.state == ReminderState.SKIPPED }
-                    val pct = if (total > 0) (taken * 100) / total else null
+                    val medReminders = monthReminders.filter { it.medicationId == med.id && DoseAdherence.isResolved(it.state) }
                     MedicationStat(
                         medication = med,
-                        totalDoses = total,
-                        takenDoses = taken,
-                        missedDoses = missed,
-                        adherencePercentage = pct
+                        totalDoses = medReminders.size,
+                        takenDoses = medReminders.count { it.state == ReminderState.TAKEN },
+                        missedDoses = medReminders.count { it.state == ReminderState.MISSED || it.state == ReminderState.SKIPPED },
+                        adherencePercentage = DoseAdherence.percentage(medReminders, lateThreshold)
                     )
                 }.sortedByDescending { it.totalDoses }
 
@@ -136,15 +128,8 @@ class AdherenceAnalyticsViewModel @Inject constructor(
                     val bucketStart = (now.clone() as Calendar).apply {
                         add(Calendar.DAY_OF_YEAR, -7 * (weeksAgo + 1))
                     }.timeInMillis
-                    val bucketReminders = trendReminders.filter {
-                        it.timeInMillis in bucketStart..<bucketEnd && isResolved(it.state)
-                    }
-                    val bucketTaken = bucketReminders.count { it.state == ReminderState.TAKEN }
-                    val bucketPercentage = if (bucketReminders.isNotEmpty()) {
-                        (bucketTaken * 100) / bucketReminders.size
-                    } else {
-                        null
-                    }
+                    val bucketReminders = trendReminders.filter { it.timeInMillis in bucketStart..<bucketEnd }
+                    val bucketPercentage = DoseAdherence.percentage(bucketReminders, lateThreshold)
                     WeeklyAdherencePoint(weekStartMillis = bucketStart, percentage = bucketPercentage)
                 }
 

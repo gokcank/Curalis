@@ -10,11 +10,13 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.model.Vital
 import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.VitalRepository
+import com.gokcank.curalis.domain.usecase.DoseAdherence
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -54,7 +56,8 @@ class PdfReportGenerator @Inject constructor(
     @ApplicationContext private val context: Context,
     private val medicationRepository: MedicationRepository,
     private val vitalRepository: VitalRepository,
-    private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase
+    private val getRemindersBetweenDatesUseCase: GetRemindersBetweenDatesUseCase,
+    private val notificationPreferences: NotificationPreferences
 ) {
 
     /**
@@ -89,18 +92,22 @@ class PdfReportGenerator @Inject constructor(
         val allRangeReminders = rangeRemindersDeferred.await().filterNot { it.isPlacebo }
         val rangeReminders = if (medicationIds.isNullOrEmpty()) allRangeReminders else allRangeReminders.filter { it.medicationId in medicationIds }
 
+        val lateThreshold = notificationPreferences.lateDoseThresholdMinutes
         val takenCount = rangeReminders.count { it.state == ReminderState.TAKEN }
+        val lateCount = rangeReminders.count { DoseAdherence.isLate(it, lateThreshold) }
         val skippedCount = rangeReminders.count { it.state == ReminderState.SKIPPED }
         val missedCount = rangeReminders.count { it.state == ReminderState.MISSED }
         val totalScheduled = takenCount + skippedCount + missedCount
-        val adherencePercentage = if (totalScheduled > 0) (takenCount * 100) / totalScheduled else null
+        val adherencePercentage = DoseAdherence.percentage(rangeReminders, lateThreshold)
 
         val file = generateHealthReportPdf(
             medications = medications,
             vitals = if (includeVitals) vitals else emptyList(),
             takenCount = takenCount,
+            lateCount = lateCount,
             skippedCount = skippedCount,
             missedCount = missedCount,
+            adherencePercentage = adherencePercentage,
             rangeStartMillis = startMillis,
             rangeEndMillis = endMillis,
             includeAdherenceSummary = includeAdherenceSummary,
@@ -141,8 +148,10 @@ class PdfReportGenerator @Inject constructor(
         medications: List<Medication>,
         vitals: List<Vital> = emptyList(),
         takenCount: Int = 0,
+        lateCount: Int = 0,
         skippedCount: Int = 0,
         missedCount: Int = 0,
+        adherencePercentage: Int? = null,
         rangeStartMillis: Long = System.currentTimeMillis() - (30L * 24 * 3600 * 1000),
         rangeEndMillis: Long = System.currentTimeMillis(),
         includeAdherenceSummary: Boolean = true,
@@ -190,7 +199,7 @@ class PdfReportGenerator @Inject constructor(
         // Adherence Section
         if (includeAdherenceSummary) {
             val totalScheduled = takenCount + skippedCount + missedCount
-            val adherenceRate = if (totalScheduled > 0) (takenCount * 100) / totalScheduled else 100
+            val takenText = if (lateCount > 0) "$takenCount ($lateCount geç)" else "$takenCount"
 
             val rangeDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.forLanguageTag("tr"))
             canvas.drawText("${sectionNumber++}. İlaç Kullanım Uyum Özet İstatistiği", 40f, y, subTitlePaint)
@@ -200,9 +209,10 @@ class PdfReportGenerator @Inject constructor(
                 40f, y, bodyPaint
             )
             y += 16f
-            canvas.drawText("• Toplam İlaç Vakti: $totalScheduled | Alınan: $takenCount | Atlanan: $skippedCount | Kaçırılan: $missedCount", 40f, y, bodyPaint)
+            canvas.drawText("• Toplam İlaç Vakti: $totalScheduled | Alınan: $takenText | Atlanan: $skippedCount | Kaçırılan: $missedCount", 40f, y, bodyPaint)
             y += 16f
-            canvas.drawText("• Genel İlaç Uyum Oranı: %$adherenceRate", 40f, y, bodyPaint)
+            // Geç alınan doz yarım sayılır (bkz. DoseAdherence); değerlendirilecek doz yoksa oran yazılmaz.
+            canvas.drawText("• Genel İlaç Uyum Oranı: ${adherencePercentage?.let { "%$it" } ?: "—"}", 40f, y, bodyPaint)
             y += 20f
             canvas.drawLine(40f, y, 555f, y, linePaint)
             y += 20f
