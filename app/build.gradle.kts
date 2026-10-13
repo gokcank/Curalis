@@ -38,8 +38,8 @@ android {
         applicationId = "com.gokcank.curalis"
         minSdk = 26
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.3.2"
+        versionCode = 10
+        versionName = "1.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

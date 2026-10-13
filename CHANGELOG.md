@@ -2,6 +2,54 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.4.0] — versionCode 10
+
+Changes since 1.3.2 (versionCode 9).
+
+### Upgrade note
+
+- Install over 1.3.x; your data is kept (the database moves to version 24).
+- Connect Google Drive once more on the Backup screen; existing Drive backups still restore.
+- Medications whose treatment duration has already passed stop reminding. If you are still
+  taking one, edit its duration.
+
+### New
+
+- **Change a dose time by tapping it** on the medication screen.
+- **Reschedule a single dose** to another day and time from the Daily Timeline. The dose
+  stays in its place showing the new time, and its reminder comes at the new time.
+- **The time a dose was taken** is now recorded when it is taken from the notification or
+  the full-screen reminder, and can be corrected later by tapping it on the timeline.
+- **The full-screen reminder lists every dose due today** that is still unanswered, each
+  with Take, snooze and Skip, plus "Take all". Several medications at the same minute no
+  longer replace each other.
+- **Late doses** — a dose taken more than a chosen time after its reminder (30 min, 1 h by
+  default, or 2 h, in Notification settings) is labelled "Taken late" and counts as half a
+  dose in every adherence figure. A day with a late dose is no longer shown as perfect.
+- **PDF report** — a per-medication summary of taken, late, skipped and missed doses,
+  adherence and average delay. Long reports continue on new pages instead of being cut off.
+- **Compact medication cards** — dose times, frequency and source fit on one line; tap a
+  card for the rest and for Edit, Suspend, End treatment and Delete. "Suspended" and
+  "Treatment ended" labels are always visible.
+- **Treatment duration is binding** — reminders stop after its last day. "End treatment"
+  moves a medication to the Archive, keeping its history.
+- **Google Drive backup uses Google's current Authorization API** instead of the deprecated
+  Google Sign-In. Disconnecting also revokes the permission.
+
+### Fixes
+
+- Moving a dose time "from today" removes today's unanswered dose at the old time, which
+  used to stay and later count as missed.
+- The full-screen reminder no longer asks to unlock the phone (biometric prompt); its
+  actions work on the lock screen.
+- Suspending or archiving a medication removes its upcoming doses. They used to stay on the
+  timeline for 30 days and could be counted as missed after resuming.
+- A rescheduled dose is no longer marked as missed when the phone restarts or the app is
+  updated before its new time.
+- Placebo days of cyclic medications beyond the next 30 days are shown as placebo.
+- Editing a medication no longer resets its start date, which restarted the treatment
+  duration and shifted every-X-days and cyclic schedules.
+
 ## [1.3.2] — versionCode 9
 
 - Exact alarms now use USE_EXACT_ALARM on Android 13+, granted at install and not
