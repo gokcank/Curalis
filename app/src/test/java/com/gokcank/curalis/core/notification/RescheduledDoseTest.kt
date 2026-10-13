@@ -55,6 +55,7 @@ class RescheduledDoseTest {
             override suspend fun updateReminder(reminder: Reminder) { stored = reminder }
             override suspend fun deleteReminder(reminder: Reminder) {}
             override suspend fun deleteUpcomingScheduledReminders(medicationId: String, after: Long) {}
+            override suspend fun deleteScheduledRemindersFrom(medicationId: String, from: Long) {}
             override suspend fun getReminderById(id: String): Reminder? = stored
             override fun getRemindersForMedication(medicationId: String): Flow<List<Reminder>> = flowOf(emptyList())
             override fun getRemindersBetweenDates(start: Long, end: Long): Flow<List<Reminder>> = flowOf(emptyList())

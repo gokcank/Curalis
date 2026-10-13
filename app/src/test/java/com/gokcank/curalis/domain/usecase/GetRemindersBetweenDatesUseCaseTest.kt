@@ -22,6 +22,7 @@ private class FakeReminderRepository(private val reminders: List<Reminder>) : Re
     override suspend fun updateReminder(reminder: Reminder) {}
     override suspend fun deleteReminder(reminder: Reminder) {}
     override suspend fun deleteUpcomingScheduledReminders(medicationId: String, after: Long) {}
+    override suspend fun deleteScheduledRemindersFrom(medicationId: String, from: Long) {}
     override suspend fun getReminderById(id: String): Reminder? = null
     override fun getRemindersForMedication(medicationId: String): Flow<List<Reminder>> = flowOf(emptyList())
     override fun getRemindersBetweenDates(start: Long, end: Long): Flow<List<Reminder>> =
@@ -268,5 +269,25 @@ class GetRemindersBetweenDatesUseCaseTest {
 
         val day2 = useCase(dayStart(2), dayEnd(2)).first()
         assertEquals(listOf(moved), day2)
+    }
+
+    @Test
+    fun `no doses are shown after the treatment ends, including stored ones`() = runBlocking {
+        val medication = Medication(
+            id = "m1",
+            name = "Antibiyotik",
+            times = listOf(MedicationTime(hour = 9, minute = 0)),
+            startDate = dayStart(0),
+            treatmentDurationDays = 3
+        )
+        val storedAfterEnd = Reminder(id = "m1_${at(4, 9)}", medicationId = "m1", timeInMillis = at(4, 9))
+        val takenOnLastDay = Reminder(id = "m1_${at(2, 9)}", medicationId = "m1", timeInMillis = at(2, 9), state = ReminderState.TAKEN)
+        val useCase = GetRemindersBetweenDatesUseCase(
+            FakeReminderRepository(listOf(takenOnLastDay, storedAfterEnd)),
+            FakeMedicationRepository(listOf(medication))
+        )
+
+        val result = useCase(dayStart(0), dayEnd(6)).first()
+        assertEquals(listOf(at(0, 9), at(1, 9), at(2, 9)), result.map { it.timeInMillis })
     }
 }

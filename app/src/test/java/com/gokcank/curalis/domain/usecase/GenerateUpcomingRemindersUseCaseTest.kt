@@ -21,6 +21,8 @@ private class RecordingReminderRepository : ReminderRepository {
     override suspend fun updateReminder(reminder: Reminder) {}
     override suspend fun deleteReminder(reminder: Reminder) {}
     override suspend fun deleteUpcomingScheduledReminders(medicationId: String, after: Long) {}
+    val deletedFrom = mutableListOf<Long>()
+    override suspend fun deleteScheduledRemindersFrom(medicationId: String, from: Long) { deletedFrom.add(from) }
     override suspend fun getReminderById(id: String): Reminder? = null
     override fun getRemindersForMedication(medicationId: String): Flow<List<Reminder>> = flowOf(emptyList())
     override fun getRemindersBetweenDates(start: Long, end: Long): Flow<List<Reminder>> = flowOf(emptyList())
@@ -143,5 +145,24 @@ class GenerateUpcomingRemindersUseCaseTest {
 
         assertTrue(repository.inserted.isNotEmpty())
         assertTrue(repository.inserted.all { it.timeInMillis >= dayStart(1) })
+    }
+
+    @Test
+    fun `nothing is generated after the treatment ends and stored doses after it are removed`() = runBlocking {
+        val repository = RecordingReminderRepository()
+        val medication = Medication(
+            name = "Antibiyotik",
+            frequencyType = FrequencyType.DAILY,
+            times = listOf(MedicationTime(hour = 23, minute = 59)),
+            startDate = dayStart(-2),
+            treatmentDurationDays = 5
+        )
+
+        GenerateUpcomingRemindersUseCase(repository)(medication, dayStart(0))
+
+        // Başlangıç 2 gün önce, 5 günlük tedavi: bugün, yarın ve öbür gün kalır.
+        assertEquals(3, repository.inserted.size)
+        assertTrue(repository.inserted.all { it.timeInMillis < dayStart(3) })
+        assertEquals(listOf(dayStart(3)), repository.deletedFrom)
     }
 }

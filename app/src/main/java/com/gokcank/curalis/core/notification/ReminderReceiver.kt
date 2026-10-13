@@ -8,6 +8,7 @@ import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.ReminderRepository
+import com.gokcank.curalis.domain.usecase.FrequencyCalculator
 import com.gokcank.curalis.domain.usecase.GenerateUpcomingRemindersUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -56,7 +57,9 @@ class ReminderReceiver : BroadcastReceiver() {
                 // alındıktan sonra da (ör. yedekten geri yüklemede veritabanı tümden
                 // değiştiğinde) çalabilir; bu durumda bildirim gösterilmez ve kayıt açılmaz.
                 val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
-                if (medication == null || medication.isArchived || medication.isSuspended) {
+                val isAfterTreatment = medication != null &&
+                    FrequencyCalculator.treatmentEndMillis(medication)?.let { timeInMillis >= it } == true
+                if (medication == null || medication.isArchived || medication.isSuspended || isAfterTreatment) {
                     Log.i(TAG, "Artık geçerli olmayan bir ilaç için alarm yok sayıldı: $medicationId")
                     return@launch
                 }

@@ -97,4 +97,37 @@ class FrequencyCalculatorTest {
         val triggerTime = FrequencyCalculator.calculateNextTriggerTime(medication, medTime)
         assertNotNull(triggerTime)
     }
+
+    private fun dayStart(daysFromNow: Int): Long = Calendar.getInstance().apply {
+        add(Calendar.DAY_OF_YEAR, daysFromNow)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+
+    @Test
+    fun `a treatment lasts the given number of calendar days from its start`() {
+        val medication = Medication(name = "Antibiyotik", startDate = dayStart(-2) + 15 * 3_600_000L, treatmentDurationDays = 5)
+
+        assertEquals(dayStart(3), FrequencyCalculator.treatmentEndMillis(medication))
+        assertEquals(true, FrequencyCalculator.shouldTakeOnDay(medication, dayStart(2)))
+        assertEquals(false, FrequencyCalculator.shouldTakeOnDay(medication, dayStart(3)))
+        assertEquals(3, FrequencyCalculator.remainingTreatmentDays(medication, dayStart(0) + 3_600_000L))
+        assertEquals(0, FrequencyCalculator.remainingTreatmentDays(medication, dayStart(4)))
+    }
+
+    @Test
+    fun `no alarm is found after the treatment ends`() {
+        val medication = Medication(name = "Antibiyotik", startDate = dayStart(-10), treatmentDurationDays = 3)
+        assertNull(FrequencyCalculator.calculateNextTriggerTime(medication, MedicationTime(hour = 9, minute = 0)))
+    }
+
+    @Test
+    fun `medications without a duration never end`() {
+        val medication = Medication(name = "Tansiyon", startDate = dayStart(-400))
+        assertNull(FrequencyCalculator.treatmentEndMillis(medication))
+        assertNull(FrequencyCalculator.remainingTreatmentDays(medication))
+        assertEquals(true, FrequencyCalculator.shouldTakeOnDay(medication, dayStart(30)))
+    }
 }
