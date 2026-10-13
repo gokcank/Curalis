@@ -308,6 +308,17 @@ class AlarmScheduler @Inject constructor(
         alarmManager.cancel(vitalReminderPendingIntent(type))
     }
 
+    /** Bir dozun "yanıt bekleniyor" tekrar hatırlatma zincirini (bkz. [scheduleMissedDoseCheck]) iptal eder. */
+    fun cancelMissedDoseCheck(reminderId: String) {
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            (reminderId + "_missed").hashCode(),
+            Intent(context, MissedDoseCheckReceiver::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager.cancel(pendingIntent)
+    }
+
     fun cancel(reminderId: String) {
         val intent = Intent(context, ReminderReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(

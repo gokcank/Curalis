@@ -7,6 +7,7 @@ import android.content.Context
 import android.net.Uri
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
+import com.gokcank.curalis.core.notification.NotificationHelper
 import com.gokcank.curalis.core.utils.MedicationBarcode
 import com.gokcank.curalis.core.utils.MedicationPhotoStorage
 import com.gokcank.curalis.domain.model.Doctor
@@ -27,6 +28,7 @@ import com.gokcank.curalis.domain.usecase.FindMedicationByBarcodeUseCase
 import com.gokcank.curalis.domain.usecase.GenerateUpcomingRemindersUseCase
 import com.gokcank.curalis.domain.usecase.GetMedicationByIdUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersForMedicationUseCase
+import com.gokcank.curalis.domain.usecase.ScheduleChangeCleanup
 import com.gokcank.curalis.domain.usecase.SearchRemoteMedicationsUseCase
 import com.gokcank.curalis.domain.usecase.UpdateMedicationUseCase
 import com.gokcank.curalis.domain.usecase.ValidateMedicationUseCase
@@ -175,6 +177,7 @@ class AddEditMedicationViewModel @Inject constructor(
     private val searchRemoteMedicationsUseCase: SearchRemoteMedicationsUseCase,
     private val findMedicationByBarcodeUseCase: FindMedicationByBarcodeUseCase,
     private val alarmScheduler: AlarmScheduler,
+    private val notificationHelper: NotificationHelper,
     private val reminderRepository: ReminderRepository,
     private val stockHistoryRepository: StockHistoryRepository,
     private val photoStorage: MedicationPhotoStorage,
@@ -511,6 +514,9 @@ class AddEditMedicationViewModel @Inject constructor(
     }
 
     private suspend fun persistMedication(medicationToSave: Medication, scope: ScheduleChangeScope) {
+        // Kayıt güncellenince ilacı izleyen akış originalMedication'ı hemen yeni hâliyle
+        // değiştiriyor; eski saatler bu yüzden güncellemeden önce alınmalı.
+        val previousTimes = originalMedication?.times
         // "Yarından itibaren": yeni saatler yarının başlangıcından önce ne doz kaydı ne
         // alarm üretir (bkz. Medication.timesEffectiveFrom).
         val medication = if (scope == ScheduleChangeScope.FROM_TOMORROW) {
@@ -579,6 +585,25 @@ class AddEditMedicationViewModel @Inject constructor(
                 }
                 ?.forEach { reminderRepository.deleteReminder(it) }
 
+            // "Bugünden itibaren": saati gelmiş ama yanıtlanmamış, saati plandan çıkarılan
+            // bugünkü dozlar da kaldırılır (bkz. ScheduleChangeCleanup). Tekrar hatırlatma
+            // alarmı da iptal edilmeli; aksi halde çalıştığında dozu bulamayıp yeni bir
+            // "kaçırıldı" kaydı açıyor.
+            if (scope == ScheduleChangeScope.FROM_NOW && previousTimes != null) {
+                val reminders = reminderRepository.getRemindersForMedication(medicationId).firstOrNull().orEmpty()
+                ScheduleChangeCleanup.staleUnansweredDosesToday(
+                    reminders = reminders,
+                    oldTimes = previousTimes,
+                    newTimes = medication.times,
+                    now = System.currentTimeMillis(),
+                    startOfToday = startOfTodayMillis()
+                ).forEach {
+                    alarmScheduler.cancelMissedDoseCheck(it.id)
+                    notificationHelper.dismissNotification(it.id)
+                    reminderRepository.deleteReminder(it)
+                }
+            }
+
             // Önündeki 30 günün tüm dozlarını gerçek kayıtlar olarak veritabanına yaz
             // (Ana Sayfa/rapor/Günlük Program artık aynı kalıcı kayıtları görsün diye),
             // ardından bir sonraki tetiklenme için native alarmı kur.
@@ -597,6 +622,16 @@ class AddEditMedicationViewModel @Inject constructor(
         } catch (e: Exception) {
             _errorMessage.value = appContext.getString(R.string.medication_save_error, e.localizedMessage ?: appContext.getString(R.string.unknown_error))
         }
+    }
+
+    private fun startOfTodayMillis(): Long {
+        val cal = java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
+        return cal.timeInMillis
     }
 
     private fun startOfTomorrowMillis(): Long {
