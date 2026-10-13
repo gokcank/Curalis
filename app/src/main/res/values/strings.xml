@@ -617,9 +617,16 @@
     <string name="alarm_medication_time_label">Medication Time</string>
     <string name="alarm_dose_label">Dose: %1$s</string>
     <string name="alarm_took_it_button">I Took It</string>
-    <string name="alarm_skip_dose_button">Skip This Dose</string>
     <string name="alarm_snooze_10_min">10 min</string>
     <string name="alarm_snooze_30_min">30 min</string>
+    <plurals name="alarm_doses_count">
+        <item quantity="one">%1$d medication waiting</item>
+        <item quantity="other">%1$d medications waiting</item>
+    </plurals>
+    <string name="alarm_take_all_button">I took them all</string>
+    <string name="alarm_skip_short_button">Skip</string>
+    <string name="alarm_dose_time_label">At %1$s</string>
+    <string name="alarm_dose_rescheduled_label">At %1$s • Rescheduled: %2$s</string>
 
     <!-- Reminder State Badge -->
     <string name="reminder_state_taken">Taken</string>

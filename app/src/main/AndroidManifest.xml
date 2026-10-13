@@ -107,6 +107,7 @@
         <activity
             android:name=".presentation.alarm.AlarmFullScreenActivity"
             android:exported="false"
+            android:launchMode="singleTop"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
             android:theme="@style/Theme.Curalis" />
