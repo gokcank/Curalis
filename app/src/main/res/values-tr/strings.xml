@@ -45,6 +45,8 @@
     <string name="my_medications">İlaçlarım</string>
     <string name="add_medication">İlaç Ekle / Kaydet</string>
     <string name="edit_medication">İlacı Düzenle</string>
+    <string name="show_details">Ayrıntıları göster</string>
+    <string name="hide_details">Ayrıntıları gizle</string>
     <string name="medication_name">İlaç Adı</string>
     <string name="medication_list_search_hint">İlaç adı, etken madde veya barkod ara</string>
     <string name="medication_dosage">Dozaj (Örn: 500)</string>

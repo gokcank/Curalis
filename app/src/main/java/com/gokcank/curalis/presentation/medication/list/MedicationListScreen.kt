@@ -1,5 +1,6 @@
 package com.gokcank.curalis.presentation.medication.list
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +29,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Medication
@@ -65,10 +69,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -271,7 +277,7 @@ fun MedicationListScreen(
                     modifier = Modifier.fillMaxSize().padding(top = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(visibleMedications) { medication ->
+                    items(visibleMedications, key = { it.id }) { medication ->
                         if (selectedTab == 1) {
                             ArchivedMedicationItem(
                                 medication = medication,
@@ -343,11 +349,16 @@ fun MedicationItem(
     // MedicationForm/MealInstruction display names are stored per-enum in both languages
     // (displayNameTr/displayNameEn) rather than as string resources — pick the right one here.
     val isEnglish = androidx.compose.ui.platform.LocalConfiguration.current.locales[0].language == Locale.ENGLISH.language
+    // Kart kapalıyken yalnızca saatler, sıklık ve kaynak görünür; geri kalan bilgiler ve
+    // düzenleme düğmesi karta dokununca açılır.
+    var expanded by rememberSaveable(medication.id) { mutableStateOf(false) }
+    val toggleLabel = stringResource(if (expanded) R.string.hide_details else R.string.show_details)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .combinedClickable(
-                onClick = onClick,
+                onClickLabel = toggleLabel,
+                onClick = { expanded = !expanded },
                 onLongClick = onDelete
             ),
         shape = RoundedCornerShape(16.dp),
@@ -383,10 +394,19 @@ fun MedicationItem(
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = medication.name,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = medication.name,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    Icon(
+                        imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
 
                 val dosageStr = listOfNotNull(medication.dosage, medication.unit).joinToString(" ")
                 val subtitleParts = listOfNotNull(
@@ -409,34 +429,6 @@ fun MedicationItem(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    if (medication.isSuspended) {
-                        val semantic = LocalCuralisColors.current
-                        InfoChip(
-                            icon = Icons.Default.PauseCircle,
-                            text = stringResource(R.string.suspended_chip_label),
-                            containerColor = semantic.warningContainer,
-                            contentColor = semantic.onWarningContainer
-                        )
-                    }
-
-                    medication.treatmentDurationDays?.let { days ->
-                        val elapsedDays = ((System.currentTimeMillis() - medication.startDate) / (24 * 60 * 60 * 1000L)).toInt()
-                        val remaining = days - elapsedDays
-                        InfoChip(
-                            icon = Icons.Default.Event,
-                            text = if (remaining > 0) stringResource(R.string.treatment_days_remaining_chip, remaining) else stringResource(R.string.treatment_ended_chip),
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    InfoChip(
-                        icon = if (medication.isVerifiedSource) Icons.Default.Verified else Icons.Default.Edit,
-                        text = if (medication.isVerifiedSource) stringResource(R.string.verified_source_chip) else stringResource(R.string.manually_entered_chip),
-                        containerColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
                     if (medication.times.isNotEmpty()) {
                         val timesStr = medication.times.joinToString(", ") {
                             String.format(Locale.getDefault(), "%02d:%02d", it.hour, it.minute)
@@ -446,15 +438,6 @@ fun MedicationItem(
                             text = timesStr,
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
-
-                    if (medication.mealInstruction != MealInstruction.DOES_NOT_MATTER) {
-                        InfoChip(
-                            icon = medication.mealInstruction.icon(),
-                            text = if (isEnglish) medication.mealInstruction.displayNameEn else medication.mealInstruction.displayNameTr,
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -472,18 +455,76 @@ fun MedicationItem(
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer
                     )
 
-                    medication.currentStock?.let { stock ->
-                        if (medication.isRefillReminderEnabled) {
-                            val isLowStock = stock <= (medication.refillThreshold ?: 5)
-                            // Düşük stok bir hata değil, dikkat gerektiren bir durumdur:
-                            // design-system.md Error rengini sıradan dikkat için yasaklıyor.
-                            val semantic = LocalCuralisColors.current
-                            InfoChip(
-                                icon = if (isLowStock) Icons.Default.Warning else Icons.Default.Inventory2,
-                                text = if (isLowStock) stringResource(R.string.stock_low_chip, stock) else stringResource(R.string.stock_remaining_chip, stock),
-                                containerColor = if (isLowStock) semantic.warningContainer else MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = if (isLowStock) semantic.onWarningContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                    InfoChip(
+                        icon = if (medication.isVerifiedSource) Icons.Default.Verified else Icons.Default.Edit,
+                        text = if (medication.isVerifiedSource) stringResource(R.string.verified_source_chip) else stringResource(R.string.manually_entered_chip),
+                        containerColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                AnimatedVisibility(visible = expanded) {
+                    Column {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            if (medication.isSuspended) {
+                                val semantic = LocalCuralisColors.current
+                                InfoChip(
+                                    icon = Icons.Default.PauseCircle,
+                                    text = stringResource(R.string.suspended_chip_label),
+                                    containerColor = semantic.warningContainer,
+                                    contentColor = semantic.onWarningContainer
+                                )
+                            }
+
+                            medication.treatmentDurationDays?.let { days ->
+                                val elapsedDays = ((System.currentTimeMillis() - medication.startDate) / (24 * 60 * 60 * 1000L)).toInt()
+                                val remaining = days - elapsedDays
+                                InfoChip(
+                                    icon = Icons.Default.Event,
+                                    text = if (remaining > 0) stringResource(R.string.treatment_days_remaining_chip, remaining) else stringResource(R.string.treatment_ended_chip),
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            if (medication.mealInstruction != MealInstruction.DOES_NOT_MATTER) {
+                                InfoChip(
+                                    icon = medication.mealInstruction.icon(),
+                                    text = if (isEnglish) medication.mealInstruction.displayNameEn else medication.mealInstruction.displayNameTr,
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            medication.currentStock?.let { stock ->
+                                if (medication.isRefillReminderEnabled) {
+                                    val isLowStock = stock <= (medication.refillThreshold ?: 5)
+                                    // Düşük stok bir hata değil, dikkat gerektiren bir durumdur:
+                                    // design-system.md Error rengini sıradan dikkat için yasaklıyor.
+                                    val semantic = LocalCuralisColors.current
+                                    InfoChip(
+                                        icon = if (isLowStock) Icons.Default.Warning else Icons.Default.Inventory2,
+                                        text = if (isLowStock) stringResource(R.string.stock_low_chip, stock) else stringResource(R.string.stock_remaining_chip, stock),
+                                        containerColor = if (isLowStock) semantic.warningContainer else MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = if (isLowStock) semantic.onWarningContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        // Düzenleme, askıya alma ve silme sık kullanılmadığı için burada durur;
+                        // kapalı kart böylece tek satıra sığar.
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            CardActionButton(Icons.Default.Edit, stringResource(R.string.edit_medication), onClick)
+                            CardActionButton(
+                                icon = if (medication.isSuspended) Icons.Default.PlayCircle else Icons.Default.PauseCircle,
+                                label = if (medication.isSuspended) stringResource(R.string.resume_content_desc) else stringResource(R.string.suspend_content_desc),
+                                onClick = onToggleSuspend
                             )
+                            CardActionButton(Icons.Default.Delete, stringResource(R.string.delete), onDelete)
                         }
                     }
                 }
@@ -498,23 +539,16 @@ fun MedicationItem(
                     )
                 }
             }
-
-            IconButton(onClick = onToggleSuspend) {
-                Icon(
-                    imageVector = if (medication.isSuspended) Icons.Default.PlayCircle else Icons.Default.PauseCircle,
-                    contentDescription = if (medication.isSuspended) stringResource(R.string.resume_content_desc) else stringResource(R.string.suspend_content_desc),
-                    tint = MaterialTheme.colorScheme.outline
-                )
-            }
-
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.delete),
-                    tint = MaterialTheme.colorScheme.outline
-                )
-            }
         }
+    }
+}
+
+@Composable
+private fun CardActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
+    TextButton(onClick = onClick, contentPadding = PaddingValues(horizontal = 8.dp)) {
+        Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(label)
     }
 }
 
