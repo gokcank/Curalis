@@ -444,6 +444,19 @@ class AddEditMedicationViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Mevcut bir hatırlatma saatini yerinde değiştirir (silip yeniden eklemeye gerek kalmasın
+     * diye). Kimlik korunur; kaydederken "Bugünden / Yarından itibaren" sorusu saat değişikliği
+     * olarak her zamanki gibi çıkar.
+     */
+    fun updateMedicationTime(timeId: String, hour: Int, minute: Int) = _formState.update { state ->
+        state.copy(
+            times = state.times
+                .map { if (it.id == timeId) it.copy(hour = hour, minute = minute) else it }
+                .sortedWith(compareBy({ it.hour }, { it.minute }))
+        )
+    }
+
     fun removeMedicationTime(timeId: String) = _formState.update { state ->
         state.copy(times = state.times.filterNot { it.id == timeId })
     }
