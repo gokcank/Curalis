@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.domain.model.Medication
-import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.model.Vital
 import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.VitalRepository
@@ -93,21 +92,20 @@ class PdfReportGenerator @Inject constructor(
         val rangeReminders = if (medicationIds.isNullOrEmpty()) allRangeReminders else allRangeReminders.filter { it.medicationId in medicationIds }
 
         val lateThreshold = notificationPreferences.lateDoseThresholdMinutes
-        val takenCount = rangeReminders.count { it.state == ReminderState.TAKEN }
-        val lateCount = rangeReminders.count { DoseAdherence.isLate(it, lateThreshold) }
-        val skippedCount = rangeReminders.count { it.state == ReminderState.SKIPPED }
-        val missedCount = rangeReminders.count { it.state == ReminderState.MISSED }
-        val totalScheduled = takenCount + skippedCount + missedCount
-        val adherencePercentage = DoseAdherence.percentage(rangeReminders, lateThreshold)
+        val overall = DoseAdherence.summarize(rangeReminders, lateThreshold)
+        // İlaç başına özet; aralıkta sonuçlanmış dozu olmayan ilaçlar tabloya girmez.
+        val remindersByMedication = rangeReminders.groupBy { it.medicationId }
+        val medicationSummaries = medications.mapNotNull { med ->
+            val summary = DoseAdherence.summarize(remindersByMedication[med.id].orEmpty(), lateThreshold)
+            if (summary.total > 0) med.name to summary else null
+        }
 
         val file = generateHealthReportPdf(
             medications = medications,
             vitals = if (includeVitals) vitals else emptyList(),
-            takenCount = takenCount,
-            lateCount = lateCount,
-            skippedCount = skippedCount,
-            missedCount = missedCount,
-            adherencePercentage = adherencePercentage,
+            overall = overall,
+            medicationSummaries = medicationSummaries,
+            lateThresholdMinutes = lateThreshold,
             rangeStartMillis = startMillis,
             rangeEndMillis = endMillis,
             includeAdherenceSummary = includeAdherenceSummary,
@@ -116,7 +114,7 @@ class PdfReportGenerator @Inject constructor(
 
         ReportResult(
             file = file,
-            summary = ReportSummary(adherencePercentage, totalScheduled, takenCount, skippedCount, missedCount)
+            summary = ReportSummary(overall.percentage, overall.total, overall.taken, overall.skipped, overall.missed)
         )
     }
 
@@ -147,20 +145,16 @@ class PdfReportGenerator @Inject constructor(
     fun generateHealthReportPdf(
         medications: List<Medication>,
         vitals: List<Vital> = emptyList(),
-        takenCount: Int = 0,
-        lateCount: Int = 0,
-        skippedCount: Int = 0,
-        missedCount: Int = 0,
-        adherencePercentage: Int? = null,
+        overall: DoseAdherence.Summary? = null,
+        /** İlaç adı ve o ilacın rapor aralığındaki doz özeti. */
+        medicationSummaries: List<Pair<String, DoseAdherence.Summary>> = emptyList(),
+        lateThresholdMinutes: Int = NotificationPreferences.DEFAULT_LATE_DOSE_THRESHOLD_MINUTES,
         rangeStartMillis: Long = System.currentTimeMillis() - (30L * 24 * 3600 * 1000),
         rangeEndMillis: Long = System.currentTimeMillis(),
         includeAdherenceSummary: Boolean = true,
         includeMedicationList: Boolean = true
     ): File {
         val pdfDocument = PdfDocument()
-        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size at 72 dpi
-        val page = pdfDocument.startPage(pageInfo)
-        val canvas: Canvas = page.canvas
 
         val titlePaint = Paint().apply {
             color = Color.parseColor("#006A6A")
@@ -173,16 +167,54 @@ class PdfReportGenerator @Inject constructor(
             textSize = 13f
             isFakeBoldText = true
         }
+        val tableHeaderPaint = Paint().apply {
+            color = Color.DKGRAY
+            textSize = 10f
+            isFakeBoldText = true
+        }
         val bodyPaint = Paint().apply {
             color = Color.BLACK
             textSize = 10f
+        }
+        val notePaint = Paint().apply {
+            color = Color.GRAY
+            textSize = 8.5f
         }
         val linePaint = Paint().apply {
             color = Color.LTGRAY
             strokeWidth = 1f
         }
 
-        var y = 40f
+        // İçerik sayfaya sığmayınca yeni sayfaya geçilir; önizleme bütün sayfaları gösterir.
+        var pageNumber = 0
+        lateinit var page: PdfDocument.Page
+        lateinit var canvas: Canvas
+        var y = 0f
+
+        fun startPage() {
+            pageNumber++
+            page = pdfDocument.startPage(PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, pageNumber).create())
+            canvas = page.canvas
+            y = 40f
+        }
+
+        fun finishPage() {
+            canvas.drawText(
+                "Bu rapor Curalis Sağlık Asistanı tarafından cihaz üzerinde güvenle üretilmiştir. — Sayfa $pageNumber",
+                40f, FOOTER_Y, bodyPaint
+            )
+            pdfDocument.finishPage(page)
+        }
+
+        /** Sonraki [height] birimlik içerik bu sayfaya sığmıyorsa yeni sayfaya geçer. */
+        fun ensureSpace(height: Float) {
+            if (y + height > CONTENT_BOTTOM) {
+                finishPage()
+                startPage()
+            }
+        }
+
+        startPage()
         var sectionNumber = 1
 
         // Title & Header
@@ -197,9 +229,8 @@ class PdfReportGenerator @Inject constructor(
         y += 20f
 
         // Adherence Section
-        if (includeAdherenceSummary) {
-            val totalScheduled = takenCount + skippedCount + missedCount
-            val takenText = if (lateCount > 0) "$takenCount ($lateCount geç)" else "$takenCount"
+        if (includeAdherenceSummary && overall != null) {
+            val takenText = if (overall.late > 0) "${overall.taken} (${overall.late} geç)" else "${overall.taken}"
 
             val rangeDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.forLanguageTag("tr"))
             canvas.drawText("${sectionNumber++}. İlaç Kullanım Uyum Özet İstatistiği", 40f, y, subTitlePaint)
@@ -209,17 +240,67 @@ class PdfReportGenerator @Inject constructor(
                 40f, y, bodyPaint
             )
             y += 16f
-            canvas.drawText("• Toplam İlaç Vakti: $totalScheduled | Alınan: $takenText | Atlanan: $skippedCount | Kaçırılan: $missedCount", 40f, y, bodyPaint)
+            canvas.drawText("• Toplam İlaç Vakti: ${overall.total} | Alınan: $takenText | Atlanan: ${overall.skipped} | Kaçırılan: ${overall.missed}", 40f, y, bodyPaint)
             y += 16f
             // Geç alınan doz yarım sayılır (bkz. DoseAdherence); değerlendirilecek doz yoksa oran yazılmaz.
-            canvas.drawText("• Genel İlaç Uyum Oranı: ${adherencePercentage?.let { "%$it" } ?: "—"}", 40f, y, bodyPaint)
+            canvas.drawText("• Genel İlaç Uyum Oranı: ${overall.percentage?.let { "%$it" } ?: "—"}", 40f, y, bodyPaint)
             y += 20f
+
+            if (medicationSummaries.isNotEmpty()) {
+                fun drawSummaryHeader() {
+                    canvas.drawText("İlaç", 40f, y, tableHeaderPaint)
+                    canvas.drawText("Alınan", 230f, y, tableHeaderPaint)
+                    canvas.drawText("Geç", 280f, y, tableHeaderPaint)
+                    canvas.drawText("Atlanan", 315f, y, tableHeaderPaint)
+                    canvas.drawText("Kaçırılan", 370f, y, tableHeaderPaint)
+                    canvas.drawText("Uyum", 435f, y, tableHeaderPaint)
+                    canvas.drawText("Ort. Gecikme", 480f, y, tableHeaderPaint)
+                    y += 6f
+                    canvas.drawLine(40f, y, 555f, y, linePaint)
+                    y += 14f
+                }
+
+                ensureSpace(60f)
+                canvas.drawText("İlaç Bazında Doz Özeti", 40f, y, tableHeaderPaint)
+                y += 16f
+                drawSummaryHeader()
+                medicationSummaries.forEach { (name, summary) ->
+                    if (y + 16f > CONTENT_BOTTOM) {
+                        finishPage()
+                        startPage()
+                        drawSummaryHeader()
+                    }
+                    canvas.drawText(name.take(32), 40f, y, bodyPaint)
+                    canvas.drawText("${summary.taken}", 230f, y, bodyPaint)
+                    canvas.drawText("${summary.late}", 280f, y, bodyPaint)
+                    canvas.drawText("${summary.skipped}", 315f, y, bodyPaint)
+                    canvas.drawText("${summary.missed}", 370f, y, bodyPaint)
+                    canvas.drawText(summary.percentage?.let { "%$it" } ?: "—", 435f, y, bodyPaint)
+                    canvas.drawText(formatDelay(summary.averageDelayMinutes), 480f, y, bodyPaint)
+                    y += 16f
+                }
+                ensureSpace(28f)
+                y += 2f
+                canvas.drawText(
+                    "Geç: planlanan saatinden ${formatThresholdAblative(lateThresholdMinutes)} fazla sonra alınan dozlar; uyum oranına yarım doz olarak girer.",
+                    40f, y, notePaint
+                )
+                y += 12f
+                canvas.drawText(
+                    "Ort. Gecikme: alınma saati kayıtlı dozların planlanan saatten ortalama ne kadar sonra alındığı (erken alınanlar 0 sayılır).",
+                    40f, y, notePaint
+                )
+                y += 8f
+            }
+
+            y += 12f
             canvas.drawLine(40f, y, 555f, y, linePaint)
             y += 20f
         }
 
         // Medication Cabinet List
         if (includeMedicationList) {
+            ensureSpace(60f)
             canvas.drawText("${sectionNumber++}. Mevcut İlaç Dolabı Listesi (${medications.size} Kayıtlı İlaç)", 40f, y, subTitlePaint)
             y += 20f
 
@@ -236,7 +317,7 @@ class PdfReportGenerator @Inject constructor(
                 y += 20f
             } else {
                 medications.forEach { med ->
-                    if (y > 740f) return@forEach
+                    ensureSpace(18f)
                     canvas.drawText(med.name.take(20), 40f, y, bodyPaint)
                     val dosageStr = listOfNotNull(med.dosage, med.unit).joinToString(" ")
                     canvas.drawText("${med.formType.displayNameTr} $dosageStr".take(22), 190f, y, bodyPaint)
@@ -254,10 +335,11 @@ class PdfReportGenerator @Inject constructor(
 
         // Vitals History Section
         if (vitals.isNotEmpty()) {
+            ensureSpace(60f)
             canvas.drawText("${sectionNumber++}. Son Ölçümler Geçmişi (${vitals.size} Ölçüm)", 40f, y, subTitlePaint)
             y += 20f
             vitals.take(8).forEach { vital ->
-                if (y > 780f) return@forEach
+                ensureSpace(16f)
                 val vDateStr = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date(vital.timeInMillis))
                 val valStr = if (vital.value2 != null) "${vital.value1} / ${vital.value2}" else "${vital.value1}"
                 canvas.drawText("• ${vital.type.name}: $valStr ${vital.unit} ($vDateStr)", 40f, y, bodyPaint)
@@ -268,10 +350,7 @@ class PdfReportGenerator @Inject constructor(
             y += 20f
         }
 
-        // Footer
-        canvas.drawText("Bu rapor Curalis Sağlık Asistanı tarafından cihaz üzerinde güvenle üretilmiştir.", 40f, 800f, bodyPaint)
-
-        pdfDocument.finishPage(page)
+        finishPage()
 
         val reportFile = File(context.cacheDir, "Curalis_Saglik_Raporu.pdf")
         FileOutputStream(reportFile).use { out ->
@@ -280,5 +359,26 @@ class PdfReportGenerator @Inject constructor(
         pdfDocument.close()
 
         return reportFile
+    }
+
+    /** "25 dk", "1 sa", "2 sa 10 dk"; değer yoksa "—". */
+    private fun formatDelay(minutes: Int?): String = when {
+        minutes == null -> "—"
+        minutes < 60 -> "$minutes dk"
+        minutes % 60 == 0 -> "${minutes / 60} sa"
+        else -> "${minutes / 60} sa ${minutes % 60} dk"
+    }
+
+    /** Dipnot için: "30 dakikadan", "1 saatten", "2 saatten". */
+    private fun formatThresholdAblative(minutes: Int): String =
+        if (minutes % 60 == 0) "${minutes / 60} saatten" else "$minutes dakikadan"
+
+    private companion object {
+        // A4, 72 dpi
+        const val PAGE_WIDTH = 595
+        const val PAGE_HEIGHT = 842
+        const val FOOTER_Y = 800f
+        /** Bu çizginin altına içerik yazılmaz; altbilgiye yer kalır. */
+        const val CONTENT_BOTTOM = 780f
     }
 }

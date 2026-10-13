@@ -80,4 +80,39 @@ class DoseAdherenceTest {
         assertNull(DoseAdherence.percentage(listOf(dose(ReminderState.SCHEDULED)), threshold))
         assertNull(DoseAdherence.percentage(emptyList(), threshold))
     }
+
+    @Test
+    fun `summary counts each outcome and averages the delay of doses with a taken time`() {
+        val rescheduledTo = due + 3 * hour
+        val summary = DoseAdherence.summarize(
+            listOf(
+                taken(due + 10 * minute),
+                taken(due - 30 * minute),
+                taken(due + 2 * hour + 20 * minute),
+                taken(rescheduledTo + 30 * minute, rescheduledTo),
+                taken(null),
+                dose(ReminderState.SKIPPED),
+                dose(ReminderState.MISSED),
+                dose(ReminderState.SCHEDULED),
+                taken(due + 5 * hour, placebo = true)
+            ),
+            threshold
+        )
+        assertEquals(5, summary.taken)
+        assertEquals(1, summary.late)
+        assertEquals(1, summary.skipped)
+        assertEquals(1, summary.missed)
+        assertEquals(7, summary.total)
+        // 4 zamanında + 1 geç (yarım) = 4,5 / 7
+        assertEquals(64, summary.percentage)
+        // (10 + 0 + 140 + 30) / 4 — erken alınan 0 sayılır, alınma saati olmayan hesaba girmez
+        assertEquals(45, summary.averageDelayMinutes)
+    }
+
+    @Test
+    fun `summary has no average delay when no taken time is recorded`() {
+        val summary = DoseAdherence.summarize(listOf(taken(null), dose(ReminderState.MISSED)), threshold)
+        assertNull(summary.averageDelayMinutes)
+        assertEquals(50, summary.percentage)
+    }
 }
