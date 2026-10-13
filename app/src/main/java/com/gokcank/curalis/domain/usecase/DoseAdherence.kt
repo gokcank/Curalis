@@ -2,6 +2,7 @@ package com.gokcank.curalis.domain.usecase
 
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
+import kotlin.math.roundToInt
 
 /**
  * Uyum yüzdesinin tek kuralı; ana ekran, istatistikler, takvim ve PDF raporu bunu kullanır.
@@ -13,6 +14,21 @@ import com.gokcank.curalis.domain.model.ReminderState
  */
 object DoseAdherence {
 
+    /** Bir doz kümesinin (ör. bir ilacın rapor aralığındaki dozları) özeti. */
+    data class Summary(
+        val taken: Int,
+        /** [taken] içindeki geç alınanlar. */
+        val late: Int,
+        val skipped: Int,
+        val missed: Int,
+        val percentage: Int?,
+        /** Alınma saati kayıtlı dozların hatırlatma zamanından ortalama ne kadar sonra alındığı
+         *  (erken alınan doz 0 sayılır). Alınma saati kayıtlı doz yoksa null. */
+        val averageDelayMinutes: Int?
+    ) {
+        val total: Int get() = taken + skipped + missed
+    }
+
     /**
      * Doz, hatırlatma zamanından [thresholdMinutes] dakikadan fazla sonra alındıysa geç sayılır.
      * Yeniden planlanmış dozda gecikme yeni zamana göre ölçülür. Alınma saati kaydedilmemiş
@@ -21,8 +37,7 @@ object DoseAdherence {
     fun isLate(reminder: Reminder, thresholdMinutes: Int): Boolean {
         if (reminder.state != ReminderState.TAKEN) return false
         val takenAt = reminder.takenAtMillis ?: return false
-        val dueAt = reminder.rescheduledToMillis ?: reminder.timeInMillis
-        return takenAt - dueAt > thresholdMinutes * 60_000L
+        return takenAt - dueAt(reminder) > thresholdMinutes * 60_000L
     }
 
     fun isResolved(state: ReminderState): Boolean =
@@ -38,4 +53,22 @@ object DoseAdherence {
         // Yarım doz kesirli olmasın diye yarım puanlarla hesaplanır.
         return (onTime * 2 + late) * 100 / (resolved.size * 2)
     }
+
+    fun summarize(reminders: List<Reminder>, thresholdMinutes: Int): Summary {
+        val counted = reminders.filter { !it.isPlacebo }
+        val taken = counted.filter { it.state == ReminderState.TAKEN }
+        val delays = taken.mapNotNull { dose ->
+            dose.takenAtMillis?.let { (it - dueAt(dose)).coerceAtLeast(0L) }
+        }
+        return Summary(
+            taken = taken.size,
+            late = taken.count { isLate(it, thresholdMinutes) },
+            skipped = counted.count { it.state == ReminderState.SKIPPED },
+            missed = counted.count { it.state == ReminderState.MISSED },
+            percentage = percentage(counted, thresholdMinutes),
+            averageDelayMinutes = if (delays.isEmpty()) null else (delays.average() / 60_000L).roundToInt()
+        )
+    }
+
+    private fun dueAt(reminder: Reminder) = reminder.rescheduledToMillis ?: reminder.timeInMillis
 }
