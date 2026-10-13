@@ -55,7 +55,13 @@ class ReminderActionReceiver : BroadcastReceiver() {
 
                 when (action) {
                     NotificationHelper.ACTION_TAKEN -> {
-                        val acknowledged = acknowledgeReminderUseCase(reminderId, ReminderState.TAKEN)
+                        // Bildirimdeki "Şimdi Al" ve tam ekran hatırlatmadaki "Aldım" buraya gelir;
+                        // ikisi de "şimdi aldım" demek, bu yüzden alınma saati o an kaydedilir.
+                        val acknowledged = acknowledgeReminderUseCase(
+                            reminderId,
+                            ReminderState.TAKEN,
+                            takenAtMillis = System.currentTimeMillis()
+                        )
 
                         // Hatırlatıcı artık yoksa (örn. ilaç bu bildirim gösterilirken silindi),
                         // stok düşümü/alarm yeniden kurma gibi yan etkileri uygulama — silinmiş

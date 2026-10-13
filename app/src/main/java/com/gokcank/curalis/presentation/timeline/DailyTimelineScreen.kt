@@ -2,6 +2,7 @@ package com.gokcank.curalis.presentation.timeline
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.EventAvailable
@@ -215,6 +217,9 @@ fun DailyTimelineScreen(
                                 TimelineCard(
                                     item = timelineItem,
                                     onTakeClick = { pendingTakeReminder = timelineItem.reminder },
+                                    // Alınma saatini düzeltmek de aynı "ne zaman aldınız?" penceresiyle
+                                    // yapılır; doz zaten alınmış olduğu için yalnızca saati değişir.
+                                    onEditTakenTimeClick = { pendingTakeReminder = timelineItem.reminder },
                                     onSkipClick = { pendingSkipReminder = timelineItem.reminder },
                                     onUnTakeClick = {
                                         viewModel.acknowledgeDose(timelineItem.reminder, ReminderState.SCHEDULED, takenAtMillis = null)
@@ -373,6 +378,7 @@ fun TimeSlotHeader(slot: TimeSlot, bounds: TimeSlotBounds) {
 fun TimelineCard(
     item: TimelineItem,
     onTakeClick: () -> Unit,
+    onEditTakenTimeClick: () -> Unit,
     onSkipClick: () -> Unit,
     onUnTakeClick: () -> Unit
 ) {
@@ -444,13 +450,40 @@ fun TimelineCard(
                         } else {
                             stringResource(R.string.time_at_label, formattedTime, dosageSuffix)
                         }
-                        Text(
-                            text = timeLine,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        if (item.reminder.state == ReminderState.TAKEN) {
+                            // Alınmış dozun saat satırına dokununca alınma saati düzeltilebilir.
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable(
+                                    onClickLabel = stringResource(R.string.edit_taken_time_action),
+                                    onClick = onEditTakenTimeClick
+                                )
+                            ) {
+                                Text(
+                                    text = timeLine,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f, fill = false)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = stringResource(R.string.edit_taken_time_action),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = timeLine,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
 
