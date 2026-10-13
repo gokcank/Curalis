@@ -1,6 +1,5 @@
 package com.gokcank.curalis.presentation.alarm
 
-import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.media.Ringtone
@@ -82,7 +81,7 @@ class AlarmFullScreenActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
-        turnScreenOnAndUnlock()
+        showOverLockScreen()
         startAlarmSound()
 
         val reminderId = intent.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: ""
@@ -143,17 +142,20 @@ class AlarmFullScreenActivity : ComponentActivity() {
         sendBroadcast(intent)
     }
 
-    private fun turnScreenOnAndUnlock() {
+    /**
+     * Hatırlatmayı kilit ekranının üstünde gösterir ve ekranı açar; kilidi açmaz. Aldım/Ertele/
+     * Atla yayın (broadcast) olarak işlendiği için kilit açmayı gerektirmiyor. Önceden burada
+     * kilidin açılması da isteniyordu: standart Android bunu sessizce yok sayarken Samsung her
+     * hatırlatmada parmak izi/yüz doğrulama ekranını açıyordu.
+     */
+    private fun showOverLockScreen() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
-            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-            keyguardManager.requestDismissKeyguard(this, null)
         } else {
             @Suppress("DEPRECATION")
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
             )
