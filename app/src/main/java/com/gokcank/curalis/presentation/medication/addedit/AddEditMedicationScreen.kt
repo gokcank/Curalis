@@ -68,6 +68,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -101,6 +102,7 @@ import com.gokcank.curalis.domain.model.DosageUnit
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.MedicationForm
+import com.gokcank.curalis.domain.model.MedicationTime
 import com.gokcank.curalis.domain.model.ProviderMedication
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -125,6 +127,8 @@ fun AddEditMedicationScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     var showTimePickerDialog by remember { mutableStateOf(false) }
+    // Doluysa saat seçici yeni saat eklemek yerine bu saati değiştirmek için açılır.
+    var editingTime by remember { mutableStateOf<MedicationTime?>(null) }
     var isUnitDropdownExpanded by remember { mutableStateOf(false) }
     var showDatePickerDialog by remember { mutableStateOf(false) }
 
@@ -780,6 +784,11 @@ fun AddEditMedicationScreen(
 
                 formState.times.forEach { time ->
                     Card(
+                        // Saate dokununca saat seçici o saatle açılır ve seçilen saat bunun yerine geçer.
+                        onClick = {
+                            editingTime = time
+                            showTimePickerDialog = true
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
@@ -815,7 +824,10 @@ fun AddEditMedicationScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(
-                    onClick = { showTimePickerDialog = true },
+                    onClick = {
+                        editingTime = null
+                        showTimePickerDialog = true
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
@@ -1098,7 +1110,14 @@ fun AddEditMedicationScreen(
 
     // Time Picker Dialog
     if (showTimePickerDialog) {
-        val timePickerState = rememberTimePickerState(initialHour = 8, initialMinute = 0, is24Hour = true)
+        val timeBeingEdited = editingTime
+        val timePickerState = key(timeBeingEdited?.id) {
+            rememberTimePickerState(
+                initialHour = timeBeingEdited?.hour ?: 8,
+                initialMinute = timeBeingEdited?.minute ?: 0,
+                is24Hour = true
+            )
+        }
         Dialog(onDismissRequest = { showTimePickerDialog = false }) {
             Card(
                 modifier = Modifier.padding(16.dp),
@@ -1121,10 +1140,14 @@ fun AddEditMedicationScreen(
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(onClick = {
-                            viewModel.addMedicationTime(timePickerState.hour, timePickerState.minute)
+                            if (timeBeingEdited != null) {
+                                viewModel.updateMedicationTime(timeBeingEdited.id, timePickerState.hour, timePickerState.minute)
+                            } else {
+                                viewModel.addMedicationTime(timePickerState.hour, timePickerState.minute)
+                            }
                             showTimePickerDialog = false
                         }) {
-                            Text(stringResource(R.string.add))
+                            Text(stringResource(if (timeBeingEdited != null) R.string.change else R.string.add))
                         }
                     }
                 }
