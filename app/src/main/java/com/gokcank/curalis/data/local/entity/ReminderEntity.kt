@@ -25,5 +25,6 @@ data class ReminderEntity(
     val state: String,
     val skipReason: String? = null,
     val takenAtMillis: Long? = null,
-    val isPlacebo: Boolean = false
+    val isPlacebo: Boolean = false,
+    val rescheduledToMillis: Long? = null
 )

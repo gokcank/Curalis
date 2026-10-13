@@ -543,6 +543,8 @@ class AddEditMedicationViewModel @Inject constructor(
             // eski saatler/eski kayıtlar sistemde asılı kalmasın diye).
             getRemindersForMedicationUseCase(medicationId).firstOrNull()?.forEach { existingReminder ->
                 alarmScheduler.cancel(existingReminder.id)
+                // Kalan yeniden planlanmış dozların alarmı scheduleMedicationAlarms ile geri kurulur.
+                alarmScheduler.cancelRescheduledDose(existingReminder.id)
             }
             originalMedication?.let { old -> alarmScheduler.cancelMedicationAlarms(old) }
 

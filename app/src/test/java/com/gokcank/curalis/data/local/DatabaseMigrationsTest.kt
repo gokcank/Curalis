@@ -27,7 +27,7 @@ import java.io.File
 class DatabaseMigrationsTest {
 
     private val oldestVersion = 7
-    private val latestVersion = 23
+    private val latestVersion = 24
     private val context = RuntimeEnvironment.getApplication()
 
     @Test
@@ -77,12 +77,13 @@ class DatabaseMigrationsTest {
                 assertNull(c.getString(8))
                 assertNull(c.getString(9))
             }
-            db.query("SELECT state, skipReason, takenAtMillis, isPlacebo FROM reminders WHERE id = 'r1'").use { c ->
+            db.query("SELECT state, skipReason, takenAtMillis, isPlacebo, rescheduledToMillis FROM reminders WHERE id = 'r1'").use { c ->
                 c.moveToFirst()
                 assertEquals("TAKEN", c.getString(0))
                 assertNull(c.getString(1))
                 assertNull(c.getString(2))
                 assertEquals(0, c.getInt(3))
+                assertNull(c.getString(4))
             }
             db.query("SELECT doctorId, emergencyContactId, isVisited, visitNote FROM appointments WHERE id = 'a1'").use { c ->
                 c.moveToFirst()

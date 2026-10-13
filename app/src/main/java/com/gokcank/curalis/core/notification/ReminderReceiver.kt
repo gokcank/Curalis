@@ -40,6 +40,7 @@ class ReminderReceiver : BroadcastReceiver() {
         val medicationId = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_ID) ?: ""
         val timeInMillis = intent.getLongExtra(AlarmScheduler.EXTRA_TIME_MILLIS, System.currentTimeMillis())
         val kind = intent.getStringExtra(AlarmScheduler.EXTRA_REMINDER_KIND) ?: AlarmScheduler.KIND_MEDICATION
+        val isRescheduledFire = intent.getBooleanExtra(AlarmScheduler.EXTRA_RESCHEDULED, false)
 
         // Randevu hatırlatıcıları Reminder tablosunda doz takibi yapmaz; yalnızca
         // ilaç hatırlatıcıları için "iletildi" durumu kaydedilir ve kaçırılma kontrolü kurulur.
@@ -60,32 +61,38 @@ class ReminderReceiver : BroadcastReceiver() {
                     return@launch
                 }
 
-                notificationHelper.showReminderNotification(reminderId, medicationName, medicationId)
-
-                // Alarmın gerçekten tetiklendiğini kalıcı olarak işaretle. Bu satır
-                // olmadan "alarm hiç çalmadı" (SCHEDULED kalır) ile "çaldı ama
-                // yanıtlanmadı" ayrımı yapılamıyordu.
                 val existing = reminderRepository.getReminderById(reminderId)
-                if (existing == null) {
-                    reminderRepository.insertReminder(
-                        Reminder(
-                            id = reminderId,
-                            medicationId = medicationId,
-                            timeInMillis = timeInMillis,
-                            state = ReminderState.DELIVERED
+                if (shouldNotifyDose(existing, isRescheduledFire, System.currentTimeMillis())) {
+                    notificationHelper.showReminderNotification(reminderId, medicationName, medicationId)
+
+                    // Alarmın gerçekten tetiklendiğini kalıcı olarak işaretle. Bu satır
+                    // olmadan "alarm hiç çalmadı" (SCHEDULED kalır) ile "çaldı ama
+                    // yanıtlanmadı" ayrımı yapılamıyordu.
+                    if (existing == null) {
+                        reminderRepository.insertReminder(
+                            Reminder(
+                                id = reminderId,
+                                medicationId = medicationId,
+                                timeInMillis = timeInMillis,
+                                state = ReminderState.DELIVERED
+                            )
                         )
+                    } else if (existing.state == ReminderState.SCHEDULED) {
+                        reminderRepository.updateReminder(existing.copy(state = ReminderState.DELIVERED))
+                    }
+
+                    alarmScheduler.scheduleMissedDoseCheck(
+                        reminderId = reminderId,
+                        medicationId = medicationId,
+                        medicationName = medicationName,
+                        delayMinutes = MissedDoseCheckReceiver.RETRY_INTERVAL_MINUTES,
+                        attempt = 1
                     )
-                } else if (existing.state == ReminderState.SCHEDULED) {
-                    reminderRepository.updateReminder(existing.copy(state = ReminderState.DELIVERED))
                 }
 
-                alarmScheduler.scheduleMissedDoseCheck(
-                    reminderId = reminderId,
-                    medicationId = medicationId,
-                    medicationName = medicationName,
-                    delayMinutes = MissedDoseCheckReceiver.RETRY_INTERVAL_MINUTES,
-                    attempt = 1
-                )
+                // Yeniden planlanmış dozun tek seferlik alarmı ilacın saat dilimi zincirinin
+                // parçası değil; zinciri yalnızca normal saat alarmı ilerletir.
+                if (isRescheduledFire) return@launch
 
                 // Tekrarlayan (günlük/haftalık vb.) ilaçlarda tek seferlik alarm burada
                 // tükeniyor; bir sonraki tetiklenmeyi yeniden kurmazsak alarm ilk günden
@@ -103,4 +110,19 @@ class ReminderReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "ReminderReceiver"
     }
+}
+
+/**
+ * Bir doz alarmı çaldığında hatırlatma gösterilsin mi. Normal saat alarmı, doz yanıtlanmışsa
+ * (önceden alındı/atlandı olarak işaretlendiyse) ya da başka bir zamana yeniden planlandıysa
+ * hatırlatma göstermez. Yeniden planlanan zamandaki alarm ise doz hâlâ bekliyorsa gösterir.
+ */
+internal fun shouldNotifyDose(existing: Reminder?, isRescheduledFire: Boolean, now: Long): Boolean {
+    if (isRescheduledFire) return existing?.state == ReminderState.SCHEDULED
+    if (existing == null) return true
+    if (existing.state == ReminderState.TAKEN || existing.state == ReminderState.SKIPPED) return false
+    val rescheduledTo = existing.rescheduledToMillis ?: return true
+    // Yeni zamanı geçmiş ama hatırlatması hiç gelmemiş (ör. telefon kapalıydı) bir doz için
+    // normal saat alarmı yedek olarak hatırlatır; daha önce hatırlatılmışsa tekrarlamaz.
+    return rescheduledTo <= now && existing.state == ReminderState.SCHEDULED
 }

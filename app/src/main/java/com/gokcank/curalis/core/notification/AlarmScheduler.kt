@@ -94,6 +94,7 @@ class AlarmScheduler @Inject constructor(
         if (medication.frequencyType == FrequencyType.AS_NEEDED) return
 
         scheduleDosesBeforeTimesTakeEffect(medication)
+        scheduleRescheduledDoses(medication)
 
         medication.times.forEach { medTime ->
             val nextTriggerMillis = FrequencyCalculator.calculateNextTriggerTime(medication, medTime) ?: return@forEach
@@ -140,6 +141,48 @@ class AlarmScheduler @Inject constructor(
             .filter { it.state == ReminderState.SCHEDULED && it.timeInMillis in (now + 1) until effectiveFrom }
             .forEach { schedule(it, medication.name) }
     }
+
+    /**
+     * Tek seferliğine yeniden planlanmış, hâlâ bekleyen dozların alarmlarını kurar. Bütün
+     * alarmların yeniden kurulduğu bu noktaya bağlı olduğu için yeniden başlatma, geri yükleme
+     * ve ilaç düzenlemesinden sonra da kaybolmazlar.
+     */
+    private suspend fun scheduleRescheduledDoses(medication: Medication) {
+        val now = System.currentTimeMillis()
+        reminderRepository.getRemindersForMedication(medication.id).firstOrNull().orEmpty()
+            .filter { it.state == ReminderState.SCHEDULED && (it.rescheduledToMillis ?: 0L) > now }
+            .forEach { scheduleRescheduledDose(it, medication.name) }
+    }
+
+    /**
+     * Yeniden planlanmış bir dozun alarmını yeni zamanına kurar. Dozun kimliği aynı kalır;
+     * alarm çaldığında ReminderReceiver o dozu "iletildi" yapar ve bildirimi gösterir.
+     */
+    fun scheduleRescheduledDose(reminder: Reminder, medicationName: String) {
+        val triggerAtMillis = reminder.rescheduledToMillis ?: return
+        if (triggerAtMillis <= System.currentTimeMillis()) return
+        val intent = Intent(context, ReminderReceiver::class.java).apply {
+            putExtra(EXTRA_REMINDER_ID, reminder.id)
+            putExtra(EXTRA_MEDICATION_NAME, medicationName)
+            putExtra(EXTRA_MEDICATION_ID, reminder.medicationId)
+            putExtra(EXTRA_TIME_MILLIS, reminder.timeInMillis)
+            putExtra(EXTRA_REMINDER_KIND, KIND_MEDICATION)
+            putExtra(EXTRA_RESCHEDULED, true)
+        }
+        setExactAlarm(triggerAtMillis, rescheduledDosePendingIntent(reminder.id, intent))
+    }
+
+    fun cancelRescheduledDose(reminderId: String) {
+        alarmManager.cancel(rescheduledDosePendingIntent(reminderId, Intent(context, ReminderReceiver::class.java)))
+    }
+
+    private fun rescheduledDosePendingIntent(reminderId: String, intent: Intent): PendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            (reminderId + "_rescheduled").hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
     /**
      * Bir ilaca ait tüm saatler için kurulmuş alarmları iptal eder.
@@ -337,6 +380,8 @@ class AlarmScheduler @Inject constructor(
         const val EXTRA_MEDICATION_ID = "extra_medication_id"
         const val EXTRA_DOSE = "extra_dose"
         const val EXTRA_TIME_MILLIS = "extra_time_millis"
+        /** Alarm, yeniden planlanmış bir dozun yeni zamanında çalıyorsa true (bkz. scheduleRescheduledDose). */
+        const val EXTRA_RESCHEDULED = "extra_rescheduled"
         const val EXTRA_MISSED_CHECK_ATTEMPT = "extra_missed_check_attempt"
         /** İlaç hatırlatıcısı ile randevu hatırlatıcısını ayırt eder; ikisi de aynı
          *  ReminderReceiver'ı kullanır ama yalnızca ilaç hatırlatıcıları Reminder

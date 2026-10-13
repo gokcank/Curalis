@@ -54,6 +54,26 @@ class AcknowledgeReminderUseCase @Inject constructor(
     }
 }
 
+/**
+ * Bekleyen tek bir dozu yalnızca o seferlik başka bir zamana yeniden planlar (Medisafe'teki
+ * "Yeniden planla"). Doz planlanan saatinde listede kalır, "bekliyor" durumuna döner ve
+ * hatırlatması [rescheduledToMillis] zamanında gelir; ilacın planı değişmez. Doz henüz
+ * veritabanında yoksa (geçici olarak hesaplanmış bir doz) eklenir.
+ */
+class RescheduleDoseUseCase @Inject constructor(
+    private val repository: ReminderRepository
+) {
+    suspend operator fun invoke(reminder: Reminder, rescheduledToMillis: Long): Reminder {
+        val existing = repository.getReminderById(reminder.id)
+        val updated = (existing ?: reminder).copy(
+            state = ReminderState.SCHEDULED,
+            rescheduledToMillis = rescheduledToMillis
+        )
+        if (existing != null) repository.updateReminder(updated) else repository.insertReminder(updated)
+        return updated
+    }
+}
+
 class GetRemindersForMedicationUseCase @Inject constructor(
     private val repository: ReminderRepository
 ) {

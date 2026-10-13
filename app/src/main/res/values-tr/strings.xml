@@ -361,6 +361,12 @@
     <string name="time_at_label">Saat %1$s%2$s</string>
     <string name="time_at_taken_label">Saat %1$s%2$s • Alındı: %3$s</string>
     <string name="edit_taken_time_action">Alınma saatini düzelt</string>
+    <string name="time_at_rescheduled_label">Saat %1$s%2$s • Yeniden planlandı: %3$s</string>
+    <string name="reschedule_dose_button">Yeniden planla</string>
+    <string name="reschedule_dialog_title">Dozu yeniden planla</string>
+    <string name="reschedule_dialog_desc">Bu dozun hatırlatması seçtiğin zamanda gelir. İlacın planı değişmez.</string>
+    <string name="reschedule_confirm">Yeniden planla</string>
+    <string name="reschedule_past_error">Gelecekte bir zaman seçin.</string>
     <string name="actually_took_it_button">Aslında Aldım</string>
     <string name="took_it_button">Aldım</string>
     <string name="skip_button">Atla</string>

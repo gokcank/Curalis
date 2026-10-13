@@ -359,6 +359,12 @@
     <string name="time_at_label">At %1$s%2$s</string>
     <string name="time_at_taken_label">At %1$s%2$s • Taken: %3$s</string>
     <string name="edit_taken_time_action">Edit time taken</string>
+    <string name="time_at_rescheduled_label">At %1$s%2$s • Rescheduled: %3$s</string>
+    <string name="reschedule_dose_button">Reschedule</string>
+    <string name="reschedule_dialog_title">Reschedule dose</string>
+    <string name="reschedule_dialog_desc">The reminder for this dose comes at the time you choose. The medication\'s schedule doesn\'t change.</string>
+    <string name="reschedule_confirm">Reschedule</string>
+    <string name="reschedule_past_error">Choose a time in the future.</string>
     <string name="actually_took_it_button">I Actually Took It</string>
     <string name="took_it_button">Took It</string>
     <string name="skip_button">Skip</string>

@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.EventAvailable
@@ -42,6 +43,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -67,6 +69,7 @@ import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.presentation.components.DoseTakenTimeDialog
+import com.gokcank.curalis.presentation.components.RescheduleDoseDialog
 import com.gokcank.curalis.presentation.components.EmptyState
 import com.gokcank.curalis.presentation.components.ReminderStateBadge
 import com.gokcank.curalis.presentation.components.SkipReasonDialog
@@ -86,6 +89,7 @@ fun DailyTimelineScreen(
     val selectedDate by viewModel.selectedDate.collectAsState()
     var pendingSkipReminder by remember { mutableStateOf<Reminder?>(null) }
     var pendingTakeReminder by remember { mutableStateOf<Reminder?>(null) }
+    var pendingRescheduleReminder by remember { mutableStateOf<Reminder?>(null) }
     var showBulkSkipDialog by remember { mutableStateOf(false) }
 
     val hasPendingDoses = groupedTimelineItems.values.flatten().any {
@@ -220,6 +224,7 @@ fun DailyTimelineScreen(
                                     // Alınma saatini düzeltmek de aynı "ne zaman aldınız?" penceresiyle
                                     // yapılır; doz zaten alınmış olduğu için yalnızca saati değişir.
                                     onEditTakenTimeClick = { pendingTakeReminder = timelineItem.reminder },
+                                    onRescheduleClick = { pendingRescheduleReminder = timelineItem.reminder },
                                     onSkipClick = { pendingSkipReminder = timelineItem.reminder },
                                     onUnTakeClick = {
                                         viewModel.acknowledgeDose(timelineItem.reminder, ReminderState.SCHEDULED, takenAtMillis = null)
@@ -238,6 +243,17 @@ fun DailyTimelineScreen(
                 onConfirm = { reason ->
                     viewModel.acknowledgeDose(reminder, ReminderState.SKIPPED, reason)
                     pendingSkipReminder = null
+                }
+            )
+        }
+
+        pendingRescheduleReminder?.let { reminder ->
+            RescheduleDoseDialog(
+                initialMillis = reminder.rescheduledToMillis ?: defaultRescheduleMillis(reminder.timeInMillis),
+                onDismiss = { pendingRescheduleReminder = null },
+                onConfirm = { rescheduledToMillis ->
+                    viewModel.rescheduleDose(reminder, rescheduledToMillis)
+                    pendingRescheduleReminder = null
                 }
             )
         }
@@ -379,11 +395,13 @@ fun TimelineCard(
     item: TimelineItem,
     onTakeClick: () -> Unit,
     onEditTakenTimeClick: () -> Unit,
+    onRescheduleClick: () -> Unit,
     onSkipClick: () -> Unit,
     onUnTakeClick: () -> Unit
 ) {
     val med = item.medication
     val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val dayTimeFormat = remember { SimpleDateFormat("d MMM HH:mm", Locale.getDefault()) }
     val formattedTime = timeFormat.format(Date(item.reminder.timeInMillis))
     val takenAtMillis = item.reminder.takenAtMillis
 
@@ -445,8 +463,16 @@ fun TimelineCard(
                             }
                         }
                         val dosageSuffix = med?.dosage?.let { " • $it ${med.unit ?: ""}".trimEnd() } ?: ""
+                        val rescheduledTo = item.reminder.rescheduledToMillis
+                        val isWaiting = item.reminder.state == ReminderState.SCHEDULED ||
+                            item.reminder.state == ReminderState.DELIVERED
                         val timeLine = if (item.reminder.state == ReminderState.TAKEN && takenAtMillis != null) {
                             stringResource(R.string.time_at_taken_label, formattedTime, dosageSuffix, timeFormat.format(Date(takenAtMillis)))
+                        } else if (isWaiting && rescheduledTo != null) {
+                            // Medisafe gibi: doz planlanan saatinde kalır, yanında yeni zamanı yazar.
+                            val sameDay = isSameDay(rescheduledTo, item.reminder.timeInMillis)
+                            val newTime = if (sameDay) timeFormat.format(Date(rescheduledTo)) else dayTimeFormat.format(Date(rescheduledTo))
+                            stringResource(R.string.time_at_rescheduled_label, formattedTime, dosageSuffix, newTime)
                         } else {
                             stringResource(R.string.time_at_label, formattedTime, dosageSuffix)
                         }
@@ -563,7 +589,33 @@ fun TimelineCard(
                         }
                     }
                 }
+                // Erteleme gibi kısa bir süre değil, seçilen bir gün ve saate taşıma.
+                if (item.reminder.state == ReminderState.SCHEDULED || item.reminder.state == ReminderState.DELIVERED) {
+                    TextButton(onClick = onRescheduleClick) {
+                        Icon(
+                            imageVector = Icons.Default.Schedule,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(stringResource(R.string.reschedule_dose_button), style = MaterialTheme.typography.labelLarge)
+                    }
+                }
             }
         }
     }
+}
+
+private fun isSameDay(a: Long, b: Long): Boolean {
+    val ca = java.util.Calendar.getInstance().apply { timeInMillis = a }
+    val cb = java.util.Calendar.getInstance().apply { timeInMillis = b }
+    return ca.get(java.util.Calendar.YEAR) == cb.get(java.util.Calendar.YEAR) &&
+        ca.get(java.util.Calendar.DAY_OF_YEAR) == cb.get(java.util.Calendar.DAY_OF_YEAR)
+}
+
+/** Yeniden planlama penceresinin başlangıç değeri: dozun saati ya da şimdi (hangisi sonraysa) + 30 dk, 5 dakikaya yuvarlanmış. */
+private fun defaultRescheduleMillis(doseMillis: Long): Long {
+    val base = maxOf(doseMillis, System.currentTimeMillis()) + 30 * 60 * 1000L
+    val step = 5 * 60 * 1000L
+    return ((base + step - 1) / step) * step
 }
