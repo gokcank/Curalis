@@ -45,6 +45,8 @@
     <string name="my_medications">My Medications</string>
     <string name="add_medication">Save Medication</string>
     <string name="edit_medication">Edit Medication</string>
+    <string name="show_details">Show details</string>
+    <string name="hide_details">Hide details</string>
     <string name="medication_name">Medication Name</string>
     <string name="medication_list_search_hint">Search by name, active ingredient or barcode</string>
     <string name="medication_dosage">Dosage (e.g. 500)</string>
