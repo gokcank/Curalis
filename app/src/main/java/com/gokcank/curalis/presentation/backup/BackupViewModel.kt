@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.ReminderRescheduler
 import com.gokcank.curalis.core.security.BackupCrypto
+import com.gokcank.curalis.data.backup.DriveAccountPreferences
 import com.gokcank.curalis.data.backup.GoogleDriveManagerFactory
 import com.gokcank.curalis.domain.repository.BackupManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,11 +25,34 @@ class BackupViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val backupManager: BackupManager,
     private val googleDriveManagerFactory: GoogleDriveManagerFactory,
-    private val reminderRescheduler: ReminderRescheduler
+    private val reminderRescheduler: ReminderRescheduler,
+    private val driveAccountPreferences: DriveAccountPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BackupUiState>(BackupUiState.Idle)
     val uiState: StateFlow<BackupUiState> = _uiState.asStateFlow()
+
+    /** Drive yedeği için bağlanılan hesap; bağlı değilse null. */
+    private val _driveAccountEmail = MutableStateFlow(driveAccountPreferences.connectedEmail)
+    val driveAccountEmail: StateFlow<String?> = _driveAccountEmail.asStateFlow()
+
+    /** Kullanıcı Drive iznini verdikten sonra, iznin hangi hesaba verildiğini öğrenip saklar. */
+    fun connectDrive(accessToken: String) {
+        viewModelScope.launch {
+            val email = googleDriveManagerFactory.create(accessToken).fetchAccountEmail()
+            if (email == null) {
+                _uiState.value = BackupUiState.Error(str(R.string.drive_connect_failed))
+                return@launch
+            }
+            driveAccountPreferences.connectedEmail = email
+            _driveAccountEmail.value = email
+        }
+    }
+
+    fun disconnectDrive() {
+        driveAccountPreferences.connectedEmail = null
+        _driveAccountEmail.value = null
+    }
 
     private fun str(resId: Int, vararg args: Any): String = appContext.getString(resId, *args)
 
@@ -114,13 +138,13 @@ class BackupViewModel @Inject constructor(
         }
     }
 
-    fun uploadToGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount, password: String) {
+    fun uploadToGoogleDrive(accessToken: String, password: String) {
         viewModelScope.launch {
             _uiState.value = BackupUiState.Loading(str(R.string.backup_uploading_to_drive))
             try {
                 val jsonString = backupManager.exportData()
                 val encrypted = BackupCrypto.encrypt(jsonString, password)
-                val driveManager = googleDriveManagerFactory.create(account)
+                val driveManager = googleDriveManagerFactory.create(accessToken)
 
                 val success = driveManager.uploadBackupToDrive(encrypted, "curalis_drive_backup.json")
                 if (success) {
@@ -135,11 +159,11 @@ class BackupViewModel @Inject constructor(
         }
     }
 
-    fun downloadFromGoogleDrive(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount, password: String) {
+    fun downloadFromGoogleDrive(accessToken: String, password: String) {
         viewModelScope.launch {
             _uiState.value = BackupUiState.Loading(str(R.string.backup_downloading_from_drive))
             try {
-                val driveManager = googleDriveManagerFactory.create(account)
+                val driveManager = googleDriveManagerFactory.create(accessToken)
                 val fileContent = driveManager.downloadBackupFromDrive("curalis_drive_backup.json")
 
                 if (fileContent.isNullOrBlank()) {
