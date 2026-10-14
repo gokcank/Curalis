@@ -2,6 +2,24 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.4.1] — versionCode 11
+
+Fixes found while trying 1.4.0 on a phone.
+
+- **PDF report language** — the report options ask for Turkish or English, defaulting to
+  the app's language. Frequencies and measurement types now show their names instead of
+  internal codes such as DAILY.
+- A dose's taken time can no longer be set in the future, which could wrongly mark it as
+  taken late. "On time" is only offered once the dose is due, and for a rescheduled dose it
+  means its new time.
+- The home screen's monthly adherence updates while the screen is open; doses answered
+  after opening it used to be ignored until the app was reopened.
+- Ending the treatment, suspending or deleting a medication also closes its reminder that
+  is still in the notification shade.
+- With large font sizes the timeline's "Taken: …" time wraps instead of being cut off, and
+  the source label on medication cards is shortened to "Verified" / "Manual".
+- CI: the Gradle wrapper validation step no longer times out.
+
 ## [1.4.0] — versionCode 10
 
 Changes since 1.3.2 (versionCode 9).
