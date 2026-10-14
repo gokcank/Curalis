@@ -754,4 +754,47 @@
     <string name="onboarding_permission_granted">Enabled</string>
     <string name="onboarding_continue">Continue</string>
     <string name="onboarding_start">Get Started</string>
+    <!-- PDF report: produced in the language chosen when the report is created (see ReportLanguage). -->
+    <string name="pdf_share_chooser_title">Curalis Health Report (PDF)</string>
+    <string name="pdf_share_error">Error: the PDF report could not be shared</string>
+    <string name="pdf_file_name">Curalis_Health_Report.pdf</string>
+    <string name="pdf_title">CURALIS HEALTH &amp; MEDICATION ADHERENCE REPORT</string>
+    <string name="pdf_generated_at">Report generated: %1$s</string>
+    <string name="pdf_footer">This report was generated securely on the device by Curalis Health Assistant. — Page %1$d</string>
+    <string name="pdf_datetime_pattern">d MMMM yyyy, HH:mm</string>
+    <string name="pdf_date_pattern">d MMM yyyy</string>
+    <string name="pdf_date_time_short_pattern">d MMM yyyy HH:mm</string>
+    <string name="pdf_section_adherence">%1$d. Medication Adherence Summary</string>
+    <string name="pdf_range">• Report period: %1$s – %2$s</string>
+    <string name="pdf_totals">• Total doses: %1$d | Taken: %2$s | Skipped: %3$d | Missed: %4$d</string>
+    <string name="pdf_taken_with_late">%1$d (late: %2$d)</string>
+    <string name="pdf_overall_adherence">• Overall adherence: %1$s</string>
+    <string name="pdf_percent">%1$d%%</string>
+    <string name="pdf_per_medication_title">Doses by Medication</string>
+    <string name="pdf_col_medication">Medication</string>
+    <string name="pdf_col_taken">Taken</string>
+    <string name="pdf_col_late">Late</string>
+    <string name="pdf_col_skipped">Skipped</string>
+    <string name="pdf_col_missed">Missed</string>
+    <string name="pdf_col_adherence">Adherence</string>
+    <string name="pdf_col_avg_delay">Avg. delay</string>
+    <string name="pdf_late_footnote">Late: doses taken more than %1$s after their scheduled time; they count as half a dose in adherence.</string>
+    <string name="pdf_threshold_hours">%1$d h</string>
+    <string name="pdf_threshold_minutes">%1$d min</string>
+    <string name="pdf_delay_footnote">Avg. delay: how long after the scheduled time doses with a recorded taken time were taken, on average (early doses count as 0).</string>
+    <string name="pdf_duration_minutes">%1$d min</string>
+    <string name="pdf_duration_hours">%1$d h</string>
+    <string name="pdf_duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="pdf_section_cabinet">%1$d. Medication List (%2$d)</string>
+    <string name="pdf_col_name">Medication</string>
+    <string name="pdf_col_form_dose">Form &amp; Dose</string>
+    <string name="pdf_col_frequency">Frequency</string>
+    <string name="pdf_col_stock">Stock Left</string>
+    <string name="pdf_no_medications">No medications recorded.</string>
+    <plurals name="pdf_stock_doses">
+        <item quantity="one">%1$d dose</item>
+        <item quantity="other">%1$d doses</item>
+    </plurals>
+    <string name="pdf_section_vitals">%1$d. Recent Measurements (%2$d)</string>
+    <string name="report_language_label">Report language</string>
 </resources>

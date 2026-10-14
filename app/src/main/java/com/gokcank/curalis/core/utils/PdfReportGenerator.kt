@@ -2,6 +2,7 @@ package com.gokcank.curalis.core.utils
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -11,12 +12,15 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.gokcank.curalis.core.notification.NotificationPreferences
+import com.gokcank.curalis.R
+import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Vital
 import com.gokcank.curalis.domain.repository.MedicationRepository
 import com.gokcank.curalis.domain.repository.VitalRepository
 import com.gokcank.curalis.domain.usecase.DoseAdherence
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
+import com.gokcank.curalis.presentation.vital.displayNameRes
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -34,6 +38,16 @@ import javax.inject.Singleton
 @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
 interface PdfReportGeneratorEntryPoint {
     fun pdfReportGenerator(): PdfReportGenerator
+}
+
+/** PDF raporunun dili; rapor oluşturulurken seçilir, varsayılanı uygulamanın dili. */
+enum class ReportLanguage(val locale: Locale) {
+    TURKISH(Locale.forLanguageTag("tr")),
+    ENGLISH(Locale.ENGLISH);
+
+    companion object {
+        fun forLocale(locale: Locale): ReportLanguage = if (locale.language == "tr") TURKISH else ENGLISH
+    }
 }
 
 /** Rapor önizlemesinde gösterilen özet rozeti için hesaplanan uyum istatistikleri. */
@@ -74,7 +88,8 @@ class PdfReportGenerator @Inject constructor(
         medicationIds: Set<String>? = null,
         includeAdherenceSummary: Boolean = true,
         includeMedicationList: Boolean = true,
-        includeVitals: Boolean = true
+        includeVitals: Boolean = true,
+        language: ReportLanguage = ReportLanguage.forLocale(Locale.getDefault())
     ): ReportResult = withContext(Dispatchers.IO) {
         val medicationsDeferred = async { medicationRepository.getAllMedications().firstOrNull() ?: emptyList() }
         val vitalsDeferred = async { vitalRepository.getAllVitals().firstOrNull() ?: emptyList() }
@@ -109,7 +124,8 @@ class PdfReportGenerator @Inject constructor(
             rangeStartMillis = startMillis,
             rangeEndMillis = endMillis,
             includeAdherenceSummary = includeAdherenceSummary,
-            includeMedicationList = includeMedicationList
+            includeMedicationList = includeMedicationList,
+            language = language
         )
 
         ReportResult(
@@ -132,13 +148,13 @@ class PdfReportGenerator @Inject constructor(
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            val chooser = Intent.createChooser(shareIntent, "Curalis Sağlık Raporu (PDF)").apply {
+            val chooser = Intent.createChooser(shareIntent, activityContext.getString(R.string.pdf_share_chooser_title)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             activityContext.startActivity(chooser)
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(activityContext, "Hata: PDF raporu paylaşılamadı", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activityContext, activityContext.getString(R.string.pdf_share_error), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -152,9 +168,22 @@ class PdfReportGenerator @Inject constructor(
         rangeStartMillis: Long = System.currentTimeMillis() - (30L * 24 * 3600 * 1000),
         rangeEndMillis: Long = System.currentTimeMillis(),
         includeAdherenceSummary: Boolean = true,
-        includeMedicationList: Boolean = true
+        includeMedicationList: Boolean = true,
+        language: ReportLanguage = ReportLanguage.TURKISH
     ): File {
         val pdfDocument = PdfDocument()
+        // Rapor metinleri uygulamanın değil, seçilen rapor dilinin kaynaklarından okunur.
+        val res = context.createConfigurationContext(
+            Configuration(context.resources.configuration).apply { setLocale(language.locale) }
+        ).resources
+        val locale = language.locale
+        fun percent(value: Int?): String = value?.let { res.getString(R.string.pdf_percent, it) } ?: "—"
+        fun delay(minutes: Int?): String = when {
+            minutes == null -> "—"
+            minutes < 60 -> res.getString(R.string.pdf_duration_minutes, minutes)
+            minutes % 60 == 0 -> res.getString(R.string.pdf_duration_hours, minutes / 60)
+            else -> res.getString(R.string.pdf_duration_hours_minutes, minutes / 60, minutes % 60)
+        }
 
         val titlePaint = Paint().apply {
             color = Color.parseColor("#006A6A")
@@ -200,7 +229,7 @@ class PdfReportGenerator @Inject constructor(
 
         fun finishPage() {
             canvas.drawText(
-                "Bu rapor Curalis Sağlık Asistanı tarafından cihaz üzerinde güvenle üretilmiştir. — Sayfa $pageNumber",
+                res.getString(R.string.pdf_footer, pageNumber),
                 40f, FOOTER_Y, bodyPaint
             )
             pdfDocument.finishPage(page)
@@ -218,50 +247,61 @@ class PdfReportGenerator @Inject constructor(
         var sectionNumber = 1
 
         // Title & Header
-        canvas.drawText("CURALİS SAĞLIK & İLAÇ UYUM RAPORU", 40f, y, titlePaint)
+        canvas.drawText(res.getString(R.string.pdf_title), 40f, y, titlePaint)
         y += 24f
 
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.forLanguageTag("tr"))
+        val dateFormat = SimpleDateFormat(res.getString(R.string.pdf_datetime_pattern), locale)
         val currentDateStr = dateFormat.format(Date())
-        canvas.drawText("Rapor Oluşturma Tarihi: $currentDateStr", 40f, y, bodyPaint)
+        canvas.drawText(res.getString(R.string.pdf_generated_at, currentDateStr), 40f, y, bodyPaint)
         y += 18f
         canvas.drawLine(40f, y, 555f, y, linePaint)
         y += 20f
 
         // Adherence Section
         if (includeAdherenceSummary && overall != null) {
-            val takenText = if (overall.late > 0) "${overall.taken} (${overall.late} geç)" else "${overall.taken}"
+            val takenText = if (overall.late > 0) {
+                res.getString(R.string.pdf_taken_with_late, overall.taken, overall.late)
+            } else {
+                "${overall.taken}"
+            }
 
-            val rangeDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.forLanguageTag("tr"))
-            canvas.drawText("${sectionNumber++}. İlaç Kullanım Uyum Özet İstatistiği", 40f, y, subTitlePaint)
+            val rangeDateFormat = SimpleDateFormat(res.getString(R.string.pdf_date_pattern), locale)
+            canvas.drawText(res.getString(R.string.pdf_section_adherence, sectionNumber++), 40f, y, subTitlePaint)
             y += 18f
             canvas.drawText(
-                "• Rapor Aralığı: ${rangeDateFormat.format(Date(rangeStartMillis))} – ${rangeDateFormat.format(Date(rangeEndMillis))}",
+                res.getString(
+                    R.string.pdf_range,
+                    rangeDateFormat.format(Date(rangeStartMillis)),
+                    rangeDateFormat.format(Date(rangeEndMillis))
+                ),
                 40f, y, bodyPaint
             )
             y += 16f
-            canvas.drawText("• Toplam İlaç Vakti: ${overall.total} | Alınan: $takenText | Atlanan: ${overall.skipped} | Kaçırılan: ${overall.missed}", 40f, y, bodyPaint)
+            canvas.drawText(
+                res.getString(R.string.pdf_totals, overall.total, takenText, overall.skipped, overall.missed),
+                40f, y, bodyPaint
+            )
             y += 16f
             // Geç alınan doz yarım sayılır (bkz. DoseAdherence); değerlendirilecek doz yoksa oran yazılmaz.
-            canvas.drawText("• Genel İlaç Uyum Oranı: ${overall.percentage?.let { "%$it" } ?: "—"}", 40f, y, bodyPaint)
+            canvas.drawText(res.getString(R.string.pdf_overall_adherence, percent(overall.percentage)), 40f, y, bodyPaint)
             y += 20f
 
             if (medicationSummaries.isNotEmpty()) {
                 fun drawSummaryHeader() {
-                    canvas.drawText("İlaç", 40f, y, tableHeaderPaint)
-                    canvas.drawText("Alınan", 230f, y, tableHeaderPaint)
-                    canvas.drawText("Geç", 280f, y, tableHeaderPaint)
-                    canvas.drawText("Atlanan", 315f, y, tableHeaderPaint)
-                    canvas.drawText("Kaçırılan", 370f, y, tableHeaderPaint)
-                    canvas.drawText("Uyum", 435f, y, tableHeaderPaint)
-                    canvas.drawText("Ort. Gecikme", 480f, y, tableHeaderPaint)
+                    canvas.drawText(res.getString(R.string.pdf_col_medication), 40f, y, tableHeaderPaint)
+                    canvas.drawText(res.getString(R.string.pdf_col_taken), COL_TAKEN, y, tableHeaderPaint)
+                    canvas.drawText(res.getString(R.string.pdf_col_late), COL_LATE, y, tableHeaderPaint)
+                    canvas.drawText(res.getString(R.string.pdf_col_skipped), COL_SKIPPED, y, tableHeaderPaint)
+                    canvas.drawText(res.getString(R.string.pdf_col_missed), COL_MISSED, y, tableHeaderPaint)
+                    canvas.drawText(res.getString(R.string.pdf_col_adherence), COL_ADHERENCE, y, tableHeaderPaint)
+                    canvas.drawText(res.getString(R.string.pdf_col_avg_delay), COL_DELAY, y, tableHeaderPaint)
                     y += 6f
                     canvas.drawLine(40f, y, 555f, y, linePaint)
                     y += 14f
                 }
 
                 ensureSpace(60f)
-                canvas.drawText("İlaç Bazında Doz Özeti", 40f, y, tableHeaderPaint)
+                canvas.drawText(res.getString(R.string.pdf_per_medication_title), 40f, y, tableHeaderPaint)
                 y += 16f
                 drawSummaryHeader()
                 medicationSummaries.forEach { (name, summary) ->
@@ -271,23 +311,30 @@ class PdfReportGenerator @Inject constructor(
                         drawSummaryHeader()
                     }
                     canvas.drawText(name.take(32), 40f, y, bodyPaint)
-                    canvas.drawText("${summary.taken}", 230f, y, bodyPaint)
-                    canvas.drawText("${summary.late}", 280f, y, bodyPaint)
-                    canvas.drawText("${summary.skipped}", 315f, y, bodyPaint)
-                    canvas.drawText("${summary.missed}", 370f, y, bodyPaint)
-                    canvas.drawText(summary.percentage?.let { "%$it" } ?: "—", 435f, y, bodyPaint)
-                    canvas.drawText(formatDelay(summary.averageDelayMinutes), 480f, y, bodyPaint)
+                    canvas.drawText("${summary.taken}", COL_TAKEN, y, bodyPaint)
+                    canvas.drawText("${summary.late}", COL_LATE, y, bodyPaint)
+                    canvas.drawText("${summary.skipped}", COL_SKIPPED, y, bodyPaint)
+                    canvas.drawText("${summary.missed}", COL_MISSED, y, bodyPaint)
+                    canvas.drawText(percent(summary.percentage), COL_ADHERENCE, y, bodyPaint)
+                    canvas.drawText(delay(summary.averageDelayMinutes), COL_DELAY, y, bodyPaint)
                     y += 16f
                 }
                 ensureSpace(28f)
                 y += 2f
                 canvas.drawText(
-                    "Geç: planlanan saatinden ${formatThresholdAblative(lateThresholdMinutes)} fazla sonra alınan dozlar; uyum oranına yarım doz olarak girer.",
+                    res.getString(
+                        R.string.pdf_late_footnote,
+                        if (lateThresholdMinutes % 60 == 0) {
+                            res.getString(R.string.pdf_threshold_hours, lateThresholdMinutes / 60)
+                        } else {
+                            res.getString(R.string.pdf_threshold_minutes, lateThresholdMinutes)
+                        }
+                    ),
                     40f, y, notePaint
                 )
                 y += 12f
                 canvas.drawText(
-                    "Ort. Gecikme: alınma saati kayıtlı dozların planlanan saatten ortalama ne kadar sonra alındığı (erken alınanlar 0 sayılır).",
+                    res.getString(R.string.pdf_delay_footnote),
                     40f, y, notePaint
                 )
                 y += 8f
@@ -301,28 +348,40 @@ class PdfReportGenerator @Inject constructor(
         // Medication Cabinet List
         if (includeMedicationList) {
             ensureSpace(60f)
-            canvas.drawText("${sectionNumber++}. Mevcut İlaç Dolabı Listesi (${medications.size} Kayıtlı İlaç)", 40f, y, subTitlePaint)
+            canvas.drawText(res.getString(R.string.pdf_section_cabinet, sectionNumber++, medications.size), 40f, y, subTitlePaint)
             y += 20f
 
-            canvas.drawText("İlaç Adı", 40f, y, subTitlePaint)
-            canvas.drawText("Form & Doz", 190f, y, subTitlePaint)
-            canvas.drawText("Sıklık", 340f, y, subTitlePaint)
-            canvas.drawText("Kalan Stok", 470f, y, subTitlePaint)
+            canvas.drawText(res.getString(R.string.pdf_col_name), 40f, y, subTitlePaint)
+            canvas.drawText(res.getString(R.string.pdf_col_form_dose), 190f, y, subTitlePaint)
+            canvas.drawText(res.getString(R.string.pdf_col_frequency), 340f, y, subTitlePaint)
+            canvas.drawText(res.getString(R.string.pdf_col_stock), 470f, y, subTitlePaint)
             y += 8f
             canvas.drawLine(40f, y, 555f, y, linePaint)
             y += 16f
 
             if (medications.isEmpty()) {
-                canvas.drawText("Kayıtlı ilaç bulunmamaktadır.", 40f, y, bodyPaint)
+                canvas.drawText(res.getString(R.string.pdf_no_medications), 40f, y, bodyPaint)
                 y += 20f
             } else {
                 medications.forEach { med ->
                     ensureSpace(18f)
                     canvas.drawText(med.name.take(20), 40f, y, bodyPaint)
                     val dosageStr = listOfNotNull(med.dosage, med.unit).joinToString(" ")
-                    canvas.drawText("${med.formType.displayNameTr} $dosageStr".take(22), 190f, y, bodyPaint)
-                    canvas.drawText(med.frequencyType.name, 340f, y, bodyPaint)
-                    val stockText = if (med.isRefillReminderEnabled && med.currentStock != null) "${med.currentStock} Doz" else "-"
+                    val formName = if (language == ReportLanguage.TURKISH) med.formType.displayNameTr else med.formType.displayNameEn
+                    canvas.drawText("$formName $dosageStr".take(22), 190f, y, bodyPaint)
+                    val frequency = when (med.frequencyType) {
+                        FrequencyType.DAILY -> res.getString(R.string.freq_every_day_chip)
+                        FrequencyType.SPECIFIC_DAYS -> res.getString(R.string.freq_specific_days_chip)
+                        FrequencyType.INTERVAL -> res.getString(R.string.freq_every_x_days_chip, med.intervalDays ?: 2)
+                        FrequencyType.CYCLIC -> res.getString(R.string.freq_cyclic_chip, med.activeDays ?: 21, med.restDays ?: 7)
+                        FrequencyType.AS_NEEDED -> res.getString(R.string.freq_as_needed_chip)
+                    }
+                    canvas.drawText(frequency.take(22), 340f, y, bodyPaint)
+                    val stockText = if (med.isRefillReminderEnabled && med.currentStock != null) {
+                        res.getQuantityString(R.plurals.pdf_stock_doses, med.currentStock, med.currentStock)
+                    } else {
+                        "-"
+                    }
                     canvas.drawText(stockText, 470f, y, bodyPaint)
                     y += 18f
                 }
@@ -336,13 +395,13 @@ class PdfReportGenerator @Inject constructor(
         // Vitals History Section
         if (vitals.isNotEmpty()) {
             ensureSpace(60f)
-            canvas.drawText("${sectionNumber++}. Son Ölçümler Geçmişi (${vitals.size} Ölçüm)", 40f, y, subTitlePaint)
+            canvas.drawText(res.getString(R.string.pdf_section_vitals, sectionNumber++, vitals.size), 40f, y, subTitlePaint)
             y += 20f
             vitals.take(8).forEach { vital ->
                 ensureSpace(16f)
-                val vDateStr = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date(vital.timeInMillis))
+                val vDateStr = SimpleDateFormat(res.getString(R.string.pdf_date_time_short_pattern), locale).format(Date(vital.timeInMillis))
                 val valStr = if (vital.value2 != null) "${vital.value1} / ${vital.value2}" else "${vital.value1}"
-                canvas.drawText("• ${vital.type.name}: $valStr ${vital.unit} ($vDateStr)", 40f, y, bodyPaint)
+                canvas.drawText("• ${res.getString(vital.type.displayNameRes())}: $valStr ${vital.unit} ($vDateStr)", 40f, y, bodyPaint)
                 y += 16f
             }
             y += 10f
@@ -352,7 +411,7 @@ class PdfReportGenerator @Inject constructor(
 
         finishPage()
 
-        val reportFile = File(context.cacheDir, "Curalis_Saglik_Raporu.pdf")
+        val reportFile = File(context.cacheDir, res.getString(R.string.pdf_file_name))
         FileOutputStream(reportFile).use { out ->
             pdfDocument.writeTo(out)
         }
@@ -361,18 +420,6 @@ class PdfReportGenerator @Inject constructor(
         return reportFile
     }
 
-    /** "25 dk", "1 sa", "2 sa 10 dk"; değer yoksa "—". */
-    private fun formatDelay(minutes: Int?): String = when {
-        minutes == null -> "—"
-        minutes < 60 -> "$minutes dk"
-        minutes % 60 == 0 -> "${minutes / 60} sa"
-        else -> "${minutes / 60} sa ${minutes % 60} dk"
-    }
-
-    /** Dipnot için: "30 dakikadan", "1 saatten", "2 saatten". */
-    private fun formatThresholdAblative(minutes: Int): String =
-        if (minutes % 60 == 0) "${minutes / 60} saatten" else "$minutes dakikadan"
-
     private companion object {
         // A4, 72 dpi
         const val PAGE_WIDTH = 595
@@ -380,5 +427,14 @@ class PdfReportGenerator @Inject constructor(
         const val FOOTER_Y = 800f
         /** Bu çizginin altına içerik yazılmaz; altbilgiye yer kalır. */
         const val CONTENT_BOTTOM = 780f
+
+        // İlaç başına özet tablosunun sütunları; İngilizce başlıklar daha uzun olduğu için
+        // uyum ve gecikme sütunları sağa alındı.
+        const val COL_TAKEN = 230f
+        const val COL_LATE = 280f
+        const val COL_SKIPPED = 315f
+        const val COL_MISSED = 370f
+        const val COL_ADHERENCE = 425f
+        const val COL_DELAY = 490f
     }
 }

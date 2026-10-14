@@ -350,7 +350,7 @@ fun MedicationListScreen(
         com.gokcank.curalis.presentation.components.ReportOptionsDialog(
             medications = activeMedications + archivedMedications,
             onDismiss = { showReportOptionsDialog = false },
-            onConfirm = { start, end, medicationId, includeAdherence, includeMedList, includeVitals ->
+            onConfirm = { start, end, medicationId, includeAdherence, includeMedList, includeVitals, language ->
                 showReportOptionsDialog = false
                 scope.launch {
                     val result = pdfReportGenerator.generateReport(
@@ -359,7 +359,8 @@ fun MedicationListScreen(
                         medicationIds = medicationId?.let { setOf(it) },
                         includeAdherenceSummary = includeAdherence,
                         includeMedicationList = includeMedList,
-                        includeVitals = includeVitals
+                        includeVitals = includeVitals,
+                        language = language
                     )
                     pdfPreviewFile = result.file
                     reportSummary = result.summary

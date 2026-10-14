@@ -84,6 +84,13 @@ android {
         compose = true
         buildConfig = true
     }
+    // PDF raporu, uygulamanın dilinden bağımsız olarak Türkçe ya da İngilizce üretilebiliyor;
+    // bir App Bundle'dan kurulursa iki dilin kaynakları da cihazda bulunmalı.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
