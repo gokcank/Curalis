@@ -757,4 +757,47 @@
     <string name="onboarding_permission_granted">Etkin</string>
     <string name="onboarding_continue">Devam Et</string>
     <string name="onboarding_start">Başlayalım</string>
+    <!-- PDF raporu: rapor oluşturulurken seçilen dilde üretilir (bkz. ReportLanguage). -->
+    <string name="pdf_share_chooser_title">Curalis Sağlık Raporu (PDF)</string>
+    <string name="pdf_share_error">Hata: PDF raporu paylaşılamadı</string>
+    <string name="pdf_file_name">Curalis_Saglik_Raporu.pdf</string>
+    <string name="pdf_title">CURALİS SAĞLIK &amp; İLAÇ UYUM RAPORU</string>
+    <string name="pdf_generated_at">Rapor Oluşturma Tarihi: %1$s</string>
+    <string name="pdf_footer">Bu rapor Curalis Sağlık Asistanı tarafından cihaz üzerinde güvenle üretilmiştir. — Sayfa %1$d</string>
+    <string name="pdf_datetime_pattern">dd MMMM yyyy, HH:mm</string>
+    <string name="pdf_date_pattern">dd.MM.yyyy</string>
+    <string name="pdf_date_time_short_pattern">dd.MM.yyyy HH:mm</string>
+    <string name="pdf_section_adherence">%1$d. İlaç Kullanım Uyum Özet İstatistiği</string>
+    <string name="pdf_range">• Rapor Aralığı: %1$s – %2$s</string>
+    <string name="pdf_totals">• Toplam İlaç Vakti: %1$d | Alınan: %2$s | Atlanan: %3$d | Kaçırılan: %4$d</string>
+    <string name="pdf_taken_with_late">%1$d (geç: %2$d)</string>
+    <string name="pdf_overall_adherence">• Genel İlaç Uyum Oranı: %1$s</string>
+    <string name="pdf_percent">%%%1$d</string>
+    <string name="pdf_per_medication_title">İlaç Bazında Doz Özeti</string>
+    <string name="pdf_col_medication">İlaç</string>
+    <string name="pdf_col_taken">Alınan</string>
+    <string name="pdf_col_late">Geç</string>
+    <string name="pdf_col_skipped">Atlanan</string>
+    <string name="pdf_col_missed">Kaçırılan</string>
+    <string name="pdf_col_adherence">Uyum</string>
+    <string name="pdf_col_avg_delay">Ort. Gecikme</string>
+    <string name="pdf_late_footnote">Geç: planlanan saatinden %1$s fazla sonra alınan dozlar; uyum oranına yarım doz olarak girer.</string>
+    <string name="pdf_threshold_hours">%1$d saatten</string>
+    <string name="pdf_threshold_minutes">%1$d dakikadan</string>
+    <string name="pdf_delay_footnote">Ort. Gecikme: alınma saati kayıtlı dozların planlanan saatten ortalama ne kadar sonra alındığı (erken alınanlar 0 sayılır).</string>
+    <string name="pdf_duration_minutes">%1$d dk</string>
+    <string name="pdf_duration_hours">%1$d sa</string>
+    <string name="pdf_duration_hours_minutes">%1$d sa %2$d dk</string>
+    <string name="pdf_section_cabinet">%1$d. Mevcut İlaç Dolabı Listesi (%2$d Kayıtlı İlaç)</string>
+    <string name="pdf_col_name">İlaç Adı</string>
+    <string name="pdf_col_form_dose">Form &amp; Doz</string>
+    <string name="pdf_col_frequency">Sıklık</string>
+    <string name="pdf_col_stock">Kalan Stok</string>
+    <string name="pdf_no_medications">Kayıtlı ilaç bulunmamaktadır.</string>
+    <plurals name="pdf_stock_doses">
+        <item quantity="one">%1$d Doz</item>
+        <item quantity="other">%1$d Doz</item>
+    </plurals>
+    <string name="pdf_section_vitals">%1$d. Son Ölçümler Geçmişi (%2$d Ölçüm)</string>
+    <string name="report_language_label">Rapor dili</string>
 </resources>

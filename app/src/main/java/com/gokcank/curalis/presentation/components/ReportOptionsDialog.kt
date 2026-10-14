@@ -13,6 +13,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -25,11 +26,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.utils.ReportLanguage
 import com.gokcank.curalis.domain.model.Medication
 import java.util.Calendar
 
@@ -48,7 +51,8 @@ fun ReportOptionsDialog(
         medicationId: String?,
         includeAdherenceSummary: Boolean,
         includeMedicationList: Boolean,
-        includeVitals: Boolean
+        includeVitals: Boolean,
+        language: ReportLanguage
     ) -> Unit
 ) {
     var showCustomRangePicker by remember { mutableStateOf(false) }
@@ -60,8 +64,8 @@ fun ReportOptionsDialog(
             medications = medications,
             onBack = { selectedRange = null },
             onDismiss = onDismiss,
-            onConfirm = { medicationId, includeAdherence, includeMedList, includeVitals ->
-                onConfirm(start, end, medicationId, includeAdherence, includeMedList, includeVitals)
+            onConfirm = { medicationId, includeAdherence, includeMedList, includeVitals, language ->
+                onConfirm(start, end, medicationId, includeAdherence, includeMedList, includeVitals, language)
             }
         )
         return
@@ -144,10 +148,14 @@ private fun ReportContentOptionsDialog(
         medicationId: String?,
         includeAdherenceSummary: Boolean,
         includeMedicationList: Boolean,
-        includeVitals: Boolean
+        includeVitals: Boolean,
+        language: ReportLanguage
     ) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    // Rapor bir doktora verilebileceği için dili uygulamanın dilinden ayrı seçilebilir.
+    val appLanguage = ReportLanguage.forLocale(LocalConfiguration.current.locales[0])
+    var language by remember { mutableStateOf(appLanguage) }
     var selectedMedicationId by remember { mutableStateOf<String?>(null) }
     var includeAdherence by remember { mutableStateOf(true) }
     var includeMedList by remember { mutableStateOf(true) }
@@ -195,11 +203,28 @@ private fun ReportContentOptionsDialog(
                     ContentCheckboxRow(stringResource(R.string.medication_cabinet_list_checkbox), includeMedList) { includeMedList = it }
                     ContentCheckboxRow(stringResource(R.string.vitals_history_checkbox), includeVitals) { includeVitals = it }
                 }
+
+                Column(modifier = Modifier.padding(top = 12.dp)) {
+                    Text(stringResource(R.string.report_language_label), style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        // Dil adları her dilde kendi adıyla yazılır.
+                        FilterChip(
+                            selected = language == ReportLanguage.TURKISH,
+                            onClick = { language = ReportLanguage.TURKISH },
+                            label = { Text("Türkçe") }
+                        )
+                        FilterChip(
+                            selected = language == ReportLanguage.ENGLISH,
+                            onClick = { language = ReportLanguage.ENGLISH },
+                            label = { Text("English") }
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(selectedMedicationId, includeAdherence, includeMedList, includeVitals) },
+                onClick = { onConfirm(selectedMedicationId, includeAdherence, includeMedList, includeVitals, language) },
                 enabled = includeAdherence || includeMedList || includeVitals
             ) {
                 Text(stringResource(R.string.generate_report_button))
