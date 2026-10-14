@@ -367,10 +367,10 @@
     <string name="previous_week_desc">Önceki hafta</string>
     <string name="next_week_desc">Sonraki hafta</string>
     <string name="placebo_badge">Plasebo</string>
-    <string name="time_at_label">Saat %1$s%2$s</string>
-    <string name="time_at_taken_label">Saat %1$s%2$s • Alındı: %3$s</string>
+    <string name="time_at_label">Saat\u00A0%1$s%2$s</string>
+    <string name="time_at_taken_label">Saat\u00A0%1$s%2$s • Alındı:\u00A0%3$s</string>
     <string name="edit_taken_time_action">Alınma saatini düzelt</string>
-    <string name="time_at_rescheduled_label">Saat %1$s%2$s • Yeniden planlandı: %3$s</string>
+    <string name="time_at_rescheduled_label">Saat\u00A0%1$s%2$s • Yeniden\u00A0planlandı:\u00A0%3$s</string>
     <string name="reschedule_dose_button">Yeniden planla</string>
     <string name="reschedule_dialog_title">Dozu yeniden planla</string>
     <string name="reschedule_dialog_desc">Bu dozun hatırlatması seçtiğin zamanda gelir. İlacın planı değişmez.</string>
@@ -538,8 +538,10 @@
     <string name="suspended_chip_label">Askıya Alındı</string>
     <string name="treatment_days_remaining_chip">Tedavi: %1$d gün kaldı</string>
     <string name="treatment_ended_chip">Tedavi süresi doldu</string>
-    <string name="verified_source_chip">Doğrulanmış Kaynak</string>
-    <string name="manually_entered_chip">Elle Girildi</string>
+    <string name="verified_source_chip">Doğrulanmış</string>
+    <string name="verified_source_desc">Doğrulanmış kaynak</string>
+    <string name="manually_entered_chip">Elle</string>
+    <string name="manually_entered_desc">Elle girildi</string>
     <string name="freq_every_day_chip">Her Gün</string>
     <string name="freq_specific_days_chip">Belirli Günler</string>
     <string name="freq_every_x_days_chip">%1$d Günde 1</string>

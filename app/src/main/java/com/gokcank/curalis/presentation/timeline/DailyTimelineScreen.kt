@@ -485,12 +485,11 @@ fun TimelineCard(
                                     onClick = onEditTakenTimeClick
                                 )
                             ) {
+                                // Büyük yazı boyutunda saat kesilmesin diye satır alt satıra iner.
                                 Text(
                                     text = timeLine,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.primary,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f, fill = false)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -505,9 +504,7 @@ fun TimelineCard(
                             Text(
                                 text = timeLine,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
