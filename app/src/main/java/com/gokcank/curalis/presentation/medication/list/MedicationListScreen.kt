@@ -79,6 +79,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -508,9 +510,14 @@ fun MedicationItem(
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer
                     )
 
+                    // Kartta kısa etiket; ekran okuyucu tam adını okur.
+                    val sourceDescription = stringResource(
+                        if (medication.isVerifiedSource) R.string.verified_source_desc else R.string.manually_entered_desc
+                    )
                     InfoChip(
                         icon = if (medication.isVerifiedSource) Icons.Default.Verified else Icons.Default.Edit,
                         text = if (medication.isVerifiedSource) stringResource(R.string.verified_source_chip) else stringResource(R.string.manually_entered_chip),
+                        modifier = Modifier.clearAndSetSemantics { contentDescription = sourceDescription },
                         containerColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = if (medication.isVerifiedSource) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                     )

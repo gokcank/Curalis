@@ -365,10 +365,10 @@
     <string name="previous_week_desc">Previous week</string>
     <string name="next_week_desc">Next week</string>
     <string name="placebo_badge">Placebo</string>
-    <string name="time_at_label">At %1$s%2$s</string>
-    <string name="time_at_taken_label">At %1$s%2$s • Taken: %3$s</string>
+    <string name="time_at_label">At\u00A0%1$s%2$s</string>
+    <string name="time_at_taken_label">At\u00A0%1$s%2$s • Taken:\u00A0%3$s</string>
     <string name="edit_taken_time_action">Edit time taken</string>
-    <string name="time_at_rescheduled_label">At %1$s%2$s • Rescheduled: %3$s</string>
+    <string name="time_at_rescheduled_label">At\u00A0%1$s%2$s • Rescheduled:\u00A0%3$s</string>
     <string name="reschedule_dose_button">Reschedule</string>
     <string name="reschedule_dialog_title">Reschedule dose</string>
     <string name="reschedule_dialog_desc">The reminder for this dose comes at the time you choose. The medication\'s schedule doesn\'t change.</string>
@@ -536,8 +536,10 @@
     <string name="suspended_chip_label">Suspended</string>
     <string name="treatment_days_remaining_chip">Treatment: %1$d days left</string>
     <string name="treatment_ended_chip">Treatment period ended</string>
-    <string name="verified_source_chip">Verified Source</string>
-    <string name="manually_entered_chip">Manually Entered</string>
+    <string name="verified_source_chip">Verified</string>
+    <string name="verified_source_desc">Verified source</string>
+    <string name="manually_entered_chip">Manual</string>
+    <string name="manually_entered_desc">Entered manually</string>
     <string name="freq_every_day_chip">Every Day</string>
     <string name="freq_specific_days_chip">Specific Days</string>
     <string name="freq_every_x_days_chip">Every %1$d Days</string>
