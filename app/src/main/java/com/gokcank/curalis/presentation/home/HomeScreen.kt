@@ -453,7 +453,7 @@ fun HomeScreen(
 
     pendingDoseReminder?.let { reminder ->
         DoseTakenTimeDialog(
-            scheduledTimeMillis = reminder.timeInMillis,
+            scheduledTimeMillis = reminder.rescheduledToMillis ?: reminder.timeInMillis,
             onDismiss = { pendingDoseReminder = null },
             onConfirm = { takenAtMillis ->
                 viewModel.acknowledgeDose(reminder, ReminderState.TAKEN, takenAtMillis = takenAtMillis)
