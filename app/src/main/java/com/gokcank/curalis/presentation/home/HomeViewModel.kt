@@ -118,7 +118,10 @@ class HomeViewModel @Inject constructor(
                 set(Calendar.SECOND, 0)
             }.timeInMillis
             // Ayardaki "geç alındı" eşiği değişince yüzde yeniden hesaplansın diye eşikle birleşir.
-            val monthlyPercentageFlow = getRemindersBetweenDatesUseCase(monthStart, now)
+            // Aralık bugünün sonuna kadar uzanır: ekran açıkken yanıtlanan dozlar da hemen
+            // yansısın (önceden ekranın açıldığı anda bitiyordu). Saati gelmemiş dozlar
+            // sonuçlanmadığı için yüzdeye zaten girmez.
+            val monthlyPercentageFlow = getRemindersBetweenDatesUseCase(monthStart, endOfDay)
                 .combine(notificationPreferences.lateDoseThresholdMinutesFlow) { monthReminders, lateThreshold ->
                     DoseAdherence.percentage(monthReminders, lateThreshold)
                 }
