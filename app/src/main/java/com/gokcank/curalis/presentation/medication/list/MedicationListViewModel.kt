@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
+import com.gokcank.curalis.core.notification.NotificationHelper
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
@@ -46,7 +47,8 @@ class MedicationListViewModel @Inject constructor(
     private val generateUpcomingRemindersUseCase: GenerateUpcomingRemindersUseCase,
     private val scheduleReminderUseCase: ScheduleReminderUseCase,
     private val getRemindersForMedicationUseCase: GetRemindersForMedicationUseCase,
-    private val alarmScheduler: AlarmScheduler
+    private val alarmScheduler: AlarmScheduler,
+    private val notificationHelper: NotificationHelper
 ) : ViewModel() {
 
     // Aktif ve arşivlenmiş ilaçlar aynı akıştan türetilir; Arşiv sekmesi olmadan
@@ -145,11 +147,18 @@ class MedicationListViewModel @Inject constructor(
     }
 
     /** Bir ilaca ait hem gerçek (UUID kimlikli) hem deterministik kimlikli alarmları iptal eder
-     *  — silme, arşivleme ve askıya alma akışlarının hepsinde aynı temizlik gerekiyor. */
+     *  — silme, arşivleme ve askıya alma akışlarının hepsinde aynı temizlik gerekiyor. O an bildirim
+     *  çubuğunda duran hatırlatmaları da kapatılır; yoksa bırakılan ilaç için "Aldım" denebiliyordu. */
     private suspend fun cancelAlarmsFor(medication: Medication) {
         getRemindersForMedicationUseCase(medication.id).firstOrNull()?.forEach { reminder ->
             alarmScheduler.cancel(reminder.id)
             alarmScheduler.cancelRescheduledDose(reminder.id)
+            if (reminder.state == ReminderState.SCHEDULED || reminder.state == ReminderState.DELIVERED ||
+                reminder.state == ReminderState.SNOOZED
+            ) {
+                notificationHelper.dismissNotification(reminder.id)
+                alarmScheduler.cancelMissedDoseCheck(reminder.id)
+            }
         }
         alarmScheduler.cancelMedicationAlarms(medication)
     }
