@@ -7,6 +7,7 @@
     <string name="dose_taken_time_now">Şimdi</string>
     <string name="dose_taken_time_on_time">Tam zamanında</string>
     <string name="dose_taken_time_pick">Bir saat seç</string>
+    <string name="dose_taken_time_future_error">Gelecekteki bir saat seçilemez.</string>
     <string name="save">Kaydet</string>
     <string name="add">Ekle</string>
     <string name="change">Değiştir</string>

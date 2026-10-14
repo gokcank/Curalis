@@ -260,7 +260,7 @@ fun DailyTimelineScreen(
 
         pendingTakeReminder?.let { reminder ->
             DoseTakenTimeDialog(
-                scheduledTimeMillis = reminder.timeInMillis,
+                scheduledTimeMillis = reminder.rescheduledToMillis ?: reminder.timeInMillis,
                 onDismiss = { pendingTakeReminder = null },
                 onConfirm = { takenAtMillis ->
                     viewModel.acknowledgeDose(reminder, ReminderState.TAKEN, takenAtMillis = takenAtMillis)
