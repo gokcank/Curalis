@@ -46,8 +46,9 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
 - **Privacy**: no unnecessary data collection; cloud features stay optional; user data belongs to the user.
   Never log sensitive information or disable certificate validation.
 - **Dependencies**: check necessity, maintenance, license and long-term viability first.
-- **Reference app anonymity**: an internal reference app is used as a benchmark in chat only. Its name must never
-  appear in code, comments, UI strings, commit messages or public docs. All work stays original.
+- **Reference app anonymity**: internal reference apps (more than one) are used as benchmarks in chat and local,
+  git-ignored review files only. Their names must never appear in code, comments, UI strings, commit messages or
+  public docs; say "a reference app". Never copy their code, text, images or sounds. All work stays original.
 - **Agreed reminder/adherence behavior** (time changes "from today/tomorrow", late dose = half weight, binding
   treatment duration, single-dose reschedule, taken-time rules): do not change without asking. Adherence math lives
   only in `DoseAdherence`; DST-safe day math only via `FrequencyCalculator.calendarDaysBetween`.
