@@ -59,11 +59,11 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
   store listings or Play policy work unless asked. Keep `USE_EXACT_ALARM`.
 - Release notes and store-facing text: **Turkish only** by default.
 
-## Status (as of 2026-11-14)
+## Status (as of 2026-11-21)
 - Project status: **active** (set 2026-11-18; source of truth: the brain page).
 - Latest release 1.4.1 (versionCode 11), 2026-10-14; Room DB version 24; CI green at that commit.
   No app-code change since; 1.4.1 was installed on the phone as a first install on 2026-11-14.
-- Next topic: design changes in menus/screens — specifics to be given by the user.
+- Next topic: reference-app scan → prioritized revision list (in progress; the user picks items, then a separate implementation plan).
 
 ## Open items
 - Remove the reference app's name from source comments and `CHANGELOG.md`. It is also in 3 pushed commit messages;
