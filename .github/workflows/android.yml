@@ -30,5 +30,14 @@ jobs:
     - name: Validate Gradle Wrapper
       uses: gradle/actions/wrapper-validation@v6
       
+    # Robolectric downloads its Android runtime jars (~200 MB each) to ~/.m2 while the tests
+    # run; the Gradle cache above doesn't cover them, so without this every run re-downloads
+    # them from Maven Central and can hit its rate limit.
+    - name: Cache Robolectric Android runtimes
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository/org/robolectric
+        key: robolectric-${{ hashFiles('gradle/libs.versions.toml', 'app/src/test/resources/robolectric.properties') }}
+
     - name: Build and Test
       run: ./gradlew test assembleDebug
