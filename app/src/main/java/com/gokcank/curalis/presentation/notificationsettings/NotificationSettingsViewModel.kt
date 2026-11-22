@@ -2,6 +2,7 @@ package com.gokcank.curalis.presentation.notificationsettings
 
 import androidx.lifecycle.ViewModel
 import com.gokcank.curalis.core.notification.AlarmScheduler
+import com.gokcank.curalis.core.notification.LockScreenPrivacy
 import com.gokcank.curalis.core.notification.NotificationPopupMode
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 data class NotificationSettingsUiState(
-    val hideMedicationNameOnLockScreen: Boolean = false,
+    val lockScreenPrivacy: LockScreenPrivacy = LockScreenPrivacy.FULL,
     val quietHoursEnabled: Boolean = false,
     val quietHoursStartMinutes: Int = NotificationPreferences.DEFAULT_QUIET_START,
     val quietHoursEndMinutes: Int = NotificationPreferences.DEFAULT_QUIET_END,
@@ -33,7 +34,7 @@ class NotificationSettingsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(
         NotificationSettingsUiState(
-            hideMedicationNameOnLockScreen = preferences.hideMedicationNameOnLockScreen,
+            lockScreenPrivacy = preferences.lockScreenPrivacy,
             quietHoursEnabled = preferences.quietHoursEnabled,
             quietHoursStartMinutes = preferences.quietHoursStartMinutes,
             quietHoursEndMinutes = preferences.quietHoursEndMinutes,
@@ -49,9 +50,9 @@ class NotificationSettingsViewModel @Inject constructor(
     )
     val uiState: StateFlow<NotificationSettingsUiState> = _uiState.asStateFlow()
 
-    fun onHideLockScreenNameToggled(enabled: Boolean) {
-        preferences.hideMedicationNameOnLockScreen = enabled
-        _uiState.value = _uiState.value.copy(hideMedicationNameOnLockScreen = enabled)
+    fun onLockScreenPrivacyChanged(privacy: LockScreenPrivacy) {
+        preferences.lockScreenPrivacy = privacy
+        _uiState.value = _uiState.value.copy(lockScreenPrivacy = privacy)
     }
 
     fun onQuietHoursToggled(enabled: Boolean) {

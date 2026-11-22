@@ -88,7 +88,8 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
                             reminderId,
                             medicationName,
                             medicationId,
-                            isLastAttempt = attempt + 1 == MAX_ATTEMPTS
+                            isLastAttempt = attempt + 1 == MAX_ATTEMPTS,
+                            doseTimeMillis = targetReminder.rescheduledToMillis ?: targetReminder.timeInMillis
                         )
                         alarmScheduler.scheduleMissedDoseCheck(
                             reminderId = reminderId,

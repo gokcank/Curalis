@@ -66,7 +66,12 @@ class ReminderReceiver : BroadcastReceiver() {
 
                 val existing = reminderRepository.getReminderById(reminderId)
                 if (shouldNotifyDose(existing, isRescheduledFire, System.currentTimeMillis())) {
-                    notificationHelper.showReminderNotification(reminderId, medicationName, medicationId)
+                    notificationHelper.showReminderNotification(
+                        reminderId,
+                        medicationName,
+                        medicationId,
+                        doseTimeMillis = existing?.let { it.rescheduledToMillis ?: it.timeInMillis } ?: timeInMillis
+                    )
 
                     // Alarmın gerçekten tetiklendiğini kalıcı olarak işaretle. Bu satır
                     // olmadan "alarm hiç çalmadı" (SCHEDULED kalır) ile "çaldı ama

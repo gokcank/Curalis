@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import com.gokcank.curalis.core.notification.LockScreenPrivacy
 import com.gokcank.curalis.core.notification.NotificationPopupMode
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -137,24 +138,44 @@ fun NotificationSettingsScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
+            Text(stringResource(R.string.lock_screen_privacy_title), style = MaterialTheme.typography.bodyLarge)
+            Text(
+                stringResource(R.string.lock_screen_privacy_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.hide_med_name_lock_screen_title), style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        stringResource(R.string.hide_med_name_lock_screen_desc),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                LockScreenPrivacy.entries.forEach { level ->
+                    val label = when (level) {
+                        LockScreenPrivacy.FULL -> stringResource(R.string.lock_screen_privacy_full)
+                        LockScreenPrivacy.LIMITED -> stringResource(R.string.lock_screen_privacy_limited)
+                        LockScreenPrivacy.HIDDEN -> stringResource(R.string.lock_screen_privacy_hidden)
+                    }
+                    FilterChip(
+                        selected = uiState.lockScreenPrivacy == level,
+                        onClick = { viewModel.onLockScreenPrivacyChanged(level) },
+                        label = { Text(label) },
+                        colors = themeChipColors,
+                        modifier = Modifier.weight(1f)
                     )
                 }
-                Switch(
-                    checked = uiState.hideMedicationNameOnLockScreen,
-                    onCheckedChange = viewModel::onHideLockScreenNameToggled
-                )
             }
+            Text(
+                stringResource(
+                    when (uiState.lockScreenPrivacy) {
+                        LockScreenPrivacy.FULL -> R.string.lock_screen_privacy_full_desc
+                        LockScreenPrivacy.LIMITED -> R.string.lock_screen_privacy_limited_desc
+                        LockScreenPrivacy.HIDDEN -> R.string.lock_screen_privacy_hidden_desc
+                    }
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
 
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 

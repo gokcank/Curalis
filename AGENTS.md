@@ -78,7 +78,6 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
   stock; un-taking never refunds. Violates `docs/product/reminders.md` "Inventory Integration".
 - Notification channel bug (static reading): `proactive_reminders_channel` is built but never registered, so the
   morning summary, vital reminders and the time-zone notification are probably dropped.
-- Privacy gap: with "hide name on lock screen" on, the full-screen alarm still shows medication names when locked.
 
 ## More context
 Background, decisions and history are in the second brain: `/home/gokcank/ikinci-beyin/projects/curalis.md` (read on demand).

@@ -122,6 +122,14 @@ Users should be able to choose between:
 
 Sensitive information should remain protected on the lock screen.
 
+How Curalis applies the levels to medication reminders:
+
+- **Full:** notifications and the full-screen reminder show the medication name.
+- **Limited:** the reminder notification never contains the medication name, only "Medication Time" and the dose time. This holds whether the phone is locked or not. Android hides "private" notification content on the lock screen only when the phone's own sensitive-content setting is off, and on most phones it is on, so the name is left out of the notification itself.
+- **Hidden:** with a screen lock (PIN, pattern, password) the reminder notification does not appear on the lock screen at all; once unlocked it shows the name.
+- **Limited and Hidden:** while the phone is locked, the full-screen reminder shows only the dose time, with no medication name or dose. The name appears as soon as the phone is unlocked. Take, Snooze and Skip work at every level.
+- **Previous setting:** users who had the old "hide medication name on lock screen" switch on move to Limited.
+
 ---
 
 # Confirmation

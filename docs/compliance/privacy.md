@@ -187,6 +187,8 @@ Users should be able to choose:
 - limited notification content
 - hidden notification content
 
+The levels and how they apply to reminder notifications and the full-screen reminder are defined in product/reminders.md ("Notification Content").
+
 ---
 
 # Logging

@@ -23,9 +23,19 @@ class NotificationPreferences @Inject constructor(
 ) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    var hideMedicationNameOnLockScreen: Boolean
-        get() = prefs.getBoolean(KEY_HIDE_LOCK_SCREEN, false)
-        set(value) = prefs.edit().putBoolean(KEY_HIDE_LOCK_SCREEN, value).apply()
+    /**
+     * Kilit ekranı gizlilik seviyesi. Seçim yapılmamışsa eski "kilit ekranında ilaç adını gizle"
+     * anahtarından türetilir: açıksa [LockScreenPrivacy.LIMITED] (eski davranışın aynısı),
+     * değilse [LockScreenPrivacy.FULL]. Yeni seçim kaydedilince eski anahtar silinir.
+     */
+    var lockScreenPrivacy: LockScreenPrivacy
+        get() = prefs.getString(KEY_LOCK_SCREEN_PRIVACY, null)
+            ?.let { name -> LockScreenPrivacy.entries.find { it.name == name } }
+            ?: if (prefs.getBoolean(KEY_HIDE_LOCK_SCREEN, false)) LockScreenPrivacy.LIMITED else LockScreenPrivacy.FULL
+        set(value) = prefs.edit {
+            putString(KEY_LOCK_SCREEN_PRIVACY, value.name)
+            remove(KEY_HIDE_LOCK_SCREEN)
+        }
 
     var quietHoursEnabled: Boolean
         get() = prefs.getBoolean(KEY_QUIET_ENABLED, false)
@@ -159,7 +169,9 @@ class NotificationPreferences @Inject constructor(
 
     companion object {
         private const val PREFS_NAME = "curalis_notification_prefs"
+        /** Eski açık/kapalı ayar; yalnızca [lockScreenPrivacy]'ye geçiş için okunur. */
         private const val KEY_HIDE_LOCK_SCREEN = "hide_medication_name_lock_screen"
+        private const val KEY_LOCK_SCREEN_PRIVACY = "lock_screen_privacy"
         private const val KEY_QUIET_ENABLED = "quiet_hours_enabled"
         private const val KEY_QUIET_START = "quiet_hours_start_minutes"
         private const val KEY_QUIET_END = "quiet_hours_end_minutes"

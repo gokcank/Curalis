@@ -1,7 +1,10 @@
 package com.gokcank.curalis.presentation.alarm
 
+import android.app.KeyguardManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Build
@@ -62,9 +65,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.notification.NotificationHelper
+import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.notification.ReminderActionReceiver
 import com.gokcank.curalis.core.theme.CuralisTheme
 import com.gokcank.curalis.core.theme.ThemeController
@@ -83,6 +88,45 @@ class AlarmFullScreenActivity : ComponentActivity() {
     @Inject
     lateinit var themeController: ThemeController
 
+    @Inject
+    lateinit var notificationPreferences: NotificationPreferences
+
+    /**
+     * Kilit ekranı gizliliği sınırlı ya da gizliyken, telefon kilitli olduğu sürece ilaç adları
+     * ve dozlar gösterilmez. Kilit açılınca (USER_PRESENT) ya da ekran kapanınca yeniden okunur.
+     */
+    private var hideNames by mutableStateOf(false)
+
+    private val lockStateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            // Kilit açılış yayını geldiğinde kilit durumu bir an hâlâ "kilitli" okunabiliyor;
+            // bu yüzden adlar doğrudan gösterilir. Ekran kapanınca telefon kilitlenecek kabul edilir.
+            hideNames = when (intent.action) {
+                Intent.ACTION_USER_PRESENT -> false
+                else -> notificationPreferences.lockScreenPrivacy.hidesNamesOnFullScreen(isDeviceLocked = true)
+            }
+        }
+    }
+
+    /**
+     * Ekran kilit ekranının üstündeyken kilit açılınca etkinlik yeniden başlamaz; şifre ekranı
+     * kapanınca pencere odağı geri gelir ve kilit durumu burada da yeniden okunur.
+     */
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) refreshNameVisibility()
+    }
+
+    private fun refreshNameVisibility() {
+        val locked = getSystemService(KeyguardManager::class.java).isKeyguardLocked
+        hideNames = notificationPreferences.lockScreenPrivacy.hidesNamesOnFullScreen(locked)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshNameVisibility()
+    }
+
     private var ringtone: Ringtone? = null
     private var vibrator: Vibrator? = null
 
@@ -94,6 +138,16 @@ class AlarmFullScreenActivity : ComponentActivity() {
         enableEdgeToEdge()
         showOverLockScreen()
         startAlarmSound()
+        refreshNameVisibility()
+        ContextCompat.registerReceiver(
+            this,
+            lockStateReceiver,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_USER_PRESENT)
+                addAction(Intent.ACTION_SCREEN_OFF)
+            },
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         // Liste veritabanından gelene kadar (ya da doz kaydı henüz yazılmamışsa) ekranı açan
         // dozu göstermek için yedek satır.
@@ -126,6 +180,7 @@ class AlarmFullScreenActivity : ComponentActivity() {
             CuralisTheme(themeMode = themeMode) {
                 AlarmFullScreenContent(
                     doses = doses,
+                    hideNames = hideNames,
                     onTakeClick = { dose ->
                         userActed = true
                         sendAction(NotificationHelper.ACTION_TAKEN, dose)
@@ -235,6 +290,7 @@ class AlarmFullScreenActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        unregisterReceiver(lockStateReceiver)
         stopAlarmSound()
         super.onDestroy()
     }
@@ -243,6 +299,7 @@ class AlarmFullScreenActivity : ComponentActivity() {
 @Composable
 fun AlarmFullScreenContent(
     doses: List<AlarmDose>,
+    hideNames: Boolean = false,
     onTakeClick: (AlarmDose) -> Unit,
     onSkipClick: (AlarmDose) -> Unit,
     onSnoozeClick: (AlarmDose, minutes: Int) -> Unit,
@@ -296,6 +353,7 @@ fun AlarmFullScreenContent(
                 AlarmDoseCard(
                     dose = dose,
                     showTime = doses.size > 1,
+                    hideName = hideNames,
                     onTakeClick = { onTakeClick(dose) },
                     onSkipClick = { onSkipClick(dose) },
                     onSnoozeClick = { minutes -> onSnoozeClick(dose, minutes) }
@@ -324,6 +382,7 @@ fun AlarmFullScreenContent(
 private fun AlarmDoseCard(
     dose: AlarmDose,
     showTime: Boolean,
+    hideName: Boolean,
     onTakeClick: () -> Unit,
     onSkipClick: () -> Unit,
     onSnoozeClick: (minutes: Int) -> Unit
@@ -341,13 +400,18 @@ private fun AlarmDoseCard(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Ad gizliyken kartın başlığı dozun saatidir; doz miktarı da gösterilmez.
             Text(
-                text = dose.medicationName,
+                text = if (hideName) {
+                    stringResource(R.string.alarm_dose_time_label, timeFormat.format(Date(dose.reminder.timeInMillis)))
+                } else {
+                    dose.medicationName
+                },
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
-            if (showTime) {
+            if (showTime && !hideName) {
                 val planned = timeFormat.format(Date(dose.reminder.timeInMillis))
                 val rescheduledTo = dose.reminder.rescheduledToMillis
                 Text(
@@ -360,7 +424,7 @@ private fun AlarmDoseCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            dose.dosage?.let {
+            dose.dosage?.takeUnless { hideName }?.let {
                 Text(
                     text = stringResource(R.string.alarm_dose_label, it),
                     style = MaterialTheme.typography.bodyLarge,

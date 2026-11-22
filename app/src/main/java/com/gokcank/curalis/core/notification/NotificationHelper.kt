@@ -14,6 +14,9 @@ import com.gokcank.curalis.presentation.alarm.AlarmFullScreenActivity
 import com.gokcank.curalis.presentation.main.MainActivity
 import com.gokcank.curalis.presentation.vital.displayNameRes
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -109,7 +112,9 @@ class NotificationHelper @Inject constructor(
         reminderId: String,
         medicationName: String,
         medicationId: String = "",
-        isLastAttempt: Boolean = false
+        isLastAttempt: Boolean = false,
+        /** Dozun planlanan (yeniden planlandıysa yeni) saati; sınırlı gizlilikte addan yerine yazılır. */
+        doseTimeMillis: Long? = null
     ) {
         val contentIntent = Intent(context, MainActivity::class.java)
         val contentPendingIntent = PendingIntent.getActivity(
@@ -180,8 +185,20 @@ class NotificationHelper @Inject constructor(
 
         val isQuietHours = notificationPreferences.isWithinQuietHours()
         val reminderChannelId = if (isQuietHours) CHANNEL_ID_REMINDERS_SILENT else CHANNEL_ID
-        val hideOnLockScreen = notificationPreferences.hideMedicationNameOnLockScreen
+        val lockScreenPrivacy = notificationPreferences.lockScreenPrivacy
 
+        // Android, "gizlenebilir" işaretli bildirimi yalnızca telefonun hassas içerik ayarı
+        // kapalıysa kilit ekranında gizliyor (çoğu telefonda açık). Bu yüzden sınırlı seviyede
+        // bildirimin kendisi de ilaç adını içermez: yalnızca "İlaç Vakti" ve dozun saati.
+        val contentText = if (lockScreenPrivacy == LockScreenPrivacy.LIMITED) {
+            doseTimeMillis?.let {
+                context.getString(R.string.alarm_dose_time_label, SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(it)))
+            }
+        } else {
+            context.getString(R.string.notification_text_medication, medicationName)
+        }
+
+        // Kilit ekranı sürümü hiçbir seviyede ilaç adını içermez.
         val publicVersion = NotificationCompat.Builder(context, reminderChannelId)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(context.getString(R.string.notification_title))
@@ -190,12 +207,12 @@ class NotificationHelper @Inject constructor(
         val builder = NotificationCompat.Builder(context, reminderChannelId)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(context.getString(R.string.notification_title))
-            .setContentText(context.getString(R.string.notification_text_medication, medicationName))
+            .setContentText(contentText)
             .setPriority(if (isQuietHours) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
             .setContentIntent(contentPendingIntent)
-            .setVisibility(if (hideOnLockScreen) NotificationCompat.VISIBILITY_PRIVATE else NotificationCompat.VISIBILITY_PUBLIC)
+            .setVisibility(lockScreenPrivacy.notificationVisibility)
             .setPublicVersion(publicVersion)
             .addAction(
                 android.R.drawable.ic_menu_save,

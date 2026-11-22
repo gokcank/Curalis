@@ -262,8 +262,14 @@
     <string name="reminders_not_on_time_desc">Check Android system permissions and your phone manufacturer\'s specific settings.</string>
     <string name="start_troubleshooting_button">Start Troubleshooting</string>
     <string name="privacy_section_title">Privacy</string>
-    <string name="hide_med_name_lock_screen_title">Hide medication name on lock screen</string>
-    <string name="hide_med_name_lock_screen_desc">When on, the notification appears on the lock screen but your medication\'s name is hidden.</string>
+    <string name="lock_screen_privacy_title">Notification content on the lock screen</string>
+    <string name="lock_screen_privacy_desc">Choose what reminders show while the phone is locked.</string>
+    <string name="lock_screen_privacy_full">Full</string>
+    <string name="lock_screen_privacy_limited">Limited</string>
+    <string name="lock_screen_privacy_hidden">Hidden</string>
+    <string name="lock_screen_privacy_full_desc">The medication name shows on the lock screen.</string>
+    <string name="lock_screen_privacy_limited_desc">Reminder notifications don\'t contain the medication name, only \"Medication Time\" and the time. The name shows in the full-screen reminder once the phone is unlocked, and in the app.</string>
+    <string name="lock_screen_privacy_hidden_desc">With a screen lock (PIN, pattern), reminders don\'t show on the lock screen at all; the name shows once unlocked. While locked, the full-screen reminder hides the medication name too.</string>
     <string name="quiet_hours_section_title">Quiet Hours</string>
     <string name="quiet_hours_enable_title">Enable quiet hours</string>
     <string name="quiet_hours_enable_desc">Reminders arrive silently and won\'t wake your screen during these hours; the notification still remains visible.</string>

@@ -264,8 +264,14 @@
     <string name="reminders_not_on_time_desc">Android sistem izinlerini ve telefon üreticinize özel ayarları kontrol edin.</string>
     <string name="start_troubleshooting_button">Sorun Gidermeyi Başlat</string>
     <string name="privacy_section_title">Gizlilik</string>
-    <string name="hide_med_name_lock_screen_title">Kilit ekranında ilaç adını gizle</string>
-    <string name="hide_med_name_lock_screen_desc">Açıkken, kilitli ekranda bildirim görünür ama ilacınızın adı gizlenir.</string>
+    <string name="lock_screen_privacy_title">Kilit ekranında bildirim içeriği</string>
+    <string name="lock_screen_privacy_desc">Telefon kilitliyken hatırlatmalarda ne görüneceğini seçin.</string>
+    <string name="lock_screen_privacy_full">Tam</string>
+    <string name="lock_screen_privacy_limited">Sınırlı</string>
+    <string name="lock_screen_privacy_hidden">Gizli</string>
+    <string name="lock_screen_privacy_full_desc">Kilit ekranında ilaç adı görünür.</string>
+    <string name="lock_screen_privacy_limited_desc">Hatırlatma bildirimlerinde ilaç adı yer almaz, yalnızca \"İlaç Vakti\" ve saat görünür. Ad, kilit açıkken tam ekran hatırlatmada ve uygulamada görünür.</string>
+    <string name="lock_screen_privacy_hidden_desc">Ekran kilidi (PIN, desen) varsa hatırlatmalar kilit ekranında hiç görünmez; ad, kilit açılınca görünür. Telefon kilitliyken tam ekran hatırlatma da ilaç adını göstermez.</string>
     <string name="quiet_hours_section_title">Sessiz Saatler</string>
     <string name="quiet_hours_enable_title">Sessiz saatleri etkinleştir</string>
     <string name="quiet_hours_enable_desc">Bu saatler arasında hatırlatıcılar sessiz gelir ve ekranınızı uyandırmaz; bildirim yine de görünür kalır.</string>
