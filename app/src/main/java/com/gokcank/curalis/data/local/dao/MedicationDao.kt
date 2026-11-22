@@ -18,9 +18,6 @@ interface MedicationDao {
     @Query("SELECT * FROM medications WHERE id = :id")
     fun getMedicationById(id: String): Flow<MedicationEntity?>
 
-    @Query("SELECT * FROM medications WHERE name LIKE '%' || :query || '%' OR barcode LIKE '%' || :query || '%' OR activeIngredient LIKE '%' || :query || '%' ORDER BY name ASC")
-    fun searchMedications(query: String): Flow<List<MedicationEntity>>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMedication(medication: MedicationEntity)
 
