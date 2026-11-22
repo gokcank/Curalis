@@ -157,6 +157,8 @@ If a reminder expires without user interaction, it should become **Missed**.
 
 The application must never automatically mark it as **Taken**.
 
+Before that, an unanswered reminder is shown again at fixed intervals (by default twice, ten minutes apart). The repeats read differently from the first reminder: a repeat says the dose is not marked yet, and the last one says that, if it stays unmarked, the dose will count as missed. They follow the lock-screen privacy level like the first reminder.
+
 ---
 
 # Repeating Reminders

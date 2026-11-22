@@ -113,6 +113,8 @@ class NotificationHelper @Inject constructor(
         medicationName: String,
         medicationId: String = "",
         isLastAttempt: Boolean = false,
+        /** Yanıtsız dozun tekrar bildirimi mi (bkz. MissedDoseCheckReceiver); ilk bildirimde false. */
+        isRetry: Boolean = false,
         /** Dozun planlanan (yeniden planlandıysa yeni) saati; sınırlı gizlilikte addan yerine yazılır. */
         doseTimeMillis: Long? = null
     ) {
@@ -190,7 +192,7 @@ class NotificationHelper @Inject constructor(
         // Android, "gizlenebilir" işaretli bildirimi yalnızca telefonun hassas içerik ayarı
         // kapalıysa kilit ekranında gizliyor (çoğu telefonda açık). Bu yüzden sınırlı seviyede
         // bildirimin kendisi de ilaç adını içermez: yalnızca "İlaç Vakti" ve dozun saati.
-        val contentText = if (lockScreenPrivacy == LockScreenPrivacy.LIMITED) {
+        val baseText = if (lockScreenPrivacy == LockScreenPrivacy.LIMITED) {
             doseTimeMillis?.let {
                 context.getString(R.string.alarm_dose_time_label, SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(it)))
             }
@@ -198,16 +200,33 @@ class NotificationHelper @Inject constructor(
             context.getString(R.string.notification_text_medication, medicationName)
         }
 
+        // Tekrar bildirimleri ilkinden ayırt edilsin: tekrarda "Henüz işaretlemediniz", son
+        // tekrarda "Son hatırlatma" ve dozun bundan sonra kaçırıldı sayılacağı yazar.
+        val title = context.getString(
+            when {
+                isLastAttempt -> R.string.reminder_last_title
+                isRetry -> R.string.reminder_retry_title
+                else -> R.string.notification_title
+            }
+        )
+        val contentText = if (isLastAttempt) {
+            val warning = context.getString(R.string.reminder_last_warning)
+            baseText?.let { "$it · $warning" } ?: warning
+        } else {
+            baseText
+        }
+
         // Kilit ekranı sürümü hiçbir seviyede ilaç adını içermez.
         val publicVersion = NotificationCompat.Builder(context, reminderChannelId)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle(context.getString(R.string.notification_title))
+            .setContentTitle(title)
             .build()
 
         val builder = NotificationCompat.Builder(context, reminderChannelId)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle(context.getString(R.string.notification_title))
+            .setContentTitle(title)
             .setContentText(contentText)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
             .setPriority(if (isQuietHours) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)

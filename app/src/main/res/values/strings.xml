@@ -58,6 +58,9 @@
     <string name="active_ingredient">Active Ingredient</string>
     <string name="no_medications_found">No medications added yet.</string>
     <string name="notification_title">Medication Time</string>
+    <string name="reminder_retry_title">Not marked yet</string>
+    <string name="reminder_last_title">Last reminder</string>
+    <string name="reminder_last_warning">If not marked, it will count as missed.</string>
     <string name="notification_text_medication">Medication: %1$s</string>
     <string name="notification_action_take">Take Now</string>
     <string name="notification_action_snooze">Snooze (10m)</string>

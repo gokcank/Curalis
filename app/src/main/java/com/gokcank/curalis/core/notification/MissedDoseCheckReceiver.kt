@@ -89,6 +89,7 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
                             medicationName,
                             medicationId,
                             isLastAttempt = attempt + 1 == MAX_ATTEMPTS,
+                            isRetry = true,
                             doseTimeMillis = targetReminder.rescheduledToMillis ?: targetReminder.timeInMillis
                         )
                         alarmScheduler.scheduleMissedDoseCheck(

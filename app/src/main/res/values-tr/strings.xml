@@ -58,6 +58,9 @@
     <string name="active_ingredient">Etken Madde</string>
     <string name="no_medications_found">Henüz hiç ilaç eklemediniz.</string>
     <string name="notification_title">İlaç Vakti</string>
+    <string name="reminder_retry_title">Henüz işaretlemediniz</string>
+    <string name="reminder_last_title">Son hatırlatma</string>
+    <string name="reminder_last_warning">İşaretlenmezse kaçırıldı sayılacak.</string>
     <string name="notification_text_medication">İlaç: %1$s</string>
     <string name="notification_action_take">Şimdi Al</string>
     <string name="notification_action_snooze">Ertele (10dk)</string>
