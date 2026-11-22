@@ -59,11 +59,13 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
   store listings or Play policy work unless asked. Keep `USE_EXACT_ALARM`.
 - Release notes and store-facing text: **Turkish only** by default.
 
-## Status (as of 2026-11-21)
+## Status (as of 2026-11-22)
 - Project status: **active** (set 2026-11-18; source of truth: the brain page).
 - Latest release 1.4.1 (versionCode 11), 2026-10-14; Room DB version 24; CI green at that commit.
   No app-code change since; 1.4.1 was installed on the phone as a first install on 2026-11-14.
-- Next topic: reference-app scan → prioritized revision list (in progress; the user picks items, then a separate implementation plan).
+- Reference-app scan finished (2026-11-22). A 22-step revision plan exists locally (bug fixes → 1.4.2, then
+  feature groups → 1.5.0 / 1.6.0 / 1.7.0); not approved or started yet. Bottom nav, add-medication form, easy mode and
+  profiles wait for a separate design session together with the menu topic.
 
 ## Open items
 - Remove the reference app's name from source comments and `CHANGELOG.md`. It is also in 3 pushed commit messages;
@@ -71,6 +73,12 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
 - Remove the unused `WEB_CLIENT_ID` BuildConfig field from `app/build.gradle.kts`.
 - README version badge is stuck at v1.1.0.
 - PDF: preview card lacks the late-dose count; archived medications still appear in the medicine-cabinet list.
+- Stock bug (static reading, not reproduced yet): stock decrement and the low-stock warning run only in
+  `ReminderActionReceiver` (notification + full-screen). Taking a dose from the timeline, home or widget changes no
+  stock; un-taking never refunds. Violates `docs/product/reminders.md` "Inventory Integration".
+- Notification channel bug (static reading): `proactive_reminders_channel` is built but never registered, so the
+  morning summary, vital reminders and the time-zone notification are probably dropped.
+- Privacy gap: with "hide name on lock screen" on, the full-screen alarm still shows medication names when locked.
 
 ## More context
 Background, decisions and history are in the second brain: `/home/gokcank/ikinci-beyin/projects/curalis.md` (read on demand).
