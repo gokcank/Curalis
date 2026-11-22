@@ -80,12 +80,22 @@ class NotificationHelper @Inject constructor(
             description = context.getString(R.string.notification_channel_desc_proactive)
         }
 
+        // Akşam özeti; sabah hatırlatmasından ayrı kapatılabilsin diye kendi kategorisinde.
+        val eveningSummaryChannel = NotificationChannel(
+            CHANNEL_ID_EVENING_SUMMARY,
+            context.getString(R.string.notification_channel_name_evening_summary),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = context.getString(R.string.notification_channel_desc_evening_summary)
+        }
+
         notificationManager.createNotificationChannel(reminderChannel)
         notificationManager.createNotificationChannel(silentReminderChannel)
         notificationManager.createNotificationChannel(refillChannel)
         // Sabah özeti, ölçüm hatırlatması ve saat dilimi bildirimi bu kanala gider; kayıtlı
         // olmayan bir kanala gönderilen bildirimi Android hata vermeden düşürür.
         notificationManager.createNotificationChannel(proactiveChannel)
+        notificationManager.createNotificationChannel(eveningSummaryChannel)
     }
 
     fun showMorningReminderNotification() {
@@ -389,6 +399,37 @@ class NotificationHelper @Inject constructor(
         notificationManager.notify(MISSED_WHILE_OFF_NOTIFICATION_ID, builder.build())
     }
 
+    /**
+     * Akşam özeti: o gün işaretlenmemiş doz sayısı (bkz. EveningSummaryReceiver). İlaç adı
+     * içermez; dokununca zaman çizelgesi açılır. Kilit ekranı seviyesine ve sessiz saatlere uyar.
+     */
+    fun showEveningSummaryNotification(unmarkedCount: Int) {
+        val contentIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra(OpenDestination.EXTRA, OpenDestination.TIMELINE)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            EVENING_SUMMARY_NOTIFICATION_ID,
+            contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID_EVENING_SUMMARY)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle(
+                context.resources.getQuantityString(R.plurals.evening_summary_title, unmarkedCount, unmarkedCount)
+            )
+            .setContentText(context.getString(R.string.evening_summary_text))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setVisibility(notificationPreferences.lockScreenPrivacy.notificationVisibility)
+            .setSilent(notificationPreferences.isWithinQuietHours())
+            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
+
+        notificationManager.notify(EVENING_SUMMARY_NOTIFICATION_ID, builder.build())
+    }
+
     companion object {
         const val CHANNEL_ID = "medication_reminders_channel"
         const val CHANNEL_ID_REMINDERS_SILENT = "medication_reminders_silent_channel"
@@ -397,6 +438,8 @@ class NotificationHelper @Inject constructor(
         const val MORNING_REMINDER_NOTIFICATION_ID = -1001
         const val TIMEZONE_CHANGED_NOTIFICATION_ID = -1002
         const val MISSED_WHILE_OFF_NOTIFICATION_ID = -1003
+        const val CHANNEL_ID_EVENING_SUMMARY = "evening_summary_channel"
+        const val EVENING_SUMMARY_NOTIFICATION_ID = -1004
         const val ACTION_TAKEN = "com.gokcank.curalis.ACTION_TAKEN"
         const val ACTION_SNOOZE = "com.gokcank.curalis.ACTION_SNOOZE"
         const val ACTION_SKIP = "com.gokcank.curalis.ACTION_SKIP"

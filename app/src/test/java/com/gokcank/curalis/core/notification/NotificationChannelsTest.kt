@@ -27,7 +27,8 @@ class NotificationChannelsTest {
             NotificationHelper.CHANNEL_ID,
             NotificationHelper.CHANNEL_ID_REMINDERS_SILENT,
             NotificationHelper.CHANNEL_ID_REFILL,
-            NotificationHelper.CHANNEL_ID_PROACTIVE
+            NotificationHelper.CHANNEL_ID_PROACTIVE,
+            NotificationHelper.CHANNEL_ID_EVENING_SUMMARY
         ).forEach { id ->
             assertNotNull("channel not registered: $id", manager.getNotificationChannel(id))
         }

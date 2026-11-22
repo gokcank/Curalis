@@ -159,6 +159,12 @@ The application must never automatically mark it as **Taken**.
 
 Before that, an unanswered reminder is shown again at fixed intervals (by default twice, ten minutes apart). The repeats read differently from the first reminder: a repeat says the dose is not marked yet, and the last one says that, if it stays unmarked, the dose will count as missed. They follow the lock-screen privacy level like the first reminder.
 
+## Evening Summary
+
+An optional evening summary (off by default, time chosen by the user, 21:00 unless changed) posts one notification if any of today's doses are still unmarked at that time: missed, rung but unanswered, or never delivered. Taken, skipped and snoozed doses do not count; doses scheduled after the summary time do not count yet. Placebo days, as-needed medications and suspended or archived medications are left out. If every dose is marked, nothing is posted.
+
+The summary uses the same dose list as the timeline, has its own notification category, shows only the count (never medication names), opens the timeline when tapped, follows the lock-screen privacy level and stays silent during quiet hours. It is rescheduled after a reboot, an app update and a time-zone change.
+
 ---
 
 # Repeating Reminders

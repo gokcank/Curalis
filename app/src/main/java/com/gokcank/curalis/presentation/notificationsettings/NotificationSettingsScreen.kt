@@ -61,6 +61,7 @@ fun NotificationSettingsScreen(
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
     var showMorningTimePicker by remember { mutableStateOf(false) }
+    var showEveningTimePicker by remember { mutableStateOf(false) }
     var showWeekendTimePicker by remember { mutableStateOf(false) }
 
     fun formatMinutes(minutes: Int): String {
@@ -424,6 +425,43 @@ fun NotificationSettingsScreen(
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
             Text(
+                text = stringResource(R.string.evening_summary_section_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.evening_summary_toggle_title), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        stringResource(R.string.evening_summary_toggle_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = uiState.eveningSummaryEnabled,
+                    onCheckedChange = viewModel::onEveningSummaryToggled
+                )
+            }
+
+            if (uiState.eveningSummaryEnabled) {
+                Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                OutlinedButton(
+                    onClick = { showEveningTimePicker = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.evening_summary_time_button, formatMinutes(uiState.eveningSummaryMinutes)))
+                }
+            }
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
                 text = stringResource(R.string.notification_categories_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
@@ -566,6 +604,36 @@ fun NotificationSettingsScreen(
                         Button(onClick = {
                             viewModel.onWeekendMorningReminderMinutesChanged(timePickerState.hour * 60 + timePickerState.minute)
                             showWeekendTimePicker = false
+                        }) {
+                            Text(stringResource(R.string.ok))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showEveningTimePicker) {
+        val initial = uiState.eveningSummaryMinutes
+        val timePickerState = rememberTimePickerState(
+            initialHour = initial / 60,
+            initialMinute = initial % 60,
+            is24Hour = true
+        )
+        Dialog(onDismissRequest = { showEveningTimePicker = false }) {
+            Card(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(stringResource(R.string.evening_summary_picker_title), style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    TimePicker(state = timePickerState)
+                    Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        androidx.compose.material3.TextButton(onClick = { showEveningTimePicker = false }) {
+                            Text(stringResource(R.string.cancel))
+                        }
+                        Button(onClick = {
+                            viewModel.onEveningSummaryMinutesChanged(timePickerState.hour * 60 + timePickerState.minute)
+                            showEveningTimePicker = false
                         }) {
                             Text(stringResource(R.string.ok))
                         }

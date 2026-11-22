@@ -60,5 +60,6 @@ class ReminderRescheduler @Inject constructor(
             .forEach { alarmScheduler.scheduleVitalReminder(it.type, it.hour, it.minute, it.daysOfWeek) }
 
         alarmScheduler.scheduleMorningReminder()
+        alarmScheduler.scheduleEveningSummary()
     }
 }

@@ -608,6 +608,18 @@
         <item quantity="other">%d doses were missed while the phone was off</item>
     </plurals>
     <string name="missed_while_off_text">Tap to check them on the timeline.</string>
+    <string name="notification_channel_name_evening_summary">Evening Summary</string>
+    <string name="notification_channel_desc_evening_summary">One notification in the evening if some of today\'s doses are not marked</string>
+    <plurals name="evening_summary_title">
+        <item quantity="one">%d dose is not marked today</item>
+        <item quantity="other">%d doses are not marked today</item>
+    </plurals>
+    <string name="evening_summary_text">Tap to check them on the timeline.</string>
+    <string name="evening_summary_section_title">Evening Summary</string>
+    <string name="evening_summary_toggle_title">Summarize unmarked doses</string>
+    <string name="evening_summary_toggle_desc">At the chosen time, one notification arrives if any of today\'s doses are missed or not marked yet. If everything is marked, nothing arrives.</string>
+    <string name="evening_summary_time_button">Summary time: %1$s</string>
+    <string name="evening_summary_picker_title">Evening Summary Time</string>
     <string name="time_zone_dialog_title">Your time zone changed</string>
     <string name="time_zone_dialog_from">Previous: %s</string>
     <string name="time_zone_dialog_to">Now: %s</string>

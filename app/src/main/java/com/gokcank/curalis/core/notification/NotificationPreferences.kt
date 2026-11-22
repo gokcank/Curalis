@@ -82,6 +82,16 @@ class NotificationPreferences @Inject constructor(
         get() = prefs.getInt(KEY_WEEKEND_MORNING_REMINDER_MINUTES, DEFAULT_WEEKEND_MORNING_REMINDER_MINUTES)
         set(value) = prefs.edit { putInt(KEY_WEEKEND_MORNING_REMINDER_MINUTES, value) }
 
+    /** Akşam özeti etkin mi: seçilen saatte, o gün işaretlenmemiş doz varsa tek bildirim. */
+    var eveningSummaryEnabled: Boolean
+        get() = prefs.getBoolean(KEY_EVENING_SUMMARY_ENABLED, false)
+        set(value) = prefs.edit { putBoolean(KEY_EVENING_SUMMARY_ENABLED, value) }
+
+    /** Akşam özetinin saati, gece yarısından itibaren dakika (0-1439). */
+    var eveningSummaryMinutes: Int
+        get() = prefs.getInt(KEY_EVENING_SUMMARY_MINUTES, DEFAULT_EVENING_SUMMARY_MINUTES)
+        set(value) = prefs.edit { putInt(KEY_EVENING_SUMMARY_MINUTES, value) }
+
     /**
      * Randevu hatırlatıcısının randevudan kaç dakika önce geleceği. 0, hatırlatıcının
      * randevunun tam saatinde (öncesinden değil) gelmesi anlamına gelir.
@@ -183,6 +193,9 @@ class NotificationPreferences @Inject constructor(
         private const val KEY_WEEKEND_MORNING_REMINDER_MINUTES = "weekend_morning_reminder_minutes"
         const val DEFAULT_MORNING_REMINDER_MINUTES = 8 * 60 // 08:00
         const val DEFAULT_WEEKEND_MORNING_REMINDER_MINUTES = 10 * 60 // 10:00
+        private const val KEY_EVENING_SUMMARY_ENABLED = "evening_summary_enabled"
+        private const val KEY_EVENING_SUMMARY_MINUTES = "evening_summary_minutes"
+        const val DEFAULT_EVENING_SUMMARY_MINUTES = 21 * 60 // 21:00
         private const val KEY_APPOINTMENT_LEAD_MINUTES = "appointment_reminder_lead_minutes"
         private const val KEY_LAST_KNOWN_TIME_ZONE = "last_known_time_zone"
         private const val KEY_PENDING_TIME_ZONE_FROM = "pending_time_zone_from"

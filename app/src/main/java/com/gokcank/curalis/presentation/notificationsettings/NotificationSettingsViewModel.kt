@@ -23,7 +23,9 @@ data class NotificationSettingsUiState(
     val morningReminderEnabled: Boolean = false,
     val morningReminderMinutes: Int = NotificationPreferences.DEFAULT_MORNING_REMINDER_MINUTES,
     val weekendModeEnabled: Boolean = false,
-    val weekendMorningReminderMinutes: Int = NotificationPreferences.DEFAULT_WEEKEND_MORNING_REMINDER_MINUTES
+    val weekendMorningReminderMinutes: Int = NotificationPreferences.DEFAULT_WEEKEND_MORNING_REMINDER_MINUTES,
+    val eveningSummaryEnabled: Boolean = false,
+    val eveningSummaryMinutes: Int = NotificationPreferences.DEFAULT_EVENING_SUMMARY_MINUTES
 )
 
 @HiltViewModel
@@ -45,7 +47,9 @@ class NotificationSettingsViewModel @Inject constructor(
             morningReminderEnabled = preferences.morningReminderEnabled,
             morningReminderMinutes = preferences.morningReminderMinutes,
             weekendModeEnabled = preferences.weekendModeEnabled,
-            weekendMorningReminderMinutes = preferences.weekendMorningReminderMinutes
+            weekendMorningReminderMinutes = preferences.weekendMorningReminderMinutes,
+            eveningSummaryEnabled = preferences.eveningSummaryEnabled,
+            eveningSummaryMinutes = preferences.eveningSummaryMinutes
         )
     )
     val uiState: StateFlow<NotificationSettingsUiState> = _uiState.asStateFlow()
@@ -112,5 +116,17 @@ class NotificationSettingsViewModel @Inject constructor(
         preferences.weekendMorningReminderMinutes = minutes
         _uiState.value = _uiState.value.copy(weekendMorningReminderMinutes = minutes)
         alarmScheduler.scheduleMorningReminder()
+    }
+
+    fun onEveningSummaryToggled(enabled: Boolean) {
+        preferences.eveningSummaryEnabled = enabled
+        _uiState.value = _uiState.value.copy(eveningSummaryEnabled = enabled)
+        alarmScheduler.scheduleEveningSummary()
+    }
+
+    fun onEveningSummaryMinutesChanged(minutes: Int) {
+        preferences.eveningSummaryMinutes = minutes
+        _uiState.value = _uiState.value.copy(eveningSummaryMinutes = minutes)
+        alarmScheduler.scheduleEveningSummary()
     }
 }

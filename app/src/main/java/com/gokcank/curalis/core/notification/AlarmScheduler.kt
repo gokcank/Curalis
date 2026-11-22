@@ -309,6 +309,34 @@ class AlarmScheduler @Inject constructor(
         alarmManager.cancel(morningReminderPendingIntent())
     }
 
+    private fun eveningSummaryPendingIntent(): PendingIntent {
+        val intent = Intent(context, EveningSummaryReceiver::class.java)
+        return PendingIntent.getBroadcast(
+            context,
+            EVENING_SUMMARY_REQUEST_CODE,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    /**
+     * Akşam özeti kapalıysa kurulu alarmı iptal eder; açıksa bir sonraki tetiklenmeyi kurar.
+     * Sabah hatırlatması gibi tek seferlik alarmdır; [EveningSummaryReceiver] her
+     * tetiklendiğinde ertesi günü yeniden kurar.
+     */
+    fun scheduleEveningSummary() {
+        if (!notificationPreferences.eveningSummaryEnabled) {
+            cancelEveningSummary()
+            return
+        }
+        val trigger = nextDailyTriggerMillis(System.currentTimeMillis(), notificationPreferences.eveningSummaryMinutes)
+        setExactAlarm(trigger, eveningSummaryPendingIntent())
+    }
+
+    fun cancelEveningSummary() {
+        alarmManager.cancel(eveningSummaryPendingIntent())
+    }
+
     private fun vitalReminderPendingIntent(type: com.gokcank.curalis.domain.model.VitalType): PendingIntent {
         val intent = Intent(context, VitalReminderReceiver::class.java).apply {
             putExtra(EXTRA_VITAL_TYPE, type.name)
@@ -394,6 +422,27 @@ class AlarmScheduler @Inject constructor(
         const val KIND_MEDICATION = "medication"
         const val KIND_APPOINTMENT = "appointment"
         private const val MORNING_REMINDER_REQUEST_CODE = -2001
+        private const val EVENING_SUMMARY_REQUEST_CODE = -2002
+
+        /**
+         * Günün [minutesOfDay] dakikasına (yerel saat) denk gelen bir sonraki an: bugün o saat
+         * henüz gelmediyse bugün, geldiyse ya da geçtiyse yarın.
+         */
+        fun nextDailyTriggerMillis(now: Long, minutesOfDay: Int): Long {
+            val cal = Calendar.getInstance().apply {
+                timeInMillis = now
+                set(Calendar.HOUR_OF_DAY, minutesOfDay / 60)
+                set(Calendar.MINUTE, minutesOfDay % 60)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            if (cal.timeInMillis <= now) {
+                cal.add(Calendar.DAY_OF_YEAR, 1)
+                cal.set(Calendar.HOUR_OF_DAY, minutesOfDay / 60)
+                cal.set(Calendar.MINUTE, minutesOfDay % 60)
+            }
+            return cal.timeInMillis
+        }
         const val EXTRA_VITAL_TYPE = "extra_vital_type"
     }
 }

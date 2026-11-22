@@ -66,6 +66,7 @@ class TimezoneChangeReceiver : BroadcastReceiver() {
                 }
 
                 alarmScheduler.scheduleMorningReminder()
+                alarmScheduler.scheduleEveningSummary()
 
                 // Ana ekrandaki açıklama penceresi için eski ve yeni saat dilimi saklanır. Kullanıcı
                 // açıklamayı görmeden başladığı saat dilimine döndüyse önceki bildirim kaldırılır.

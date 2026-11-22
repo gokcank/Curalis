@@ -610,6 +610,18 @@
         <item quantity="other">Telefon kapalıyken %d doz kaçırıldı</item>
     </plurals>
     <string name="missed_while_off_text">Zaman çizelgesinde kontrol etmek için dokunun.</string>
+    <string name="notification_channel_name_evening_summary">Akşam Özeti</string>
+    <string name="notification_channel_desc_evening_summary">Bugünün dozlarından işaretlenmemiş olan varsa akşam tek bildirim</string>
+    <plurals name="evening_summary_title">
+        <item quantity="one">Bugün %d doz işaretlenmedi</item>
+        <item quantity="other">Bugün %d doz işaretlenmedi</item>
+    </plurals>
+    <string name="evening_summary_text">Zaman çizelgesinde kontrol etmek için dokunun.</string>
+    <string name="evening_summary_section_title">Akşam Özeti</string>
+    <string name="evening_summary_toggle_title">İşaretlenmemiş dozları özetle</string>
+    <string name="evening_summary_toggle_desc">Seçtiğiniz saatte, o gün kaçan ya da henüz işaretlenmemiş doz varsa tek bildirim gelir. Hepsi işaretliyse bildirim gelmez.</string>
+    <string name="evening_summary_time_button">Özet saati: %1$s</string>
+    <string name="evening_summary_picker_title">Akşam Özeti Saati</string>
     <string name="time_zone_dialog_title">Saat diliminiz değişti</string>
     <string name="time_zone_dialog_from">Önceki: %s</string>
     <string name="time_zone_dialog_to">Şimdi: %s</string>

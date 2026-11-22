@@ -89,6 +89,7 @@ class BootReceiver : BroadcastReceiver() {
 
                     // Reboot, sabah hatırlatması alarmını da siler.
                     alarmScheduler.scheduleMorningReminder()
+                    alarmScheduler.scheduleEveningSummary()
 
                     // Reboot, ölçüm hatırlatıcı alarmlarını da siler.
                     vitalReminderRepository.getAllSettings().firstOrNull()
