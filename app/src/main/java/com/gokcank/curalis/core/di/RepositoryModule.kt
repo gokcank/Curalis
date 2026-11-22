@@ -74,6 +74,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindLowStockNotifier(
+        notificationLowStockNotifier: com.gokcank.curalis.core.notification.NotificationLowStockNotifier
+    ): com.gokcank.curalis.domain.repository.LowStockNotifier
+
+    @Binds
+    @Singleton
     abstract fun bindStockHistoryRepository(
         stockHistoryRepositoryImpl: com.gokcank.curalis.data.repository.StockHistoryRepositoryImpl
     ): com.gokcank.curalis.domain.repository.StockHistoryRepository

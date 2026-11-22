@@ -7,10 +7,7 @@ import android.util.Log
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.model.SkipReason
-import com.gokcank.curalis.domain.model.StockChangeReason
-import com.gokcank.curalis.domain.model.StockHistoryEntry
 import com.gokcank.curalis.domain.repository.MedicationRepository
-import com.gokcank.curalis.domain.repository.StockHistoryRepository
 import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
 import com.gokcank.curalis.domain.usecase.ScheduleReminderUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,9 +35,6 @@ class ReminderActionReceiver : BroadcastReceiver() {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
-    @Inject
-    lateinit var stockHistoryRepository: StockHistoryRepository
-
     override fun onReceive(context: Context?, intent: Intent?) {
         val reminderId = intent?.getStringExtra(NotificationHelper.EXTRA_REMINDER_ID) ?: return
         val action = intent.action ?: return
@@ -63,34 +57,13 @@ class ReminderActionReceiver : BroadcastReceiver() {
                             takenAtMillis = System.currentTimeMillis()
                         )
 
-                        // Hatırlatıcı artık yoksa (örn. ilaç bu bildirim gösterilirken silindi),
-                        // stok düşümü/alarm yeniden kurma gibi yan etkileri uygulama — silinmiş
-                        // bir ilacın alarmlarını diriltmiş oluruz.
+                        // Stok, AcknowledgeReminderUseCase içinde güncellenir. Hatırlatıcı artık
+                        // yoksa (örn. ilaç bu bildirim gösterilirken silindi) alarm yeniden kurma
+                        // gibi yan etkiler uygulanmaz — silinmiş bir ilacın alarmlarını diriltmiş oluruz.
                         if (acknowledged && medicationId.isNotBlank()) {
                             val medication = medicationRepository.getMedicationById(medicationId).firstOrNull()
                             medication?.let { med ->
-                                val currentStock = med.currentStock
-                                if (currentStock != null && currentStock > 0) {
-                                    val newStock = currentStock - 1
-                                    val updatedMedication = med.copy(currentStock = newStock)
-                                    medicationRepository.updateMedication(updatedMedication)
-                                    stockHistoryRepository.logChange(
-                                        StockHistoryEntry(
-                                            medicationId = med.id,
-                                            previousStock = currentStock,
-                                            newStock = newStock,
-                                            reason = StockChangeReason.DOSE_TAKEN
-                                        )
-                                    )
-
-                                    if (med.isRefillReminderEnabled && newStock <= (med.refillThreshold ?: 5)) {
-                                        notificationHelper.showRefillWarningNotification(med.name, newStock)
-                                    }
-
-                                    alarmScheduler.scheduleMedicationAlarms(updatedMedication)
-                                } else {
-                                    alarmScheduler.scheduleMedicationAlarms(med)
-                                }
+                                alarmScheduler.scheduleMedicationAlarms(med)
                             }
                         }
                     }

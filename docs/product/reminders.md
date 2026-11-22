@@ -162,6 +162,13 @@ When enabled, inventory should only decrease after the user confirms medication 
 
 Skipped or missed reminders must not affect inventory.
 
+The same rule applies on every path where a dose can be marked as taken (notification, full-screen reminder, timeline, home screen, widget, "take all"):
+
+- Amount: the dose written for the reminder's time when it is a positive whole number (e.g. "2"); otherwise (fraction, text, empty) one unit. Inventory is stored as a whole number.
+- Inventory never goes below zero; an empty inventory is left unchanged.
+- Undoing a taken dose restores the same amount and records it in the inventory history ("Dose undone").
+- When refill alerts are enabled and the new inventory is at or below the threshold (default 5), a low-inventory notification is shown.
+
 ---
 
 # Notification Channels

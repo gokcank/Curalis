@@ -961,12 +961,14 @@ fun AddEditMedicationScreen(
                             val doseTakenReasonText = stringResource(R.string.dose_taken_reason)
                             val manualEditReasonText = stringResource(R.string.manual_edit_reason)
                             val refillReasonText = stringResource(R.string.refill_reason)
+                            val doseUndoneReasonText = stringResource(R.string.dose_undone_reason)
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 stockHistory.forEach { entry ->
                                     val reasonText = when (entry.reason) {
                                         StockChangeReason.DOSE_TAKEN -> doseTakenReasonText
                                         StockChangeReason.MANUAL_EDIT -> manualEditReasonText
                                         StockChangeReason.REFILL -> refillReasonText
+                                        StockChangeReason.DOSE_UNDONE -> doseUndoneReasonText
                                     }
                                     Text(
                                         text = "${dateFormat.format(Date(entry.timestamp))} — $reasonText: " +

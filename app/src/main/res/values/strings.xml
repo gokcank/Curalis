@@ -237,6 +237,7 @@
     <string name="dose_taken_reason">Dose taken</string>
     <string name="manual_edit_reason">Manually edited</string>
     <string name="refill_reason">Stock added</string>
+    <string name="dose_undone_reason">Dose undone</string>
     <string name="prescribing_doctor_label">Doctor who prescribed this medication</string>
     <string name="not_specified">Not specified</string>
     <string name="additional_info_title">Additional Info &amp; Expiry Date</string>
@@ -558,6 +559,7 @@
     <string name="reason_refill">Refill</string>
     <string name="reason_dose_taken">Dose Taken</string>
     <string name="reason_manual_edit">Manual Edit</string>
+    <string name="reason_dose_undone">Dose Undone</string>
 
     <!-- Symptom Types -->
     <string name="symptom_type_pain">Pain</string>

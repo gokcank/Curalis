@@ -15,12 +15,18 @@ class ScheduleReminderUseCase @Inject constructor(
     }
 }
 
+/**
+ * Bir dozun durumunu değiştirir. Stok, durum değişikliğine göre burada güncellenir (bkz.
+ * [ApplyIntakeStockChangeUseCase]); böylece doz hangi ekrandan işaretlenirse işaretlensin
+ * stok aynı kurala uyar.
+ */
 class AcknowledgeReminderUseCase @Inject constructor(
-    private val repository: ReminderRepository
+    private val repository: ReminderRepository,
+    private val applyIntakeStockChange: ApplyIntakeStockChangeUseCase
 ) {
     /** Hatırlatıcı bulunup güncellenebildiyse true döner; örn. medikasyon silinirken
      *  hatırlatıcısı da silinmiş, ama bildirimden gelen eski bir aksiyon hâlâ tetiklenmişse
-     *  false döner — çağıran taraf bu durumda stok/alarm gibi yan etkileri uygulamamalı. */
+     *  false döner — çağıran taraf bu durumda alarm gibi yan etkileri uygulamamalı. */
     suspend operator fun invoke(
         reminderId: String,
         state: ReminderState,
@@ -29,6 +35,7 @@ class AcknowledgeReminderUseCase @Inject constructor(
     ): Boolean {
         val reminder = repository.getReminderById(reminderId) ?: return false
         repository.updateReminder(reminder.copy(state = state, skipReason = skipReason, takenAtMillis = takenAtMillis))
+        applyIntakeStockChange(reminder, reminder.state, state)
         return true
     }
 
@@ -51,6 +58,9 @@ class AcknowledgeReminderUseCase @Inject constructor(
         } else {
             repository.insertReminder(reminder.copy(state = state, skipReason = skipReason, takenAtMillis = takenAtMillis))
         }
+        // Veritabanında henüz olmayan geçici bir doz daha önce "alındı" olamaz; önceki durum
+        // yalnızca kayıt varsa ondan okunur.
+        applyIntakeStockChange(existing ?: reminder, existing?.state, state)
     }
 }
 

@@ -239,6 +239,7 @@
     <string name="dose_taken_reason">Doz alındı</string>
     <string name="manual_edit_reason">Elle düzenlendi</string>
     <string name="refill_reason">Stok eklendi</string>
+    <string name="dose_undone_reason">Doz geri alındı</string>
     <string name="prescribing_doctor_label">Bu ilacı reçete eden doktor</string>
     <string name="not_specified">Belirtilmedi</string>
     <string name="additional_info_title">Ek Bilgiler &amp; Son Kullanma Tarihi</string>
@@ -560,6 +561,7 @@
     <string name="reason_refill">Yenileme</string>
     <string name="reason_dose_taken">Doz Alındı</string>
     <string name="reason_manual_edit">Elle Düzenleme</string>
+    <string name="reason_dose_undone">Doz Geri Alındı</string>
 
     <!-- Semptom Türleri -->
     <string name="symptom_type_pain">Ağrı</string>

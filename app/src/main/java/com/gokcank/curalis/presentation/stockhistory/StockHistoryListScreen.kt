@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
@@ -157,11 +158,13 @@ private fun StockHistoryRowItem(row: StockHistoryRow) {
         StockChangeReason.REFILL -> Icons.Default.AddCircle to semantic.success
         StockChangeReason.DOSE_TAKEN -> Icons.Default.CheckCircle to semantic.info
         StockChangeReason.MANUAL_EDIT -> Icons.Default.Edit to semantic.warning
+        StockChangeReason.DOSE_UNDONE -> Icons.Default.Replay to semantic.info
     }
     val reasonText = when (row.entry.reason) {
         StockChangeReason.REFILL -> stringResource(R.string.reason_refill)
         StockChangeReason.DOSE_TAKEN -> stringResource(R.string.reason_dose_taken)
         StockChangeReason.MANUAL_EDIT -> stringResource(R.string.reason_manual_edit)
+        StockChangeReason.DOSE_UNDONE -> stringResource(R.string.reason_dose_undone)
     }
     val changeText = if (row.entry.previousStock != null && row.entry.newStock != null) {
         "${row.entry.previousStock} → ${row.entry.newStock}"

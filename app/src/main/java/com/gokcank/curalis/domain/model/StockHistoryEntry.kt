@@ -18,5 +18,7 @@ enum class StockChangeReason {
     /** Kullanıcı ilaç düzenleme ekranından stok sayısını elle değiştirdi. */
     MANUAL_EDIT,
     /** Kullanıcı yeni kutu/reçete girdiğinde stok artışı. */
-    REFILL
+    REFILL,
+    /** "Alındı" işareti geri alınınca, daha önce düşülen miktarın iadesi. */
+    DOSE_UNDONE
 }
