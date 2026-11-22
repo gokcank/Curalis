@@ -100,6 +100,8 @@ import com.gokcank.curalis.presentation.components.EmptyState
 import com.gokcank.curalis.presentation.components.InfoChip
 import com.gokcank.curalis.presentation.components.NoResultsState
 import com.gokcank.curalis.presentation.components.icon
+import android.content.Intent
+import androidx.compose.material.icons.filled.Share
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -224,6 +226,37 @@ fun MedicationListScreen(
 
     val themeMode by rememberSectionThemeMode()
 
+    // İlaç listesini düz metin olarak paylaşma (bkz. MedicationShareText).
+    val isEnglishLocale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0].language == Locale.ENGLISH.language
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    val shareLabels = MedicationShareText.Labels(
+        title = stringResource(
+            R.string.share_list_title,
+            java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(locale))
+        ),
+        times = stringResource(R.string.share_list_times),
+        frequency = stringResource(R.string.share_list_frequency),
+        meal = stringResource(R.string.share_list_meal)
+    )
+    val dailyLabel = stringResource(R.string.freq_every_day_chip)
+    val asNeededLabel = stringResource(R.string.freq_as_needed_chip)
+    val intervalPattern = stringResource(R.string.freq_every_x_days_chip)
+    val cyclicPattern = stringResource(R.string.freq_cyclic_chip)
+    val frequencyLabel: (Medication) -> String = { med ->
+        when (med.frequencyType) {
+            FrequencyType.DAILY -> dailyLabel
+            FrequencyType.SPECIFIC_DAYS -> med.specificDays.sorted().joinToString(", ") { day ->
+                java.time.DayOfWeek.of(day).getDisplayName(java.time.format.TextStyle.SHORT, locale)
+            }
+            FrequencyType.INTERVAL -> String.format(locale, intervalPattern, med.intervalDays ?: 2)
+            FrequencyType.CYCLIC -> String.format(locale, cyclicPattern, med.activeDays ?: 21, med.restDays ?: 7)
+            FrequencyType.AS_NEEDED -> asNeededLabel
+        }
+    }
+    val mealLabel: (MealInstruction) -> String = { if (isEnglishLocale) it.displayNameEn else it.displayNameTr }
+    val shareEmptyMessage = stringResource(R.string.share_list_empty)
+    val shareChooserTitle = stringResource(R.string.share_list_action)
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -235,6 +268,26 @@ fun MedicationListScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        scope.launch {
+                            val meds = viewModel.medicationsForSharing()
+                            if (meds.isEmpty()) {
+                                snackbarHostState.showSnackbar(shareEmptyMessage)
+                            } else {
+                                val text = MedicationShareText.build(meds, shareLabels, frequencyLabel, mealLabel)
+                                val send = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, text)
+                                }
+                                context.startActivity(Intent.createChooser(send, shareChooserTitle))
+                            }
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = stringResource(R.string.share_list_action)
+                        )
+                    }
                     IconButton(onClick = onNavigateToStockHistory) {
                         Icon(
                             imageVector = Icons.Default.History,

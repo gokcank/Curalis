@@ -629,6 +629,12 @@
     <string name="pick_from_contacts">Pick from contacts</string>
     <string name="contact_pick_failed">Couldn\'t read the selected contact.</string>
     <string name="contact_pick_unavailable">No contacts app was found on this phone.</string>
+    <string name="share_list_action">Share list</string>
+    <string name="share_list_title">My medications — %s</string>
+    <string name="share_list_times">Times</string>
+    <string name="share_list_frequency">Frequency</string>
+    <string name="share_list_meal">Meal</string>
+    <string name="share_list_empty">There are no active medications to share.</string>
     <string name="reminder_health_title">Reminders may not arrive</string>
     <plurals name="reminder_health_undelivered">
         <item quantity="one">%d reminder did not go off on time</item>

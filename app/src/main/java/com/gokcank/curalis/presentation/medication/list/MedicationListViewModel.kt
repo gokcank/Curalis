@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -80,6 +81,10 @@ class MedicationListViewModel @Inject constructor(
             searchMedications(query)
         }
     }
+
+    /** Paylaşılacak ilaçlar; aramadan bağımsız olarak bütün etkin ilaçlar okunur. */
+    suspend fun medicationsForSharing(): List<Medication> =
+        MedicationShareText.shareable(getMedicationsUseCase().first())
 
     /** Stok etiketinden "Bir kutu ekle": başlangıç stoğu kadar ekler, geçmişe yenileme olarak yazar. */
     fun addStockBox(medication: Medication) {

@@ -631,6 +631,12 @@
     <string name="pick_from_contacts">Rehberden seç</string>
     <string name="contact_pick_failed">Seçilen kişi okunamadı.</string>
     <string name="contact_pick_unavailable">Bu telefonda rehber uygulaması bulunamadı.</string>
+    <string name="share_list_action">Listeyi paylaş</string>
+    <string name="share_list_title">İlaçlarım — %s</string>
+    <string name="share_list_times">Saatler</string>
+    <string name="share_list_frequency">Sıklık</string>
+    <string name="share_list_meal">Yemek</string>
+    <string name="share_list_empty">Paylaşılacak etkin ilaç yok.</string>
     <string name="reminder_health_title">Hatırlatmalar gelmeyebilir</string>
     <plurals name="reminder_health_undelivered">
         <item quantity="one">%d hatırlatma zamanında çalmadı</item>
