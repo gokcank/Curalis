@@ -1,6 +1,7 @@
 package com.gokcank.curalis.core.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,8 +22,20 @@ import com.gokcank.curalis.presentation.vital.VitalListScreen
 import com.gokcank.curalis.presentation.vital.AddEditVitalScreen
 
 @Composable
-fun NavGraph() {
+fun NavGraph(
+    pendingRoute: String? = null,
+    onPendingRouteOpened: () -> Unit = {}
+) {
     val navController = rememberNavController()
+
+    // Bir bildirimin istediği ekran (bkz. OpenDestination) ana ekranın üstüne açılır;
+    // geri tuşu ana ekrana döner.
+    LaunchedEffect(pendingRoute) {
+        if (pendingRoute != null) {
+            navController.navigate(pendingRoute) { launchSingleTop = true }
+            onPendingRouteOpened()
+        }
+    }
 
     NavHost(
         navController = navController,

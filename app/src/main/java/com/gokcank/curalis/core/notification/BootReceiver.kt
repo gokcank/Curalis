@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.repository.AppointmentRepository
 import com.gokcank.curalis.domain.repository.MedicationRepository
@@ -39,6 +40,9 @@ class BootReceiver : BroadcastReceiver() {
     lateinit var generateUpcomingRemindersUseCase: GenerateUpcomingRemindersUseCase
 
     @Inject
+    lateinit var notificationHelper: NotificationHelper
+
+    @Inject
     lateinit var vitalReminderRepository: com.gokcank.curalis.domain.repository.VitalReminderRepository
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -49,23 +53,31 @@ class BootReceiver : BroadcastReceiver() {
                     val medications = medicationRepository.getAllMedications().firstOrNull()
                         ?.filter { !it.isArchived && !it.isSuspended } ?: emptyList()
                     val now = System.currentTimeMillis()
+                    var missedWhileOff = 0
                     medications.forEach { medication ->
                         // Reboot, kurulu tüm AlarmManager alarmlarını temizler; bu yüzden
                         // zamanı geçmiş ama hâlâ SCHEDULED durumunda kalan bir hatırlatıcının
                         // alarmı artık kesin olarak kaybolmuştur — tetiklenmeyi bekleyen bir
                         // "hayalet" kayıt olarak kalmasın diye MISSED olarak işaretlenir.
-                        getRemindersForMedicationUseCase(medication.id).firstOrNull()
-                            // Yeniden planlanmış doz yeni zamanına göre değerlendirilir; yeni zamanı
-                            // henüz gelmediyse kaçırılmış sayılmaz (alarmı aşağıda yeniden kurulur).
-                            ?.filter { it.state == ReminderState.SCHEDULED && (it.rescheduledToMillis ?: it.timeInMillis) < now }
-                            ?.forEach { staleReminder ->
-                                reminderRepository.updateReminder(staleReminder.copy(state = ReminderState.MISSED))
-                            }
+                        val staleReminders = staleScheduledDoses(
+                            getRemindersForMedicationUseCase(medication.id).firstOrNull().orEmpty(),
+                            now
+                        )
+                        staleReminders.forEach { staleReminder ->
+                            reminderRepository.updateReminder(staleReminder.copy(state = ReminderState.MISSED))
+                        }
+                        missedWhileOff += countMissedWhileOff(staleReminders)
 
                         // Cihaz uzun süre kapalıysa 30 günlük pencerenin bir kısmı geride
                         // kalmış olabilir; burada da çalıştırmak pencereyi ileriye taşır.
                         generateUpcomingRemindersUseCase(medication)
                         alarmScheduler.scheduleMedicationAlarms(medication)
+                    }
+
+                    // Yalnızca telefon gerçekten yeniden açıldığında: uygulama güncellemesinde
+                    // (MY_PACKAGE_REPLACED) telefon kapanmamıştır.
+                    if (intent.action == Intent.ACTION_BOOT_COMPLETED && missedWhileOff > 0) {
+                        notificationHelper.showMissedWhileOffNotification(missedWhileOff)
                     }
 
                     val upcomingAppointments = appointmentRepository
@@ -97,3 +109,15 @@ class BootReceiver : BroadcastReceiver() {
         private const val TAG = "BootReceiver"
     }
 }
+
+/**
+ * Yeniden başlatmada alarmı kesin olarak kaybolmuş dozlar: zamanı (yeniden planlandıysa yeni
+ * zamanı) geçmiş ama hâlâ SCHEDULED olanlar. Yeni zamanı henüz gelmemiş yeniden planlanmış doz
+ * kaçırılmış sayılmaz; alarmı yeniden kurulur.
+ */
+internal fun staleScheduledDoses(reminders: List<Reminder>, now: Long): List<Reminder> =
+    reminders.filter { it.state == ReminderState.SCHEDULED && (it.rescheduledToMillis ?: it.timeInMillis) < now }
+
+/** "Telefon kapalıyken kaçırıldı" bildirimine sayılan dozlar; plasebo dozları uyuma girmediği için sayılmaz. */
+internal fun countMissedWhileOff(staleReminders: List<Reminder>): Int =
+    staleReminders.count { !it.isPlacebo }

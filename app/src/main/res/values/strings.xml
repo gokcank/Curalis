@@ -592,6 +592,11 @@
     <string name="troubleshooting_intro">If reminders aren\'t arriving on time, check the settings below. These are restrictions imposed by Android and your phone manufacturer, managed outside the app.</string>
     <string name="notification_permission_title">Notification Permission</string>
     <string name="notification_permission_desc">While notifications or the \"Medication Reminders\" category are turned off, reminders can\'t be seen.</string>
+    <plurals name="missed_while_off_title">
+        <item quantity="one">%d dose was missed while the phone was off</item>
+        <item quantity="other">%d doses were missed while the phone was off</item>
+    </plurals>
+    <string name="missed_while_off_text">Tap to check them on the timeline.</string>
     <string name="reminder_health_title">Reminders may not arrive</string>
     <plurals name="reminder_health_undelivered">
         <item quantity="one">%d reminder did not go off on time</item>

@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.gokcank.curalis.core.navigation.NavGraph
+import com.gokcank.curalis.core.navigation.OpenDestination
 import com.gokcank.curalis.core.onboarding.OnboardingPreferences
 import com.gokcank.curalis.core.security.AppLockController
 import com.gokcank.curalis.core.theme.CuralisTheme
@@ -44,6 +45,15 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var onboardingPreferences: OnboardingPreferences
 
+    /** Bir bildirimin açılmasını istediği ekran; gezinme grafiği hazır olunca bir kez açılır. */
+    private var pendingRoute by mutableStateOf<String?>(null)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        OpenDestination.routeFor(intent)?.let { pendingRoute = it }
+    }
+
     override fun onStart() {
         super.onStart()
         appLockController.onAppForegrounded()
@@ -58,6 +68,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // Modern Android 15+ edge-to-edge support
         enableEdgeToEdge()
+        if (savedInstanceState == null) pendingRoute = OpenDestination.routeFor(intent)
 
         setContent {
             val themeMode by themeController.themeMode.collectAsState()
@@ -97,7 +108,12 @@ class MainActivity : AppCompatActivity() {
                     // Kilit ekranı, uygulamanın geri kalanı hiç oluşturulmadan önce gelir;
                     // böylece son görüntülenen ekran kilitliyken arkada görünmez.
                     isLocked -> AppLockScreen()
-                    else -> NavGraph()
+                    // Kilit açılana kadar gezinme grafiği oluşmadığı için istenen ekran da
+                    // kilit açıldıktan sonra açılır.
+                    else -> NavGraph(
+                        pendingRoute = pendingRoute,
+                        onPendingRouteOpened = { pendingRoute = null }
+                    )
                 }
             }
         }

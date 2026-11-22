@@ -594,6 +594,11 @@
     <string name="troubleshooting_intro">Hatırlatıcılar zamanında gelmiyorsa, aşağıdaki ayarları kontrol edin. Bunlar Android işletim sisteminin ve telefon üreticinizin uyguladığı, uygulama dışından yönetilen kısıtlamalardır.</string>
     <string name="notification_permission_title">Bildirim İzni</string>
     <string name="notification_permission_desc">Bildirimler ya da \"İlaç Hatırlatıcıları\" kategorisi kapalıyken hatırlatmalar görünmez.</string>
+    <plurals name="missed_while_off_title">
+        <item quantity="one">Telefon kapalıyken %d doz kaçırıldı</item>
+        <item quantity="other">Telefon kapalıyken %d doz kaçırıldı</item>
+    </plurals>
+    <string name="missed_while_off_text">Zaman çizelgesinde kontrol etmek için dokunun.</string>
     <string name="reminder_health_title">Hatırlatmalar gelmeyebilir</string>
     <plurals name="reminder_health_undelivered">
         <item quantity="one">%d hatırlatma zamanında çalmadı</item>

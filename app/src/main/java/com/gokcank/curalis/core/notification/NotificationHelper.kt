@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.gokcank.curalis.R
+import com.gokcank.curalis.core.navigation.OpenDestination
 import com.gokcank.curalis.domain.model.VitalType
 import com.gokcank.curalis.presentation.alarm.AlarmFullScreenActivity
 import com.gokcank.curalis.presentation.main.MainActivity
@@ -302,6 +303,35 @@ class NotificationHelper @Inject constructor(
         notificationManager.notify(TIMEZONE_CHANGED_NOTIFICATION_ID, builder.build())
     }
 
+    /**
+     * Telefon açıldığında, kapalıyken saati geçen ve hatırlatması hiç gelmeyen dozlar için tek
+     * bildirim (bkz. BootReceiver). İlaç adı içermez; dokununca zaman çizelgesi açılır.
+     */
+    fun showMissedWhileOffNotification(missedCount: Int) {
+        val contentIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra(OpenDestination.EXTRA, OpenDestination.TIMELINE)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            MISSED_WHILE_OFF_NOTIFICATION_ID,
+            contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID_PROACTIVE)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle(
+                context.resources.getQuantityString(R.plurals.missed_while_off_title, missedCount, missedCount)
+            )
+            .setContentText(context.getString(R.string.missed_while_off_text))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
+
+        notificationManager.notify(MISSED_WHILE_OFF_NOTIFICATION_ID, builder.build())
+    }
+
     companion object {
         const val CHANNEL_ID = "medication_reminders_channel"
         const val CHANNEL_ID_REMINDERS_SILENT = "medication_reminders_silent_channel"
@@ -309,6 +339,7 @@ class NotificationHelper @Inject constructor(
         const val CHANNEL_ID_PROACTIVE = "proactive_reminders_channel"
         const val MORNING_REMINDER_NOTIFICATION_ID = -1001
         const val TIMEZONE_CHANGED_NOTIFICATION_ID = -1002
+        const val MISSED_WHILE_OFF_NOTIFICATION_ID = -1003
         const val ACTION_TAKEN = "com.gokcank.curalis.ACTION_TAKEN"
         const val ACTION_SNOOZE = "com.gokcank.curalis.ACTION_SNOOZE"
         const val ACTION_SKIP = "com.gokcank.curalis.ACTION_SKIP"
