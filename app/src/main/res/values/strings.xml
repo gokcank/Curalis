@@ -597,6 +597,11 @@
         <item quantity="other">%d doses were missed while the phone was off</item>
     </plurals>
     <string name="missed_while_off_text">Tap to check them on the timeline.</string>
+    <string name="time_zone_dialog_title">Your time zone changed</string>
+    <string name="time_zone_dialog_from">Previous: %s</string>
+    <string name="time_zone_dialog_to">Now: %s</string>
+    <string name="time_zone_dialog_difference">Time difference: %s</string>
+    <string name="time_zone_dialog_explanation">Reminders keep going off at the same local time on the clock. Your reminder times in the new time zone:</string>
     <string name="reminder_health_title">Reminders may not arrive</string>
     <plurals name="reminder_health_undelivered">
         <item quantity="one">%d reminder did not go off on time</item>

@@ -15,7 +15,10 @@ import com.gokcank.curalis.domain.usecase.DoseAdherence
 import com.gokcank.curalis.domain.usecase.GetAdherenceStreakUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
 import com.gokcank.curalis.domain.usecase.ObserveReminderHealthUseCase
+import com.gokcank.curalis.domain.usecase.MedicationReminderTimes
 import com.gokcank.curalis.domain.usecase.ReminderHealthReport
+import com.gokcank.curalis.domain.usecase.TimeZoneChange
+import com.gokcank.curalis.domain.usecase.TimeZoneChangeSummary
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.theme.ThemeController
 import com.gokcank.curalis.core.theme.ThemeMode
@@ -31,8 +34,17 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.ZoneId
 import java.util.Calendar
 import javax.inject.Inject
+
+/** Saat dilimi değişince ana ekranda gösterilen açıklama penceresinin içeriği. */
+data class TimeZoneChangeDialogState(
+    val change: TimeZoneChange,
+    /** Yeni saat diliminin eskisinden kaç dakika ileride olduğu; eski bilinmiyorsa null. */
+    val offsetDifferenceMinutes: Int?,
+    val medications: List<MedicationReminderTimes>
+)
 
 /** Ana ekrandaki "Bugünün Kutusu" pillbox şeridindeki tek bir doz. */
 data class HomePillboxItem(
@@ -94,7 +106,34 @@ class HomeViewModel @Inject constructor(
         reminderHealthCheckTime.value = System.currentTimeMillis()
     }
 
+    private val _timeZoneChange = MutableStateFlow<TimeZoneChange?>(null)
+
+    /** Henüz gösterilmemiş saat dilimi değişikliğinin açıklaması (bkz. TimezoneChangeReceiver). */
+    val timeZoneChangeDialog: StateFlow<TimeZoneChangeDialogState?> =
+        combine(_timeZoneChange, medications) { change, meds ->
+            change?.let {
+                TimeZoneChangeDialogState(
+                    change = it,
+                    offsetDifferenceMinutes = TimeZoneChangeSummary.offsetDifferenceMinutes(
+                        it.fromZoneId, it.toZoneId, System.currentTimeMillis()
+                    ),
+                    medications = TimeZoneChangeSummary.medicationTimes(meds)
+                )
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    /** Ekran ön plana gelince çağrılır; değişiklik arka planda kaydedilmiş olabilir. */
+    fun refreshTimeZoneChange() {
+        _timeZoneChange.value = notificationPreferences.pendingTimeZoneChange
+    }
+
+    fun dismissTimeZoneChange() {
+        notificationPreferences.clearPendingTimeZoneChange()
+        _timeZoneChange.value = null
+    }
+
     init {
+        notificationPreferences.rememberTimeZoneIfUnknown(ZoneId.systemDefault().id)
         loadDashboardData()
         loadStreak()
     }

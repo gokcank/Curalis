@@ -203,6 +203,10 @@ Reminder schedules should remain consistent when the device time zone changes.
 
 The scheduling strategy should be documented and applied consistently.
 
+Strategy: reminder times follow the local clock. A dose set for 08:00 goes off at 08:00 in whatever time zone the device is in. When the time zone changes, future reminders and alarms are rebuilt for the new local time, and a notification tells the user.
+
+The home screen then shows an explanation once. It lists the previous and new time zone, the time difference, and the reminder times of each medication that sets alarms. Nothing is changed by it. The system does not report the previous zone, so the app remembers the last zone the user saw. If the zone changes again before the explanation is seen, it still starts from that remembered zone. If the user is back in the starting zone, there is nothing to explain and the notification is removed.
+
 ---
 
 # Daylight Saving Time

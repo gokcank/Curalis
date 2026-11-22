@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.time.ZoneId
 import javax.inject.Inject
 
 /**
@@ -41,6 +42,9 @@ class TimezoneChangeReceiver : BroadcastReceiver() {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
+    @Inject
+    lateinit var notificationPreferences: NotificationPreferences
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_TIMEZONE_CHANGED) return
 
@@ -63,8 +67,15 @@ class TimezoneChangeReceiver : BroadcastReceiver() {
 
                 alarmScheduler.scheduleMorningReminder()
 
-                if (medications.isNotEmpty()) {
+                // Ana ekrandaki açıklama penceresi için eski ve yeni saat dilimi saklanır. Kullanıcı
+                // açıklamayı görmeden başladığı saat dilimine döndüyse önceki bildirim kaldırılır.
+                val newZoneId = intent.getStringExtra(EXTRA_TIME_ZONE) ?: ZoneId.systemDefault().id
+                val change = notificationPreferences.recordTimeZoneChange(newZoneId)
+                if (medications.isNotEmpty() && change != null) {
                     notificationHelper.showTimezoneChangedNotification()
+                } else {
+                    notificationPreferences.clearPendingTimeZoneChange()
+                    notificationHelper.dismissTimezoneChangedNotification()
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Saat dilimi değişikliği sonrası hatırlatıcılar yeniden kurulurken hata oluştu", e)
@@ -76,5 +87,8 @@ class TimezoneChangeReceiver : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "TimezoneChangeReceiver"
+
+        /** ACTION_TIMEZONE_CHANGED ile gelen yeni saat diliminin kimliği (Intent.EXTRA_TIMEZONE). */
+        private const val EXTRA_TIME_ZONE = "time-zone"
     }
 }

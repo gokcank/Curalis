@@ -599,6 +599,11 @@
         <item quantity="other">Telefon kapalıyken %d doz kaçırıldı</item>
     </plurals>
     <string name="missed_while_off_text">Zaman çizelgesinde kontrol etmek için dokunun.</string>
+    <string name="time_zone_dialog_title">Saat diliminiz değişti</string>
+    <string name="time_zone_dialog_from">Önceki: %s</string>
+    <string name="time_zone_dialog_to">Şimdi: %s</string>
+    <string name="time_zone_dialog_difference">Saat farkı: %s</string>
+    <string name="time_zone_dialog_explanation">Hatırlatmalar saatteki aynı yerel saatte çalmaya devam eder. Yeni saat diliminizdeki hatırlatma saatleriniz:</string>
     <string name="reminder_health_title">Hatırlatmalar gelmeyebilir</string>
     <plurals name="reminder_health_undelivered">
         <item quantity="one">%d hatırlatma zamanında çalmadı</item>

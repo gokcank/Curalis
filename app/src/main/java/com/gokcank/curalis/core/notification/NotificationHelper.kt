@@ -303,6 +303,10 @@ class NotificationHelper @Inject constructor(
         notificationManager.notify(TIMEZONE_CHANGED_NOTIFICATION_ID, builder.build())
     }
 
+    fun dismissTimezoneChangedNotification() {
+        notificationManager.cancel(TIMEZONE_CHANGED_NOTIFICATION_ID)
+    }
+
     /**
      * Telefon açıldığında, kapalıyken saati geçen ve hatırlatması hiç gelmeyen dozlar için tek
      * bildirim (bkz. BootReceiver). İlaç adı içermez; dokununca zaman çizelgesi açılır.

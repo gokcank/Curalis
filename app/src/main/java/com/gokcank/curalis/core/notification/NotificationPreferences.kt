@@ -2,6 +2,8 @@ package com.gokcank.curalis.core.notification
 
 import android.content.Context
 import androidx.core.content.edit
+import com.gokcank.curalis.domain.usecase.TimeZoneChange
+import com.gokcank.curalis.domain.usecase.TimeZoneChangeSummary
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -93,6 +95,54 @@ class NotificationPreferences @Inject constructor(
             _lateDoseThresholdMinutes.value = value
         }
 
+    /**
+     * Kullanıcının uygulamayı en son kullandığı saat dilimi. Sistem, saat dilimi değişirken
+     * eskisini bildirmediği için "nereden nereye" bilgisi buradan gelir.
+     */
+    private val lastKnownTimeZoneId: String?
+        get() = prefs.getString(KEY_LAST_KNOWN_TIME_ZONE, null)
+
+    /**
+     * İlk değer yalnızca uygulama arayüzü açılırken yazılır: saat dilimi değişimi süreci
+     * başlattığında Application.onCreate zaten yeni saat dilimindedir ve eskisinin yerine geçerdi.
+     */
+    fun rememberTimeZoneIfUnknown(zoneId: String) {
+        if (lastKnownTimeZoneId == null) prefs.edit { putString(KEY_LAST_KNOWN_TIME_ZONE, zoneId) }
+    }
+
+    /** Ana ekranda henüz gösterilmemiş saat dilimi değişikliği. */
+    val pendingTimeZoneChange: TimeZoneChange?
+        get() {
+            val to = prefs.getString(KEY_PENDING_TIME_ZONE_TO, null) ?: return null
+            return TimeZoneChange(prefs.getString(KEY_PENDING_TIME_ZONE_FROM, null), to)
+        }
+
+    /**
+     * Saat dilimi değişimini kaydeder ve gösterilecek değişikliği döndürür (bkz.
+     * [TimeZoneChangeSummary.merge]); açıklanacak bir şey kalmadıysa null.
+     */
+    fun recordTimeZoneChange(newZoneId: String): TimeZoneChange? {
+        val change = TimeZoneChangeSummary.merge(pendingTimeZoneChange, lastKnownTimeZoneId, newZoneId)
+        prefs.edit {
+            putString(KEY_LAST_KNOWN_TIME_ZONE, newZoneId)
+            if (change == null) {
+                remove(KEY_PENDING_TIME_ZONE_FROM)
+                remove(KEY_PENDING_TIME_ZONE_TO)
+            } else {
+                putString(KEY_PENDING_TIME_ZONE_FROM, change.fromZoneId)
+                putString(KEY_PENDING_TIME_ZONE_TO, change.toZoneId)
+            }
+        }
+        return change
+    }
+
+    fun clearPendingTimeZoneChange() {
+        prefs.edit {
+            remove(KEY_PENDING_TIME_ZONE_FROM)
+            remove(KEY_PENDING_TIME_ZONE_TO)
+        }
+    }
+
     fun isWithinQuietHours(): Boolean {
         if (!quietHoursEnabled) return false
         val now = Calendar.getInstance()
@@ -122,6 +172,9 @@ class NotificationPreferences @Inject constructor(
         const val DEFAULT_MORNING_REMINDER_MINUTES = 8 * 60 // 08:00
         const val DEFAULT_WEEKEND_MORNING_REMINDER_MINUTES = 10 * 60 // 10:00
         private const val KEY_APPOINTMENT_LEAD_MINUTES = "appointment_reminder_lead_minutes"
+        private const val KEY_LAST_KNOWN_TIME_ZONE = "last_known_time_zone"
+        private const val KEY_PENDING_TIME_ZONE_FROM = "pending_time_zone_from"
+        private const val KEY_PENDING_TIME_ZONE_TO = "pending_time_zone_to"
         const val DEFAULT_QUIET_START = 22 * 60 // 22:00
         const val DEFAULT_QUIET_END = 7 * 60 // 07:00
         const val DEFAULT_SNOOZE_MINUTES = 10

@@ -118,13 +118,17 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val reminderHealth by viewModel.reminderHealth.collectAsState()
+    val timeZoneChangeDialog by viewModel.timeZoneChangeDialog.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // İzinler Android ayarlarından değişebiliyor ve zaman ilerledikçe yeni dozlar "çalmadı"
     // sayılabiliyor; ekran her ön plana geldiğinde hatırlatma sağlığı yeniden değerlendirilir.
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) viewModel.refreshReminderHealth()
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshReminderHealth()
+                viewModel.refreshTimeZoneChange()
+            }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
@@ -147,6 +151,10 @@ fun HomeScreen(
 
     BackHandler {
         showExitDialog = true
+    }
+
+    timeZoneChangeDialog?.let { state ->
+        TimeZoneChangeDialog(state = state, onDismiss = viewModel::dismissTimeZoneChange)
     }
 
     if (showExitDialog) {
@@ -605,6 +613,68 @@ fun ColorDashboardCard(
             }
         }
     }
+}
+
+/**
+ * Saat dilimi değişince eski ve yeni saat dilimini, aradaki farkı ve hatırlatmaların yeni
+ * yerel saatlerini gösterir. Hatırlatmalar saatteki yerel saate bağlı olduğu için saatler
+ * ilacın kendi saatleridir; yalnızca kullanıcıya açıklanır, hiçbir şey değiştirilmez.
+ */
+@Composable
+fun TimeZoneChangeDialog(state: TimeZoneChangeDialogState, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.time_zone_dialog_title)) },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                state.change.fromZoneId?.let {
+                    Text(stringResource(R.string.time_zone_dialog_from, zoneLabel(it)))
+                }
+                Text(stringResource(R.string.time_zone_dialog_to, zoneLabel(state.change.toZoneId)))
+                state.offsetDifferenceMinutes?.let {
+                    Text(stringResource(R.string.time_zone_dialog_difference, offsetDifferenceLabel(it)))
+                }
+                if (state.medications.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        stringResource(R.string.time_zone_dialog_explanation),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    state.medications.forEach { med ->
+                        val times = med.times.joinToString(", ") {
+                            String.format(Locale.getDefault(), "%02d:%02d", it.hour, it.minute)
+                        }
+                        Text(
+                            text = "${med.name}: $times",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.ok)) }
+        }
+    )
+}
+
+/** "Europe/Istanbul (GMT+03:00)" — saat dilimi kimliği ve şu anki ofseti. */
+private fun zoneLabel(zoneId: String): String {
+    val offset = runCatching { java.time.ZoneId.of(zoneId).rules.getOffset(java.time.Instant.now()) }.getOrNull()
+        ?: return zoneId
+    val gmt = if (offset.totalSeconds == 0) "GMT" else "GMT${offset.id}"
+    return "$zoneId ($gmt)"
+}
+
+/** Dakika cinsinden farkı "+8:00" / "−5:30" biçiminde yazar. */
+internal fun offsetDifferenceLabel(minutes: Int): String {
+    val sign = if (minutes < 0) "−" else "+"
+    val abs = kotlin.math.abs(minutes)
+    return String.format(Locale.ROOT, "%s%d:%02d", sign, abs / 60, abs % 60)
 }
 
 /**
