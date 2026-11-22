@@ -1054,6 +1054,18 @@ fun AddEditMedicationScreen(
                 } ?: stringResource(R.string.expiry_date_picker_placeholder)
                 Text(formattedExpiry)
             }
+            // Tarihi geçmiş kutu için yalnızca uyarı; kayıt engellenmez.
+            val isExpired = formState.expiryDate?.let {
+                com.gokcank.curalis.domain.usecase.MedicationExpiry.isExpired(it, java.time.LocalDate.now())
+            } == true
+            if (isExpired) {
+                Text(
+                    text = stringResource(R.string.expiry_passed_warning),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 

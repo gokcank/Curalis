@@ -46,6 +46,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.gokcank.curalis.domain.usecase.MedicationExpiry
+import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
@@ -205,6 +207,7 @@ class AddEditMedicationViewModel @Inject constructor(
     // Sorulan eşleşmenin barkodu; kullanıcı onaylayana kadar forma yazılmaz, yoksa
     // "İptal" sonrası ad bir ilaca, barkod başka bir ilaca ait kalırdı.
     private var pendingBarcode: String? = null
+    private var pendingBarcodeExpiry: LocalDate? = null
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage = _errorMessage.asStateFlow()
@@ -292,6 +295,7 @@ class AddEditMedicationViewModel @Inject constructor(
             viewModelScope.launch { _eventFlow.emit(UiEvent.BarcodeNotRecognized) }
             return
         }
+        val expiry = MedicationBarcode.extractExpiryDate(rawValue)
         viewModelScope.launch {
             _isSearching.value = true
             val match = try {
@@ -313,12 +317,14 @@ class AddEditMedicationViewModel @Inject constructor(
                             it.copy(barcode = gtin)
                         }
                     }
+                    fillExpiryFromBarcode(expiry)
                     _eventFlow.emit(UiEvent.BarcodeNotInList)
                 }
                 currentName.isEmpty() || currentName.equals(match.name, ignoreCase = true) ->
-                    applyBarcodeMatch(match, gtin)
+                    applyBarcodeMatch(match, gtin, expiry)
                 else -> {
                     pendingBarcode = gtin
+                    pendingBarcodeExpiry = expiry
                     _pendingBarcodeMatch.value = match
                 }
             }
@@ -328,18 +334,32 @@ class AddEditMedicationViewModel @Inject constructor(
     fun confirmBarcodeMatch() {
         val match = _pendingBarcodeMatch.value
         val gtin = pendingBarcode
-        if (match != null && gtin != null) applyBarcodeMatch(match, gtin)
+        if (match != null && gtin != null) applyBarcodeMatch(match, gtin, pendingBarcodeExpiry)
         dismissBarcodeMatch()
     }
 
     fun dismissBarcodeMatch() {
         _pendingBarcodeMatch.value = null
         pendingBarcode = null
+        pendingBarcodeExpiry = null
     }
 
-    private fun applyBarcodeMatch(match: ProviderMedication, gtin: String) {
+    private fun applyBarcodeMatch(match: ProviderMedication, gtin: String, expiry: LocalDate?) {
         _formState.update { it.copy(barcode = gtin) }
         onSuggestionSelected(match)
+        fillExpiryFromBarcode(expiry)
+    }
+
+    /**
+     * Karekoddaki son kullanma tarihi, alan boşsa forma yazılır; kullanıcının girdiği tarihe
+     * dokunulmaz. Yalnızca okutulan kutu bu ilaca uygulandığında çağrılır: kullanıcı adı
+     * değiştirmeyi reddederse kutu başka bir ilaca ait olabilir.
+     */
+    private fun fillExpiryFromBarcode(expiry: LocalDate?) {
+        if (expiry == null) return
+        _formState.update {
+            if (it.expiryDate == null) it.copy(expiryDate = MedicationExpiry.toStoredMillis(expiry)) else it
+        }
     }
 
     fun onActiveIngredientChange(value: String) = _formState.update {

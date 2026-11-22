@@ -244,6 +244,7 @@
     <string name="prescribing_doctor_label">Doctor who prescribed this medication</string>
     <string name="not_specified">Not specified</string>
     <string name="additional_info_title">Additional Info &amp; Expiry Date</string>
+    <string name="expiry_passed_warning">This box is past its expiry date.</string>
     <string name="expiry_date_picker_placeholder">Select Expiry Date (Optional)</string>
     <string name="medication_notes_label">Medication Notes / Description</string>
     <string name="medication_notes_placeholder">Store in a cool, dry place.</string>
