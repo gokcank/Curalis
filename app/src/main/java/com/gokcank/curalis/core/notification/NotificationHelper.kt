@@ -258,13 +258,30 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        // Hatırlatmalarla aynı kilit ekranı gizliliği: sınırlı seviyede ilaç adı bildirimde hiç
+        // yer almaz, gizli seviyede bildirim kilit ekranında görünmez (bkz. LockScreenPrivacy).
+        val lockScreenPrivacy = notificationPreferences.lockScreenPrivacy
+        val title = context.getString(R.string.refill_notification_title)
+        val text = if (lockScreenPrivacy == LockScreenPrivacy.LIMITED) {
+            context.resources.getQuantityString(R.plurals.refill_notification_text_unnamed, remainingStock, remainingStock)
+        } else {
+            context.resources.getQuantityString(R.plurals.refill_notification_text, remainingStock, medicationName, remainingStock)
+        }
+        val publicVersion = NotificationCompat.Builder(context, CHANNEL_ID_REFILL)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle(title)
+            .build()
+
         val builder = NotificationCompat.Builder(context, CHANNEL_ID_REFILL)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle("Stok azalıyor")
-            .setContentText("$medicationName ilacınız bitmek üzere! Kalan: $remainingStock doz. Reçetenizi yenilemeyi unutmayın.")
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .setContentIntent(contentPendingIntent)
+            .setVisibility(lockScreenPrivacy.notificationVisibility)
+            .setPublicVersion(publicVersion)
 
         notificationManager.notify((medicationName + "_refill").hashCode(), builder.build())
     }

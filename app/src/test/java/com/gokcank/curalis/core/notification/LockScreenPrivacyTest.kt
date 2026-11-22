@@ -91,6 +91,32 @@ class LockScreenPrivacyTest {
     }
 
     @Test
+    fun `low stock notification follows the level too`() {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val expected = mapOf(
+            LockScreenPrivacy.FULL to Notification.VISIBILITY_PUBLIC,
+            LockScreenPrivacy.LIMITED to Notification.VISIBILITY_PRIVATE,
+            LockScreenPrivacy.HIDDEN to Notification.VISIBILITY_SECRET
+        )
+        expected.forEach { (level, visibility) ->
+            val prefs = NotificationPreferences(context).apply { lockScreenPrivacy = level }
+            val name = "Secret medicine $level"
+            NotificationHelper(context, prefs).showRefillWarningNotification(name, 3)
+
+            val notification = shadowOf(manager).getNotification((name + "_refill").hashCode())
+            assertEquals("level $level", visibility, notification.visibility)
+            assertFalse(notification.publicVersion.extras.toString().contains(name))
+            val text = notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString()
+            if (level == LockScreenPrivacy.LIMITED) {
+                assertFalse(notification.extras.toString().contains(name))
+                assertEquals("One of your medications is running out: 3 doses left.", text)
+            } else {
+                assertEquals("$name is running out: 3 doses left. Remember to renew your prescription.", text)
+            }
+        }
+    }
+
+    @Test
     fun `full-screen reminder hides names only while locked and not on full level`() {
         assertFalse(LockScreenPrivacy.FULL.hidesNamesOnFullScreen(isDeviceLocked = true))
         assertTrue(LockScreenPrivacy.LIMITED.hidesNamesOnFullScreen(isDeviceLocked = true))
