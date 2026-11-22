@@ -98,6 +98,13 @@ android {
             excludes += "META-INF/INDEX.LIST"
         }
     }
+    // Robolectric testleri uygulama kaynaklarına (metinler vb.) erişebilsin; örn. bildirim
+    // kanallarını kuran sınıf kanal adlarını kaynaklardan okur.
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
     lint {
         abortOnError = true
         checkReleaseBuilds = true

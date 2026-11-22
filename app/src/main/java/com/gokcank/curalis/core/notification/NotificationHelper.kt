@@ -79,6 +79,9 @@ class NotificationHelper @Inject constructor(
         notificationManager.createNotificationChannel(reminderChannel)
         notificationManager.createNotificationChannel(silentReminderChannel)
         notificationManager.createNotificationChannel(refillChannel)
+        // Sabah özeti, ölçüm hatırlatması ve saat dilimi bildirimi bu kanala gider; kayıtlı
+        // olmayan bir kanala gönderilen bildirimi Android hata vermeden düşürür.
+        notificationManager.createNotificationChannel(proactiveChannel)
     }
 
     fun showMorningReminderNotification() {
