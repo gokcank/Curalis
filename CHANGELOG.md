@@ -2,6 +2,18 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.4.2] — versionCode 12
+
+Bug fixes.
+
+- **Stock now follows every taken dose.** Stock used to drop only when a dose was taken
+  from the notification or the full-screen reminder; taking it from the timeline, the home
+  screen or the widget changed nothing and sent no low-stock warning. Every path now uses
+  the same rule, and undoing a taken dose puts the amount back (shown as "Dose undone" in
+  the stock history).
+- **Morning summary, measurement reminders and the time-zone notice appear again.** Their
+  notification category was never created, so Android dropped them silently.
+
 ## [1.4.1] — versionCode 11
 
 Fixes found while trying 1.4.0 on a phone.
