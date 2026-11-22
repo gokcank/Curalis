@@ -11,7 +11,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +31,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import com.gokcank.curalis.core.utils.PickPhoneContact
+import com.gokcank.curalis.core.utils.readPickedContact
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -45,6 +55,21 @@ fun AddEditEmergencyContactScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val contactReadError = stringResource(R.string.contact_pick_failed)
+    val noContactsApp = stringResource(R.string.contact_pick_unavailable)
+
+    // Rehber izni istenmez: telefonun kişi seçicisi yalnızca seçilen numarayı paylaşır.
+    val pickContact = rememberLauncherForActivityResult(PickPhoneContact()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val picked = readPickedContact(context, uri)
+        if (picked == null) {
+            scope.launch { snackbarHostState.showSnackbar(contactReadError) }
+        } else {
+            viewModel.onContactPicked(picked.name, picked.phoneNumber)
+        }
+    }
 
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collect { event ->
@@ -88,6 +113,21 @@ fun AddEditEmergencyContactScreen(
                 .padding(16.dp)
                 .verticalScroll(scrollState)
         ) {
+            OutlinedButton(
+                onClick = {
+                    try {
+                        pickContact.launch(Unit)
+                    } catch (e: android.content.ActivityNotFoundException) {
+                        scope.launch { snackbarHostState.showSnackbar(noContactsApp) }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Contacts, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.pick_from_contacts))
+            }
+            Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = name,
                 onValueChange = viewModel::onNameChange,

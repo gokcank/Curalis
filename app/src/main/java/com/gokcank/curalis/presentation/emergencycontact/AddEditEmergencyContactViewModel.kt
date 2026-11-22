@@ -62,6 +62,12 @@ class AddEditEmergencyContactViewModel @Inject constructor(
     }
 
     fun onNameChange(value: String) { _name.value = value }
+
+    /** Rehberden seçilen kişi: gelen ad ve numara alanlara yazılır, boş gelen alan korunur. */
+    fun onContactPicked(name: String?, phoneNumber: String?) {
+        name?.let { _name.value = it }
+        phoneNumber?.let { _phoneNumber.value = it }
+    }
     fun onRelationshipChange(value: String) { _relationship.value = value }
     fun onPhoneNumberChange(value: String) { _phoneNumber.value = value }
     fun onNotesChange(value: String) { _notes.value = value }

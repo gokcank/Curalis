@@ -628,6 +628,9 @@
     <string name="stock_current">Şu anki stok: %d</string>
     <string name="stock_add_box">Bir kutu ekle (+%d)</string>
     <string name="stock_enter_label">Stok gir</string>
+    <string name="pick_from_contacts">Rehberden seç</string>
+    <string name="contact_pick_failed">Seçilen kişi okunamadı.</string>
+    <string name="contact_pick_unavailable">Bu telefonda rehber uygulaması bulunamadı.</string>
     <string name="reminder_health_title">Hatırlatmalar gelmeyebilir</string>
     <plurals name="reminder_health_undelivered">
         <item quantity="one">%d hatırlatma zamanında çalmadı</item>

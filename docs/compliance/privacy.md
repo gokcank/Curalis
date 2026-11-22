@@ -75,6 +75,8 @@ Examples:
 
 These should not be required for the MVP.
 
+Emergency contacts can be filled from the phone's address book without the contacts permission: the phone's own contact picker opens in "pick a phone number" mode and shares only the chosen contact's name and number. The app never asks for READ_CONTACTS and cannot see the rest of the address book.
+
 ---
 
 # Medical Information
