@@ -2,6 +2,25 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.5.0] — versionCode 13
+
+Reminder reliability and privacy.
+
+- **Warning when reminders may not arrive.** The home screen shows a banner when a dose's
+  reminder never went off in the last 24 hours, or when notifications, the exact alarm
+  permission or the battery exemption are turned off. Tapping it opens Reminder
+  Troubleshooting, which now also lists the notification permission.
+- **Doses missed while the phone was off.** After a restart, one notification says how many
+  doses were missed while the phone was off; tapping it opens the daily timeline.
+- **Time zone change explained.** After a time zone change the home screen shows the
+  previous and new zone, the time difference and every medication's reminder times, which
+  keep following the local clock.
+- **Three lock-screen privacy levels: full, limited, hidden.** Limited leaves the medication
+  name out of reminder and low-stock notifications ("Medication Time" and the time only);
+  hidden keeps them off a secure lock screen. In both, the full-screen reminder shows only
+  the dose time while the phone is locked. The old "hide medication name" switch becomes
+  limited; it used to leave the name visible on most phones.
+
 ## [1.4.2] — versionCode 12
 
 Bug fixes.
