@@ -121,6 +121,7 @@ fun AddEditMedicationScreen(
     // sonuçları/hata gibi geçici durumlar ayrı akışlarda kalır.
     val formState by viewModel.formState.collectAsState()
     val suggestions by viewModel.suggestions.collectAsState()
+    val spellingSuggestions by viewModel.spellingSuggestions.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
     val error by viewModel.errorMessage.collectAsState()
     val pendingBarcodeMatch by viewModel.pendingBarcodeMatch.collectAsState()
@@ -442,6 +443,30 @@ fun AddEditMedicationScreen(
                                     suggestion = suggestion,
                                     onClick = { viewModel.onSuggestionSelected(suggestion) }
                                 )
+                            }
+                        }
+                    }
+                } else if (spellingSuggestions.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 60.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(
+                                text = stringResource(R.string.did_you_mean),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(4.dp)
+                            )
+                            spellingSuggestions.forEach { word ->
+                                androidx.compose.material3.TextButton(
+                                    onClick = { viewModel.onSpellingSuggestionSelected(word) }
+                                ) {
+                                    Text(word, style = MaterialTheme.typography.bodyLarge)
+                                }
                             }
                         }
                     }

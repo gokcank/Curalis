@@ -10,4 +10,7 @@ class SearchRemoteMedicationsUseCase @Inject constructor(
     suspend operator fun invoke(query: String): List<ProviderMedication> {
         return providerManager.searchAllProviders(query)
     }
+
+    /** Arama sonuç vermediğinde "Bunu mu demek istediniz?" için yazımı yakın adlar. */
+    suspend fun suggestSpellings(query: String): List<String> = providerManager.suggestSpellings(query)
 }

@@ -197,6 +197,10 @@ class AddEditMedicationViewModel @Inject constructor(
     private val _suggestions = MutableStateFlow<List<ProviderMedication>>(emptyList())
     val suggestions = _suggestions.asStateFlow()
 
+    /** Arama sonuç vermediğinde "Bunu mu demek istediniz?" altında gösterilen adlar. */
+    private val _spellingSuggestions = MutableStateFlow<List<String>>(emptyList())
+    val spellingSuggestions = _spellingSuggestions.asStateFlow()
+
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
@@ -258,16 +262,27 @@ class AddEditMedicationViewModel @Inject constructor(
                 delay(300)
                 _isSearching.value = true
                 try {
-                    _suggestions.value = searchRemoteMedicationsUseCase(name)
+                    val results = searchRemoteMedicationsUseCase(name)
+                    _suggestions.value = results
+                    _spellingSuggestions.value =
+                        if (results.isEmpty()) searchRemoteMedicationsUseCase.suggestSpellings(name) else emptyList()
                 } catch (e: Exception) {
                     _suggestions.value = emptyList()
+                    _spellingSuggestions.value = emptyList()
                 } finally {
                     _isSearching.value = false
                 }
             }
         } else {
             _suggestions.value = emptyList()
+            _spellingSuggestions.value = emptyList()
         }
+    }
+
+    /** Önerilen yazım ad alanına yazılır ve yeniden aranır. */
+    fun onSpellingSuggestionSelected(word: String) {
+        _spellingSuggestions.value = emptyList()
+        onNameChange(word)
     }
 
     fun onSuggestionSelected(suggestion: ProviderMedication) {

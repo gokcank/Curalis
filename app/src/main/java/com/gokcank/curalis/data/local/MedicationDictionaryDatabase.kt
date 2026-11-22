@@ -19,7 +19,7 @@ abstract class MedicationDictionaryDatabase : RoomDatabase() {
     abstract val drugDao: DrugDao
 
     companion object {
-        const val VERSION = 2
+        const val VERSION = 3
         const val DATABASE_NAME = "medications.db"
         const val DATABASE_DATE = "09.10.2026"
     }

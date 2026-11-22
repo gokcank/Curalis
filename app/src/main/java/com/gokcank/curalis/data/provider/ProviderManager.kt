@@ -23,6 +23,14 @@ class ProviderManager @Inject constructor(
         return emptyList()
     }
 
+    suspend fun suggestSpellings(query: String, limit: Int = 3): List<String> {
+        for (provider in providers) {
+            val suggestions = provider.suggestSpellings(query, limit)
+            if (suggestions.isNotEmpty()) return suggestions
+        }
+        return emptyList()
+    }
+
     suspend fun findByBarcode(gtin: String): ProviderMedication? {
         for (provider in providers) {
             provider.findByBarcode(gtin)?.let { return it }

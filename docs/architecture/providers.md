@@ -166,6 +166,16 @@ Conflict resolution rules should be documented separately when necessary.
 
 ---
 
+# Name Search
+
+The local TİTCK dictionary is searched on a `searchName` column, not on the raw name. SQLite's `LIKE` ignores case only for ASCII letters, so before this column "ş" and "Ş" found different products (127 against 1,270).
+
+`searchName` is the name with Turkish letters folded (İ/I/ı/i → i, ş → s, ğ → g, ü → u, ö → o, ç → c, circumflex vowels to plain), lower-cased, with whitespace collapsed. The dictionary builder (`tools/build_titck_dictionary.py`) writes it, and the app prepares the query with the same rule (`TurkishSearchText`). A test checks every dictionary row against the app's rule.
+
+When a search finds nothing, up to three names with a close spelling are offered ("Did you mean?"). Only the first word of the name that contains a letter (usually the brand) is compared, with at most one differing letter for short words and two for longer ones. Choosing a suggestion searches again with that word.
+
+---
+
 # Active Ingredient Search
 
 Medication lookup follows the canonical strategy defined in ADR-008-medication-data-source.md.

@@ -9,5 +9,13 @@ data class DrugEntity(
     val gtin: String,
     val drugName: String,
     val activeIngredient: String,
-    val manufacturer: String
+    val manufacturer: String,
+    /** Adın aramaya uygun biçimi (bkz. TurkishSearchText); sözlük üretilirken yazılır. */
+    val searchName: String
+)
+
+/** Yazım önerileri için yalnızca ad sütunları. */
+data class DrugNameRow(
+    val drugName: String,
+    val searchName: String
 )
