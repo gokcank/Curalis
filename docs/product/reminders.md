@@ -129,6 +129,7 @@ How Curalis applies the levels to medication reminders:
 - **Hidden:** with a screen lock (PIN, pattern, password) the reminder notification does not appear on the lock screen at all; once unlocked it shows the name.
 - **Limited and Hidden:** while the phone is locked, the full-screen reminder shows only the dose time, with no medication name or dose. The name appears as soon as the phone is unlocked. Take, Snooze and Skip work at every level.
 - **Previous setting:** users who had the old "hide medication name on lock screen" switch on move to Limited.
+- **Low-stock notifications** follow the same levels: Limited leaves the medication name out ("One of your medications is running out"), Hidden keeps the notification off a secure lock screen.
 
 ---
 
