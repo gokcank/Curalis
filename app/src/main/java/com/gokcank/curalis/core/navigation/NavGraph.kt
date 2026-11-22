@@ -39,7 +39,8 @@ fun NavGraph() {
                 onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) },
                 onNavigateToDailyTimeline = { navController.navigate(Screen.DailyTimeline.route) },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
-                onNavigateToAbout = { navController.navigate(Screen.About.route) }
+                onNavigateToAbout = { navController.navigate(Screen.About.route) },
+                onNavigateToTroubleshooting = { navController.navigate(Screen.ReminderTroubleshooting.route) }
             )
         }
 

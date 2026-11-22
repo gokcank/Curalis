@@ -592,6 +592,17 @@
     <!-- Hatırlatıcı Sorun Giderme -->
     <string name="troubleshooting_title">Hatırlatıcı Sorun Giderme</string>
     <string name="troubleshooting_intro">Hatırlatıcılar zamanında gelmiyorsa, aşağıdaki ayarları kontrol edin. Bunlar Android işletim sisteminin ve telefon üreticinizin uyguladığı, uygulama dışından yönetilen kısıtlamalardır.</string>
+    <string name="notification_permission_title">Bildirim İzni</string>
+    <string name="notification_permission_desc">Bildirimler ya da \"İlaç Hatırlatıcıları\" kategorisi kapalıyken hatırlatmalar görünmez.</string>
+    <string name="reminder_health_title">Hatırlatmalar gelmeyebilir</string>
+    <plurals name="reminder_health_undelivered">
+        <item quantity="one">%d hatırlatma zamanında çalmadı</item>
+        <item quantity="other">%d hatırlatma zamanında çalmadı</item>
+    </plurals>
+    <string name="reminder_health_notifications_blocked">Bildirimler kapalı</string>
+    <string name="reminder_health_exact_alarm_denied">Tam zamanlı alarm izni kapalı</string>
+    <string name="reminder_health_battery_optimized">Pil optimizasyonu alarmları engelleyebilir</string>
+    <string name="reminder_health_action">Kontrol etmek için dokunun</string>
     <string name="exact_alarm_permission_title">Tam Zamanlı Alarm İzni</string>
     <string name="exact_alarm_permission_desc">Bu izin olmadan hatırlatıcılar birkaç dakika gecikmeyle gelebilir.</string>
     <string name="full_screen_permission_title">Tam Ekran Hatırlatma İzni</string>

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.gokcank.curalis.core.notification.ManufacturerAutostartHelper
 import com.gokcank.curalis.core.notification.ReminderPermissions
+import com.gokcank.curalis.domain.repository.ReminderSystemStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 data class TroubleshootingUiState(
+    val notificationsEnabled: Boolean = true,
     val exactAlarmGranted: Boolean = true,
     val fullScreenIntentGranted: Boolean = true,
     val batteryOptimizationIgnored: Boolean = true,
@@ -25,7 +27,8 @@ data class TroubleshootingUiState(
  */
 @HiltViewModel
 class ReminderTroubleshootingViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val reminderSystemStatus: ReminderSystemStatus
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -39,6 +42,7 @@ class ReminderTroubleshootingViewModel @Inject constructor(
 
     fun refresh() {
         _uiState.value = _uiState.value.copy(
+            notificationsEnabled = reminderSystemStatus.areReminderNotificationsEnabled(),
             exactAlarmGranted = ReminderPermissions.canScheduleExactAlarms(context),
             fullScreenIntentGranted = ReminderPermissions.canUseFullScreenIntent(context),
             batteryOptimizationIgnored = ReminderPermissions.isIgnoringBatteryOptimizations(context)

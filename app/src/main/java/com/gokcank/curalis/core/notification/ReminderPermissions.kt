@@ -33,6 +33,14 @@ object ReminderPermissions {
     fun isIgnoringBatteryOptimizations(context: Context): Boolean =
         context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName)
 
+    /** Uygulamanın bildirim ayarlarını açar; "İlaç Hatırlatıcıları" kategorisi de oradadır. */
+    fun openNotificationSettings(context: Context) {
+        context.startActivity(
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+        )
+    }
+
     fun openExactAlarmSettings(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.startActivity(packageIntent(context, Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))

@@ -14,16 +14,20 @@ import com.gokcank.curalis.domain.usecase.AcknowledgeReminderUseCase
 import com.gokcank.curalis.domain.usecase.DoseAdherence
 import com.gokcank.curalis.domain.usecase.GetAdherenceStreakUseCase
 import com.gokcank.curalis.domain.usecase.GetRemindersBetweenDatesUseCase
+import com.gokcank.curalis.domain.usecase.ObserveReminderHealthUseCase
+import com.gokcank.curalis.domain.usecase.ReminderHealthReport
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.theme.ThemeController
 import com.gokcank.curalis.core.theme.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -63,6 +67,7 @@ class HomeViewModel @Inject constructor(
     private val acknowledgeReminderUseCase: AcknowledgeReminderUseCase,
     private val getAdherenceStreakUseCase: GetAdherenceStreakUseCase,
     private val notificationPreferences: NotificationPreferences,
+    observeReminderHealthUseCase: ObserveReminderHealthUseCase,
     themeController: ThemeController
 ) : ViewModel() {
 
@@ -74,6 +79,20 @@ class HomeViewModel @Inject constructor(
     /** Rapor içeriği diyaloğundaki ilaç filtresi dropdown'unu doldurmak için. */
     val medications: StateFlow<List<Medication>> = medicationRepository.getAllMedications()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Hatırlatma sağlığının değerlendirildiği an; ekran her ön plana geldiğinde ilerletilir. */
+    private val reminderHealthCheckTime = MutableStateFlow(System.currentTimeMillis())
+
+    /** Ana ekrandaki hatırlatma uyarı şeridinin içeriği (bkz. ReminderHealth). */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val reminderHealth: StateFlow<ReminderHealthReport> = reminderHealthCheckTime
+        .flatMapLatest { now -> observeReminderHealthUseCase(now) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReminderHealthReport())
+
+    /** İzinler uygulama dışından değiştiği ve zaman ilerlediği için ekran ön plana gelince çağrılır. */
+    fun refreshReminderHealth() {
+        reminderHealthCheckTime.value = System.currentTimeMillis()
+    }
 
     init {
         loadDashboardData()

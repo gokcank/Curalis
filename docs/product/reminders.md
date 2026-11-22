@@ -251,6 +251,15 @@ If reminder scheduling fails, the application should attempt recovery where poss
 
 Users should be informed when critical reminder scheduling cannot be guaranteed.
 
+The home screen shows a warning banner while any of these is true:
+
+- A dose's reminder never went off: its time (or its rescheduled time) passed more than 15 minutes ago, within the last 24 hours, and the alarm never fired. Doses that have no alarm are not counted (placebo days, as-needed medications, suspended or archived medications, doses after the end of a fixed-length treatment).
+- Notifications, or the medication reminder category, are turned off.
+- The exact alarm permission is off.
+- Battery optimization is on for the app.
+
+Permission problems are shown only while at least one medication sets reminder alarms. Tapping the banner opens Reminder Troubleshooting. The banner changes no dose or setting, and it disappears by itself once the problem is resolved (the dose is answered, the permission is granted, or 24 hours pass).
+
 ---
 
 # Future Features

@@ -590,6 +590,17 @@
     <!-- Reminder Troubleshooting -->
     <string name="troubleshooting_title">Reminder Troubleshooting</string>
     <string name="troubleshooting_intro">If reminders aren\'t arriving on time, check the settings below. These are restrictions imposed by Android and your phone manufacturer, managed outside the app.</string>
+    <string name="notification_permission_title">Notification Permission</string>
+    <string name="notification_permission_desc">While notifications or the \"Medication Reminders\" category are turned off, reminders can\'t be seen.</string>
+    <string name="reminder_health_title">Reminders may not arrive</string>
+    <plurals name="reminder_health_undelivered">
+        <item quantity="one">%d reminder did not go off on time</item>
+        <item quantity="other">%d reminders did not go off on time</item>
+    </plurals>
+    <string name="reminder_health_notifications_blocked">Notifications are turned off</string>
+    <string name="reminder_health_exact_alarm_denied">Exact alarm permission is off</string>
+    <string name="reminder_health_battery_optimized">Battery optimization may block alarms</string>
+    <string name="reminder_health_action">Tap to check</string>
     <string name="exact_alarm_permission_title">Exact Alarm Permission</string>
     <string name="exact_alarm_permission_desc">Without this permission, reminders may arrive a few minutes late.</string>
     <string name="full_screen_permission_title">Full-Screen Reminder Permission</string>

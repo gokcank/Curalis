@@ -99,6 +99,14 @@ fun ReminderTroubleshootingScreen(
             )
 
             TroubleshootingItem(
+                title = stringResource(R.string.notification_permission_title),
+                description = stringResource(R.string.notification_permission_desc),
+                isOk = uiState.notificationsEnabled,
+                actionLabel = stringResource(R.string.open_settings_button),
+                onAction = { ReminderPermissions.openNotificationSettings(context) }
+            )
+
+            TroubleshootingItem(
                 title = stringResource(R.string.exact_alarm_permission_title),
                 description = stringResource(R.string.exact_alarm_permission_desc),
                 isOk = uiState.exactAlarmGranted,

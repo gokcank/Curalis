@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Sick
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.automirrored.outlined.List
@@ -46,6 +47,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.gokcank.curalis.core.theme.LocalCuralisColors
@@ -73,7 +75,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.gokcank.curalis.domain.usecase.ReminderHealthReport
 import androidx.compose.ui.text.font.FontWeight
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.AlertDialog
@@ -106,9 +113,22 @@ fun HomeScreen(
     onNavigateToCalendar: () -> Unit = {},
     onNavigateToDailyTimeline: () -> Unit = {},
     onNavigateToSettings: () -> Unit,
-    onNavigateToAbout: () -> Unit
+    onNavigateToAbout: () -> Unit,
+    onNavigateToTroubleshooting: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val reminderHealth by viewModel.reminderHealth.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // İzinler Android ayarlarından değişebiliyor ve zaman ilerledikçe yeni dozlar "çalmadı"
+    // sayılabiliyor; ekran her ön plana geldiğinde hatırlatma sağlığı yeniden değerlendirilir.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.refreshReminderHealth()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     val medications by viewModel.medications.collectAsState()
     var showExitDialog by remember { mutableStateOf(false) }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
@@ -230,6 +250,11 @@ fun HomeScreen(
                 val dateString = dateFormat.format(Date())
 
                 Spacer(modifier = Modifier.height(8.dp))
+
+                if (reminderHealth.hasIssues) {
+                    ReminderHealthBanner(report = reminderHealth, onClick = onNavigateToTroubleshooting)
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -578,6 +603,78 @@ fun ColorDashboardCard(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * Hatırlatmaların gelmeyebileceğini haber veren şerit: saati geçtiği halde çalmamış dozlar
+ * ve kapalı izinler. Sorun giderilince kendiliğinden kaybolur; dokununca Hatırlatıcı Sorun
+ * Giderme ekranı açılır. Hiçbir doz ya da ayar değiştirmez.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReminderHealthBanner(report: ReminderHealthReport, onClick: () -> Unit) {
+    val semanticColors = LocalCuralisColors.current
+    val issues = buildList {
+        if (report.undeliveredDoseCount > 0) {
+            add(
+                pluralStringResource(
+                    R.plurals.reminder_health_undelivered,
+                    report.undeliveredDoseCount,
+                    report.undeliveredDoseCount
+                )
+            )
+        }
+        if (report.notificationsBlocked) add(stringResource(R.string.reminder_health_notifications_blocked))
+        if (report.exactAlarmsDenied) add(stringResource(R.string.reminder_health_exact_alarm_denied))
+        if (report.batteryOptimized) add(stringResource(R.string.reminder_health_battery_optimized))
+    }
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = semanticColors.warningContainer,
+            contentColor = semanticColors.onWarningContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = null,
+                modifier = Modifier.size(28.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.reminder_health_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                issues.forEach { issue ->
+                    Text(text = "• $issue", style = MaterialTheme.typography.bodyMedium)
+                }
+                Text(
+                    text = stringResource(R.string.reminder_health_action),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null
+            )
         }
     }
 }
