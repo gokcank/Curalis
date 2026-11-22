@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -114,6 +115,22 @@ fun MedicationListScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     var medicationToDelete by remember { mutableStateOf<Medication?>(null) }
     var medicationToEnd by remember { mutableStateOf<Medication?>(null) }
+    var stockDialogFor by remember { mutableStateOf<Medication?>(null) }
+
+    stockDialogFor?.let { med ->
+        StockShortcutDialog(
+            medication = med,
+            onAddBox = {
+                viewModel.addStockBox(med)
+                stockDialogFor = null
+            },
+            onSetStock = { value ->
+                viewModel.setStock(med, value)
+                stockDialogFor = null
+            },
+            onDismiss = { stockDialogFor = null }
+        )
+    }
     var selectedTab by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -322,6 +339,7 @@ fun MedicationListScreen(
                                 onTakeDose = { viewModel.takeDose(medication.id) },
                                 onDelete = { medicationToDelete = medication },
                                 onEndTreatment = { medicationToEnd = medication },
+                                onStockClick = { stockDialogFor = medication },
                                 onToggleSuspend = {
                                     if (medication.isSuspended) {
                                         viewModel.resumeMedication(medication)
@@ -378,7 +396,8 @@ fun MedicationItem(
     onTakeDose: () -> Unit,
     onDelete: () -> Unit,
     onToggleSuspend: () -> Unit,
-    onEndTreatment: () -> Unit
+    onEndTreatment: () -> Unit,
+    onStockClick: () -> Unit = {}
 ) {
     // MedicationForm/MealInstruction display names are stored per-enum in both languages
     // (displayNameTr/displayNameEn) rather than as string resources — pick the right one here.
@@ -555,11 +574,17 @@ fun MedicationItem(
                                     // Düşük stok bir hata değil, dikkat gerektiren bir durumdur:
                                     // design-system.md Error rengini sıradan dikkat için yasaklıyor.
                                     val semantic = LocalCuralisColors.current
+                                    // Dokununca "Bir kutu ekle" / "Stok gir" penceresi açılır.
                                     InfoChip(
                                         icon = if (isLowStock) Icons.Default.Warning else Icons.Default.Inventory2,
                                         text = if (isLowStock) stringResource(R.string.stock_low_chip, stock) else stringResource(R.string.stock_remaining_chip, stock),
                                         containerColor = if (isLowStock) semantic.warningContainer else MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = if (isLowStock) semantic.onWarningContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                                        contentColor = if (isLowStock) semantic.onWarningContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.clickable(
+                                            onClickLabel = stringResource(R.string.stock_change_action),
+                                            role = androidx.compose.ui.semantics.Role.Button,
+                                            onClick = onStockClick
+                                        )
                                     )
                                 }
                             }
@@ -652,4 +677,52 @@ fun ArchivedMedicationItem(
             }
         }
     }
+}
+
+/**
+ * Stok etiketine dokununca açılan kısa yol: bir kutu (başlangıç stoğu kadar) eklemek ya da
+ * stoğu elle girmek. Başlangıç stoğu yoksa yalnızca elle giriş gösterilir.
+ */
+@Composable
+private fun StockShortcutDialog(
+    medication: Medication,
+    onAddBox: () -> Unit,
+    onSetStock: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var entered by remember { mutableStateOf("") }
+    val boxSize = medication.initialStock?.takeIf { it > 0 }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(medication.name) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.stock_current, medication.currentStock ?: 0))
+                if (boxSize != null) {
+                    androidx.compose.material3.FilledTonalButton(onClick = onAddBox, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.stock_add_box, boxSize))
+                    }
+                }
+                OutlinedTextField(
+                    value = entered,
+                    onValueChange = { value -> entered = value.filter { it.isDigit() }.take(5) },
+                    label = { Text(stringResource(R.string.stock_enter_label)) },
+                    singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { entered.toIntOrNull()?.let(onSetStock) },
+                enabled = entered.toIntOrNull() != null
+            ) { Text(stringResource(R.string.save)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
+    )
 }

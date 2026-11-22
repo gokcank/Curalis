@@ -19,7 +19,6 @@ import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.MedicationTime
 import com.gokcank.curalis.domain.model.ProviderMedication
 import com.gokcank.curalis.domain.model.ReminderState
-import com.gokcank.curalis.domain.model.StockChangeReason
 import com.gokcank.curalis.domain.model.StockHistoryEntry
 import com.gokcank.curalis.domain.repository.ReminderRepository
 import com.gokcank.curalis.domain.repository.StockHistoryRepository
@@ -46,6 +45,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.gokcank.curalis.domain.usecase.AdjustStockUseCase
 import com.gokcank.curalis.domain.usecase.MedicationExpiry
 import java.time.LocalDate
 import java.util.UUID
@@ -599,11 +599,7 @@ class AddEditMedicationViewModel @Inject constructor(
                             medicationId = medicationId,
                             previousStock = oldStock,
                             newStock = parsedStock,
-                            reason = if (parsedStock != null && oldStock != null && parsedStock > oldStock) {
-                                StockChangeReason.REFILL
-                            } else {
-                                StockChangeReason.MANUAL_EDIT
-                            }
+                            reason = AdjustStockUseCase.reasonFor(oldStock, parsedStock)
                         )
                     )
                 }

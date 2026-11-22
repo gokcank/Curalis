@@ -48,7 +48,8 @@ class MedicationListViewModel @Inject constructor(
     private val scheduleReminderUseCase: ScheduleReminderUseCase,
     private val getRemindersForMedicationUseCase: GetRemindersForMedicationUseCase,
     private val alarmScheduler: AlarmScheduler,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val adjustStockUseCase: com.gokcank.curalis.domain.usecase.AdjustStockUseCase
 ) : ViewModel() {
 
     // Aktif ve arşivlenmiş ilaçlar aynı akıştan türetilir; Arşiv sekmesi olmadan
@@ -78,6 +79,16 @@ class MedicationListViewModel @Inject constructor(
         } else {
             searchMedications(query)
         }
+    }
+
+    /** Stok etiketinden "Bir kutu ekle": başlangıç stoğu kadar ekler, geçmişe yenileme olarak yazar. */
+    fun addStockBox(medication: Medication) {
+        viewModelScope.launch { adjustStockUseCase.addBox(medication.id) }
+    }
+
+    /** Stok etiketinden "Stok gir": stoğu girilen sayıya ayarlar. */
+    fun setStock(medication: Medication, stock: Int) {
+        viewModelScope.launch { adjustStockUseCase.setStock(medication.id, stock) }
     }
 
     /** Geçmiş doz kayıtları dahil ilacı tamamen siler. */
