@@ -213,8 +213,18 @@
     <string name="shape_patch">Patch</string>
     <string name="shape_sachet">Sachet</string>
     <string name="medication_color_title">Medication Color Accent</string>
-    <string name="color_selected_desc">Selected color</string>
-    <string name="color_option_desc">Color option</string>
+    <string name="pick_date_time_desc">Pick date and time</string>
+    <string name="extra_field_filled_desc">Filled in</string>
+    <string name="status_ok_desc">No problem</string>
+    <string name="status_problem_desc">Needs attention</string>
+    <string name="report_page_desc">Report page %1$d of %2$d</string>
+    <string name="color_name_blue">Blue</string>
+    <string name="color_name_teal">Teal</string>
+    <string name="color_name_purple">Purple</string>
+    <string name="color_name_orange">Orange</string>
+    <string name="color_name_green">Green</string>
+    <string name="color_name_magenta">Magenta</string>
+    <string name="color_name_slate">Slate blue</string>
     <string name="unit_label">Unit</string>
     <string name="unit_placeholder">Tablet / mg</string>
     <string name="meal_instruction_title">Meal Instruction</string>
@@ -358,6 +368,8 @@
     <string name="notifications_section_title">Notifications</string>
     <string name="notification_settings_row_title">Notification &amp; Reminder Settings</string>
     <string name="notification_settings_row_desc">Quiet hours, lock screen privacy and notification categories</string>
+    <string name="manage_target_desc">Manage %1$s</string>
+    <string name="view_target_desc">View %1$s</string>
     <string name="manage_button">Manage</string>
     <string name="timeline_slots_title">Timeline Slots</string>
     <string name="timeline_slots_desc">Change the start times of the Morning/Afternoon/Evening slots on the Daily Timeline screen.</string>
@@ -739,6 +751,10 @@
     <string name="alarm_medication_time_label">Medication Time</string>
     <string name="alarm_dose_label">Dose: %1$s</string>
     <string name="alarm_took_it_button">I Took It</string>
+    <plurals name="alarm_snooze_spoken">
+        <item quantity="one">Snooze %d minute</item>
+        <item quantity="other">Snooze %d minutes</item>
+    </plurals>
     <string name="alarm_snooze_10_min">10 min</string>
     <string name="alarm_snooze_30_min">30 min</string>
     <plurals name="alarm_doses_count">

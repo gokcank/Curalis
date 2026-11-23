@@ -1,6 +1,7 @@
 package com.gokcank.curalis.core.theme
 
 import androidx.compose.ui.graphics.Color
+import com.gokcank.curalis.R
 
 /**
  * Curalis renk sistemi.
@@ -168,4 +169,15 @@ val MedicationAccentColors = listOf(
     "#1B6B3A", // Yeşil
     "#9B2C6F", // Magenta
     "#44546A"  // Gri-mavi
+)
+
+/** [MedicationAccentColors] ile aynı sırada renk adları (ekran okuyucu için). */
+val MedicationAccentColorNames = listOf(
+    R.string.color_name_blue,
+    R.string.color_name_teal,
+    R.string.color_name_purple,
+    R.string.color_name_orange,
+    R.string.color_name_green,
+    R.string.color_name_magenta,
+    R.string.color_name_slate
 )

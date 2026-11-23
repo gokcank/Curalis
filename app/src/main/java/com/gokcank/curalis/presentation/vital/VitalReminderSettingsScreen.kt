@@ -37,6 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -108,7 +110,10 @@ private fun VitalReminderCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    // Satırın tamamı tek açma-kapama öğesi: ekran okuyucu başlığı ve durumu
+                    // birlikte okur, satırın her yerine dokunmak anahtarı değiştirir.
+                    .toggleable(value = enabled, role = Role.Switch, onValueChange = onToggle),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -117,7 +122,10 @@ private fun VitalReminderCard(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f)
                 )
-                Switch(checked = enabled, onCheckedChange = onToggle)
+                Switch(
+                    checked = enabled,
+                    onCheckedChange = null
+                )
             }
 
             if (enabled) {

@@ -1,5 +1,6 @@
 package com.gokcank.curalis.presentation.medication.addedit
 
+import com.gokcank.curalis.core.theme.MedicationAccentColorNames
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -75,6 +76,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.toColorInt
@@ -582,19 +584,21 @@ fun AddEditMedicationScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    val colorSelectedDesc = stringResource(R.string.color_selected_desc)
-                    val colorOptionDesc = stringResource(R.string.color_option_desc)
-                    MedicationAccentColors.forEach { hex ->
+                    MedicationAccentColors.forEachIndexed { index, hex ->
+                        val colorName = stringResource(MedicationAccentColorNames[index])
                         val color = Color(android.graphics.Color.parseColor(hex))
                         val isSelected = formState.colorHex.equals(hex, ignoreCase = true)
                         Box(
                             modifier = Modifier
                                 .size(36.dp)
                                 .background(color = color, shape = CircleShape)
-                                .clickable { viewModel.onColorSelected(hex) }
-                                .semantics {
-                                    contentDescription = if (isSelected) colorSelectedDesc else colorOptionDesc
-                                },
+                                // Ekran okuyucu rengin adını ve seçili olup olmadığını okur.
+                                .selectable(
+                                    selected = isSelected,
+                                    role = Role.RadioButton,
+                                    onClick = { viewModel.onColorSelected(hex) }
+                                )
+                                .semantics { contentDescription = colorName },
                             contentAlignment = Alignment.Center
                         ) {
                             if (isSelected) {
@@ -809,7 +813,9 @@ fun AddEditMedicationScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                    // Satırın tamamı tek açma-kapama öğesi: ekran okuyucu başlığı ve durumu birlikte okur.
+                    .toggleable(value = formState.hasPlaceboDays, role = Role.Switch, onValueChange = viewModel::onHasPlaceboDaysChange),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -823,7 +829,7 @@ fun AddEditMedicationScreen(
                     }
                     Switch(
                         checked = formState.hasPlaceboDays,
-                        onCheckedChange = viewModel::onHasPlaceboDaysChange
+                        onCheckedChange = null
                     )
                 }
             }
@@ -973,7 +979,7 @@ fun AddEditMedicationScreen(
                                     },
                                     label = { Text(label) },
                                     leadingIcon = if (hasExtraValue(key)) {
-                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                        { Icon(Icons.Default.Check, contentDescription = stringResource(R.string.extra_field_filled_desc), modifier = Modifier.size(18.dp)) }
                                     } else null
                                 )
                             }
@@ -989,14 +995,16 @@ fun AddEditMedicationScreen(
             Text(text = stringResource(R.string.stock_tracking_title), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    // Satırın tamamı tek açma-kapama öğesi: ekran okuyucu başlığı ve durumu birlikte okur.
+                    .toggleable(value = formState.isRefillEnabled, role = Role.Switch, onValueChange = viewModel::onRefillToggle),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(stringResource(R.string.stock_tracking_toggle_label))
                 Switch(
                     checked = formState.isRefillEnabled,
-                    onCheckedChange = viewModel::onRefillToggle
+                    onCheckedChange = null
                 )
             }
 

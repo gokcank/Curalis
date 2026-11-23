@@ -47,8 +47,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -289,8 +290,11 @@ fun CalendarGrid(
                             } else Modifier
                         )
                         .clickable { onDateSelected(date) }
-                        .semantics {
+                        // Gün sayısı açıklamada zaten var; içteki sayı ayrıca okunmasın.
+                        // Seçili gün "seçili" olarak duyulur.
+                        .clearAndSetSemantics {
                             contentDescription = dayContentDescription
+                            selected = isSelected
                         },
                     contentAlignment = Alignment.Center
                 ) {

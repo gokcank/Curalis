@@ -491,7 +491,8 @@ fun MedicationItem(
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = medication.shapeIcon(),
-                        contentDescription = if (isEnglish) medication.formType.displayNameEn else medication.formType.displayNameTr,
+                        // Form adı kartta zaten yazıyor; simge ayrıca okunursa iki kez duyulur.
+                        contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(24.dp)
                     )
@@ -509,7 +510,7 @@ fun MedicationItem(
                     )
                     Icon(
                         imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = null,
+                        contentDescription = stringResource(if (expanded) R.string.hide_details else R.string.show_details),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )

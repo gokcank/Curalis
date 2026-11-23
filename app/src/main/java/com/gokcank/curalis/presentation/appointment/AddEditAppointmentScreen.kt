@@ -52,6 +52,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -255,7 +257,7 @@ fun AddEditAppointmentScreen(
                 label = { Text("${stringResource(R.string.date)} & ${stringResource(R.string.time)}") },
                 trailingIcon = {
                     IconButton(onClick = { showDatePicker = true }) {
-                        Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
+                        Icon(imageVector = Icons.Default.DateRange, contentDescription = stringResource(R.string.pick_date_time_desc))
                     }
                 },
                 modifier = Modifier
@@ -292,8 +294,12 @@ fun AddEditAppointmentScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(text = stringResource(R.string.visit_info), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = isVisited, onCheckedChange = viewModel::onVisitedChange)
+                // Satırın tamamı tek onay kutusu: ekran okuyucu etiketi ve durumu birlikte okur.
+                Row(
+                    modifier = Modifier.toggleable(value = isVisited, role = Role.Checkbox, onValueChange = viewModel::onVisitedChange),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = isVisited, onCheckedChange = null)
                     Text(stringResource(R.string.visited))
                 }
                 if (isVisited) {

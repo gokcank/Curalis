@@ -60,6 +60,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -436,12 +438,16 @@ private fun AlarmDoseCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Ad gizliyken kartın başlığı dozun saatidir; doz miktarı da gösterilmez.
+            val cardTitle = if (hideName) {
+                stringResource(R.string.alarm_dose_time_label, timeFormat.format(Date(dose.reminder.timeInMillis)))
+            } else {
+                dose.medicationName
+            }
+            // Birden fazla doz varken ekran okuyucu her düğmenin hangi doza ait olduğunu da söyler
+            // ("Deneme: İlacı aldım"); ad gizliyse adın yerine kartın başlığı (saat) kullanılır.
+            fun spoken(label: String): String = if (showTime) "$cardTitle: $label" else label
             Text(
-                text = if (hideName) {
-                    stringResource(R.string.alarm_dose_time_label, timeFormat.format(Date(dose.reminder.timeInMillis)))
-                } else {
-                    dose.medicationName
-                },
+                text = cardTitle,
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -478,7 +484,12 @@ private fun AlarmDoseCard(
             ) {
                 Icon(imageVector = Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.alarm_took_it_button), style = MaterialTheme.typography.titleMedium)
+                val tookIt = stringResource(R.string.alarm_took_it_button)
+                Text(
+                    tookIt,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.clearAndSetSemantics { contentDescription = spoken(tookIt) }
+                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -488,17 +499,24 @@ private fun AlarmDoseCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Üç düğme yan yana sığsın diye simgesiz ve tek satır.
+                // Kısa etiketler ekranda sığsın; ekran okuyucu ise tam halini okur ("10 dakika ertele").
                 listOf(
-                    stringResource(R.string.alarm_snooze_10_min) to { onSnoozeClick(10) },
-                    stringResource(R.string.alarm_snooze_30_min) to { onSnoozeClick(30) },
-                    stringResource(R.string.alarm_skip_short_button) to onSkipClick
-                ).forEach { (label, onClick) ->
+                    Triple(stringResource(R.string.alarm_snooze_10_min), pluralStringResource(R.plurals.alarm_snooze_spoken, 10, 10)) { onSnoozeClick(10) },
+                    Triple(stringResource(R.string.alarm_snooze_30_min), pluralStringResource(R.plurals.alarm_snooze_spoken, 30, 30)) { onSnoozeClick(30) },
+                    Triple(stringResource(R.string.alarm_skip_short_button), stringResource(R.string.alarm_skip_short_button), onSkipClick)
+                ).forEach { (label, spokenLabel, onClick) ->
+                    val fullLabel = spoken(spokenLabel)
                     OutlinedButton(
                         onClick = onClick,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
                     ) {
-                        Text(label, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+                        Text(
+                            label,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            modifier = Modifier.clearAndSetSemantics { contentDescription = fullLabel }
+                        )
                     }
                 }
             }

@@ -54,6 +54,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -214,7 +216,10 @@ fun NotificationSettingsScreen(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    // Satırın tamamı tek açma-kapama öğesi: ekran okuyucu başlığı ve durumu
+                    // birlikte okur, satırın her yerine dokunmak anahtarı değiştirir.
+                    .toggleable(value = uiState.quietHoursEnabled, role = Role.Switch, onValueChange = viewModel::onQuietHoursToggled),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -228,7 +233,7 @@ fun NotificationSettingsScreen(
                 }
                 Switch(
                     checked = uiState.quietHoursEnabled,
-                    onCheckedChange = viewModel::onQuietHoursToggled
+                    onCheckedChange = null
                 )
             }
 
@@ -355,7 +360,10 @@ fun NotificationSettingsScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    // Satırın tamamı tek açma-kapama öğesi: ekran okuyucu başlığı ve durumu
+                    // birlikte okur, satırın her yerine dokunmak anahtarı değiştirir.
+                    .toggleable(value = uiState.voiceReminderEnabled, role = Role.Switch, onValueChange = viewModel::onVoiceReminderToggled),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -369,13 +377,16 @@ fun NotificationSettingsScreen(
                 }
                 Switch(
                     checked = uiState.voiceReminderEnabled,
-                    onCheckedChange = viewModel::onVoiceReminderToggled
+                    onCheckedChange = null
                 )
             }
             if (uiState.voiceReminderEnabled) {
                 Spacer(modifier = Modifier.padding(vertical = 4.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                    // Satırın tamamı tek açma-kapama öğesi: ekran okuyucu başlığı ve durumu
+                    // birlikte okur, satırın her yerine dokunmak anahtarı değiştirir.
+                    .toggleable(value = uiState.voiceReminderSpeakName, role = Role.Switch, onValueChange = viewModel::onVoiceReminderSpeakNameToggled),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -391,9 +402,9 @@ fun NotificationSettingsScreen(
                         )
                     }
                     Switch(
-                        checked = uiState.voiceReminderSpeakName,
-                        onCheckedChange = viewModel::onVoiceReminderSpeakNameToggled
-                    )
+                    checked = uiState.voiceReminderSpeakName,
+                    onCheckedChange = null
+                )
                 }
                 when (uiState.voiceAvailability) {
                     VoiceAvailability.LANGUAGE_MISSING, VoiceAvailability.NO_ENGINE -> {
@@ -585,7 +596,10 @@ fun NotificationSettingsScreen(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    // Satırın tamamı tek açma-kapama öğesi: ekran okuyucu başlığı ve durumu
+                    // birlikte okur, satırın her yerine dokunmak anahtarı değiştirir.
+                    .toggleable(value = uiState.morningReminderEnabled, role = Role.Switch, onValueChange = viewModel::onMorningReminderToggled),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -599,7 +613,7 @@ fun NotificationSettingsScreen(
                 }
                 Switch(
                     checked = uiState.morningReminderEnabled,
-                    onCheckedChange = viewModel::onMorningReminderToggled
+                    onCheckedChange = null
                 )
             }
 
@@ -615,7 +629,10 @@ fun NotificationSettingsScreen(
                 Spacer(modifier = Modifier.padding(vertical = 12.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                    // Satırın tamamı tek açma-kapama öğesi: ekran okuyucu başlığı ve durumu
+                    // birlikte okur, satırın her yerine dokunmak anahtarı değiştirir.
+                    .toggleable(value = uiState.weekendModeEnabled, role = Role.Switch, onValueChange = viewModel::onWeekendModeToggled),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -628,9 +645,9 @@ fun NotificationSettingsScreen(
                         )
                     }
                     Switch(
-                        checked = uiState.weekendModeEnabled,
-                        onCheckedChange = viewModel::onWeekendModeToggled
-                    )
+                    checked = uiState.weekendModeEnabled,
+                    onCheckedChange = null
+                )
                 }
 
                 if (uiState.weekendModeEnabled) {
@@ -654,7 +671,10 @@ fun NotificationSettingsScreen(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    // Satırın tamamı tek açma-kapama öğesi: ekran okuyucu başlığı ve durumu
+                    // birlikte okur, satırın her yerine dokunmak anahtarı değiştirir.
+                    .toggleable(value = uiState.eveningSummaryEnabled, role = Role.Switch, onValueChange = viewModel::onEveningSummaryToggled),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -668,7 +688,7 @@ fun NotificationSettingsScreen(
                 }
                 Switch(
                     checked = uiState.eveningSummaryEnabled,
-                    onCheckedChange = viewModel::onEveningSummaryToggled
+                    onCheckedChange = null
                 )
             }
 

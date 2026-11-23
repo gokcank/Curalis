@@ -328,7 +328,9 @@ fun DayChip(
     // harf harf bölünüyordu — ilaç ekleme ekranındaki gibi sabit, garantili kısaltma
     // listesi kullanılır.
     val dayAbbrev = stringArrayResource(R.array.weekday_short_names)[date.dayOfWeek.value - 1]
+    // Seçilebilir yüzey: ekran okuyucu hangi günün açık olduğunu ("seçili") okur.
     Surface(
+        selected = isSelected,
         shape = RoundedCornerShape(10.dp),
         color = if (isSelected) SectionAccentMedications else MaterialTheme.colorScheme.surfaceVariant,
         onClick = onClick,

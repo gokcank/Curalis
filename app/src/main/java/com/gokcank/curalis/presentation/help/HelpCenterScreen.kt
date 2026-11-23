@@ -113,7 +113,7 @@ private fun FaqItem(entry: FaqEntry) {
                 )
                 Icon(
                     imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
+                    contentDescription = stringResource(if (expanded) R.string.hide_details else R.string.show_details),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

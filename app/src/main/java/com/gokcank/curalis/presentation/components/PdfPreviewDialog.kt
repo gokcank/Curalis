@@ -1,5 +1,6 @@
 package com.gokcank.curalis.presentation.components
 
+import androidx.compose.foundation.lazy.itemsIndexed
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
@@ -119,10 +120,10 @@ fun PdfPreviewDialog(
                                 )
                             }
                         }
-                        items(pages) { bitmap ->
+                        itemsIndexed(pages) { index, bitmap ->
                             Image(
                                 bitmap = bitmap.asImageBitmap(),
-                                contentDescription = null,
+                                contentDescription = stringResource(R.string.report_page_desc, index + 1, pages.size),
                                 modifier = Modifier
                                     .fillMaxWidth()
                             )

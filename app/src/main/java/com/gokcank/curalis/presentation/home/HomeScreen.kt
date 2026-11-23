@@ -70,6 +70,7 @@ import com.gokcank.curalis.presentation.components.shapeIcon
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -588,9 +589,10 @@ fun ColorDashboardCard(
             modifier = Modifier.fillMaxSize().padding(14.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Başlık aşağıda zaten yazıyor; simge ayrıca okunursa başlık iki kez duyulur.
             Icon(
                 imageVector = icon,
-                contentDescription = title,
+                contentDescription = null,
                 modifier = Modifier.size(22.dp),
                 tint = Color.White
             )
@@ -867,7 +869,18 @@ private fun PillboxDoseIcon(item: HomePillboxItem, onClick: () -> Unit) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = if (isTaken) Icons.Default.Check else (item.medication?.shapeIcon() ?: MedicationForm.PILL.shapeIcon()),
-                    contentDescription = item.medication?.name ?: stringResource(R.string.generic_medication_label),
+                    // Ekran okuyucu tek seferde ad, saat ve (varsa) durumu okur: "Deneme, 08:00, alındı".
+                    contentDescription = listOfNotNull(
+                        item.medication?.name ?: stringResource(R.string.generic_medication_label),
+                        timeFormat.format(Date(item.reminder.timeInMillis)),
+                        when (item.reminder.state) {
+                            ReminderState.TAKEN -> stringResource(R.string.reminder_state_taken)
+                            ReminderState.MISSED -> stringResource(R.string.reminder_state_missed)
+                            ReminderState.SKIPPED -> stringResource(R.string.reminder_state_skipped)
+                            ReminderState.SNOOZED -> stringResource(R.string.reminder_state_snoozed)
+                            else -> null
+                        }
+                    ).joinToString(", "),
                     tint = tint,
                     modifier = Modifier.size(20.dp)
                 )
@@ -877,7 +890,9 @@ private fun PillboxDoseIcon(item: HomePillboxItem, onClick: () -> Unit) {
         Text(
             text = timeFormat.format(Date(item.reminder.timeInMillis)),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            // Saat düğmenin açıklamasında okunuyor; ayrı bir odak durağı olmasın.
+            modifier = Modifier.clearAndSetSemantics { }
         )
         if (item.reminder.isPlacebo) {
             Text(

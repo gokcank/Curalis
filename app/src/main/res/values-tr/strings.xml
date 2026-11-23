@@ -215,8 +215,18 @@
     <string name="shape_patch">Bant</string>
     <string name="shape_sachet">Saşe</string>
     <string name="medication_color_title">İlaç Renk Vurgusu</string>
-    <string name="color_selected_desc">Seçili renk</string>
-    <string name="color_option_desc">Renk seçeneği</string>
+    <string name="pick_date_time_desc">Tarih ve saat seç</string>
+    <string name="extra_field_filled_desc">Dolduruldu</string>
+    <string name="status_ok_desc">Sorun yok</string>
+    <string name="status_problem_desc">Dikkat gerekiyor</string>
+    <string name="report_page_desc">Rapor sayfası %1$d / %2$d</string>
+    <string name="color_name_blue">Mavi</string>
+    <string name="color_name_teal">Camgöbeği</string>
+    <string name="color_name_purple">Mor</string>
+    <string name="color_name_orange">Turuncu</string>
+    <string name="color_name_green">Yeşil</string>
+    <string name="color_name_magenta">Eflatun</string>
+    <string name="color_name_slate">Gri mavi</string>
     <string name="unit_label">Birim</string>
     <string name="unit_placeholder">Tablet / mg</string>
     <string name="meal_instruction_title">Yemek Talimatı</string>
@@ -360,6 +370,8 @@
     <string name="notifications_section_title">Bildirimler</string>
     <string name="notification_settings_row_title">Bildirim ve Hatırlatıcı Ayarları</string>
     <string name="notification_settings_row_desc">Sessiz saatler, kilit ekranı gizliliği ve bildirim kategorileri</string>
+    <string name="manage_target_desc">%1$s: yönet</string>
+    <string name="view_target_desc">%1$s: görüntüle</string>
     <string name="manage_button">Yönet</string>
     <string name="timeline_slots_title">Zaman Çizelgesi Dilimleri</string>
     <string name="timeline_slots_desc">Günlük Zaman Çizelgesi ekranındaki Sabah/Öğle/Akşam dilimlerinin başlangıç saatlerini değiştirin.</string>
@@ -741,6 +753,10 @@
     <string name="alarm_medication_time_label">İlaç vakti geldi</string>
     <string name="alarm_dose_label">Doz: %1$s</string>
     <string name="alarm_took_it_button">İlacı aldım</string>
+    <plurals name="alarm_snooze_spoken">
+        <item quantity="one">%d dakika ertele</item>
+        <item quantity="other">%d dakika ertele</item>
+    </plurals>
     <string name="alarm_snooze_10_min">10 dk</string>
     <string name="alarm_snooze_30_min">30 dk</string>
     <plurals name="alarm_doses_count">

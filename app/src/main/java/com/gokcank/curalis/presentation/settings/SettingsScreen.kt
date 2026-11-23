@@ -44,6 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.appcompat.app.AppCompatDelegate
@@ -231,6 +233,7 @@ fun SettingsScreen(
                     )
                 }
 
+                val onNavigateToNotificationSettingsDesc = stringResource(R.string.manage_target_desc, stringResource(R.string.notification_settings_row_title))
                 Button(
                     onClick = onNavigateToNotificationSettings,
                     shape = RoundedCornerShape(12.dp),
@@ -238,7 +241,11 @@ fun SettingsScreen(
                         containerColor = MaterialTheme.colorScheme.secondary
                     )
                 ) {
-                    Text(stringResource(R.string.manage_button))
+                    Text(
+                        stringResource(R.string.manage_button),
+                        // Ekran okuyucu yalnızca "Yönet" demesin; neyin yönetildiğini de söylesin.
+                        modifier = Modifier.clearAndSetSemantics { contentDescription = onNavigateToNotificationSettingsDesc }
+                    )
                 }
             }
 
@@ -304,6 +311,7 @@ fun SettingsScreen(
                     )
                 }
 
+                val onNavigateToAppLockSettingsDesc = stringResource(R.string.manage_target_desc, stringResource(R.string.app_lock))
                 Button(
                     onClick = onNavigateToAppLockSettings,
                     shape = RoundedCornerShape(12.dp),
@@ -311,7 +319,11 @@ fun SettingsScreen(
                         containerColor = MaterialTheme.colorScheme.secondary
                     )
                 ) {
-                    Text(stringResource(R.string.app_lock_manage))
+                    Text(
+                        stringResource(R.string.app_lock_manage),
+                        // Ekran okuyucu yalnızca "Yönet" demesin; neyin yönetildiğini de söylesin.
+                        modifier = Modifier.clearAndSetSemantics { contentDescription = onNavigateToAppLockSettingsDesc }
+                    )
                 }
             }
 
@@ -338,6 +350,7 @@ fun SettingsScreen(
                     )
                 }
 
+                val onNavigateToBackupDesc = stringResource(R.string.manage_target_desc, stringResource(R.string.backup_restore_row_title))
                 Button(
                     onClick = onNavigateToBackup,
                     shape = RoundedCornerShape(12.dp),
@@ -345,7 +358,11 @@ fun SettingsScreen(
                         containerColor = MaterialTheme.colorScheme.secondary
                     )
                 ) {
-                    Text(stringResource(R.string.manage_button))
+                    Text(
+                        stringResource(R.string.manage_button),
+                        // Ekran okuyucu yalnızca "Yönet" demesin; neyin yönetildiğini de söylesin.
+                        modifier = Modifier.clearAndSetSemantics { contentDescription = onNavigateToBackupDesc }
+                    )
                 }
             }
 
@@ -397,6 +414,7 @@ fun SettingsScreen(
                     )
                 }
 
+                val onNavigateToHelpCenterDesc = stringResource(R.string.view_target_desc, stringResource(R.string.help_center_row_title))
                 Button(
                     onClick = onNavigateToHelpCenter,
                     shape = RoundedCornerShape(12.dp),
@@ -406,7 +424,11 @@ fun SettingsScreen(
                 ) {
                     Icon(imageVector = Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.view_button))
+                    Text(
+                        stringResource(R.string.view_button),
+                        // Ekran okuyucu yalnızca "Yönet" demesin; neyin yönetildiğini de söylesin.
+                        modifier = Modifier.clearAndSetSemantics { contentDescription = onNavigateToHelpCenterDesc }
+                    )
                 }
             }
         }

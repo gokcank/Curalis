@@ -173,7 +173,7 @@ private fun TroubleshootingItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = if (isOk) Icons.Default.CheckCircle else Icons.Default.Warning,
-                    contentDescription = null,
+                    contentDescription = stringResource(if (isOk) R.string.status_ok_desc else R.string.status_problem_desc),
                     tint = if (isOk) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(22.dp)
                 )

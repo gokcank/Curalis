@@ -26,6 +26,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -240,13 +242,15 @@ private fun ReportContentOptionsDialog(
 
 @Composable
 private fun ContentCheckboxRow(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    // Satırın tamamı tek onay kutusu: ekran okuyucu etiketi ve durumu birlikte okur.
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .toggleable(value = checked, role = Role.Checkbox, onValueChange = onCheckedChange)
             .padding(vertical = 2.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
-        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+        Checkbox(checked = checked, onCheckedChange = null)
         Text(label)
     }
 }

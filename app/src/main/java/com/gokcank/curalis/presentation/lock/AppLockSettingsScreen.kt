@@ -35,6 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -144,6 +146,13 @@ fun AppLockSettingsScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            // Satırın tamamı tek açma-kapama öğesi (bkz. bildirim ayarları).
+                            .toggleable(
+                                value = uiState.isBiometricEnabled && biometricAvailable,
+                                role = Role.Switch,
+                                enabled = biometricAvailable,
+                                onValueChange = viewModel::setBiometricEnabled
+                            )
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -165,7 +174,7 @@ fun AppLockSettingsScreen(
                         }
                         Switch(
                             checked = uiState.isBiometricEnabled && biometricAvailable,
-                            onCheckedChange = viewModel::setBiometricEnabled,
+                            onCheckedChange = null,
                             enabled = biometricAvailable
                         )
                     }

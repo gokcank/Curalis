@@ -94,6 +94,15 @@ Examples include:
 
 Decorative elements should not be announced.
 
+Implementation rules (Compose), applied in the screen-reader audit of version 1.7.0:
+
+- An icon next to visible text that says the same thing gets no label (`contentDescription = null`); otherwise the text is announced twice. A standalone icon button always has a label.
+- An icon that carries a state the text does not (taken, a field already filled, a check that passed or failed) gets a label for that state.
+- A title, description and switch or checkbox form one row: the whole row is the toggle (`toggleable` with the Switch or Checkbox role, the control itself has no click handler). The reader announces title, description and on/off together, and the whole row is a touch target.
+- Choices shown as colored circles or icons are radio buttons with a name (color names, shape names), so the reader announces the name and whether it is selected. Selected days in the timeline strip and the adherence calendar are announced as selected.
+- A button whose short visible label does not say what it does gets a full spoken label: "Manage" says what it manages, "10 min" on the full-screen reminder says "Snooze 10 minutes". When the full-screen reminder lists several doses, each button also names its dose; while names are hidden on the lock screen, the dose time is used instead of the name.
+- A dose on the home screen is announced with its name, time and state in one go.
+
 ---
 
 # Navigation
