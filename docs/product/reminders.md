@@ -204,6 +204,12 @@ Examples:
 
 Users should be able to configure each category independently.
 
+## Reminder Sound
+
+In the notification settings the user can choose the reminder sound with the phone's own sound picker (notification sounds; "silent" is not offered, quiet hours cover that). The phone's default notification sound is used until a sound is chosen. A "Use the default sound" button returns to it, because not every phone's sound picker offers that option. The chosen sound is also played by the full-screen alarm, repeated until the user responds; without a chosen sound the full-screen alarm keeps the phone's default alarm sound.
+
+Android does not let an app change a category's sound after creating it. So each sound change opens a new medication-reminder category with the chosen sound and deletes the previous one: the system settings always show exactly one medication-reminder category. Changes the user made to the old category in the system settings (for example vibration) do not carry over, and reminders still shown from the old category are removed. The quiet-hours category stays silent and is not affected.
+
 ---
 
 # Quiet Hours

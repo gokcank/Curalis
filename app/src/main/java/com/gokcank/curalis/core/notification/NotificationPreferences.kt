@@ -69,6 +69,21 @@ class NotificationPreferences @Inject constructor(
             putInt(KEY_REMINDER_RETRY_INTERVAL_MINUTES, ReminderRetryPolicy.coerceInterval(value))
         }
 
+    /**
+     * Kullanıcının seçtiği hatırlatma sesi; null, telefonun varsayılan bildirim sesi demektir.
+     * Android bir kanalın sesini sonradan değiştirmeye izin vermediği için ses her değiştiğinde
+     * [reminderChannelVersion] artar ve hatırlatmalar yeni bir kanala gider
+     * (bkz. NotificationHelper.changeReminderSound).
+     */
+    var reminderSoundUri: String?
+        get() = prefs.getString(KEY_REMINDER_SOUND_URI, null)
+        set(value) = prefs.edit { putString(KEY_REMINDER_SOUND_URI, value) }
+
+    /** 0: ilk (sesi hiç değiştirilmemiş) hatırlatma kanalı. */
+    var reminderChannelVersion: Int
+        get() = prefs.getInt(KEY_REMINDER_CHANNEL_VERSION, 0)
+        set(value) = prefs.edit { putInt(KEY_REMINDER_CHANNEL_VERSION, value) }
+
     /** Tam ekran alarm popup'ının ne zaman gösterileceği. */
     var popupMode: NotificationPopupMode
         get() = NotificationPopupMode.entries.find { it.name == prefs.getString(KEY_POPUP_MODE, null) }
@@ -202,6 +217,8 @@ class NotificationPreferences @Inject constructor(
         private const val KEY_SNOOZE_MINUTES = "snooze_minutes"
         private const val KEY_POPUP_MODE = "popup_mode"
         private const val KEY_REMINDER_ATTEMPTS = "reminder_attempts"
+        private const val KEY_REMINDER_SOUND_URI = "reminder_sound_uri"
+        private const val KEY_REMINDER_CHANNEL_VERSION = "reminder_channel_version"
         private const val KEY_REMINDER_RETRY_INTERVAL_MINUTES = "reminder_retry_interval_minutes"
         private const val KEY_MORNING_REMINDER_ENABLED = "morning_reminder_enabled"
         private const val KEY_MORNING_REMINDER_MINUTES = "morning_reminder_minutes"

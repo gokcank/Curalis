@@ -1,9 +1,12 @@
 package com.gokcank.curalis.presentation.notificationsettings
 
+import android.net.Uri
+import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.notification.LockScreenPrivacy
 import com.gokcank.curalis.core.notification.NotificationPopupMode
+import com.gokcank.curalis.core.notification.NotificationHelper
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.notification.ReminderRetryPolicy
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +21,9 @@ data class NotificationSettingsUiState(
     val quietHoursStartMinutes: Int = NotificationPreferences.DEFAULT_QUIET_START,
     val quietHoursEndMinutes: Int = NotificationPreferences.DEFAULT_QUIET_END,
     val snoozeMinutes: Int = NotificationPreferences.DEFAULT_SNOOZE_MINUTES,
+    /** Seçili hatırlatma sesi; null = telefonun varsayılan bildirim sesi. */
+    val reminderSoundUri: String? = null,
+    val reminderSoundTitle: String? = null,
     val reminderAttempts: Int = ReminderRetryPolicy.DEFAULT_ATTEMPTS,
     val reminderRetryIntervalMinutes: Int = ReminderRetryPolicy.DEFAULT_INTERVAL_MINUTES,
     val lateDoseThresholdMinutes: Int = NotificationPreferences.DEFAULT_LATE_DOSE_THRESHOLD_MINUTES,
@@ -34,7 +40,8 @@ data class NotificationSettingsUiState(
 @HiltViewModel
 class NotificationSettingsViewModel @Inject constructor(
     private val preferences: NotificationPreferences,
-    private val alarmScheduler: AlarmScheduler
+    private val alarmScheduler: AlarmScheduler,
+    private val notificationHelper: NotificationHelper
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -44,6 +51,8 @@ class NotificationSettingsViewModel @Inject constructor(
             quietHoursStartMinutes = preferences.quietHoursStartMinutes,
             quietHoursEndMinutes = preferences.quietHoursEndMinutes,
             snoozeMinutes = preferences.snoozeMinutes,
+            reminderSoundUri = preferences.reminderSoundUri,
+            reminderSoundTitle = notificationHelper.reminderSoundTitle(),
             reminderAttempts = preferences.reminderAttempts,
             reminderRetryIntervalMinutes = preferences.reminderRetryIntervalMinutes,
             lateDoseThresholdMinutes = preferences.lateDoseThresholdMinutes,
@@ -82,6 +91,21 @@ class NotificationSettingsViewModel @Inject constructor(
     fun onSnoozeMinutesChanged(minutes: Int) {
         preferences.snoozeMinutes = minutes
         _uiState.value = _uiState.value.copy(snoozeMinutes = minutes)
+    }
+
+    /**
+     * Ses seçicinin sonucu. Seçicideki "Varsayılan" seçeneği telefonun varsayılan bildirim sesini
+     * gösteren genel adresi döndürür; o da varsayılan (null) olarak saklanır. Aynı ses yeniden
+     * seçildiyse kanal boşuna yenilenmez.
+     */
+    fun onReminderSoundPicked(uri: Uri?) {
+        val normalized = uri?.takeIf { it != Settings.System.DEFAULT_NOTIFICATION_URI }?.toString()
+        if (normalized == preferences.reminderSoundUri) return
+        notificationHelper.changeReminderSound(normalized?.let(Uri::parse))
+        _uiState.value = _uiState.value.copy(
+            reminderSoundUri = preferences.reminderSoundUri,
+            reminderSoundTitle = notificationHelper.reminderSoundTitle()
+        )
     }
 
     fun onReminderAttemptsChanged(attempts: Int) {

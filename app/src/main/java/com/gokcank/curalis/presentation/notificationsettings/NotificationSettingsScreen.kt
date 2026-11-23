@@ -1,6 +1,14 @@
 package com.gokcank.curalis.presentation.notificationsettings
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.media.RingtoneManager
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.IntentCompat
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +40,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberTimePickerState
@@ -65,6 +74,14 @@ fun NotificationSettingsScreen(
     var showMorningTimePicker by remember { mutableStateOf(false) }
     var showEveningTimePicker by remember { mutableStateOf(false) }
     var showWeekendTimePicker by remember { mutableStateOf(false) }
+    val soundPicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val data = result.data
+        if (result.resultCode == Activity.RESULT_OK && data != null) {
+            viewModel.onReminderSoundPicked(
+                IntentCompat.getParcelableExtra(data, RingtoneManager.EXTRA_RINGTONE_PICKED_URI, Uri::class.java)
+            )
+        }
+    }
 
     fun formatMinutes(minutes: Int): String {
         val h = minutes / 60
@@ -268,6 +285,59 @@ fun NotificationSettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)
             )
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = stringResource(R.string.reminder_sound_section_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                stringResource(R.string.reminder_sound_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    uiState.reminderSoundTitle ?: stringResource(R.string.reminder_sound_default),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                val pickerTitle = stringResource(R.string.reminder_sound_picker_title)
+                OutlinedButton(onClick = {
+                    val existing = uiState.reminderSoundUri?.let(Uri::parse) ?: Settings.System.DEFAULT_NOTIFICATION_URI
+                    val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, pickerTitle)
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+                        // Sessiz hatırlatma seçilemez; sessizlik için sessiz saatler var.
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_NOTIFICATION_URI)
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, existing)
+                    }
+                    try {
+                        soundPicker.launch(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        Toast.makeText(context, R.string.reminder_sound_picker_missing, Toast.LENGTH_LONG).show()
+                    }
+                }) {
+                    Text(stringResource(R.string.reminder_sound_change_button))
+                }
+            }
+            // Telefonun ses seçicisi her zaman "Varsayılan" seçeneği sunmuyor (ör. bir ses
+            // seçildikten sonra); varsayılana dönüş bu yüzden buradan da yapılabilir.
+            if (uiState.reminderSoundUri != null) {
+                TextButton(onClick = { viewModel.onReminderSoundPicked(null) }) {
+                    Text(stringResource(R.string.reminder_sound_reset_button))
+                }
+            }
 
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 

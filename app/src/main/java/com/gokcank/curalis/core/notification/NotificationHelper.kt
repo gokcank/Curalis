@@ -5,8 +5,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.navigation.OpenDestination
 import com.gokcank.curalis.domain.model.VitalType
@@ -40,14 +44,7 @@ class NotificationHelper @Inject constructor(
     fun ensureNotificationChannelsCreated() {}
 
     private fun createNotificationChannels() {
-        val reminderChannel = NotificationChannel(
-            CHANNEL_ID,
-            context.getString(R.string.notification_channel_name),
-            NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            description = context.getString(R.string.notification_channel_desc)
-            enableVibration(true)
-        }
+        val reminderChannel = buildReminderChannel()
 
         // Sessiz saatlerde kullanılan, sesi/titreşimi olmayan düşük öncelikli kanal.
         val silentReminderChannel = NotificationChannel(
@@ -96,6 +93,53 @@ class NotificationHelper @Inject constructor(
         // olmayan bir kanala gönderilen bildirimi Android hata vermeden düşürür.
         notificationManager.createNotificationChannel(proactiveChannel)
         notificationManager.createNotificationChannel(eveningSummaryChannel)
+        deleteStaleReminderChannels()
+    }
+
+    /** Doz hatırlatmalarının o anki kanalı; ses her değiştiğinde yenisi açılır. */
+    val reminderChannelId: String
+        get() = reminderChannelIdFor(notificationPreferences.reminderChannelVersion)
+
+    private fun buildReminderChannel(): NotificationChannel = NotificationChannel(
+        reminderChannelId,
+        context.getString(R.string.notification_channel_name),
+        NotificationManager.IMPORTANCE_HIGH
+    ).apply {
+        description = context.getString(R.string.notification_channel_desc)
+        enableVibration(true)
+        // Ses seçilmemişse kanal telefonun varsayılan bildirim sesini kullanır (eski davranış).
+        notificationPreferences.reminderSoundUri?.let { setSound(it.toUri(), REMINDER_SOUND_ATTRIBUTES) }
+    }
+
+    /** Eski sürüm hatırlatma kanallarını siler; ayarlarda tek bir "İlaç Hatırlatıcıları" kalır. */
+    private fun deleteStaleReminderChannels() {
+        val current = reminderChannelId
+        notificationManager.notificationChannels
+            .filter { it.id.startsWith(CHANNEL_ID) && it.id != current }
+            .forEach { notificationManager.deleteNotificationChannel(it.id) }
+    }
+
+    /**
+     * Hatırlatma sesini değiştirir. Android bir kanalın sesini sonradan değiştirmeye izin vermez;
+     * bu yüzden seçilen sesle yeni bir kanal açılır ve eskisi silinir. Kullanıcının eski kanalda
+     * sistem ayarlarından yaptığı değişiklikler yeni kanala taşınmaz. [uri] null ise telefonun
+     * varsayılan bildirim sesi kullanılır.
+     */
+    fun changeReminderSound(uri: Uri?) {
+        notificationPreferences.reminderSoundUri = uri?.toString()
+        notificationPreferences.reminderChannelVersion += 1
+        notificationManager.createNotificationChannel(buildReminderChannel())
+        deleteStaleReminderChannels()
+    }
+
+    /** Seçili hatırlatma sesinin adı; varsayılan sesteyse ya da ad okunamazsa null. */
+    fun reminderSoundTitle(): String? {
+        val uri = notificationPreferences.reminderSoundUri?.let(Uri::parse) ?: return null
+        return try {
+            RingtoneManager.getRingtone(context, uri)?.getTitle(context)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     fun showMorningReminderNotification() {
@@ -196,7 +240,7 @@ class NotificationHelper @Inject constructor(
         )
 
         val isQuietHours = notificationPreferences.isWithinQuietHours()
-        val reminderChannelId = if (isQuietHours) CHANNEL_ID_REMINDERS_SILENT else CHANNEL_ID
+        val postChannelId = if (isQuietHours) CHANNEL_ID_REMINDERS_SILENT else reminderChannelId
         val lockScreenPrivacy = notificationPreferences.lockScreenPrivacy
 
         // Android, "gizlenebilir" işaretli bildirimi yalnızca telefonun hassas içerik ayarı
@@ -227,12 +271,12 @@ class NotificationHelper @Inject constructor(
         }
 
         // Kilit ekranı sürümü hiçbir seviyede ilaç adını içermez.
-        val publicVersion = NotificationCompat.Builder(context, reminderChannelId)
+        val publicVersion = NotificationCompat.Builder(context, postChannelId)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(title)
             .build()
 
-        val builder = NotificationCompat.Builder(context, reminderChannelId)
+        val builder = NotificationCompat.Builder(context, postChannelId)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(title)
             .setContentText(contentText)
@@ -431,7 +475,16 @@ class NotificationHelper @Inject constructor(
     }
 
     companion object {
+        /** İlk hatırlatma kanalı; ses değiştikten sonra "_v<n>" ekiyle yenileri açılır. */
         const val CHANNEL_ID = "medication_reminders_channel"
+
+        fun reminderChannelIdFor(version: Int): String =
+            if (version == 0) CHANNEL_ID else "${CHANNEL_ID}_v$version"
+
+        private val REMINDER_SOUND_ATTRIBUTES: AudioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
         const val CHANNEL_ID_REMINDERS_SILENT = "medication_reminders_silent_channel"
         const val CHANNEL_ID_REFILL = "refill_warnings_channel"
         const val CHANNEL_ID_PROACTIVE = "proactive_reminders_channel"

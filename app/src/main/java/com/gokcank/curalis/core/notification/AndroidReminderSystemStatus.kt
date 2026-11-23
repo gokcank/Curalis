@@ -11,7 +11,8 @@ import javax.inject.Singleton
 /** İzin durumlarını Android'den okur (bkz. [ReminderPermissions]). */
 @Singleton
 class AndroidReminderSystemStatus @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val notificationPreferences: NotificationPreferences
 ) : ReminderSystemStatus {
 
     /**
@@ -22,7 +23,7 @@ class AndroidReminderSystemStatus @Inject constructor(
     override fun areReminderNotificationsEnabled(): Boolean {
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return false
         val channel = context.getSystemService(NotificationManager::class.java)
-            .getNotificationChannel(NotificationHelper.CHANNEL_ID)
+            .getNotificationChannel(NotificationHelper.reminderChannelIdFor(notificationPreferences.reminderChannelVersion))
         return channel == null || channel.importance != NotificationManager.IMPORTANCE_NONE
     }
 

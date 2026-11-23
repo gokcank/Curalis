@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.Ringtone
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -265,9 +266,16 @@ class AlarmFullScreenActivity : ComponentActivity() {
 
     private fun startAlarmSound() {
         try {
-            val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            // Kullanıcı bildirim ayarlarından hatırlatma sesi seçtiyse tam ekran alarm da onu
+            // çalar; kısa bir bildirim sesi tek seferde bitmesin diye tekrarlanır.
+            val chosenUri = notificationPreferences.reminderSoundUri?.let(Uri::parse)
+            val alarmUri = chosenUri
+                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                 ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             ringtone = RingtoneManager.getRingtone(applicationContext, alarmUri)
+            if (chosenUri != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                ringtone?.isLooping = true
+            }
             ringtone?.play()
 
             @Suppress("DEPRECATION")

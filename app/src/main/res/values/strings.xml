@@ -283,6 +283,13 @@
     <string name="fullscreen_popup_title">Full-Screen Alert Popup</string>
     <string name="fullscreen_popup_desc">When a dose reminder arrives, when should the full-screen alarm alert — which also shows on the lock screen — appear?</string>
     <string name="fullscreen_popup_note">The popup is always shown on the last reminder before a dose is marked \"missed\", regardless of this setting.</string>
+    <string name="reminder_sound_section_title">Reminder sound</string>
+    <string name="reminder_sound_desc">The sound for dose reminders and the full-screen alarm. Nothing plays during quiet hours.</string>
+    <string name="reminder_sound_default">Phone\'s default notification sound</string>
+    <string name="reminder_sound_change_button">Change</string>
+    <string name="reminder_sound_reset_button">Use the default sound</string>
+    <string name="reminder_sound_picker_title">Reminder sound</string>
+    <string name="reminder_sound_picker_missing">This phone has no sound picker.</string>
     <string name="snooze_section_title">Snooze</string>
     <string name="snooze_desc">How many minutes should the \"Snooze\" button on the notification postpone the dose?</string>
     <string name="minutes_short_format">%1$d min</string>
