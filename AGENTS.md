@@ -59,13 +59,12 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
   store listings or Play policy work unless asked. Keep `USE_EXACT_ALARM`.
 - Release notes and store-facing text: **Turkish only** by default.
 
-## Status (as of 2026-11-23)
+## Status (as of 2026-11-24)
 - Project status: **active** (set 2026-11-18; source of truth: the brain page).
-- Latest release **1.5.0 (versionCode 13)**, 2026-11-22 (1.4.2 / vc 12 the same day); Room DB version 24;
-  drug dictionary version 3.
-- 22-step revision plan (local, approved): steps 1–15 done (latest `e32d68e`, CI green); next step 16 = release 1.6.0,
-  then group 3 → 1.7.0. Bottom nav, add-medication form, easy mode and profiles wait for a separate design session
-  together with the menu topic.
+- Latest release **1.6.0 (versionCode 14)**, 2026-11-23; Room DB version 24; drug dictionary version 3.
+- 22-step revision plan (local, approved): steps 1–21 done (latest `025816b`, CI green); next step 22 = release 1.7.0.
+  Bottom nav, add-medication form, easy mode and profiles wait for a separate design session together with the menu topic.
+- Screen-reader rules (toggle rows, silent decorative icons, named choices): `docs/compliance/accessibility.md`.
 - Robolectric tests run on API 34 (`app/src/test/resources/robolectric.properties`): API 36 needs Java 21, API 35/36
   break on a font-copy error. Verify with `./gradlew test` (debug + release), not only `testDebugUnitTest`.
 
@@ -77,6 +76,9 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
 - PDF: preview card lacks the late-dose count; archived medications still appear in the medicine-cabinet list.
 - The per-time dose field exists in the model but not in the form, so every take decrements stock by 1.
 - The form resets the initial stock to the current stock on every save, so "add a box" adds the last entered stock.
+- A dose that turns missed leaves its "Son hatırlatma" notification in the shade with stale text.
+- A new medication's default color `#1E88E5` is not in the 7-color palette, so no color shows as selected in the form.
+- Daily timeline often jumps back to the top after a scroll on the emulator (not checked on a phone; cause unknown).
 
 ## More context
 Background, decisions and history are in the second brain: `/home/gokcank/ikinci-beyin/projects/curalis.md` (read on demand).
