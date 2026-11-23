@@ -2,7 +2,7 @@ package com.gokcank.curalis.core.notification
 
 /**
  * Doz bildirimiyle birlikte tam ekran alarm popup'ının (bkz. AlarmFullScreenActivity)
- * ne zaman gösterileceğini belirler. Son deneme (bkz. MissedDoseCheckReceiver.MAX_ATTEMPTS)
+ * ne zaman gösterileceğini belirler. Son deneme (bkz. ReminderRetryPolicy)
  * bu ayardan bağımsız olarak her zaman popup gösterir — doz "kaçırıldı" olarak
  * işaretlenmeden önceki son fırsat sessizce geçmemeli.
  */

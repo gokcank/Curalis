@@ -289,6 +289,17 @@
     <string name="snooze_desc">Bildirimdeki \"Ertele\" düğmesi dozu kaç dakika sonraya taşısın?</string>
     <string name="minutes_short_format">%1$d dk</string>
     <string name="hours_short_format">%1$d sa</string>
+    <string name="reminder_retry_section_title">Tekrar hatırlatma</string>
+    <string name="reminder_retry_desc">Doz işaretlenmezse hatırlatma kaç kez gösterilsin? İlk hatırlatma da sayılır.</string>
+    <plurals name="reminder_attempts_option">
+        <item quantity="one">%d kez</item>
+        <item quantity="other">%d kez</item>
+    </plurals>
+    <string name="reminder_retry_interval_label">Hatırlatmalar arası süre</string>
+    <plurals name="reminder_missed_after_summary">
+        <item quantity="one">İşaretlenmeyen doz, ilk hatırlatmadan %d dakika sonra kaçırıldı sayılır.</item>
+        <item quantity="other">İşaretlenmeyen doz, ilk hatırlatmadan %d dakika sonra kaçırıldı sayılır.</item>
+    </plurals>
     <string name="late_dose_section_title">Geç alınan doz</string>
     <string name="late_dose_desc">Planlanan saatinden bu süreden fazla sonra alınan doz \"Geç alındı\" sayılır ve uyum yüzdesine yarım doz olarak girer.</string>
     <string name="days_short_format">%1$d gün</string>

@@ -21,9 +21,9 @@ import javax.inject.Inject
  * Bir doz hatırlatıcısı yanıtsız kaldığında devreye giren, kendini birkaç kez tekrarlayan
  * kontrol zinciri. Önceden tek seferlik bir kontroldü: alarm bir kez çalar, 30 dakika sonra
  * hâlâ yanıtlanmamışsa doğrudan "kaçırıldı" işaretlenirdi — kullanıcı o 30 dakika içinde
- * bildirimi fark etmezse doz sessizce kaçmış sayılırdı. Şimdi her [RETRY_INTERVAL_MINUTES]
- * dakikada bir bildirim yeniden gösteriliyor; yalnızca [MAX_ATTEMPTS]. denemeden sonra hâlâ
- * yanıt yoksa "kaçırıldı" olarak işaretleniyor.
+ * bildirimi fark etmezse doz sessizce kaçmış sayılırdı. Şimdi bildirim, kullanıcının seçtiği
+ * aralıkla ve sayıda yeniden gösteriliyor; son bildirimden bir aralık sonra hâlâ yanıt yoksa
+ * "kaçırıldı" olarak işaretleniyor (bkz. [ReminderRetryPolicy]).
  */
 @AndroidEntryPoint
 class MissedDoseCheckReceiver : BroadcastReceiver() {
@@ -46,11 +46,15 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
     @Inject
     lateinit var medicationRepository: MedicationRepository
 
+    @Inject
+    lateinit var notificationPreferences: NotificationPreferences
+
     override fun onReceive(context: Context, intent: Intent) {
         val reminderId = intent.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: return
         val medicationId = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_ID) ?: return
         val medicationName = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_NAME) ?: "İlaç"
-        val attempt = intent.getIntExtra(AlarmScheduler.EXTRA_MISSED_CHECK_ATTEMPT, MAX_ATTEMPTS)
+        // Eski sürümden kalan, deneme sayısı taşımayan bir kontrol dozu doğrudan kaçırıldı sayar.
+        val attempt = intent.getIntExtra(AlarmScheduler.EXTRA_MISSED_CHECK_ATTEMPT, Int.MAX_VALUE)
 
         val pendingResult = goAsync()
 
@@ -79,28 +83,31 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
                         )
                     )
                 } else if (targetReminder.state == ReminderState.SCHEDULED || targetReminder.state == ReminderState.DELIVERED) {
-                    if (attempt < MAX_ATTEMPTS) {
-                        // Kullanıcı hâlâ yanıt vermedi; bildirimi yeniden göster ve bir
-                        // sonraki denemeyi kur. attempt + 1 == MAX_ATTEMPTS ise bu, doz
-                        // "kaçırıldı" olarak işaretlenmeden önceki son bildirim demektir —
-                        // popup tercihinden bağımsız olarak zorla gösterilir.
-                        notificationHelper.showReminderNotification(
-                            reminderId,
-                            medicationName,
-                            medicationId,
-                            isLastAttempt = attempt + 1 == MAX_ATTEMPTS,
-                            isRetry = true,
-                            doseTimeMillis = targetReminder.rescheduledToMillis ?: targetReminder.timeInMillis
-                        )
-                        alarmScheduler.scheduleMissedDoseCheck(
-                            reminderId = reminderId,
-                            medicationId = medicationId,
-                            medicationName = medicationName,
-                            delayMinutes = RETRY_INTERVAL_MINUTES,
-                            attempt = attempt + 1
-                        )
-                    } else {
-                        acknowledgeReminderUseCase(reminderId, ReminderState.MISSED)
+                    // Ayar her kontrolde yeniden okunur; zincirin ortasında azaltılırsa
+                    // sınırı aşmış bir kontrol dozu hemen kaçırıldı sayar.
+                    when (val step = ReminderRetryPolicy.stepFor(attempt, notificationPreferences.reminderAttempts)) {
+                        is ReminderRetryPolicy.Step.Repeat -> {
+                            // Kullanıcı hâlâ yanıt vermedi; bildirimi yeniden göster ve bir sonraki
+                            // denemeyi kur. Son bildirim (doz "kaçırıldı" olarak işaretlenmeden
+                            // önceki son fırsat) popup tercihinden bağımsız olarak zorla gösterilir.
+                            notificationHelper.showReminderNotification(
+                                reminderId,
+                                medicationName,
+                                medicationId,
+                                isLastAttempt = step.isLast,
+                                isRetry = true,
+                                doseTimeMillis = targetReminder.rescheduledToMillis ?: targetReminder.timeInMillis
+                            )
+                            alarmScheduler.scheduleMissedDoseCheck(
+                                reminderId = reminderId,
+                                medicationId = medicationId,
+                                medicationName = medicationName,
+                                delayMinutes = notificationPreferences.reminderRetryIntervalMinutes,
+                                attempt = step.nextAttempt
+                            )
+                        }
+                        ReminderRetryPolicy.Step.MarkMissed ->
+                            acknowledgeReminderUseCase(reminderId, ReminderState.MISSED)
                     }
                 }
             } catch (e: Exception) {
@@ -111,13 +118,7 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
         }
     }
 
-    companion object {
-        private const val TAG = "MissedDoseCheckReceiver"
-
-        /** Bildirim, kullanıcı yanıtlamadığı sürece bu kadar dakikada bir tekrarlanır. */
-        const val RETRY_INTERVAL_MINUTES = 10
-
-        /** Bu kadar denemeden sonra hâlâ yanıt yoksa doz "kaçırıldı" olarak işaretlenir. */
-        const val MAX_ATTEMPTS = 3
+    private companion object {
+        const val TAG = "MissedDoseCheckReceiver"
     }
 }

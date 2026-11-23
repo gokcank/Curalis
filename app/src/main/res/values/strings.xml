@@ -287,6 +287,17 @@
     <string name="snooze_desc">How many minutes should the \"Snooze\" button on the notification postpone the dose?</string>
     <string name="minutes_short_format">%1$d min</string>
     <string name="hours_short_format">%1$d hr</string>
+    <string name="reminder_retry_section_title">Repeat reminders</string>
+    <string name="reminder_retry_desc">If a dose is not marked, how many times should the reminder be shown? The first reminder counts too.</string>
+    <plurals name="reminder_attempts_option">
+        <item quantity="one">%d time</item>
+        <item quantity="other">%d times</item>
+    </plurals>
+    <string name="reminder_retry_interval_label">Time between reminders</string>
+    <plurals name="reminder_missed_after_summary">
+        <item quantity="one">An unmarked dose counts as missed %d minute after the first reminder.</item>
+        <item quantity="other">An unmarked dose counts as missed %d minutes after the first reminder.</item>
+    </plurals>
     <string name="late_dose_section_title">Late doses</string>
     <string name="late_dose_desc">A dose taken more than this long after its scheduled time counts as \"Taken late\" and as half a dose in adherence.</string>
     <string name="days_short_format">%1$d day(s)</string>

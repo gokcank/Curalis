@@ -55,6 +55,20 @@ class NotificationPreferences @Inject constructor(
         get() = prefs.getInt(KEY_SNOOZE_MINUTES, DEFAULT_SNOOZE_MINUTES)
         set(value) = prefs.edit { putInt(KEY_SNOOZE_MINUTES, value) }
 
+    /** Yanıtsız doz bildirimi toplam kaç kez gösterilir (ilki dahil); bkz. [ReminderRetryPolicy]. */
+    var reminderAttempts: Int
+        get() = ReminderRetryPolicy.coerceAttempts(prefs.getInt(KEY_REMINDER_ATTEMPTS, ReminderRetryPolicy.DEFAULT_ATTEMPTS))
+        set(value) = prefs.edit { putInt(KEY_REMINDER_ATTEMPTS, ReminderRetryPolicy.coerceAttempts(value)) }
+
+    /** Yanıtsız doz bildiriminin tekrarları arasındaki dakika. */
+    var reminderRetryIntervalMinutes: Int
+        get() = ReminderRetryPolicy.coerceInterval(
+            prefs.getInt(KEY_REMINDER_RETRY_INTERVAL_MINUTES, ReminderRetryPolicy.DEFAULT_INTERVAL_MINUTES)
+        )
+        set(value) = prefs.edit {
+            putInt(KEY_REMINDER_RETRY_INTERVAL_MINUTES, ReminderRetryPolicy.coerceInterval(value))
+        }
+
     /** Tam ekran alarm popup'ının ne zaman gösterileceği. */
     var popupMode: NotificationPopupMode
         get() = NotificationPopupMode.entries.find { it.name == prefs.getString(KEY_POPUP_MODE, null) }
@@ -187,6 +201,8 @@ class NotificationPreferences @Inject constructor(
         private const val KEY_QUIET_END = "quiet_hours_end_minutes"
         private const val KEY_SNOOZE_MINUTES = "snooze_minutes"
         private const val KEY_POPUP_MODE = "popup_mode"
+        private const val KEY_REMINDER_ATTEMPTS = "reminder_attempts"
+        private const val KEY_REMINDER_RETRY_INTERVAL_MINUTES = "reminder_retry_interval_minutes"
         private const val KEY_MORNING_REMINDER_ENABLED = "morning_reminder_enabled"
         private const val KEY_MORNING_REMINDER_MINUTES = "morning_reminder_minutes"
         private const val KEY_WEEKEND_MODE_ENABLED = "weekend_mode_enabled"

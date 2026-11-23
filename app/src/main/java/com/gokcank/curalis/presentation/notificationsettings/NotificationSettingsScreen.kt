@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import com.gokcank.curalis.core.notification.LockScreenPrivacy
 import com.gokcank.curalis.core.notification.NotificationPopupMode
 import com.gokcank.curalis.core.notification.NotificationPreferences
+import com.gokcank.curalis.core.notification.ReminderRetryPolicy
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -295,6 +297,66 @@ fun NotificationSettingsScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = stringResource(R.string.reminder_retry_section_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                stringResource(R.string.reminder_retry_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ReminderRetryPolicy.ATTEMPT_OPTIONS.forEach { attempts ->
+                    FilterChip(
+                        selected = uiState.reminderAttempts == attempts,
+                        onClick = { viewModel.onReminderAttemptsChanged(attempts) },
+                        label = { Text(pluralStringResource(R.plurals.reminder_attempts_option, attempts, attempts)) },
+                        colors = themeChipColors,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            Text(
+                stringResource(R.string.reminder_retry_interval_label),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ReminderRetryPolicy.INTERVAL_OPTIONS_MINUTES.forEach { minutes ->
+                    FilterChip(
+                        selected = uiState.reminderRetryIntervalMinutes == minutes,
+                        onClick = { viewModel.onReminderRetryIntervalChanged(minutes) },
+                        label = { Text(stringResource(R.string.minutes_short_format, minutes)) },
+                        colors = themeChipColors,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            val minutesUntilMissed = ReminderRetryPolicy.minutesUntilMissed(
+                uiState.reminderAttempts,
+                uiState.reminderRetryIntervalMinutes
+            )
+            Text(
+                pluralStringResource(R.plurals.reminder_missed_after_summary, minutesUntilMissed, minutesUntilMissed),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
 
             Spacer(modifier = Modifier.padding(vertical = 12.dp))
 

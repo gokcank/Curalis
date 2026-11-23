@@ -5,6 +5,7 @@ import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.notification.LockScreenPrivacy
 import com.gokcank.curalis.core.notification.NotificationPopupMode
 import com.gokcank.curalis.core.notification.NotificationPreferences
+import com.gokcank.curalis.core.notification.ReminderRetryPolicy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,8 @@ data class NotificationSettingsUiState(
     val quietHoursStartMinutes: Int = NotificationPreferences.DEFAULT_QUIET_START,
     val quietHoursEndMinutes: Int = NotificationPreferences.DEFAULT_QUIET_END,
     val snoozeMinutes: Int = NotificationPreferences.DEFAULT_SNOOZE_MINUTES,
+    val reminderAttempts: Int = ReminderRetryPolicy.DEFAULT_ATTEMPTS,
+    val reminderRetryIntervalMinutes: Int = ReminderRetryPolicy.DEFAULT_INTERVAL_MINUTES,
     val lateDoseThresholdMinutes: Int = NotificationPreferences.DEFAULT_LATE_DOSE_THRESHOLD_MINUTES,
     val appointmentReminderMinutesBefore: Int = NotificationPreferences.DEFAULT_APPOINTMENT_LEAD_MINUTES,
     val popupMode: NotificationPopupMode = NotificationPopupMode.ALWAYS,
@@ -41,6 +44,8 @@ class NotificationSettingsViewModel @Inject constructor(
             quietHoursStartMinutes = preferences.quietHoursStartMinutes,
             quietHoursEndMinutes = preferences.quietHoursEndMinutes,
             snoozeMinutes = preferences.snoozeMinutes,
+            reminderAttempts = preferences.reminderAttempts,
+            reminderRetryIntervalMinutes = preferences.reminderRetryIntervalMinutes,
             lateDoseThresholdMinutes = preferences.lateDoseThresholdMinutes,
             appointmentReminderMinutesBefore = preferences.appointmentReminderMinutesBefore,
             popupMode = preferences.popupMode,
@@ -77,6 +82,16 @@ class NotificationSettingsViewModel @Inject constructor(
     fun onSnoozeMinutesChanged(minutes: Int) {
         preferences.snoozeMinutes = minutes
         _uiState.value = _uiState.value.copy(snoozeMinutes = minutes)
+    }
+
+    fun onReminderAttemptsChanged(attempts: Int) {
+        preferences.reminderAttempts = attempts
+        _uiState.value = _uiState.value.copy(reminderAttempts = preferences.reminderAttempts)
+    }
+
+    fun onReminderRetryIntervalChanged(minutes: Int) {
+        preferences.reminderRetryIntervalMinutes = minutes
+        _uiState.value = _uiState.value.copy(reminderRetryIntervalMinutes = preferences.reminderRetryIntervalMinutes)
     }
 
     fun onLateDoseThresholdChanged(minutes: Int) {

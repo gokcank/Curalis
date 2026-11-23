@@ -35,6 +35,9 @@ class ReminderReceiver : BroadcastReceiver() {
     @Inject
     lateinit var generateUpcomingRemindersUseCase: GenerateUpcomingRemindersUseCase
 
+    @Inject
+    lateinit var notificationPreferences: NotificationPreferences
+
     override fun onReceive(context: Context?, intent: Intent?) {
         val reminderId = intent?.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: return
         val medicationName = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_NAME) ?: "Medication"
@@ -93,7 +96,7 @@ class ReminderReceiver : BroadcastReceiver() {
                         reminderId = reminderId,
                         medicationId = medicationId,
                         medicationName = medicationName,
-                        delayMinutes = MissedDoseCheckReceiver.RETRY_INTERVAL_MINUTES,
+                        delayMinutes = notificationPreferences.reminderRetryIntervalMinutes,
                         attempt = 1
                     )
                 }
