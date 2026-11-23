@@ -7,6 +7,8 @@ import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
+import com.gokcank.curalis.domain.model.MedicationShape
+import com.gokcank.curalis.domain.model.shape
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.domain.usecase.DoseAdherence
@@ -39,6 +41,7 @@ data class DailyReminderItem(
     val reminder: Reminder,
     val medicationName: String,
     val medicationForm: MedicationForm,
+    val medicationShape: MedicationShape = MedicationShape.defaultFor(medicationForm),
     val dosageInfo: String,
     /** Alınmış doz geç alındı mı; bkz. DoseAdherence.isLate. */
     val isLate: Boolean = false
@@ -145,6 +148,7 @@ class AdherenceCalendarViewModel @Inject constructor(
                 reminder = rem,
                 medicationName = med?.name ?: appContext.getString(R.string.generic_medication_label),
                 medicationForm = med?.formType ?: MedicationForm.PILL,
+                medicationShape = med?.shape ?: MedicationShape.defaultFor(MedicationForm.PILL),
                 dosageInfo = listOfNotNull(med?.dosage, med?.unit).joinToString(" "),
                 isLate = DoseAdherence.isLate(rem, threshold)
             )

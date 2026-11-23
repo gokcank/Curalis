@@ -16,6 +16,7 @@ import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.MealInstruction
 import com.gokcank.curalis.domain.model.Medication
 import com.gokcank.curalis.domain.model.MedicationForm
+import com.gokcank.curalis.domain.model.MedicationShape
 import com.gokcank.curalis.domain.model.MedicationTime
 import com.gokcank.curalis.domain.model.ProviderMedication
 import com.gokcank.curalis.domain.model.ReminderState
@@ -392,6 +393,9 @@ class AddEditMedicationViewModel @Inject constructor(
     fun onMealInstructionChange(instruction: MealInstruction) = _formState.update { it.copy(mealInstruction = instruction) }
 
     fun onColorSelected(colorHex: String) = _formState.update { it.copy(colorHex = colorHex) }
+
+    /** Seçilen şekil; seçilmezse şekil ilacın formundan türetilir (bkz. MedicationShape.AUTO). */
+    fun onShapeSelected(shape: MedicationShape) = _formState.update { it.copy(iconShape = shape.name) }
 
 
     fun onNotesChange(notes: String) = _formState.update { it.copy(notes = notes) }

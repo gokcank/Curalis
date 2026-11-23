@@ -50,7 +50,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.theme.LocalCuralisColors
 import com.gokcank.curalis.presentation.components.EmptyState
-import com.gokcank.curalis.presentation.components.icon
+import com.gokcank.curalis.presentation.components.shapeIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -324,7 +324,7 @@ fun MedicationStatCard(stat: MedicationStat) {
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = stat.medication.formType.icon(),
+                        imageVector = stat.medication.shapeIcon(),
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(22.dp)

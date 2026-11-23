@@ -203,6 +203,17 @@
     <string name="barcode_match_dialog_title">Barkoddaki İlaç Bulundu</string>
     <string name="barcode_match_dialog_message">%1$s\n\nİlaç adı ve etken madde bununla değiştirilsin mi?</string>
     <string name="barcode_match_replace">Değiştir</string>
+    <string name="medication_shape_title">Şekil</string>
+    <string name="shape_round_tablet">Yuvarlak tablet</string>
+    <string name="shape_oval_tablet">Oval tablet</string>
+    <string name="shape_capsule">Kapsül</string>
+    <string name="shape_drop">Damla</string>
+    <string name="shape_bottle">Şişe</string>
+    <string name="shape_syringe">Şırınga</string>
+    <string name="shape_tube">Tüp</string>
+    <string name="shape_inhaler">İnhaler</string>
+    <string name="shape_patch">Bant</string>
+    <string name="shape_sachet">Saşe</string>
     <string name="medication_color_title">İlaç Renk Vurgusu</string>
     <string name="color_selected_desc">Seçili renk</string>
     <string name="color_option_desc">Renk seçeneği</string>
@@ -228,7 +239,7 @@
     <string name="almost_done_title">Neredeyse bitti!</string>
     <string name="almost_done_subtitle">İsterseniz şu ek bilgileri de ekleyebilirsiniz:</string>
     <string name="barcode_field_label">Barkod</string>
-    <string name="color_field_label">Renk</string>
+    <string name="color_field_label">Renk ve şekil</string>
     <string name="photo_field_label">Fotoğraf</string>
     <string name="stock_tracking_field_label">Stok Takibi</string>
     <string name="doctor_field_label">Doktor</string>

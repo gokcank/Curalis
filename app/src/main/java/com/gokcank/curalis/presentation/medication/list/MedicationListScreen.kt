@@ -100,6 +100,7 @@ import com.gokcank.curalis.presentation.components.EmptyState
 import com.gokcank.curalis.presentation.components.InfoChip
 import com.gokcank.curalis.presentation.components.NoResultsState
 import com.gokcank.curalis.presentation.components.icon
+import com.gokcank.curalis.presentation.components.shapeIcon
 import android.content.Intent
 import androidx.compose.material.icons.filled.Share
 import java.util.Locale
@@ -489,7 +490,7 @@ fun MedicationItem(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = medication.formType.icon(),
+                        imageVector = medication.shapeIcon(),
                         contentDescription = if (isEnglish) medication.formType.displayNameEn else medication.formType.displayNameTr,
                         tint = Color.White,
                         modifier = Modifier.size(24.dp)

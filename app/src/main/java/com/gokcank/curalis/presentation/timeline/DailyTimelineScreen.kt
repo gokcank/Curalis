@@ -54,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.toColorInt
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -73,7 +74,7 @@ import com.gokcank.curalis.presentation.components.RescheduleDoseDialog
 import com.gokcank.curalis.presentation.components.EmptyState
 import com.gokcank.curalis.presentation.components.ReminderStateBadge
 import com.gokcank.curalis.presentation.components.SkipReasonDialog
-import com.gokcank.curalis.presentation.components.icon
+import com.gokcank.curalis.presentation.components.shapeIcon
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Date
@@ -424,16 +425,20 @@ fun TimelineCard(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {
+                    // İlacın kendi rengi ve şekli; rengi okunamayan eski kayıtlar temanın rengini alır.
+                    val medColor = med?.colorHex?.let { hex ->
+                        runCatching { Color(hex.toColorInt()) }.getOrNull()
+                    }
                     Surface(
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer,
+                        color = medColor ?: MaterialTheme.colorScheme.primaryContainer,
                         modifier = Modifier.size(42.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = (med?.formType ?: MedicationForm.PILL).icon(),
+                                imageVector = med?.shapeIcon() ?: MedicationForm.PILL.shapeIcon(),
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                tint = if (medColor != null) Color.White else MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.size(22.dp)
                             )
                         }

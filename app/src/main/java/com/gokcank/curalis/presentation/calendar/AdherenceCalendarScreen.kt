@@ -330,7 +330,7 @@ fun DailyReminderCard(item: DailyReminderItem) {
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            imageVector = item.medicationForm.icon(),
+                            imageVector = item.medicationShape.icon(),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.size(20.dp)

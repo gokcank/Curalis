@@ -66,7 +66,7 @@ import com.gokcank.curalis.domain.model.MedicationForm
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.domain.model.ReminderState
 import com.gokcank.curalis.presentation.components.DoseTakenTimeDialog
-import com.gokcank.curalis.presentation.components.icon
+import com.gokcank.curalis.presentation.components.shapeIcon
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -866,7 +866,7 @@ private fun PillboxDoseIcon(item: HomePillboxItem, onClick: () -> Unit) {
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
-                    imageVector = if (isTaken) Icons.Default.Check else (item.medication?.formType ?: MedicationForm.PILL).icon(),
+                    imageVector = if (isTaken) Icons.Default.Check else (item.medication?.shapeIcon() ?: MedicationForm.PILL.shapeIcon()),
                     contentDescription = item.medication?.name ?: stringResource(R.string.generic_medication_label),
                     tint = tint,
                     modifier = Modifier.size(20.dp)

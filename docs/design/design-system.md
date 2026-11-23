@@ -653,6 +653,12 @@ Examples:
 
 Avoid unnecessary symbolism.
 
+### Medication Shapes
+
+A medication is shown with its own color and a shape icon in the medication list, the daily timeline, the home screen, the adherence calendar and analytics. The user picks the shape in the add/edit form, next to the color: round tablet, oval tablet, capsule, drop, bottle, syringe, tube, inhaler, patch, sachet. Without a choice the shape follows the medication form (for example syrup → bottle, drops → drop), so existing medications need no change.
+
+The shape icons are original, drawn for this app on the same 24×24 grid as the Material Filled family and in a single color; gaps (score lines, labels, windows) are cut out so they stay readable in one color. Each shape has a text label for screen readers. Keep them recognizable at 20–24 dp and avoid shapes that read as other symbols (a plain circle with a horizontal bar reads as "no entry").
+
 ---
 
 ## Icon Sizes

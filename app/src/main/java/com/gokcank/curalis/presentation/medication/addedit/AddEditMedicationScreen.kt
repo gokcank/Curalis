@@ -77,6 +77,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.toColorInt
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -98,6 +99,12 @@ import com.gokcank.curalis.core.theme.MedicationAccentColors
 import com.gokcank.curalis.domain.model.StockChangeReason
 import com.gokcank.curalis.presentation.components.ExactAlarmPermissionDialog
 import com.gokcank.curalis.presentation.components.icon
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.selectable
+import com.gokcank.curalis.presentation.components.shapeIcon
+import com.gokcank.curalis.presentation.components.labelRes
+import com.gokcank.curalis.domain.model.MedicationShape
 import com.gokcank.curalis.domain.model.DosageUnit
 import com.gokcank.curalis.domain.model.FrequencyType
 import com.gokcank.curalis.domain.model.MealInstruction
@@ -145,7 +152,7 @@ fun AddEditMedicationScreen(
     fun hasExtraValue(key: String) = when (key) {
         "etken_madde" -> formState.activeIngredient.isNotBlank()
         "barkod" -> formState.barcode.isNotBlank()
-        "renk" -> formState.colorHex != "#1E88E5"
+        "renk" -> formState.colorHex != "#1E88E5" || formState.iconShape != MedicationShape.AUTO
         "foto" -> formState.photoPath != null
         "yemek" -> formState.mealInstruction != MealInstruction.DOES_NOT_MATTER
         "stok" -> formState.isRefillEnabled
@@ -545,7 +552,7 @@ fun AddEditMedicationScreen(
                         label = { Text(if (isEnglish) form.displayNameEn else form.displayNameTr) },
                         leadingIcon = {
                             Icon(
-                                imageVector = form.icon(),
+                                imageVector = form.shapeIcon(),
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -561,7 +568,8 @@ fun AddEditMedicationScreen(
                 formType = formState.formType,
                 dosage = formState.dosage,
                 unit = formState.unit,
-                colorHex = formState.colorHex
+                colorHex = formState.colorHex,
+                shape = MedicationShape.resolve(formState.iconShape, formState.formType)
             )
 
             if (showExtra("renk")) {
@@ -600,6 +608,52 @@ fun AddEditMedicationScreen(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = stringResource(R.string.medication_shape_title), style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                val selectedShape = MedicationShape.resolve(formState.iconShape, formState.formType)
+                val shapeAccent = remember(formState.colorHex) {
+                    runCatching { Color(formState.colorHex.toColorInt()) }.getOrDefault(Color(0xFF1E88E5))
+                }
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    MedicationShape.entries.forEach { shape ->
+                        val isSelected = shape == selectedShape
+                        val label = stringResource(shape.labelRes())
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .background(
+                                    color = if (isSelected) shapeAccent else MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = CircleShape
+                                )
+                                .selectable(
+                                    selected = isSelected,
+                                    role = Role.RadioButton,
+                                    onClick = { viewModel.onShapeSelected(shape) }
+                                )
+                                .semantics { contentDescription = label },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = shape.icon(),
+                                contentDescription = null,
+                                tint = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                    }
+                }
+                Text(
+                    text = stringResource(selectedShape.labelRes()),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
 
             if (showExtra("foto")) {
@@ -1297,10 +1351,11 @@ private fun MedicationLivePreview(
     formType: MedicationForm,
     dosage: String,
     unit: String,
-    colorHex: String
+    colorHex: String,
+    shape: MedicationShape
 ) {
     val accentColor = remember(colorHex) {
-        runCatching { Color(android.graphics.Color.parseColor(colorHex)) }.getOrDefault(Color(0xFF1E88E5))
+        runCatching { Color(colorHex.toColorInt()) }.getOrDefault(Color(0xFF1E88E5))
     }
     val dosageLine = listOfNotNull(dosage.takeIf { it.isNotBlank() }, unit.takeIf { it.isNotBlank() })
         .joinToString(" ")
@@ -1317,7 +1372,7 @@ private fun MedicationLivePreview(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = formType.icon(),
+                imageVector = shape.icon(),
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(48.dp)

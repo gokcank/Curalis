@@ -201,6 +201,17 @@
     <string name="barcode_match_dialog_title">Medication Found</string>
     <string name="barcode_match_dialog_message">%1$s\n\nReplace the medication name and active ingredient with this?</string>
     <string name="barcode_match_replace">Replace</string>
+    <string name="medication_shape_title">Shape</string>
+    <string name="shape_round_tablet">Round tablet</string>
+    <string name="shape_oval_tablet">Oval tablet</string>
+    <string name="shape_capsule">Capsule</string>
+    <string name="shape_drop">Drop</string>
+    <string name="shape_bottle">Bottle</string>
+    <string name="shape_syringe">Syringe</string>
+    <string name="shape_tube">Tube</string>
+    <string name="shape_inhaler">Inhaler</string>
+    <string name="shape_patch">Patch</string>
+    <string name="shape_sachet">Sachet</string>
     <string name="medication_color_title">Medication Color Accent</string>
     <string name="color_selected_desc">Selected color</string>
     <string name="color_option_desc">Color option</string>
@@ -226,7 +237,7 @@
     <string name="almost_done_title">Almost done!</string>
     <string name="almost_done_subtitle">You can also add these extra details if you\'d like:</string>
     <string name="barcode_field_label">Barcode</string>
-    <string name="color_field_label">Color</string>
+    <string name="color_field_label">Color and shape</string>
     <string name="photo_field_label">Photo</string>
     <string name="stock_tracking_field_label">Stock Tracking</string>
     <string name="doctor_field_label">Doctor</string>
