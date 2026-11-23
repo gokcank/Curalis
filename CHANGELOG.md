@@ -2,6 +2,33 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.6.0] — versionCode 14
+
+Small conveniences.
+
+- **Repeat reminders say what changed.** The first reminder stays as before; a repeat says
+  the dose is not marked yet, and the last one says the dose will count as missed if it
+  stays unmarked. They follow the lock-screen privacy level.
+- **Expiry date from the box's DataMatrix code.** Scanning the code on the box fills an
+  empty expiry date. An expiry date in the past shows a warning on the form; saving is
+  still allowed.
+- **Search ignores Turkish letter case.** "şurup", "ŞURUP" and "Şurup" find the same
+  medications, and i/İ/ı/I no longer break a search, both in the medication dictionary and
+  in My Medications. When the dictionary finds nothing, close spellings are offered under
+  "Did you mean?". The dictionary is rebuilt (version 3) with the same list.
+- **Add a box or enter the stock from the medication list.** Tapping a medication's stock
+  label offers "Add a box" (adds the starting stock) or "Enter stock"; both are recorded in
+  the stock history.
+- **Pick an emergency contact from the address book.** The emergency contact form has a
+  "Pick from contacts" button that opens the phone's own contact picker; the app does not
+  ask for contacts permission.
+- **Share the medication list as text.** My Medications has a share button that sends the
+  active medications (name, frequency, times, dose, meal instruction) as plain text.
+  Archived and suspended medications are left out.
+- **Evening summary.** Optional, off by default: at the chosen time (21:00 unless changed),
+  one notification says how many of today's doses are still unmarked; tapping it opens the
+  timeline. Nothing arrives when every dose is marked. It has its own notification category.
+
 ## [1.5.0] — versionCode 13
 
 Reminder reliability and privacy.
