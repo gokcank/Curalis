@@ -17,6 +17,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -72,12 +73,15 @@ import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.notification.NotificationHelper
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.notification.ReminderActionReceiver
+import com.gokcank.curalis.core.notification.VoiceReminderSpeaker
 import com.gokcank.curalis.core.theme.CuralisTheme
 import com.gokcank.curalis.core.theme.ThemeController
 import com.gokcank.curalis.domain.model.SkipReason
 import com.gokcank.curalis.domain.model.Reminder
 import com.gokcank.curalis.presentation.components.SkipReasonDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -91,6 +95,9 @@ class AlarmFullScreenActivity : ComponentActivity() {
 
     @Inject
     lateinit var notificationPreferences: NotificationPreferences
+
+    @Inject
+    lateinit var voiceReminderSpeaker: VoiceReminderSpeaker
 
     /**
      * Kilit ekranı gizliliği sınırlı ya da gizliyken, telefon kilitli olduğu sürece ilaç adları
@@ -129,6 +136,10 @@ class AlarmFullScreenActivity : ComponentActivity() {
     }
 
     private var ringtone: Ringtone? = null
+    private var soundJob: Job? = null
+
+    /** Kullanıcı bir dozu yanıtladı; konuşmadan sonra alarm sesi yeniden başlamasın. */
+    private var answered = false
     private var vibrator: Vibrator? = null
 
     private val viewModel: AlarmFullScreenViewModel by viewModels()
@@ -232,7 +243,10 @@ class AlarmFullScreenActivity : ComponentActivity() {
         snoozeMinutes: Int = 10,
         skipReason: SkipReason? = null
     ) {
+        answered = true
+        soundJob?.cancel()
         stopAlarmSound()
+        voiceReminderSpeaker.stop()
         val intent = Intent(this, ReminderActionReceiver::class.java).apply {
             this.action = action
             putExtra(NotificationHelper.EXTRA_REMINDER_ID, dose.reminder.id)
@@ -264,7 +278,20 @@ class AlarmFullScreenActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Sesli hatırlatma konuşuyorsa alarm sesi konuşma bitene kadar bekler; yoksa ikisi üst üste
+     * çalar ve konuşma anlaşılmaz.
+     */
     private fun startAlarmSound() {
+        answered = false
+        soundJob?.cancel()
+        soundJob = lifecycleScope.launch {
+            voiceReminderSpeaker.awaitSilence()
+            if (!answered && !isFinishing) playAlarmSound()
+        }
+    }
+
+    private fun playAlarmSound() {
         try {
             // Kullanıcı bildirim ayarlarından hatırlatma sesi seçtiyse tam ekran alarm da onu
             // çalar; kısa bir bildirim sesi tek seferde bitmesin diye tekrarlanır.

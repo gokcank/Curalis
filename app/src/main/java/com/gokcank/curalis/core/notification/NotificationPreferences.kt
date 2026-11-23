@@ -84,6 +84,16 @@ class NotificationPreferences @Inject constructor(
         get() = prefs.getInt(KEY_REMINDER_CHANNEL_VERSION, 0)
         set(value) = prefs.edit { putInt(KEY_REMINDER_CHANNEL_VERSION, value) }
 
+    /** Sesli hatırlatma: hatırlatma anında telefon "İlaç vakti" der (bkz. VoiceReminderSpeaker). */
+    var voiceReminderEnabled: Boolean
+        get() = prefs.getBoolean(KEY_VOICE_REMINDER_ENABLED, false)
+        set(value) = prefs.edit { putBoolean(KEY_VOICE_REMINDER_ENABLED, value) }
+
+    /** Sesli hatırlatmada ilaç adı da söylensin mi; kilit ekranı gizliliği "Tam" değilse söylenmez. */
+    var voiceReminderSpeakName: Boolean
+        get() = prefs.getBoolean(KEY_VOICE_REMINDER_SPEAK_NAME, false)
+        set(value) = prefs.edit { putBoolean(KEY_VOICE_REMINDER_SPEAK_NAME, value) }
+
     /** Tam ekran alarm popup'ının ne zaman gösterileceği. */
     var popupMode: NotificationPopupMode
         get() = NotificationPopupMode.entries.find { it.name == prefs.getString(KEY_POPUP_MODE, null) }
@@ -218,6 +228,8 @@ class NotificationPreferences @Inject constructor(
         private const val KEY_POPUP_MODE = "popup_mode"
         private const val KEY_REMINDER_ATTEMPTS = "reminder_attempts"
         private const val KEY_REMINDER_SOUND_URI = "reminder_sound_uri"
+        private const val KEY_VOICE_REMINDER_ENABLED = "voice_reminder_enabled"
+        private const val KEY_VOICE_REMINDER_SPEAK_NAME = "voice_reminder_speak_name"
         private const val KEY_REMINDER_CHANNEL_VERSION = "reminder_channel_version"
         private const val KEY_REMINDER_RETRY_INTERVAL_MINUTES = "reminder_retry_interval_minutes"
         private const val KEY_MORNING_REMINDER_ENABLED = "morning_reminder_enabled"

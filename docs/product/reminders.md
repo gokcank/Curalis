@@ -210,6 +210,12 @@ In the notification settings the user can choose the reminder sound with the pho
 
 Android does not let an app change a category's sound after creating it. So each sound change opens a new medication-reminder category with the chosen sound and deletes the previous one: the system settings always show exactly one medication-reminder category. Changes the user made to the old category in the system settings (for example vibration) do not carry over, and reminders still shown from the old category are removed. The quiet-hours category stays silent and is not affected.
 
+## Spoken Reminder
+
+An optional spoken reminder (off by default) makes the phone say "Time for your medication" in the app language when a dose reminder or one of its repeats arrives, using the phone's own text-to-speech engine. Saying the medication name is a separate option, also off by default, and the name is never said while the lock-screen privacy level is Limited or Hidden. The phone does not speak during quiet hours, or when it is on silent, vibrate or do not disturb. Several doses due at the same moment are announced once when names are not said. The full-screen alarm waits for the speech before playing its sound, and answering the reminder stops the speech.
+
+If the phone has no text-to-speech engine or no voice for the app language, the setting says so and links to the phone's voice settings; reminders are then shown and sound as usual, without speech. A "Play a sample" button lets the user hear it.
+
 ---
 
 # Quiet Hours

@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.IntentCompat
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import com.gokcank.curalis.core.notification.LockScreenPrivacy
 import com.gokcank.curalis.core.notification.NotificationPopupMode
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.notification.ReminderRetryPolicy
+import com.gokcank.curalis.core.notification.VoiceAvailability
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -74,6 +76,11 @@ fun NotificationSettingsScreen(
     var showMorningTimePicker by remember { mutableStateOf(false) }
     var showEveningTimePicker by remember { mutableStateOf(false) }
     var showWeekendTimePicker by remember { mutableStateOf(false) }
+    // Kullanıcı ses ayarlarından dil indirip dönünce durum yenilensin.
+    LifecycleResumeEffect(Unit) {
+        viewModel.refreshVoiceAvailability()
+        onPauseOrDispose { }
+    }
     val soundPicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val data = result.data
         if (result.resultCode == Activity.RESULT_OK && data != null) {
@@ -336,6 +343,89 @@ fun NotificationSettingsScreen(
             if (uiState.reminderSoundUri != null) {
                 TextButton(onClick = { viewModel.onReminderSoundPicked(null) }) {
                     Text(stringResource(R.string.reminder_sound_reset_button))
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+            Text(
+                text = stringResource(R.string.voice_reminder_section_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.voice_reminder_toggle_title), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        stringResource(R.string.voice_reminder_toggle_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = uiState.voiceReminderEnabled,
+                    onCheckedChange = viewModel::onVoiceReminderToggled
+                )
+            }
+            if (uiState.voiceReminderEnabled) {
+                Spacer(modifier = Modifier.padding(vertical = 4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.voice_reminder_name_title), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            stringResource(
+                                if (uiState.lockScreenPrivacy == LockScreenPrivacy.FULL) R.string.voice_reminder_name_desc
+                                else R.string.voice_reminder_name_blocked
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = uiState.voiceReminderSpeakName,
+                        onCheckedChange = viewModel::onVoiceReminderSpeakNameToggled
+                    )
+                }
+                when (uiState.voiceAvailability) {
+                    VoiceAvailability.LANGUAGE_MISSING, VoiceAvailability.NO_ENGINE -> {
+                        Text(
+                            stringResource(
+                                if (uiState.voiceAvailability == VoiceAvailability.NO_ENGINE) R.string.voice_reminder_no_engine
+                                else R.string.voice_reminder_missing_language
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                        OutlinedButton(onClick = {
+                            try {
+                                context.startActivity(Intent(TTS_SETTINGS_ACTION))
+                            } catch (e: ActivityNotFoundException) {
+                                context.startActivity(Intent(Settings.ACTION_SETTINGS))
+                            }
+                        }) {
+                            Text(stringResource(R.string.voice_reminder_open_settings))
+                        }
+                    }
+                    VoiceAvailability.AVAILABLE -> {
+                        val sampleName = stringResource(R.string.voice_reminder_sample_medication)
+                        OutlinedButton(
+                            onClick = { viewModel.onVoiceReminderSample(sampleName) },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text(stringResource(R.string.voice_reminder_sample_button))
+                        }
+                    }
+                    null -> Unit
                 }
             }
 
@@ -775,3 +865,6 @@ fun NotificationSettingsScreen(
         }
     }
 }
+
+/** Android'in metin okuma ayarları ekranı (resmî sabiti yok; bulunmazsa genel ayarlar açılır). */
+private const val TTS_SETTINGS_ACTION = "com.android.settings.TTS_SETTINGS"

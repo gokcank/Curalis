@@ -49,6 +49,9 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
     @Inject
     lateinit var notificationPreferences: NotificationPreferences
 
+    @Inject
+    lateinit var voiceReminderSpeaker: VoiceReminderSpeaker
+
     override fun onReceive(context: Context, intent: Intent) {
         val reminderId = intent.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: return
         val medicationId = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_ID) ?: return
@@ -90,6 +93,7 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
                             // Kullanıcı hâlâ yanıt vermedi; bildirimi yeniden göster ve bir sonraki
                             // denemeyi kur. Son bildirim (doz "kaçırıldı" olarak işaretlenmeden
                             // önceki son fırsat) popup tercihinden bağımsız olarak zorla gösterilir.
+                            voiceReminderSpeaker.announceDose(medicationName)
                             notificationHelper.showReminderNotification(
                                 reminderId,
                                 medicationName,
@@ -113,6 +117,7 @@ class MissedDoseCheckReceiver : BroadcastReceiver() {
             } catch (e: Exception) {
                 Log.e(TAG, "Kaçırılan doz kontrolü sırasında hata oluştu", e)
             } finally {
+                voiceReminderSpeaker.awaitSilence()
                 pendingResult.finish()
             }
         }

@@ -38,6 +38,9 @@ class ReminderReceiver : BroadcastReceiver() {
     @Inject
     lateinit var notificationPreferences: NotificationPreferences
 
+    @Inject
+    lateinit var voiceReminderSpeaker: VoiceReminderSpeaker
+
     override fun onReceive(context: Context?, intent: Intent?) {
         val reminderId = intent?.getStringExtra(AlarmScheduler.EXTRA_REMINDER_ID) ?: return
         val medicationName = intent.getStringExtra(AlarmScheduler.EXTRA_MEDICATION_NAME) ?: "Medication"
@@ -69,6 +72,8 @@ class ReminderReceiver : BroadcastReceiver() {
 
                 val existing = reminderRepository.getReminderById(reminderId)
                 if (shouldNotifyDose(existing, isRescheduledFire, System.currentTimeMillis())) {
+                    // Önce sıraya alınır ki tam ekran alarm açılırken konuşmanın geleceğini bilsin.
+                    voiceReminderSpeaker.announceDose(medicationName)
                     notificationHelper.showReminderNotification(
                         reminderId,
                         medicationName,
@@ -113,6 +118,8 @@ class ReminderReceiver : BroadcastReceiver() {
             } catch (e: Exception) {
                 Log.e(TAG, "Hatırlatıcı 'iletildi' olarak işaretlenirken hata oluştu", e)
             } finally {
+                // Sesli hatırlatma sürerken süreç kapatılmasın.
+                voiceReminderSpeaker.awaitSilence()
                 pendingResult.finish()
             }
         }

@@ -191,6 +191,8 @@ Users should be able to choose:
 
 The levels and how they apply to reminder notifications and the full-screen reminder are defined in product/reminders.md ("Notification Content").
 
+Spoken reminders are off by default. Saying the medication name out loud is a separate opt-in, and the name is never said while the lock-screen privacy level is limited or hidden. Speech uses the phone's own text-to-speech engine; the app sends only the sentence to be spoken to that engine. See product/reminders.md ("Spoken Reminder").
+
 ---
 
 # Logging

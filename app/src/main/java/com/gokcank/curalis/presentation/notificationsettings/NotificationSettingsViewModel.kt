@@ -3,16 +3,21 @@ package com.gokcank.curalis.presentation.notificationsettings
 import android.net.Uri
 import android.provider.Settings
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.core.notification.AlarmScheduler
 import com.gokcank.curalis.core.notification.LockScreenPrivacy
 import com.gokcank.curalis.core.notification.NotificationPopupMode
 import com.gokcank.curalis.core.notification.NotificationHelper
 import com.gokcank.curalis.core.notification.NotificationPreferences
 import com.gokcank.curalis.core.notification.ReminderRetryPolicy
+import com.gokcank.curalis.core.notification.VoiceAvailability
+import com.gokcank.curalis.core.notification.VoiceReminderPolicy
+import com.gokcank.curalis.core.notification.VoiceReminderSpeaker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class NotificationSettingsUiState(
@@ -24,6 +29,10 @@ data class NotificationSettingsUiState(
     /** Seçili hatırlatma sesi; null = telefonun varsayılan bildirim sesi. */
     val reminderSoundUri: String? = null,
     val reminderSoundTitle: String? = null,
+    val voiceReminderEnabled: Boolean = false,
+    val voiceReminderSpeakName: Boolean = false,
+    /** null: henüz denetlenmedi. */
+    val voiceAvailability: VoiceAvailability? = null,
     val reminderAttempts: Int = ReminderRetryPolicy.DEFAULT_ATTEMPTS,
     val reminderRetryIntervalMinutes: Int = ReminderRetryPolicy.DEFAULT_INTERVAL_MINUTES,
     val lateDoseThresholdMinutes: Int = NotificationPreferences.DEFAULT_LATE_DOSE_THRESHOLD_MINUTES,
@@ -41,7 +50,8 @@ data class NotificationSettingsUiState(
 class NotificationSettingsViewModel @Inject constructor(
     private val preferences: NotificationPreferences,
     private val alarmScheduler: AlarmScheduler,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val voiceReminderSpeaker: VoiceReminderSpeaker
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -53,6 +63,8 @@ class NotificationSettingsViewModel @Inject constructor(
             snoozeMinutes = preferences.snoozeMinutes,
             reminderSoundUri = preferences.reminderSoundUri,
             reminderSoundTitle = notificationHelper.reminderSoundTitle(),
+            voiceReminderEnabled = preferences.voiceReminderEnabled,
+            voiceReminderSpeakName = preferences.voiceReminderSpeakName,
             reminderAttempts = preferences.reminderAttempts,
             reminderRetryIntervalMinutes = preferences.reminderRetryIntervalMinutes,
             lateDoseThresholdMinutes = preferences.lateDoseThresholdMinutes,
@@ -106,6 +118,31 @@ class NotificationSettingsViewModel @Inject constructor(
             reminderSoundUri = preferences.reminderSoundUri,
             reminderSoundTitle = notificationHelper.reminderSoundTitle()
         )
+    }
+
+    fun onVoiceReminderToggled(enabled: Boolean) {
+        preferences.voiceReminderEnabled = enabled
+        _uiState.value = _uiState.value.copy(voiceReminderEnabled = enabled)
+        if (enabled) refreshVoiceAvailability()
+    }
+
+    fun onVoiceReminderSpeakNameToggled(enabled: Boolean) {
+        preferences.voiceReminderSpeakName = enabled
+        _uiState.value = _uiState.value.copy(voiceReminderSpeakName = enabled)
+    }
+
+    /** Ekran her açıldığında (ör. kullanıcı ses ayarlarından dil indirip döndüğünde) yeniden bakılır. */
+    fun refreshVoiceAvailability() {
+        if (!preferences.voiceReminderEnabled) return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(voiceAvailability = voiceReminderSpeaker.checkAvailability())
+        }
+    }
+
+    /** Örnek: kilit ekranı gizliliği izin veriyorsa ve istenmişse örnek bir ilaç adıyla. */
+    fun onVoiceReminderSample(sampleMedicationName: String) {
+        val withName = VoiceReminderPolicy.includesName(preferences.voiceReminderSpeakName, preferences.lockScreenPrivacy)
+        voiceReminderSpeaker.speakSample(if (withName) sampleMedicationName else null)
     }
 
     fun onReminderAttemptsChanged(attempts: Int) {
