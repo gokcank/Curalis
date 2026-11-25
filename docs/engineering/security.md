@@ -202,6 +202,10 @@ Current implementation (see ADR-011, accepted 2026-11-25):
 - Before a corrupt database is deleted, or before the user resets an unreadable one, its files are copied to
   app-private storage.
 - A forgotten app PIN can be reset only through the phone's own screen lock.
+- Android Auto Backup and device transfer never include the database, the database rescue copies, the automatic
+  backup settings or the stored backup password (`res/xml/backup_rules.xml`, `data_extraction_rules.xml`).
+- Automatic backups are written as dated files (`curalis_auto_<date>_<time>.json`); only these are pruned to the 30
+  newest, other files in the chosen folder are never touched.
 
 ---
 

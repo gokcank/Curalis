@@ -19,6 +19,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.material3.Switch
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +63,20 @@ fun BackupScreen(
 
     // Bekleyen şifre isteyen işlem: hangi eylemin şifre girildikten sonra çalıştırılacağını tutar.
     var pendingPasswordAction by remember { mutableStateOf<PendingPasswordAction?>(null) }
+    val autoBackup by viewModel.autoBackup.collectAsState()
+    LifecycleResumeEffect(Unit) {
+        viewModel.refreshAutoBackupState()
+        onPauseOrDispose { }
+    }
+    // Açma akışı: klasör (yoksa) → parola. Seçici iptal edilirse otomatik yedek kapalı kalır.
+    var autoBackupSetupInProgress by remember { mutableStateOf(false) }
+    val autoBackupFolderLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            viewModel.onAutoBackupFolderChosen(uri)
+            if (autoBackupSetupInProgress) pendingPasswordAction = PendingPasswordAction.SetAutoBackup
+        }
+        autoBackupSetupInProgress = false
+    }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var pendingLocalExportPassword by remember { mutableStateOf<String?>(null) }
 
@@ -210,6 +229,25 @@ fun BackupScreen(
                 text = stringResource(R.string.backup_screen_intro),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            AutoBackupCard(
+                state = autoBackup,
+                onToggle = { enable ->
+                    if (enable) {
+                        if (autoBackup.hasFolder) {
+                            pendingPasswordAction = PendingPasswordAction.SetAutoBackup
+                        } else {
+                            autoBackupSetupInProgress = true
+                            autoBackupFolderLauncher.launch(null)
+                        }
+                    } else {
+                        viewModel.disableAutoBackup()
+                    }
+                },
+                onChangeFolder = { autoBackupFolderLauncher.launch(null) },
+                onChangePassword = { pendingPasswordAction = PendingPasswordAction.ChangeAutoBackupPassword },
+                onBackupNow = { viewModel.backupNow() }
             )
 
             Card(
@@ -369,9 +407,11 @@ fun BackupScreen(
     }
 
     pendingPasswordAction?.let { action ->
-        val isSettingPassword = action is PendingPasswordAction.BackupLocal || action is PendingPasswordAction.BackupDrive
+        val isAutoBackup = action is PendingPasswordAction.SetAutoBackup || action is PendingPasswordAction.ChangeAutoBackupPassword
+        val isSettingPassword = action is PendingPasswordAction.BackupLocal || action is PendingPasswordAction.BackupDrive || isAutoBackup
         BackupPasswordDialog(
             isSettingPassword = isSettingPassword,
+            descriptionRes = if (isAutoBackup) R.string.auto_backup_password_desc else R.string.backup_password_set_desc,
             onDismiss = {
                 pendingPasswordAction = null
                 pendingImportUri = null
@@ -393,6 +433,8 @@ fun BackupScreen(
                     PendingPasswordAction.RestoreDrive -> {
                         withDriveAccess(DriveOperation.Restore(password))
                     }
+                    PendingPasswordAction.SetAutoBackup -> viewModel.enableAutoBackup(password)
+                    PendingPasswordAction.ChangeAutoBackupPassword -> viewModel.changeAutoBackupPassword(password)
                 }
                 pendingPasswordAction = null
             }
@@ -405,11 +447,14 @@ private sealed class PendingPasswordAction {
     data object RestoreLocal : PendingPasswordAction()
     data object BackupDrive : PendingPasswordAction()
     data object RestoreDrive : PendingPasswordAction()
+    data object SetAutoBackup : PendingPasswordAction()
+    data object ChangeAutoBackupPassword : PendingPasswordAction()
 }
 
 @Composable
 private fun BackupPasswordDialog(
     isSettingPassword: Boolean,
+    descriptionRes: Int = R.string.backup_password_set_desc,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
@@ -426,7 +471,7 @@ private fun BackupPasswordDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (isSettingPassword) {
                     Text(
-                        text = stringResource(R.string.backup_password_set_desc),
+                        text = stringResource(descriptionRes),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -482,3 +527,73 @@ private sealed class DriveOperation {
 }
 
 private const val GOOGLE_ACCOUNT_TYPE = "com.google"
+
+/**
+ * Otomatik yedek (ADR-011): günde bir, seçilen klasöre, saklanan parolayla şifreli; en yeni
+ * 30 kopya. Satırın tamamı açma-kapama öğesidir (ekran okuyucu kuralı, bkz. accessibility.md).
+ */
+@Composable
+private fun AutoBackupCard(
+    state: AutoBackupState,
+    onToggle: (Boolean) -> Unit,
+    onChangeFolder: () -> Unit,
+    onChangePassword: () -> Unit,
+    onBackupNow: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = stringResource(R.string.auto_backup_card_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(value = state.enabled, role = Role.Switch, onValueChange = onToggle),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.auto_backup_toggle_title), style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.auto_backup_toggle_desc), style = MaterialTheme.typography.bodySmall)
+                }
+                Switch(checked = state.enabled, onCheckedChange = null)
+            }
+            if (state.enabled) {
+                state.folderName?.let {
+                    Text(stringResource(R.string.auto_backup_folder, it), style = MaterialTheme.typography.bodyMedium)
+                }
+                val dateFormat = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT) }
+                Text(
+                    text = if (state.lastSuccessAt > 0) {
+                        stringResource(R.string.auto_backup_last, dateFormat.format(Date(state.lastSuccessAt)))
+                    } else {
+                        stringResource(R.string.auto_backup_never)
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                state.lastFailure?.let {
+                    Text(
+                        stringResource(autoBackupFailureMessage(it)),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                Button(onClick = onBackupNow, enabled = !state.running, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.auto_backup_now))
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(onClick = onChangeFolder, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.auto_backup_change_folder))
+                    }
+                    OutlinedButton(onClick = onChangePassword, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.auto_backup_change_password))
+                    }
+                }
+            }
+        }
+    }
+}

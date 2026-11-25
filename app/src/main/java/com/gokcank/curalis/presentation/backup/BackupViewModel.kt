@@ -1,12 +1,19 @@
 package com.gokcank.curalis.presentation.backup
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
+import android.provider.DocumentsContract
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.R
 import com.gokcank.curalis.core.notification.ReminderRescheduler
 import com.gokcank.curalis.core.security.BackupCrypto
+import com.gokcank.curalis.core.security.BackupPasswordStore
+import com.gokcank.curalis.core.work.AutoBackupWorker
+import com.gokcank.curalis.data.backup.AutoBackupPreferences
+import com.gokcank.curalis.data.backup.AutoBackupRunner
 import com.gokcank.curalis.data.backup.DriveAccountPreferences
 import com.gokcank.curalis.data.backup.GoogleDriveManagerFactory
 import com.gokcank.curalis.domain.repository.BackupManager
@@ -26,7 +33,10 @@ class BackupViewModel @Inject constructor(
     private val backupManager: BackupManager,
     private val googleDriveManagerFactory: GoogleDriveManagerFactory,
     private val reminderRescheduler: ReminderRescheduler,
-    private val driveAccountPreferences: DriveAccountPreferences
+    private val driveAccountPreferences: DriveAccountPreferences,
+    private val autoBackupPreferences: AutoBackupPreferences,
+    private val backupPasswordStore: BackupPasswordStore,
+    private val autoBackupRunner: AutoBackupRunner
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BackupUiState>(BackupUiState.Idle)
@@ -35,6 +45,97 @@ class BackupViewModel @Inject constructor(
     /** Drive yedeği için bağlanılan hesap; bağlı değilse null. */
     private val _driveAccountEmail = MutableStateFlow(driveAccountPreferences.connectedEmail)
     val driveAccountEmail: StateFlow<String?> = _driveAccountEmail.asStateFlow()
+
+    private val _autoBackup = MutableStateFlow(readAutoBackupState())
+
+    /** Otomatik yedek bölümünün durumu (bkz. ADR-011). */
+    val autoBackup: StateFlow<AutoBackupState> = _autoBackup.asStateFlow()
+
+    private fun readAutoBackupState() = AutoBackupState(
+        enabled = autoBackupPreferences.enabled,
+        folderName = autoBackupPreferences.folderName,
+        hasFolder = autoBackupPreferences.folderUri != null,
+        lastSuccessAt = autoBackupPreferences.lastSuccessAt,
+        lastFailure = autoBackupPreferences.lastFailure?.let { name ->
+            AutoBackupRunner.Failure.entries.find { it.name == name }
+        }
+    )
+
+    /**
+     * Günlük iş arka planda çalışır; ekran öne her geldiğinde (ör. hata bildirimine dokununca)
+     * son durum yeniden okunur.
+     */
+    fun refreshAutoBackupState() {
+        if (!_autoBackup.value.running) refreshAutoBackup()
+    }
+
+    private fun refreshAutoBackup(running: Boolean = false) {
+        _autoBackup.value = readAutoBackupState().copy(running = running)
+    }
+
+    /**
+     * Telefonun klasör seçicisinden dönen klasör. İzin kalıcı alınır ki günlük iş uygulama
+     * kapalıyken de yazabilsin; önceki klasörün izni bırakılır.
+     */
+    fun onAutoBackupFolderChosen(uri: Uri) {
+        val resolver = appContext.contentResolver
+        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        resolver.takePersistableUriPermission(uri, flags)
+        autoBackupPreferences.folderUri?.takeIf { it != uri.toString() }?.let { previous ->
+            runCatching { resolver.releasePersistableUriPermission(previous.toUri(), flags) }
+        }
+        autoBackupPreferences.folderUri = uri.toString()
+        autoBackupPreferences.folderName = folderDisplayName(uri)
+        refreshAutoBackup()
+        // Klasör değiştiyse yeni klasöre hemen bir kopya alınır.
+        if (autoBackupPreferences.enabled) backupNow()
+    }
+
+    private fun folderDisplayName(treeUri: Uri): String? = runCatching {
+        val documentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, DocumentsContract.getTreeDocumentId(treeUri))
+        appContext.contentResolver.query(
+            documentUri, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME), null, null, null
+        )?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
+    }.getOrNull()
+
+    /** Klasör seçildikten ve parola girildikten sonra otomatik yedeği açar ve ilk yedeği alır. */
+    fun enableAutoBackup(password: String) {
+        backupPasswordStore.save(password)
+        autoBackupPreferences.enabled = true
+        AutoBackupWorker.scheduleIfEnabled(appContext, autoBackupPreferences)
+        backupNow()
+    }
+
+    fun changeAutoBackupPassword(password: String) {
+        backupPasswordStore.save(password)
+        backupNow()
+    }
+
+    /** Kapatınca saklanan parola da silinir; klasör izni yeniden açmak için kalır. */
+    fun disableAutoBackup() {
+        autoBackupPreferences.enabled = false
+        autoBackupPreferences.lastFailure = null
+        backupPasswordStore.clear()
+        AutoBackupWorker.cancel(appContext)
+        refreshAutoBackup()
+    }
+
+    fun backupNow() {
+        refreshAutoBackup(running = true)
+        viewModelScope.launch {
+            val outcome = try {
+                autoBackupRunner.run(force = true)
+            } catch (e: Exception) {
+                AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.FOLDER_UNAVAILABLE)
+            }
+            refreshAutoBackup()
+            _uiState.value = when (outcome) {
+                is AutoBackupRunner.Outcome.Done -> BackupUiState.Success(str(R.string.auto_backup_done, outcome.fileName))
+                AutoBackupRunner.Outcome.Unchanged -> BackupUiState.Idle
+                is AutoBackupRunner.Outcome.Failed -> BackupUiState.Error(str(autoBackupFailureMessage(outcome.reason)))
+            }
+        }
+    }
 
     /** Kullanıcı Drive iznini verdikten sonra, iznin hangi hesaba verildiğini öğrenip saklar. */
     fun connectDrive(accessToken: String) {
@@ -194,6 +295,20 @@ class BackupViewModel @Inject constructor(
             }
         }
     }
+}
+
+data class AutoBackupState(
+    val enabled: Boolean = false,
+    val folderName: String? = null,
+    val hasFolder: Boolean = false,
+    val lastSuccessAt: Long = 0L,
+    val lastFailure: AutoBackupRunner.Failure? = null,
+    val running: Boolean = false
+)
+
+fun autoBackupFailureMessage(reason: AutoBackupRunner.Failure): Int = when (reason) {
+    AutoBackupRunner.Failure.NO_PASSWORD -> R.string.auto_backup_error_password
+    AutoBackupRunner.Failure.FOLDER_UNAVAILABLE, AutoBackupRunner.Failure.NOT_CONFIGURED -> R.string.auto_backup_error_folder
 }
 
 sealed class BackupUiState {

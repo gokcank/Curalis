@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.gokcank.curalis.core.notification.NotificationHelper
+import com.gokcank.curalis.core.work.AutoBackupWorker
 import com.gokcank.curalis.core.work.ReminderWindowWorker
+import com.gokcank.curalis.data.backup.AutoBackupPreferences
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -22,6 +24,9 @@ class CuralisApp : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject
+    lateinit var autoBackupPreferences: AutoBackupPreferences
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -31,5 +36,6 @@ class CuralisApp : Application(), Configuration.Provider {
         super.onCreate()
         notificationHelper.ensureNotificationChannelsCreated()
         ReminderWindowWorker.schedule(this)
+        AutoBackupWorker.scheduleIfEnabled(this, autoBackupPreferences)
     }
 }

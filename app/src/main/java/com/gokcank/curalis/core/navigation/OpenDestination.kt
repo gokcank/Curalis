@@ -9,9 +9,11 @@ import android.content.Intent
 object OpenDestination {
     const val EXTRA = "com.gokcank.curalis.extra.OPEN_DESTINATION"
     const val TIMELINE = "timeline"
+    const val BACKUP = "backup"
 
     fun routeFor(intent: Intent?): String? = when (intent?.getStringExtra(EXTRA)) {
         TIMELINE -> Screen.DailyTimeline.route
+        BACKUP -> Screen.Backup.route
         else -> null
     }
 }

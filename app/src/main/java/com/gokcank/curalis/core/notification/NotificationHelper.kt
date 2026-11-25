@@ -444,6 +444,32 @@ class NotificationHelper @Inject constructor(
     }
 
     /**
+     * Otomatik yedek alınamadı (klasör izni gitti, parola açılamadı...). Ayrıntı yedekleme
+     * ekranında yazar; bildirime dokununca o ekran açılır. Veri içermez.
+     */
+    fun showAutoBackupFailedNotification() {
+        val contentIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra(OpenDestination.EXTRA, OpenDestination.BACKUP)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            AUTO_BACKUP_FAILED_NOTIFICATION_ID,
+            contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID_PROACTIVE)
+            .setSmallIcon(android.R.drawable.stat_notify_error)
+            .setContentTitle(context.getString(R.string.auto_backup_failed_title))
+            .setContentText(context.getString(R.string.auto_backup_failed_text))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.auto_backup_failed_text)))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .setContentIntent(contentPendingIntent)
+        notificationManager.notify(AUTO_BACKUP_FAILED_NOTIFICATION_ID, builder.build())
+    }
+
+    /**
      * Akşam özeti: o gün işaretlenmemiş doz sayısı (bkz. EveningSummaryReceiver). İlaç adı
      * içermez; dokununca zaman çizelgesi açılır. Kilit ekranı seviyesine ve sessiz saatlere uyar.
      */
@@ -493,6 +519,7 @@ class NotificationHelper @Inject constructor(
         const val MISSED_WHILE_OFF_NOTIFICATION_ID = -1003
         const val CHANNEL_ID_EVENING_SUMMARY = "evening_summary_channel"
         const val EVENING_SUMMARY_NOTIFICATION_ID = -1004
+        const val AUTO_BACKUP_FAILED_NOTIFICATION_ID = -1005
         const val ACTION_TAKEN = "com.gokcank.curalis.ACTION_TAKEN"
         const val ACTION_SNOOZE = "com.gokcank.curalis.ACTION_SNOOZE"
         const val ACTION_SKIP = "com.gokcank.curalis.ACTION_SKIP"

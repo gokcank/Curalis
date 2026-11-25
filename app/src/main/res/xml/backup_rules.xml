@@ -2,6 +2,12 @@
 <full-backup-content>
     <include domain="sharedpref" path="."/>
     <include domain="file" path="."/>
+    <!-- Otomatik yedek ayarları ve parolası (ADR-011): parola bu telefonun Keystore anahtarıyla
+         şifreli olduğu için başka telefonda açılamaz; klasör izni de taşınmaz. -->
+    <exclude domain="sharedpref" path="curalis_auto_backup.xml"/>
+    <exclude domain="sharedpref" path="curalis_auto_backup_secret.xml"/>
+    <!-- Bozuk veritabanı kopyaları (ADR-011) ham veritabanıdır; veritabanı gibi dışarıda kalır. -->
+    <exclude domain="file" path="db-rescue/"/>
     <!-- Room veritabanı kasıtlı olarak dahil edilmiyor (include yok): OS seviyesi otomatik
          yedekleme, eski bir cihazdan/kurulumdan ham .db dosyasını geri yükleyebilir ve bu
          dosyanın şema sürümü, uygulamanın güncel migration zincirinin kapsamadığı kadar

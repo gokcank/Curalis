@@ -9,9 +9,15 @@
     <cloud-backup>
         <include domain="sharedpref" path="."/>
         <include domain="file" path="."/>
+        <exclude domain="sharedpref" path="curalis_auto_backup.xml"/>
+        <exclude domain="sharedpref" path="curalis_auto_backup_secret.xml"/>
+        <exclude domain="file" path="db-rescue/"/>
     </cloud-backup>
     <device-transfer>
         <include domain="sharedpref" path="."/>
         <include domain="file" path="."/>
+        <exclude domain="sharedpref" path="curalis_auto_backup.xml"/>
+        <exclude domain="sharedpref" path="curalis_auto_backup_secret.xml"/>
+        <exclude domain="file" path="db-rescue/"/>
     </device-transfer>
 </data-extraction-rules>
