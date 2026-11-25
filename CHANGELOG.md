@@ -2,6 +2,30 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.7.0] — versionCode 15
+
+Reminder experience and accessibility.
+
+- **Choose how reminders repeat.** The notification settings set how many times an
+  unmarked dose is reminded, the first reminder included (1–5, default 3), and the time
+  between reminders (5, 10, 15 or 30 minutes, default 10). The screen says when an unmarked
+  dose will count as missed. The defaults keep the old behavior.
+- **Choose the reminder sound.** The phone's own sound picker sets the sound for dose
+  reminders; the full-screen reminder plays it too, repeated until answered. A button
+  returns to the default sound. Quiet hours stay silent.
+- **Spoken reminder.** Optional, off by default: the phone says "Time for your medication"
+  in the app language when a reminder arrives. Saying the medication name is a separate
+  option and never happens while the lock-screen privacy level is Limited or Hidden. It
+  stays quiet during quiet hours and when the phone is silent, on vibrate or in do not
+  disturb. The settings screen says when the phone has no voice for the app language.
+- **Medication shapes.** The medication form offers ten shape icons next to the color
+  (round tablet, oval tablet, capsule, drop, bottle, syringe, tube, inhaler, patch,
+  sachet). The list, timeline, home screen, calendar and analytics show the medication with
+  its shape and color. Without a choice the shape follows the medication form.
+- **Screen reader.** Switches announce what they turn on, titles are no longer read twice,
+  colors and shapes have names, the selected day is announced, and short buttons such as
+  "10 min" on the full-screen reminder are read in full ("Snooze 10 minutes").
+
 ## [1.6.0] — versionCode 14
 
 Small conveniences.
