@@ -192,6 +192,17 @@ Future backups should support:
 
 Backups should never be publicly accessible.
 
+Current implementation (see ADR-011, accepted 2026-11-25):
+
+- Manual and automatic backups use the same format: the export is encrypted with the user's backup password
+  (PBKDF2-HMAC-SHA256 key derivation, AES-GCM, which also verifies integrity). A wrong password changes nothing.
+- A restore runs in one database transaction: if anything fails, the existing data stays as it was.
+- The automatic backup password is stored on the device, encrypted with a non-exportable Android Keystore key, in a
+  preferences file that is excluded from Android Auto Backup and device transfer. It is never logged or shown.
+- Before a corrupt database is deleted, or before the user resets an unreadable one, its files are copied to
+  app-private storage.
+- A forgotten app PIN can be reset only through the phone's own screen lock.
+
 ---
 
 # Notification Security

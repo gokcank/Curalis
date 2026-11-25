@@ -116,6 +116,11 @@ Users should always know:
 - where it is stored
 - why it is stored
 
+Backups (ADR-011, accepted 2026-11-25): automatic backup is off by default. When the user turns it on, an encrypted
+backup is written once a day to a folder the user chooses on the phone. It goes to Google Drive only if the user has
+connected Drive and separately turned on automatic Drive backup; it is stored in Drive's hidden app folder, which only
+Curalis can see. Every copy is encrypted with the user's backup password.
+
 ---
 
 # Analytics
