@@ -18,8 +18,16 @@
     <string name="date">Tarih</string>
     <string name="all">Tümü</string>
     <string name="db_recovery_title">Verileriniz yüklenemedi</string>
-    <string name="db_recovery_message">İlaç verileriniz, uygulamanın bu sürümünün okuyamadığı bir biçimde görünüyor. Bu genellikle çok eski bir yedeğin geri yüklenmesinden sonra olur. Sıfırlamak, uygulamayı boş verilerle yeniden başlatır — Ayarlar\'dan aldığınız bir yedek dosyanız varsa sıfırladıktan sonra geri yükleyebilirsiniz.</string>
+    <string name="db_recovery_message">İlaç verileriniz, uygulamanın bu sürümünün okuyamadığı bir biçimde görünüyor. Bu genellikle çok eski bir yedeğin geri yüklenmesinden sonra olur. Mümkünse önce veri dosyasını kaydedin. Sıfırlamak uygulamayı boş verilerle başlatır; hiçbir şey silinmeden önce veri dosyasının bir kopyası uygulamanın içinde saklanır ve sonra Ayarlar\'dan bir yedeği geri yükleyebilirsiniz.</string>
     <string name="db_recovery_reset_button">Sıfırla ve Yeniden Başlat</string>
+    <string name="db_export_button">Veri dosyasını kaydet</string>
+    <string name="db_export_done">Veri dosyası kaydedildi.</string>
+    <string name="db_export_failed">Veri dosyası kaydedilemedi.</string>
+    <string name="db_recovery_reset_confirm_title">Verileriniz silinsin mi?</string>
+    <string name="db_recovery_reset_confirm_text">Uygulama boş verilerle yeniden başlar. Silmeden önce veri dosyasının bir kopyası uygulamanın içinde saklanır. Ayarlar\'dan aldığınız bir yedek varsa sonra geri yükleyebilirsiniz.</string>
+    <string name="db_recovery_reset_confirm_button">Sıfırla</string>
+    <string name="db_rescued_title">Veri dosyası bozulmuştu</string>
+    <string name="db_rescued_text">Curalis\'in bu telefondaki veri dosyası bozulduğu için boş olarak yeniden oluşturuldu. Bozuk dosyanın bir kopyası saklandı. Son yedeğinizi Ayarlar → Yedekleme &amp; Geri Yükleme\'den geri yükleyebilir, kopyayı bir dosyaya da kaydedebilirsiniz.</string>
     <string name="exact_alarm_dialog_title">Tam Zamanlı Alarm İzni Gerekli</string>
     <string name="exact_alarm_dialog_message">Kaydedildi, ancak hatırlatıcıların tam zamanında çalabilmesi için sistem ayarlarından \"Alarmlar ve hatırlatıcılar\" iznini açmanız gerekiyor. Aksi halde hatırlatıcılar gecikebilir.</string>
     <string name="exact_alarm_dialog_settings_button">Ayarları Aç</string>

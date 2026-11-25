@@ -28,6 +28,8 @@ object DatabaseModule {
             CuralisDatabase.DATABASE_NAME
         )
         .addMigrations(*com.gokcank.curalis.data.local.CURALIS_MIGRATIONS)
+        // SQLite dosyayı bozuk bulursa kütüphane onu siler; önce bir kopyası alınır (ADR-011).
+        .openHelperFactory(com.gokcank.curalis.data.local.RescuingOpenHelperFactory(app.filesDir))
         .build()
     }
 

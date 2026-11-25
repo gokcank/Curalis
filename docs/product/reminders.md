@@ -256,6 +256,11 @@ The application should restore reminder schedules automatically.
 
 A restart clears every alarm, so a dose whose time passed while the device was off never got its reminder. On restart such doses (still scheduled, time or rescheduled time in the past) are marked **Missed**. If any were marked (placebo doses are not counted), one notification says how many doses were missed while the phone was off. It names no medication, and tapping it opens the daily timeline, where the doses can still be corrected. An app update does the same clean-up without the notification, because the device was not off.
 
+Android also clears every alarm when the user force-stops the app from the phone's settings, and opening the app again
+does not bring them back by itself. So each time the app process starts, the reminder alarms (medications,
+appointments, measurements, morning reminder, evening summary) are scheduled again once. Unlike a restart, this marks
+nothing as missed and posts no notification: the phone was not off.
+
 ---
 
 # Battery Optimization

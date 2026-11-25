@@ -287,6 +287,16 @@ Future versions may support:
 
 Backup architecture should remain independent of provider architecture.
 
+Database file safety (ADR-011):
+
+- Schema changes always come with a migration; destructive fallback is never used for the user database.
+- When SQLite reports the database file as corrupt, the library deletes it and starts a fresh one. Before that, the
+  open helper is wrapped (`RescuingOpenHelperFactory`) so the database, `-wal` and `-shm` files are copied to
+  app-private `files/db-rescue/<time>/` (the three newest copies are kept). On the next start the user is told once,
+  with an option to save the copy as a zip file.
+- The recovery screen for an unreadable database offers to save the data file first, asks for confirmation before
+  resetting and copies the files the same way before deleting anything.
+
 ---
 
 # Security

@@ -18,8 +18,16 @@
     <string name="date">Date</string>
     <string name="all">All</string>
     <string name="db_recovery_title">Your data could not be loaded</string>
-    <string name="db_recovery_message">Your medication data appears to be in a format this version of the app can\'t read. This can happen after restoring a very old backup. Resetting will start the app fresh with empty data — if you have a backup file from Settings, you can restore it afterwards.</string>
+    <string name="db_recovery_message">Your medication data appears to be in a format this version of the app can\'t read. This can happen after restoring a very old backup. Save the data file first if you can. Resetting starts the app with empty data; a copy of the data file is kept inside the app before anything is deleted, and you can restore a backup from Settings afterwards.</string>
     <string name="db_recovery_reset_button">Reset and Restart</string>
+    <string name="db_export_button">Save the data file</string>
+    <string name="db_export_done">Data file saved.</string>
+    <string name="db_export_failed">The data file could not be saved.</string>
+    <string name="db_recovery_reset_confirm_title">Delete your data?</string>
+    <string name="db_recovery_reset_confirm_text">The app restarts with empty data. Before deleting, a copy of the data file is kept inside the app. If you have a backup from Settings, you can restore it afterwards.</string>
+    <string name="db_recovery_reset_confirm_button">Reset</string>
+    <string name="db_rescued_title">The data file was damaged</string>
+    <string name="db_rescued_text">Curalis\'s data file on this phone was damaged, so it was recreated empty. A copy of the damaged file was kept. You can restore your latest backup from Settings → Backup &amp; Restore, and you can save the copy to a file.</string>
     <string name="exact_alarm_dialog_title">Exact Alarm Permission Needed</string>
     <string name="exact_alarm_dialog_message">Saved, but for reminders to fire exactly on time you need to enable the \"Alarms &amp; reminders\" permission in system settings. Otherwise reminders may be delayed.</string>
     <string name="exact_alarm_dialog_settings_button">Open Settings</string>

@@ -18,6 +18,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,7 +58,25 @@ fun DatabaseCheckingScreen() {
  * açık bir bilgilendirme ve tek bir kontrollü kurtarma yolu sunar.
  */
 @Composable
-fun DatabaseRecoveryScreen(onResetClick: () -> Unit) {
+fun DatabaseRecoveryScreen(onResetConfirmed: () -> Unit, onExportClick: () -> Unit) {
+    // Sıfırlama verileri sildiği için tek dokunuşla yapılmaz; önce onay sorulur (ADR-011).
+    var confirmReset by remember { mutableStateOf(false) }
+    if (confirmReset) {
+        AlertDialog(
+            onDismissRequest = { confirmReset = false },
+            title = { Text(stringResource(R.string.db_recovery_reset_confirm_title)) },
+            text = { Text(stringResource(R.string.db_recovery_reset_confirm_text)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmReset = false
+                    onResetConfirmed()
+                }) { Text(stringResource(R.string.db_recovery_reset_confirm_button)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmReset = false }) { Text(stringResource(R.string.cancel)) }
+            }
+        )
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -83,8 +108,17 @@ fun DatabaseRecoveryScreen(onResetClick: () -> Unit) {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(24.dp))
+            // Önce dosyayı kaydetmek, sıfırlamadan önceki güvenli adımdır.
             Button(
-                onClick = onResetClick,
+                onClick = onExportClick,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.db_export_button))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = { confirmReset = true },
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -92,4 +126,19 @@ fun DatabaseRecoveryScreen(onResetClick: () -> Unit) {
             }
         }
     }
+}
+
+/**
+ * SQLite veri dosyasını bozuk bulup yeniden oluşturduğunda, bir sonraki açılışta bir kez
+ * gösterilir: kullanıcı aksi halde verilerinin neden boş olduğunu bilemezdi.
+ */
+@Composable
+fun DatabaseRescuedDialog(onExportClick: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.db_rescued_title)) },
+        text = { Text(stringResource(R.string.db_rescued_text)) },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ok)) } },
+        dismissButton = { TextButton(onClick = onExportClick) { Text(stringResource(R.string.db_export_button)) } }
+    )
 }
