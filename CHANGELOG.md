@@ -2,6 +2,29 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.8.0] — versionCode 16
+
+Data safety for everyday use (ADR-011).
+
+- **Automatic backup.** Optional, off by default: once a day an encrypted backup is saved
+  to a folder you choose with the phone's own folder picker, using a backup password you
+  set once (kept encrypted with the phone's hardware key). Each backup is a dated file;
+  the 30 newest are kept and other files in the folder are never touched. A failed backup
+  shows a notification, and the backup screen shows the last backup and any problem.
+- **Automatic backup to Google Drive.** When Drive is connected, the same daily backup can
+  also go to Curalis's hidden folder in your Drive (a separate switch), again keeping the
+  30 newest. Manual Drive backups are dated files too instead of overwriting one file, and
+  restoring from Drive lets you pick which backup to load.
+- **Safer recovery of an unreadable database.** If the data file is ever damaged, a copy is
+  kept before anything is deleted, and you are told on the next start. The recovery screen
+  lets you save the data file and asks before resetting.
+- **Reminders survive "Force stop".** Opening the app after a force stop sets the reminder
+  alarms again; before, they could stay missing for up to a day.
+- **Forgot your app PIN?** The lock screen can unlock with the phone's own screen lock and
+  then lets you set a new PIN.
+- The Google Drive card no longer claims to be automatic, and backup settings, the stored
+  password and database rescue copies are kept out of Android's own backup.
+
 ## [1.7.0] — versionCode 15
 
 Reminder experience and accessibility.
