@@ -14,6 +14,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
+import android.os.Build
+import android.app.Activity
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,6 +44,7 @@ import com.gokcank.curalis.core.security.BiometricAuthenticator
  */
 @Composable
 fun AppLockScreen(
+    onPinRecovered: () -> Unit = {},
     viewModel: AppLockViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -62,6 +72,38 @@ fun AppLockScreen(
             negativeButtonText = biometricNegative,
             onSuccess = viewModel::onBiometricSuccess,
             onFailure = { /* Kullanıcı PIN girişiyle devam eder. */ }
+        )
+    }
+
+    // "PIN'i unuttum": telefonun kendi ekran kilidiyle doğrulama (ADR-011). Başka arka kapı yok.
+    val recoveryTitle = stringResource(R.string.app_lock_forgot_pin_prompt_title)
+    val recoverySubtitle = stringResource(R.string.app_lock_forgot_pin_prompt_subtitle)
+    var showNoDeviceLock by remember { mutableStateOf(false) }
+    fun onRecovered() {
+        viewModel.onDeviceCredentialSuccess()
+        onPinRecovered()
+    }
+    val legacyCredentialLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) onRecovered()
+    }
+    fun startPinRecovery() {
+        if (!BiometricAuthenticator.isDeviceSecure(context)) {
+            showNoDeviceLock = true
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && activity != null) {
+            BiometricAuthenticator.authenticateWithDeviceCredential(activity, recoveryTitle, recoverySubtitle, ::onRecovered)
+        } else {
+            BiometricAuthenticator.confirmCredentialIntent(context, recoveryTitle, recoverySubtitle)
+                ?.let { legacyCredentialLauncher.launch(it) }
+        }
+    }
+    if (showNoDeviceLock) {
+        AlertDialog(
+            onDismissRequest = { showNoDeviceLock = false },
+            title = { Text(stringResource(R.string.app_lock_forgot_pin_no_lock_title)) },
+            text = { Text(stringResource(R.string.app_lock_forgot_pin_no_lock_text)) },
+            confirmButton = { TextButton(onClick = { showNoDeviceLock = false }) { Text(stringResource(R.string.ok)) } }
         )
     }
 
@@ -131,6 +173,11 @@ fun AppLockScreen(
                 enabled = uiState.lockoutSecondsRemaining == 0,
                 onBiometricClick = if (canUseBiometric) ::promptBiometric else null
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(onClick = ::startPinRecovery) {
+                Text(stringResource(R.string.app_lock_forgot_pin))
+            }
         }
     }
 }

@@ -74,6 +74,13 @@ class AppLockViewModel @Inject constructor(
         }
     }
 
+    /** "PIN'i unuttum": telefonun kendi kilidiyle doğrulandı; yeni PIN belirlemeye geçilir. */
+    fun onDeviceCredentialSuccess() {
+        failedAttempts = 0
+        _uiState.update { it.copy(enteredPin = "", isWrongPin = false) }
+        appLockController.unlockForPinReset()
+    }
+
     fun onBiometricSuccess() {
         failedAttempts = 0
         _uiState.update { it.copy(enteredPin = "", isWrongPin = false) }

@@ -1,6 +1,10 @@
 package com.gokcank.curalis.core.security
 
+import android.app.KeyguardManager
 import android.content.Context
+import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
@@ -23,6 +27,47 @@ object BiometricAuthenticator {
         return BiometricManager.from(context).canAuthenticate(AUTHENTICATORS) ==
             BiometricManager.BIOMETRIC_SUCCESS
     }
+
+    /** Telefonda ekran kilidi (PIN, desen, şifre) var mı; yoksa "PIN'i unuttum" kullanılamaz. */
+    fun isDeviceSecure(context: Context): Boolean =
+        context.getSystemService(KeyguardManager::class.java)?.isDeviceSecure == true
+
+    /**
+     * Android 11 ve üstü: telefonun kendi ekran kilidiyle (ya da güçlü biyometriyle) doğrulama.
+     * Daha eski sürümlerde bu birleşim desteklenmediği için çağıran taraf
+     * [confirmCredentialIntent] ile telefonun kilit ekranını açar.
+     */
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun authenticateWithDeviceCredential(
+        activity: FragmentActivity,
+        title: String,
+        subtitle: String,
+        onSuccess: () -> Unit
+    ) {
+        val prompt = BiometricPrompt(
+            activity,
+            ContextCompat.getMainExecutor(activity),
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    onSuccess()
+                }
+            }
+        )
+        prompt.authenticate(
+            BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .setSubtitle(subtitle)
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                )
+                .build()
+        )
+    }
+
+    /** Android 8–10 için telefonun kendi kilit doğrulama ekranı; sonuç RESULT_OK ise doğrulandı. */
+    @Suppress("DEPRECATION")
+    fun confirmCredentialIntent(context: Context, title: String, subtitle: String): Intent? =
+        context.getSystemService(KeyguardManager::class.java)?.createConfirmDeviceCredentialIntent(title, subtitle)
 
     fun authenticate(
         activity: FragmentActivity,

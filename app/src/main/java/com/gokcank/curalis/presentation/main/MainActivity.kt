@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.gokcank.curalis.core.navigation.NavGraph
 import com.gokcank.curalis.core.navigation.OpenDestination
+import com.gokcank.curalis.core.navigation.Screen
 import com.gokcank.curalis.core.onboarding.OnboardingPreferences
 import com.gokcank.curalis.core.security.AppLockController
 import com.gokcank.curalis.core.theme.CuralisTheme
@@ -149,7 +150,8 @@ class MainActivity : AppCompatActivity() {
                     )
                     // Kilit ekranı, uygulamanın geri kalanı hiç oluşturulmadan önce gelir;
                     // böylece son görüntülenen ekran kilitliyken arkada görünmez.
-                    isLocked -> AppLockScreen()
+                    // PIN unutulup telefon kilidiyle açıldıysa doğrudan yeni PIN belirlemeye gidilir.
+                    isLocked -> AppLockScreen(onPinRecovered = { pendingRoute = Screen.AppLockSettings.route })
                     // Kilit açılana kadar gezinme grafiği oluşmadığı için istenen ekran da
                     // kilit açıldıktan sonra açılır.
                     else -> NavGraph(

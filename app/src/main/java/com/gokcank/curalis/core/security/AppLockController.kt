@@ -26,6 +26,21 @@ class AppLockController @Inject constructor(
         backgroundedAtMillis = null
     }
 
+    /** Telefonun kendi kilidiyle açıldıktan sonra yeni PIN belirleme ekranı kendiliğinden başlasın mı. */
+    private var pinResetRequested = false
+
+    /**
+     * "PIN'i unuttum": kullanıcı telefonun kendi ekran kilidiyle doğrulandı (ADR-011). Uygulama
+     * açılır ve PIN ayar ekranı yeni PIN belirlemeyle başlar.
+     */
+    fun unlockForPinReset() {
+        pinResetRequested = true
+        unlock()
+    }
+
+    /** PIN ayar ekranı bir kez okur; ardından istek silinir. */
+    fun consumePinResetRequest(): Boolean = pinResetRequested.also { pinResetRequested = false }
+
     /** Kilit ilk kez kurulduğunda veya kaldırıldığında çağrılır; kullanıcı zaten uygulamanın içindedir. */
     fun onLockSettingsChanged() {
         _isLocked.value = false

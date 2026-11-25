@@ -873,6 +873,11 @@
     <string name="security">Güvenlik</string>
     <string name="app_lock">Uygulama Kilidi</string>
     <string name="app_lock_desc">Curalis her açıldığında PIN veya parmak izi sorulsun</string>
+    <string name="app_lock_forgot_pin">PIN\'i unuttum</string>
+    <string name="app_lock_forgot_pin_prompt_title">Curalis\'in kilidini aç</string>
+    <string name="app_lock_forgot_pin_prompt_subtitle">Telefonunuzun ekran kilidini kullanın, sonra yeni PIN belirleyin</string>
+    <string name="app_lock_forgot_pin_no_lock_title">Bu telefonda ekran kilidi yok</string>
+    <string name="app_lock_forgot_pin_no_lock_text">Curalis, PIN olmadan yalnızca telefonun kendi ekran kilidiyle açılabilir; bu telefonda ekran kilidi yok. PIN\'i hatırlamıyorsanız tek yol, telefon ayarlarından uygulamanın verilerini temizlemektir. Bu, kayıtlarınızı siler; ardından son yedeğinizi geri yükleyebilirsiniz.</string>
     <string name="app_lock_manage">Yönet</string>
     <string name="app_lock_status_on">Açık</string>
     <string name="app_lock_status_off">Kapalı</string>
@@ -893,7 +898,7 @@
     <string name="app_lock_biometric_toggle_desc">Dilediğinizde PIN\'inizi kullanmaya devam edebilirsiniz.</string>
     <string name="app_lock_biometric_unavailable">Cihazınızda tanımlı parmak izi veya yüz tanıma yok.</string>
     <string name="app_lock_turn_on">Uygulama kilidini aç</string>
-    <string name="app_lock_turn_on_desc">PIN\'iniz yalnızca bu cihazda saklanır ve kurtarılamaz — unutursanız uygulamayı yeniden kurmanız gerekir.</string>
+    <string name="app_lock_turn_on_desc">PIN\'iniz yalnızca bu cihazda saklanır. Unutursanız kilit ekranındaki \"PIN\'i unuttum\" ile telefonunuzun kendi ekran kilidiyle açıp yeni PIN belirleyebilirsiniz.</string>
     <string name="app_lock_change_pin">PIN\'i değiştir</string>
     <string name="app_lock_turn_off">Uygulama kilidini kapat</string>
     <string name="app_lock_turn_off_confirm_title">Uygulama kilidi kapatılsın mı?</string>

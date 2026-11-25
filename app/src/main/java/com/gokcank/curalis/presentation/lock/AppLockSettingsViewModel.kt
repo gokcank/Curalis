@@ -52,6 +52,11 @@ class AppLockSettingsViewModel @Inject constructor(
 
     private var firstEntry: String? = null
 
+    init {
+        // "PIN'i unuttum" ile gelindiyse yeni PIN belirleme hemen başlar.
+        if (appLockController.consumePinResetRequest()) startPinSetup()
+    }
+
     fun startPinSetup() {
         firstEntry = null
         _uiState.update {

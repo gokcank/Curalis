@@ -871,6 +871,11 @@
     <string name="security">Security</string>
     <string name="app_lock">App Lock</string>
     <string name="app_lock_desc">Ask for a PIN or fingerprint every time you open Curalis</string>
+    <string name="app_lock_forgot_pin">Forgot PIN?</string>
+    <string name="app_lock_forgot_pin_prompt_title">Unlock Curalis</string>
+    <string name="app_lock_forgot_pin_prompt_subtitle">Use your phone\'s screen lock, then set a new PIN</string>
+    <string name="app_lock_forgot_pin_no_lock_title">No screen lock on this phone</string>
+    <string name="app_lock_forgot_pin_no_lock_text">Curalis can only be unlocked without the PIN through the phone\'s own screen lock, and this phone has none. If you cannot remember the PIN, the only way in is to clear the app\'s data in the phone\'s settings; that deletes your records, and you can then restore your latest backup.</string>
     <string name="app_lock_manage">Manage</string>
     <string name="app_lock_status_on">On</string>
     <string name="app_lock_status_off">Off</string>
@@ -890,7 +895,7 @@
     <string name="app_lock_biometric_toggle_desc">You can still use your PIN whenever you prefer.</string>
     <string name="app_lock_biometric_unavailable">Your device has no fingerprint or face unlock set up.</string>
     <string name="app_lock_turn_on">Turn on app lock</string>
-    <string name="app_lock_turn_on_desc">Your PIN is stored only on this device and cannot be recovered — if you forget it, you will need to reinstall the app.</string>
+    <string name="app_lock_turn_on_desc">Your PIN is stored only on this device. If you forget it, tap \"Forgot PIN?\" on the lock screen to unlock with your phone\'s own screen lock and set a new PIN.</string>
     <string name="app_lock_change_pin">Change PIN</string>
     <string name="app_lock_turn_off">Turn off app lock</string>
     <string name="app_lock_turn_off_confirm_title">Turn off app lock?</string>

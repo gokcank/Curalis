@@ -201,7 +201,10 @@ Current implementation (see ADR-011, accepted 2026-11-25):
   preferences file that is excluded from Android Auto Backup and device transfer. It is never logged or shown.
 - Before a corrupt database is deleted, or before the user resets an unreadable one, its files are copied to
   app-private storage.
-- A forgotten app PIN can be reset only through the phone's own screen lock.
+- A forgotten app PIN can be reset only through the phone's own screen lock ("Forgot PIN?" on the lock screen): on
+  Android 11+ the system prompt accepts the screen lock or strong biometrics, on Android 8–10 the system's own confirm
+  screen is shown. After success the app opens the new-PIN entry. Without a phone screen lock there is no other way in
+  (only clearing the app's data), and the app says so.
 - Android Auto Backup and device transfer never include the database, the database rescue copies, the automatic
   backup settings or the stored backup password (`res/xml/backup_rules.xml`, `data_extraction_rules.xml`).
 - Automatic backups are written as dated files (`curalis_auto_<date>_<time>.json`); only these are pruned to the 30
