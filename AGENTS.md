@@ -8,6 +8,8 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
 - Release APK: `./gradlew assembleRelease` (signed from `local.properties`; builds without it).
 - CI (`.github/workflows/android.yml`): JDK 17, Gradle wrapper validation, `./gradlew test assembleDebug`.
 - Test UI on the **release** build (R8 is on). Install with `adb -s <serial> install -r app/build/outputs/apk/release/app-release.apk`.
+- Use only the test AVD `Pixel_8_Api_34`; serials change and other projects' emulators may run. Check
+  `adb -s <serial> emu avd name` before every command.
 - **Never run `./gradlew install*` or `connected*`**: they target every attached device, including a personal phone.
   Use `assemble*` + `adb -s <serial>`.
 
@@ -59,10 +61,11 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
   store listings or Play policy work unless asked. Keep `USE_EXACT_ALARM`.
 - Release notes and store-facing text: **Turkish only** by default.
 
-## Status (as of 2026-11-24)
+## Status (as of 2026-11-26)
 - Project status: **active** (set 2026-11-18; source of truth: the brain page).
-- Latest release **1.6.0 (versionCode 14)**, 2026-11-23; Room DB version 24; drug dictionary version 3.
-- 22-step revision plan (local, approved): steps 1–21 done (latest `025816b`, CI green); next step 22 = release 1.7.0.
+- Latest release **1.8.0 (versionCode 16)**, 2026-11-26; Room DB version 24; drug dictionary version 3.
+- Revision plan (22 steps) and data-safety plan (ADR-011: automatic folder/Drive backup, DB rescue copy, PIN
+  recovery, startup alarm repair) are done.
   Bottom nav, add-medication form, easy mode and profiles wait for a separate design session together with the menu topic.
 - Screen-reader rules (toggle rows, silent decorative icons, named choices): `docs/compliance/accessibility.md`.
 - Robolectric tests run on API 34 (`app/src/test/resources/robolectric.properties`): API 36 needs Java 21, API 35/36
