@@ -25,6 +25,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import com.gokcank.curalis.data.backup.DriveBackupNames
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,6 +60,12 @@ class BackupViewModel @Inject constructor(
         hasFolder = autoBackupPreferences.folderUri != null,
         lastSuccessAt = autoBackupPreferences.lastSuccessAt,
         lastFailure = autoBackupPreferences.lastFailure?.let { name ->
+            AutoBackupRunner.Failure.entries.find { it.name == name }
+        },
+        driveConnected = driveAccountPreferences.connectedEmail != null,
+        driveEnabled = autoBackupPreferences.driveEnabled,
+        driveLastSuccessAt = autoBackupPreferences.driveLastSuccessAt,
+        driveLastFailure = autoBackupPreferences.driveLastFailure?.let { name ->
             AutoBackupRunner.Failure.entries.find { it.name == name }
         }
     )
@@ -123,18 +132,30 @@ class BackupViewModel @Inject constructor(
     fun backupNow() {
         refreshAutoBackup(running = true)
         viewModelScope.launch {
-            val outcome = try {
+            val report = try {
                 autoBackupRunner.run(force = true)
             } catch (e: Exception) {
-                AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.FOLDER_UNAVAILABLE)
+                AutoBackupRunner.Report(AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.FOLDER_UNAVAILABLE), null)
             }
             refreshAutoBackup()
-            _uiState.value = when (outcome) {
-                is AutoBackupRunner.Outcome.Done -> BackupUiState.Success(str(R.string.auto_backup_done, outcome.fileName))
-                AutoBackupRunner.Outcome.Unchanged -> BackupUiState.Idle
-                is AutoBackupRunner.Outcome.Failed -> BackupUiState.Error(str(autoBackupFailureMessage(outcome.reason)))
+            // Önce hata varsa o gösterilir; ikisi de başarılıysa klasördeki dosya adı.
+            val failure = (report.local as? AutoBackupRunner.Outcome.Failed)?.reason
+                ?: (report.drive as? AutoBackupRunner.Outcome.Failed)?.reason
+            val done = report.local as? AutoBackupRunner.Outcome.Done
+            _uiState.value = when {
+                failure != null -> BackupUiState.Error(str(autoBackupFailureMessage(failure)))
+                done != null -> BackupUiState.Success(str(R.string.auto_backup_done, done.fileName))
+                else -> BackupUiState.Idle
             }
         }
+    }
+
+    /** Otomatik yedeğin Drive'a da gitmesi; açılınca hemen bir kopya gönderilir. */
+    fun setDriveAutoBackup(enabled: Boolean) {
+        autoBackupPreferences.driveEnabled = enabled
+        if (!enabled) autoBackupPreferences.driveLastFailure = null
+        refreshAutoBackup()
+        if (enabled) backupNow()
     }
 
     /** Kullanıcı Drive iznini verdikten sonra, iznin hangi hesaba verildiğini öğrenip saklar. */
@@ -147,12 +168,17 @@ class BackupViewModel @Inject constructor(
             }
             driveAccountPreferences.connectedEmail = email
             _driveAccountEmail.value = email
+            refreshAutoBackup()
         }
     }
 
     fun disconnectDrive() {
         driveAccountPreferences.connectedEmail = null
         _driveAccountEmail.value = null
+        // Bağlantı kesilince otomatik Drive yedeği de kapanır; yeniden bağlanınca ayrıca açılır.
+        autoBackupPreferences.driveEnabled = false
+        autoBackupPreferences.driveLastFailure = null
+        refreshAutoBackup()
     }
 
     private fun str(resId: Int, vararg args: Any): String = appContext.getString(resId, *args)
@@ -246,13 +272,39 @@ class BackupViewModel @Inject constructor(
                 val jsonString = backupManager.exportData()
                 val encrypted = BackupCrypto.encrypt(jsonString, password)
                 val driveManager = googleDriveManagerFactory.create(accessToken)
-
-                val success = driveManager.uploadBackupToDrive(encrypted, "curalis_drive_backup.json")
-                if (success) {
-                    _uiState.value = BackupUiState.Success(str(R.string.backup_drive_upload_success))
-                } else {
-                    _uiState.value = BackupUiState.Error(str(R.string.backup_drive_upload_failed))
+                // Her elle yedek ayrı, tarihli bir dosyadır; önceki yedeğin üzerine yazmaz.
+                withContext(Dispatchers.IO) {
+                    driveManager.createAppFile(DriveBackupNames.manualName(System.currentTimeMillis()), encrypted)
                 }
+                _uiState.value = BackupUiState.Success(str(R.string.backup_drive_upload_success))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uiState.value = BackupUiState.Error(str(R.string.backup_drive_upload_failed))
+            }
+        }
+    }
+
+    private val _driveBackups = MutableStateFlow<List<DriveBackupNames.Info>?>(null)
+
+    /** Geri yükleme için Drive'daki yedekler; seçim penceresi açıkken dolu. */
+    val driveBackups: StateFlow<List<DriveBackupNames.Info>?> = _driveBackups.asStateFlow()
+
+    /** Listeyi alırken verilen erişim anahtarı; seçilen yedek birkaç dakika içinde onunla indirilir. */
+    private var driveRestoreToken: String? = null
+
+    fun loadDriveBackups(accessToken: String) {
+        viewModelScope.launch {
+            _uiState.value = BackupUiState.Loading(str(R.string.backup_downloading_from_drive))
+            try {
+                val files = withContext(Dispatchers.IO) { googleDriveManagerFactory.create(accessToken).listAppFiles() }
+                val backups = DriveBackupNames.listForRestore(files)
+                if (backups.isEmpty()) {
+                    _uiState.value = BackupUiState.Error(str(R.string.backup_drive_no_backup_found))
+                    return@launch
+                }
+                driveRestoreToken = accessToken
+                _driveBackups.value = backups
+                _uiState.value = BackupUiState.Idle
             } catch (e: Exception) {
                 e.printStackTrace()
                 _uiState.value = BackupUiState.Error(str(R.string.backup_error_with_message, e.localizedMessage ?: ""))
@@ -260,18 +312,22 @@ class BackupViewModel @Inject constructor(
         }
     }
 
-    fun downloadFromGoogleDrive(accessToken: String, password: String) {
+    fun dismissDriveBackups() {
+        _driveBackups.value = null
+    }
+
+    fun restoreDriveBackup(fileId: String, password: String) {
+        val token = driveRestoreToken ?: return
         viewModelScope.launch {
             _uiState.value = BackupUiState.Loading(str(R.string.backup_downloading_from_drive))
             try {
-                val driveManager = googleDriveManagerFactory.create(accessToken)
-                val fileContent = driveManager.downloadBackupFromDrive("curalis_drive_backup.json")
-
-                if (fileContent.isNullOrBlank()) {
+                val fileContent = withContext(Dispatchers.IO) {
+                    googleDriveManagerFactory.create(token).downloadAppFile(fileId)
+                }
+                if (fileContent.isBlank()) {
                     _uiState.value = BackupUiState.Error(str(R.string.backup_drive_no_backup_found))
                     return@launch
                 }
-
                 val jsonString = if (BackupCrypto.isEncrypted(fileContent)) {
                     try {
                         BackupCrypto.decrypt(fileContent, password)
@@ -282,12 +338,11 @@ class BackupViewModel @Inject constructor(
                 } else {
                     fileContent
                 }
-
                 val recordCount = restoreAndRescheduleAlarms(jsonString)
-                if (recordCount != null) {
-                    _uiState.value = BackupUiState.Success(str(R.string.backup_drive_restore_success, recordCount))
+                _uiState.value = if (recordCount != null) {
+                    BackupUiState.Success(str(R.string.backup_drive_restore_success, recordCount))
                 } else {
-                    _uiState.value = BackupUiState.Error(str(R.string.backup_restore_failed_file_corrupt))
+                    BackupUiState.Error(str(R.string.backup_restore_failed_file_corrupt))
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -303,12 +358,18 @@ data class AutoBackupState(
     val hasFolder: Boolean = false,
     val lastSuccessAt: Long = 0L,
     val lastFailure: AutoBackupRunner.Failure? = null,
+    val driveConnected: Boolean = false,
+    val driveEnabled: Boolean = false,
+    val driveLastSuccessAt: Long = 0L,
+    val driveLastFailure: AutoBackupRunner.Failure? = null,
     val running: Boolean = false
 )
 
 fun autoBackupFailureMessage(reason: AutoBackupRunner.Failure): Int = when (reason) {
     AutoBackupRunner.Failure.NO_PASSWORD -> R.string.auto_backup_error_password
     AutoBackupRunner.Failure.FOLDER_UNAVAILABLE, AutoBackupRunner.Failure.NOT_CONFIGURED -> R.string.auto_backup_error_folder
+    AutoBackupRunner.Failure.DRIVE_NEEDS_PERMISSION -> R.string.auto_backup_error_drive_permission
+    AutoBackupRunner.Failure.DRIVE_UNAVAILABLE -> R.string.auto_backup_error_drive_unavailable
 }
 
 sealed class BackupUiState {

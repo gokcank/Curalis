@@ -81,6 +81,52 @@ class GoogleDriveManager(accessToken: String) {
         }
     }
 
+    /** appDataFolder'daki dosyalar (ad → kimlik). Çağıran IO iş parçacığında olmalı. */
+    fun listAppFiles(): Map<String, String> {
+        val result = mutableMapOf<String, String>()
+        var pageToken: String? = null
+        do {
+            val page = driveService.files().list()
+                .setSpaces("appDataFolder")
+                .setFields("nextPageToken, files(id, name)")
+                .setPageSize(200)
+                .setPageToken(pageToken)
+                .execute()
+            page.files.orEmpty().forEach { result[it.name] = it.id }
+            pageToken = page.nextPageToken
+        } while (pageToken != null)
+        return result
+    }
+
+    /** Her zaman yeni bir dosya oluşturur; aynı adlı eski dosyanın üzerine yazmaz. */
+    fun createAppFile(fileName: String, content: String) {
+        val metadata = com.google.api.services.drive.model.File().apply {
+            name = fileName
+            parents = listOf("appDataFolder")
+        }
+        val media = InputStreamContent("application/json", ByteArrayInputStream(content.toByteArray(Charsets.UTF_8)))
+        driveService.files().create(metadata, media).setFields("id").execute()
+    }
+
+    fun deleteAppFile(fileId: String) {
+        driveService.files().delete(fileId).execute()
+    }
+
+    fun downloadAppFile(fileId: String): String {
+        val outputStream = ByteArrayOutputStream()
+        driveService.files().get(fileId).executeMediaAndDownloadTo(outputStream)
+        return String(outputStream.toByteArray(), Charsets.UTF_8)
+    }
+
+    /** Otomatik yedeğin Drive hedefi olarak kullanılır (bkz. AutoBackupRunner). */
+    fun asBackupTarget(): DriveBackupTarget = object : DriveBackupTarget {
+        override fun listNames(): List<String> = listAppFiles().keys.toList()
+        override fun upload(name: String, content: String) = createAppFile(name, content)
+        override fun delete(name: String) {
+            listAppFiles()[name]?.let { deleteAppFile(it) }
+        }
+    }
+
     suspend fun downloadBackupFromDrive(fileName: String): String? = withContext(Dispatchers.IO) {
         try {
             val fileList = driveService.files().list()

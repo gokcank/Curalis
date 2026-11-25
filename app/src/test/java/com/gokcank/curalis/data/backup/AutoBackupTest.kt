@@ -53,8 +53,18 @@ class AutoBackupTest {
     private val backupManager = FakeBackupManager()
     private var now = 1_795_000_000_000L
 
+    private class FakeDrive : DriveBackupTarget {
+        val files = linkedMapOf<String, String>()
+        override fun listNames() = files.keys.toList()
+        override fun upload(name: String, content: String) { files[name] = content }
+        override fun delete(name: String) { files.remove(name) }
+    }
+
+    private val drive = FakeDrive()
+    private var driveAccess: () -> DriveAccess = { DriveAccess.Ready(drive) }
+
     private fun runner(store: BackupPasswordStore = passwordStore()) =
-        AutoBackupRunner(backupManager, prefs, store, { folder }, { now })
+        AutoBackupRunner(backupManager, prefs, store, { folder }, { driveAccess() }, { now })
 
     @Before
     fun setUp() {
@@ -109,7 +119,7 @@ class AutoBackupTest {
 
     @Test
     fun `a backup is written encrypted with the stored password`() = runBlocking {
-        val outcome = runner().run(force = false)
+        val outcome = runner().run(force = false).local
 
         assertTrue(outcome is AutoBackupRunner.Outcome.Done)
         val content = folder.files.values.single()
@@ -123,15 +133,15 @@ class AutoBackupTest {
     fun `unchanged data is skipped unless forced`() = runBlocking {
         runner().run(force = false)
         now += 86_400_000L
-        assertEquals(AutoBackupRunner.Outcome.Unchanged, runner().run(force = false))
+        assertEquals(AutoBackupRunner.Outcome.Unchanged, runner().run(force = false).local)
         assertEquals(1, folder.files.size)
 
-        assertTrue(runner().run(force = true) is AutoBackupRunner.Outcome.Done)
+        assertTrue(runner().run(force = true).local is AutoBackupRunner.Outcome.Done)
         assertEquals(2, folder.files.size)
 
         backupManager.json = """{"medications":[{"id":"m1"}]}"""
         now += 86_400_000L
-        assertTrue(runner().run(force = false) is AutoBackupRunner.Outcome.Done)
+        assertTrue(runner().run(force = false).local is AutoBackupRunner.Outcome.Done)
         assertEquals(3, folder.files.size)
     }
 
@@ -140,7 +150,7 @@ class AutoBackupTest {
         val shared = runner()
         val manual = async(Dispatchers.Default) { shared.run(force = true) }
         val daily = async(Dispatchers.Default) { shared.run(force = false) }
-        val outcomes = listOf(manual.await(), daily.await())
+        val outcomes = listOf(manual.await().local, daily.await().local)
 
         assertEquals(1, folder.files.size)
         assertTrue(outcomes.any { it is AutoBackupRunner.Outcome.Done })
@@ -165,7 +175,7 @@ class AutoBackupTest {
         folder.failWrites = true
         assertEquals(
             AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.FOLDER_UNAVAILABLE),
-            runner().run(force = false)
+            runner().run(force = false).local
         )
         assertEquals(0L, prefs.lastSuccessAt)
         assertEquals("FOLDER_UNAVAILABLE", prefs.lastFailure)
@@ -174,13 +184,64 @@ class AutoBackupTest {
         passwordStore().clear()
         assertEquals(
             AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.NO_PASSWORD),
-            runner().run(force = false)
+            runner().run(force = false).local
         )
 
         prefs.enabled = false
         assertEquals(
             AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.NOT_CONFIGURED),
-            runner().run(force = false)
+            runner().run(force = false).local
+        )
+    }
+
+    // --- Drive ---
+
+    @Test
+    fun `with Drive on, the same encrypted backup also goes to Drive and 30 are kept there`() = runBlocking {
+        prefs.driveEnabled = true
+        drive.files["curalis_drive_backup.json"] = "legacy"
+        repeat(31) {
+            backupManager.json = """{"n":$it}"""
+            now += 86_400_000L
+            val report = runner().run(force = false)
+            assertTrue(report.drive is AutoBackupRunner.Outcome.Done)
+        }
+        val autos = drive.files.keys.filter(AutoBackupPolicy::isAutoBackupFile)
+        assertEquals(AutoBackupPolicy.KEEP_COPIES, autos.size)
+        assertTrue("legacy Drive file kept", "curalis_drive_backup.json" in drive.files)
+        assertEquals(backupManager.json, BackupCrypto.decrypt(drive.files.getValue(autos.max()), "parola123"))
+        assertEquals(now, prefs.driveLastSuccessAt)
+    }
+
+    @Test
+    fun `Drive off means no Drive result and no Drive access`() = runBlocking {
+        driveAccess = { throw AssertionError("Drive must not be touched") }
+        val report = runner().run(force = false)
+        assertNull(report.drive)
+        assertTrue(report.local is AutoBackupRunner.Outcome.Done)
+    }
+
+    @Test
+    fun `a Drive problem does not stop the folder backup and is retried next time`() = runBlocking {
+        prefs.driveEnabled = true
+        driveAccess = { DriveAccess.Unavailable }
+        val first = runner().run(force = false)
+        assertTrue(first.local is AutoBackupRunner.Outcome.Done)
+        assertEquals(AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.DRIVE_UNAVAILABLE), first.drive)
+        assertEquals("DRIVE_UNAVAILABLE", prefs.driveLastFailure)
+
+        // Same data later: the folder already has it, Drive does not yet.
+        driveAccess = { DriveAccess.Ready(drive) }
+        val second = runner().run(force = false)
+        assertEquals(AutoBackupRunner.Outcome.Unchanged, second.local)
+        assertTrue(second.drive is AutoBackupRunner.Outcome.Done)
+        assertNull(prefs.driveLastFailure)
+
+        driveAccess = { DriveAccess.NeedsUser }
+        backupManager.json = """{"changed":true}"""
+        assertEquals(
+            AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.DRIVE_NEEDS_PERMISSION),
+            runner().run(force = false).drive
         )
     }
 }

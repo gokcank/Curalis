@@ -28,14 +28,25 @@ class AutoBackupWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        try {
-            val outcome = runner.run(force = false)
-            if (outcome is AutoBackupRunner.Outcome.Failed && outcome.reason != AutoBackupRunner.Failure.NOT_CONFIGURED) {
-                notificationHelper.showAutoBackupFailedNotification()
-            }
+        val report = try {
+            runner.run(force = false)
         } catch (e: Exception) {
             Log.e(TAG, "Otomatik yedek alınamadı", e)
             notificationHelper.showAutoBackupFailedNotification()
+            return Result.success()
+        }
+        val local = report.local
+        if (local is AutoBackupRunner.Outcome.Failed && local.reason != AutoBackupRunner.Failure.NOT_CONFIGURED) {
+            notificationHelper.showAutoBackupFailedNotification()
+        }
+        val drive = report.drive
+        if (drive is AutoBackupRunner.Outcome.Failed) {
+            when (drive.reason) {
+                // Ağ yoksa bildirim yerine biraz sonra yeniden denenir; klasör yedeği zaten alınmıştır.
+                AutoBackupRunner.Failure.DRIVE_UNAVAILABLE -> if (runAttemptCount < MAX_DRIVE_RETRIES) return Result.retry()
+                AutoBackupRunner.Failure.NO_PASSWORD -> Unit // klasör tarafı zaten bildirdi
+                else -> notificationHelper.showDriveBackupFailedNotification()
+            }
         }
         return Result.success()
     }
@@ -43,6 +54,7 @@ class AutoBackupWorker @AssistedInject constructor(
     companion object {
         private const val TAG = "AutoBackupWorker"
         private const val UNIQUE_WORK_NAME = "auto_backup_daily"
+        private const val MAX_DRIVE_RETRIES = 3
 
         /** Açıksa günlük işi kurar; zaten kuruluysa dokunmaz. */
         fun scheduleIfEnabled(context: Context, preferences: AutoBackupPreferences) {

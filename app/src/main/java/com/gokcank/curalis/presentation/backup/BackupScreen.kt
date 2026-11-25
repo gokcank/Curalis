@@ -19,6 +19,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.gokcank.curalis.data.backup.DriveBackupNames
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.material3.Switch
@@ -64,6 +67,8 @@ fun BackupScreen(
     // Bekleyen şifre isteyen işlem: hangi eylemin şifre girildikten sonra çalıştırılacağını tutar.
     var pendingPasswordAction by remember { mutableStateOf<PendingPasswordAction?>(null) }
     val autoBackup by viewModel.autoBackup.collectAsState()
+    val driveBackups by viewModel.driveBackups.collectAsState()
+    var selectedDriveBackupId by remember { mutableStateOf<String?>(null) }
     LifecycleResumeEffect(Unit) {
         viewModel.refreshAutoBackupState()
         onPauseOrDispose { }
@@ -127,7 +132,7 @@ fun BackupScreen(
         when (operation) {
             DriveOperation.Connect -> viewModel.connectDrive(accessToken)
             is DriveOperation.Backup -> viewModel.uploadToGoogleDrive(accessToken, operation.password)
-            is DriveOperation.Restore -> viewModel.downloadFromGoogleDrive(accessToken, operation.password)
+            DriveOperation.ListForRestore -> viewModel.loadDriveBackups(accessToken)
         }
     }
 
@@ -247,7 +252,8 @@ fun BackupScreen(
                 },
                 onChangeFolder = { autoBackupFolderLauncher.launch(null) },
                 onChangePassword = { pendingPasswordAction = PendingPasswordAction.ChangeAutoBackupPassword },
-                onBackupNow = { viewModel.backupNow() }
+                onBackupNow = { viewModel.backupNow() },
+                onDriveToggle = viewModel::setDriveAutoBackup
             )
 
             Card(
@@ -386,7 +392,7 @@ fun BackupScreen(
                                 Text(stringResource(R.string.backup_to_drive_button))
                             }
                             OutlinedButton(
-                                onClick = { pendingPasswordAction = PendingPasswordAction.RestoreDrive },
+                                onClick = { withDriveAccess(DriveOperation.ListForRestore) },
                                 modifier = Modifier.weight(1f),
                                 enabled = uiState !is BackupUiState.Loading,
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.tertiary)
@@ -404,6 +410,18 @@ fun BackupScreen(
                 }
             }
         }
+    }
+
+    driveBackups?.let { backups ->
+        DriveBackupChooser(
+            backups = backups,
+            onDismiss = { viewModel.dismissDriveBackups() },
+            onSelect = { backup ->
+                viewModel.dismissDriveBackups()
+                selectedDriveBackupId = backup.id
+                pendingPasswordAction = PendingPasswordAction.RestoreDrive
+            }
+        )
     }
 
     pendingPasswordAction?.let { action ->
@@ -431,7 +449,8 @@ fun BackupScreen(
                         withDriveAccess(DriveOperation.Backup(password))
                     }
                     PendingPasswordAction.RestoreDrive -> {
-                        withDriveAccess(DriveOperation.Restore(password))
+                        selectedDriveBackupId?.let { viewModel.restoreDriveBackup(it, password) }
+                        selectedDriveBackupId = null
                     }
                     PendingPasswordAction.SetAutoBackup -> viewModel.enableAutoBackup(password)
                     PendingPasswordAction.ChangeAutoBackupPassword -> viewModel.changeAutoBackupPassword(password)
@@ -523,7 +542,8 @@ private fun BackupPasswordDialog(
 private sealed class DriveOperation {
     data object Connect : DriveOperation()
     data class Backup(val password: String) : DriveOperation()
-    data class Restore(val password: String) : DriveOperation()
+    /** Geri yükleme için Drive'daki yedekleri listele; kullanıcı birini seçince parola sorulur. */
+    data object ListForRestore : DriveOperation()
 }
 
 private const val GOOGLE_ACCOUNT_TYPE = "com.google"
@@ -538,7 +558,8 @@ private fun AutoBackupCard(
     onToggle: (Boolean) -> Unit,
     onChangeFolder: () -> Unit,
     onChangePassword: () -> Unit,
-    onBackupNow: () -> Unit
+    onBackupNow: () -> Unit,
+    onDriveToggle: (Boolean) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -582,6 +603,46 @@ private fun AutoBackupCard(
                         color = MaterialTheme.colorScheme.error
                     )
                 }
+                // Drive'a da gönderme: ayrı onay (ADR-011); yalnızca Drive bağlıyken açılabilir.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(
+                            value = state.driveEnabled,
+                            enabled = state.driveConnected,
+                            role = Role.Switch,
+                            onValueChange = onDriveToggle
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.auto_backup_drive_title), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            stringResource(
+                                if (state.driveConnected) R.string.auto_backup_drive_desc else R.string.auto_backup_drive_not_connected
+                            ),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    Switch(checked = state.driveEnabled, onCheckedChange = null, enabled = state.driveConnected)
+                }
+                if (state.driveEnabled) {
+                    Text(
+                        text = if (state.driveLastSuccessAt > 0) {
+                            stringResource(R.string.auto_backup_drive_last, dateFormat.format(Date(state.driveLastSuccessAt)))
+                        } else {
+                            stringResource(R.string.auto_backup_drive_never)
+                        },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    state.driveLastFailure?.let {
+                        Text(
+                            stringResource(autoBackupFailureMessage(it)),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
                 Button(onClick = onBackupNow, enabled = !state.running, modifier = Modifier.fillMaxWidth()) {
                     Text(stringResource(R.string.auto_backup_now))
                 }
@@ -596,4 +657,37 @@ private fun AutoBackupCard(
             }
         }
     }
+}
+
+/** Drive'daki yedeklerden hangisinin geri yükleneceği; en yeni başta. */
+@Composable
+private fun DriveBackupChooser(
+    backups: List<DriveBackupNames.Info>,
+    onDismiss: () -> Unit,
+    onSelect: (DriveBackupNames.Info) -> Unit
+) {
+    val dateFormat = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.drive_restore_choose_title)) },
+        text = {
+            LazyColumn {
+                items(backups, key = { it.id }) { backup ->
+                    val kind = stringResource(
+                        when (backup.kind) {
+                            DriveBackupNames.Kind.AUTOMATIC -> R.string.drive_backup_kind_auto
+                            DriveBackupNames.Kind.MANUAL -> R.string.drive_backup_kind_manual
+                            DriveBackupNames.Kind.LEGACY -> R.string.drive_backup_kind_legacy
+                        }
+                    )
+                    val label = backup.takenAt?.let { stringResource(R.string.drive_backup_label, dateFormat.format(Date(it)), kind) } ?: kind
+                    TextButton(onClick = { onSelect(backup) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(label, modifier = Modifier.fillMaxWidth())
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } }
+    )
 }

@@ -206,6 +206,11 @@ Current implementation (see ADR-011, accepted 2026-11-25):
   backup settings or the stored backup password (`res/xml/backup_rules.xml`, `data_extraction_rules.xml`).
 - Automatic backups are written as dated files (`curalis_auto_<date>_<time>.json`); only these are pruned to the 30
   newest, other files in the chosen folder are never touched.
+- Google Drive (hidden `appDataFolder`, `drive.appdata` scope only): automatic backups go there only when the user turned
+  on "also back up to Google Drive"; the permission is requested in the background with the connected account and
+  never shows a dialog there (if Google asks for consent, the user is notified instead). Manual Drive backups are dated
+  files too (`curalis_drive_manual_<date>_<time>.json`) and are never overwritten; the older single file
+  `curalis_drive_backup.json` stays readable. Restoring lists every backup, newest first.
 
 ---
 
