@@ -238,7 +238,7 @@ Changes since 1.2.2 (versionCode 6).
 ## [1.1.0] — versionCode 3
 
 A large feature round based on a detailed feature-by-feature comparison against
-Medisafe — every item below was designed and implemented from scratch against
+a reference app — every item below was designed and implemented from scratch against
 Curalis's own architecture, not ported or copied.
 
 ### Highlights

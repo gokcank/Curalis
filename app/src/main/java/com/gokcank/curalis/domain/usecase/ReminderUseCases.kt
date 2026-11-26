@@ -65,8 +65,8 @@ class AcknowledgeReminderUseCase @Inject constructor(
 }
 
 /**
- * Bekleyen tek bir dozu yalnızca o seferlik başka bir zamana yeniden planlar (Medisafe'teki
- * "Yeniden planla"). Doz planlanan saatinde listede kalır, "bekliyor" durumuna döner ve
+ * Bekleyen tek bir dozu yalnızca o seferlik başka bir zamana yeniden planlar
+ * ("Yeniden planla"). Doz planlanan saatinde listede kalır, "bekliyor" durumuna döner ve
  * hatırlatması [rescheduledToMillis] zamanında gelir; ilacın planı değişmez. Doz henüz
  * veritabanında yoksa (geçici olarak hesaplanmış bir doz) eklenir.
  */

@@ -784,7 +784,7 @@ fun SummaryCard(title: String, content: String, icon: ImageVector, onClick: (() 
 }
 
 /**
- * "Bugünün Kutusu" — Medisafe'in pillbox ana ekran görünümünden esinlenen, günün tüm
+ * "Bugünün Kutusu" — günün tüm
  * dozlarını küçük ilaç ikonları halinde tek bakışta gösteren şerit. Bekleyen (veya
  * atlanmış/kaçırılmış, düzeltilebilir) bir ikona dokunmak doğrudan "Aldım" akışını açar;
  * ayrı bir ekrana gitmeye gerek kalmaz. Detaylı yönetim (atlama, erteleme, geçmiş) için

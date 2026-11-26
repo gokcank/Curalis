@@ -476,7 +476,7 @@ fun TimelineCard(
                         val timeLine = if (item.reminder.state == ReminderState.TAKEN && takenAtMillis != null) {
                             stringResource(R.string.time_at_taken_label, formattedTime, dosageSuffix, timeFormat.format(Date(takenAtMillis)))
                         } else if (isWaiting && rescheduledTo != null) {
-                            // Medisafe gibi: doz planlanan saatinde kalır, yanında yeni zamanı yazar.
+                            // Doz planlanan saatinde kalır, yanında yeni zamanı yazar.
                             val sameDay = isSameDay(rescheduledTo, item.reminder.timeInMillis)
                             val newTime = if (sameDay) timeFormat.format(Date(rescheduledTo)) else dayTimeFormat.format(Date(rescheduledTo))
                             stringResource(R.string.time_at_rescheduled_label, formattedTime, dosageSuffix, newTime)
