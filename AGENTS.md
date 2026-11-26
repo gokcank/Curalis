@@ -60,18 +60,21 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
 - **Distribution**: sideloaded APKs via GitHub releases only (not on Google Play). Do not suggest Play uploads, AABs,
   store listings or Play policy work unless asked. Keep `USE_EXACT_ALARM`.
 - Release notes and store-facing text: **Turkish only** by default.
+- Each release: bump the static version badge in `README.md` and `README.tr.md` (a live GitHub badge does not load).
 
-## Status (as of 2026-11-26)
+## Status (as of 2026-11-27)
 - Project status: **active** (set 2026-11-18; source of truth: the brain page).
 - Latest release **1.8.0 (versionCode 16)**, 2026-11-26; Room DB version 24; drug dictionary version 3.
 - Revision plan (22 steps) and data-safety plan (ADR-011: automatic folder/Drive backup, DB rescue copy, PIN
   recovery, startup alarm repair) are done.
+- License: **all rights reserved** (ADR-012); README in English and Turkish, screenshots in `docs/screenshots/`.
   Bottom nav, add-medication form, easy mode and profiles wait for a separate design session together with the menu topic.
 - Screen-reader rules (toggle rows, silent decorative icons, named choices): `docs/compliance/accessibility.md`.
 - Robolectric tests run on API 34 (`app/src/test/resources/robolectric.properties`): API 36 needs Java 21, API 35/36
   break on a font-copy error. Verify with `./gradlew test` (debug + release), not only `testDebugUnitTest`.
 
 ## Open items
+- Privacy policy (`PRIVACY_POLICY.md` and the in-app text) is outdated (no automatic backups); on hold by the user.
 - Remove the unused `WEB_CLIENT_ID` BuildConfig field from `app/build.gradle.kts`.
 - PDF: preview card lacks the late-dose count; archived medications still appear in the medicine-cabinet list.
 - The per-time dose field exists in the model but not in the form, so every take decrements stock by 1.
