@@ -182,9 +182,11 @@ If future versions introduce features that may qualify the application as a regu
 
 # License
 
-The project's software license should be documented separately.
+The project is **all rights reserved** (ADR-012, accepted 2026-11-27); the full notice is in `LICENSE`. The
+repository is public for reading only; using, copying, modifying or distributing the code requires prior written
+permission. Versions up to and including 1.8.0 were published under the MIT License.
 
-All contributors must respect the project's chosen license.
+All contributors must respect the project's license.
 
 ---
 

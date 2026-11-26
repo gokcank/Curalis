@@ -75,7 +75,6 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
 - Remove the reference app's name from source comments and `CHANGELOG.md`. It is also in 3 pushed commit messages;
   cleaning those needs a history rewrite — ask first.
 - Remove the unused `WEB_CLIENT_ID` BuildConfig field from `app/build.gradle.kts`.
-- README version badge is stuck at v1.1.0.
 - PDF: preview card lacks the late-dose count; archived medications still appear in the medicine-cabinet list.
 - The per-time dose field exists in the model but not in the form, so every take decrements stock by 1.
 - The form resets the initial stock to the current stock on every save, so "add a box" adds the last entered stock.
