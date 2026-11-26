@@ -134,7 +134,7 @@ olmadan da derleme çalışır.
 
 ## Lisans
 
-Telif hakkı © 2026 Gökcan. Tüm hakları saklıdır. Bkz. [LICENSE](LICENSE).
+Telif hakkı © 2026 gokcank. Tüm hakları saklıdır. Bkz. [LICENSE](LICENSE).
 
 Kaynak kod yalnızca okunmak üzere herkese açıktır. Kullanmak, kopyalamak, değiştirmek ya da dağıtmak için önceden
 yazılı izin gerekir. 1.8.0 dahil önceki sürümler MIT lisansıyla yayımlanmıştır.

@@ -135,7 +135,7 @@ them the build still works.
 
 ## License
 
-Copyright © 2026 Gökcan. All rights reserved. See [LICENSE](LICENSE).
+Copyright © 2026 gokcank. All rights reserved. See [LICENSE](LICENSE).
 
 The source code is public for reading only. Using, copying, modifying or distributing it requires prior written
 permission. Versions up to and including 1.8.0 were published under the MIT License.
