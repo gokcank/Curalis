@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/gokcank/Curalis/releases/latest"><img src="https://img.shields.io/github/v/release/gokcank/Curalis?style=for-the-badge&cacheSeconds=21600&label=S%C3%BCr%C3%BCm" alt="Son sürüm" /></a>
+  <a href="https://github.com/gokcank/Curalis/releases/latest"><img src="https://img.shields.io/badge/S%C3%BCr%C3%BCm-v1.8.0-blue?style=for-the-badge" alt="Son sürüm" /></a>
   <img src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android 8.0+" />
   <img src="https://img.shields.io/badge/Kotlin-B125EA?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" />
