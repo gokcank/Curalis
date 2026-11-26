@@ -26,6 +26,23 @@ Curalis, GitHub üzerinden APK olarak dağıtılır; Google Play'de yoktur.
 
 ---
 
+## Ekran görüntüleri
+
+<p align="center">
+  <img src="docs/screenshots/01-home.webp" width="200" alt="Ana ekran" />
+  <img src="docs/screenshots/02-timeline.webp" width="200" alt="Günlük zaman çizelgesi" />
+  <img src="docs/screenshots/03-medications.webp" width="200" alt="İlaç listesi" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/04-edit.webp" width="200" alt="İlaç ekleme ve düzenleme" />
+  <img src="docs/screenshots/05-backup.webp" width="200" alt="Yedekleme ve geri yükleme" />
+  <img src="docs/screenshots/06-alarm.webp" width="200" alt="Tam ekran hatırlatma" />
+</p>
+
+<p align="center">*Örnek verilerle.*</p>
+
+---
+
 ## Kurulum
 
 1. Telefonunuzda [son sürümü](https://github.com/gokcank/Curalis/releases/latest) açın ve `Curalis-x.y.z.apk`
