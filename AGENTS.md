@@ -72,8 +72,6 @@ Local-first medication and health tracker for Android (Kotlin, Jetpack Compose, 
   break on a font-copy error. Verify with `./gradlew test` (debug + release), not only `testDebugUnitTest`.
 
 ## Open items
-- The reference app's name is still in 3 pushed commit messages (files cleaned 2026-11-27); a history rewrite is
-  planned with a backup.
 - Remove the unused `WEB_CLIENT_ID` BuildConfig field from `app/build.gradle.kts`.
 - PDF: preview card lacks the late-dose count; archived medications still appear in the medicine-cabinet list.
 - The per-time dose field exists in the model but not in the form, so every take decrements stock by 1.
