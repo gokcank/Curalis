@@ -6,6 +6,9 @@
 
 Accepted (2026-11-25)
 
+Partly superseded by ADR-013 (2026-11-28): automatic backup goes to Google Drive only, and the backup password
+becomes optional. The rescue copy, startup alarm repair and PIN recovery below are unchanged.
+
 ---
 
 ## Date
