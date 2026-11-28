@@ -444,8 +444,8 @@ class NotificationHelper @Inject constructor(
     }
 
     /**
-     * Otomatik yedek alınamadı (klasör izni gitti, parola açılamadı...). Ayrıntı yedekleme
-     * ekranında yazar; bildirime dokununca o ekran açılır. Veri içermez.
+     * Otomatik Drive yedeği alınamadı (Drive izni yenilenmeli, parola açılamadı...). Ayrıntı
+     * yedekleme ekranında yazar; bildirime dokununca o ekran açılır. Veri içermez.
      */
     fun showAutoBackupFailedNotification() {
         val contentIntent = Intent(context, MainActivity::class.java).apply {
@@ -467,30 +467,6 @@ class NotificationHelper @Inject constructor(
             .setAutoCancel(true)
             .setContentIntent(contentPendingIntent)
         notificationManager.notify(AUTO_BACKUP_FAILED_NOTIFICATION_ID, builder.build())
-    }
-
-    /** Otomatik Drive yedeği alınamadı (izin yenilenmeli); dokununca yedekleme ekranı açılır. */
-    fun showDriveBackupFailedNotification() {
-        val contentIntent = Intent(context, MainActivity::class.java).apply {
-            putExtra(OpenDestination.EXTRA, OpenDestination.BACKUP)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        }
-        val contentPendingIntent = PendingIntent.getActivity(
-            context,
-            DRIVE_BACKUP_FAILED_NOTIFICATION_ID,
-            contentIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val text = context.getString(R.string.drive_backup_failed_text)
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID_PROACTIVE)
-            .setSmallIcon(android.R.drawable.stat_notify_error)
-            .setContentTitle(context.getString(R.string.drive_backup_failed_title))
-            .setContentText(text)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-            .setContentIntent(contentPendingIntent)
-        notificationManager.notify(DRIVE_BACKUP_FAILED_NOTIFICATION_ID, builder.build())
     }
 
     /**
@@ -544,7 +520,6 @@ class NotificationHelper @Inject constructor(
         const val CHANNEL_ID_EVENING_SUMMARY = "evening_summary_channel"
         const val EVENING_SUMMARY_NOTIFICATION_ID = -1004
         const val AUTO_BACKUP_FAILED_NOTIFICATION_ID = -1005
-        const val DRIVE_BACKUP_FAILED_NOTIFICATION_ID = -1006
         const val ACTION_TAKEN = "com.gokcank.curalis.ACTION_TAKEN"
         const val ACTION_SNOOZE = "com.gokcank.curalis.ACTION_SNOOZE"
         const val ACTION_SKIP = "com.gokcank.curalis.ACTION_SKIP"

@@ -192,13 +192,20 @@ Future backups should support:
 
 Backups should never be publicly accessible.
 
-Current implementation (see ADR-011, accepted 2026-11-25):
+Current implementation (ADR-011, accepted 2026-11-25; destinations and password changed by ADR-013, accepted
+2026-11-28):
 
-- Manual and automatic backups use the same format: the export is encrypted with the user's backup password
-  (PBKDF2-HMAC-SHA256 key derivation, AES-GCM, which also verifies integrity). A wrong password changes nothing.
+- Encrypted backups use one format: the export is encrypted with the user's backup password (PBKDF2-HMAC-SHA256 key
+  derivation, AES-GCM, which also verifies integrity, prefix `CURALIS_ENC_V1:`). A wrong password changes nothing.
+- The manual file export always asks for a password and is always encrypted (the file can go anywhere).
+- Google Drive backups (automatic and manual) are **unencrypted by default** (ADR-013): the plain export in Drive's
+  hidden `appDataFolder` (`drive.appdata` scope only), protected by the user's Google account but readable on Google's
+  servers. The app says so next to the "Encrypt backups" option. With that option on, they use the encrypted format
+  with the stored password and no prompt; restoring tries the stored password first and asks only when it is missing
+  or does not open the backup (the correct password is then stored and encryption stays on).
 - A restore runs in one database transaction: if anything fails, the existing data stays as it was.
-- The automatic backup password is stored on the device, encrypted with a non-exportable Android Keystore key, in a
-  preferences file that is excluded from Android Auto Backup and device transfer. It is never logged or shown.
+- The backup password is stored on the device, encrypted with a non-exportable Android Keystore key, in a preferences
+  file that is excluded from Android Auto Backup and device transfer. It is never logged or shown.
 - Before a corrupt database is deleted, or before the user resets an unreadable one, its files are copied to
   app-private storage.
 - A forgotten app PIN can be reset only through the phone's own screen lock ("Forgot PIN?" on the lock screen): on
@@ -207,12 +214,11 @@ Current implementation (see ADR-011, accepted 2026-11-25):
   (only clearing the app's data), and the app says so.
 - Android Auto Backup and device transfer never include the database, the database rescue copies, the automatic
   backup settings or the stored backup password (`res/xml/backup_rules.xml`, `data_extraction_rules.xml`).
-- Automatic backups are written as dated files (`curalis_auto_<date>_<time>.json`); only these are pruned to the 30
-  newest, other files in the chosen folder are never touched.
-- Google Drive (hidden `appDataFolder`, `drive.appdata` scope only): automatic backups go there only when the user turned
-  on "also back up to Google Drive"; the permission is requested in the background with the connected account and
-  never shows a dialog there (if Google asks for consent, the user is notified instead). Manual Drive backups are dated
-  files too (`curalis_drive_manual_<date>_<time>.json`) and are never overwritten; the older single file
+- Automatic backup goes to Google Drive only and can be turned on only while Drive is connected; disconnecting Drive
+  turns it off. Backups are dated files (`curalis_auto_<date>_<time>.json`); only these are pruned to the 30 newest.
+  The Drive permission is requested in the background with the connected account and never shows a dialog there (if
+  Google asks for consent, the user is notified instead). Manual Drive backups are dated files too
+  (`curalis_drive_manual_<date>_<time>.json`) and are never overwritten; the older single file
   `curalis_drive_backup.json` stays readable. Restoring lists every backup, newest first.
 
 ---

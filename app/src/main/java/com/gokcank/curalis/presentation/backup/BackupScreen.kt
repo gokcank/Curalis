@@ -68,19 +68,10 @@ fun BackupScreen(
     var pendingPasswordAction by remember { mutableStateOf<PendingPasswordAction?>(null) }
     val autoBackup by viewModel.autoBackup.collectAsState()
     val driveBackups by viewModel.driveBackups.collectAsState()
-    var selectedDriveBackupId by remember { mutableStateOf<String?>(null) }
+    val drivePasswordRequest by viewModel.drivePasswordRequest.collectAsState()
     LifecycleResumeEffect(Unit) {
         viewModel.refreshAutoBackupState()
         onPauseOrDispose { }
-    }
-    // Açma akışı: klasör (yoksa) → parola. Seçici iptal edilirse otomatik yedek kapalı kalır.
-    var autoBackupSetupInProgress by remember { mutableStateOf(false) }
-    val autoBackupFolderLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-        if (uri != null) {
-            viewModel.onAutoBackupFolderChosen(uri)
-            if (autoBackupSetupInProgress) pendingPasswordAction = PendingPasswordAction.SetAutoBackup
-        }
-        autoBackupSetupInProgress = false
     }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var pendingLocalExportPassword by remember { mutableStateOf<String?>(null) }
@@ -131,7 +122,7 @@ fun BackupScreen(
     fun runDriveOperation(operation: DriveOperation, accessToken: String) {
         when (operation) {
             DriveOperation.Connect -> viewModel.connectDrive(accessToken)
-            is DriveOperation.Backup -> viewModel.uploadToGoogleDrive(accessToken, operation.password)
+            DriveOperation.Backup -> viewModel.uploadToGoogleDrive(accessToken)
             DriveOperation.ListForRestore -> viewModel.loadDriveBackups(accessToken)
         }
     }
@@ -238,22 +229,12 @@ fun BackupScreen(
 
             AutoBackupCard(
                 state = autoBackup,
-                onToggle = { enable ->
-                    if (enable) {
-                        if (autoBackup.hasFolder) {
-                            pendingPasswordAction = PendingPasswordAction.SetAutoBackup
-                        } else {
-                            autoBackupSetupInProgress = true
-                            autoBackupFolderLauncher.launch(null)
-                        }
-                    } else {
-                        viewModel.disableAutoBackup()
-                    }
+                onToggle = { enable -> if (enable) viewModel.enableAutoBackup() else viewModel.disableAutoBackup() },
+                onEncryptToggle = { on ->
+                    if (on) pendingPasswordAction = PendingPasswordAction.EnableEncryption else viewModel.disableEncryption()
                 },
-                onChangeFolder = { autoBackupFolderLauncher.launch(null) },
-                onChangePassword = { pendingPasswordAction = PendingPasswordAction.ChangeAutoBackupPassword },
-                onBackupNow = { viewModel.backupNow() },
-                onDriveToggle = viewModel::setDriveAutoBackup
+                onChangePassword = { pendingPasswordAction = PendingPasswordAction.ChangeBackupPassword },
+                onBackupNow = { viewModel.backupNow() }
             )
 
             Card(
@@ -384,7 +365,7 @@ fun BackupScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Button(
-                                onClick = { pendingPasswordAction = PendingPasswordAction.BackupDrive },
+                                onClick = { withDriveAccess(DriveOperation.Backup) },
                                 modifier = Modifier.weight(1f),
                                 enabled = uiState !is BackupUiState.Loading,
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
@@ -418,15 +399,23 @@ fun BackupScreen(
             onDismiss = { viewModel.dismissDriveBackups() },
             onSelect = { backup ->
                 viewModel.dismissDriveBackups()
-                selectedDriveBackupId = backup.id
-                pendingPasswordAction = PendingPasswordAction.RestoreDrive
+                viewModel.restoreDriveBackup(backup.id)
             }
         )
     }
 
+    // Şifreli Drive yedeği ve telefonda onu açan şifre yok (ör. yeni telefon): bir kez sorulur.
+    drivePasswordRequest?.let { fileId ->
+        BackupPasswordDialog(
+            isSettingPassword = false,
+            onDismiss = viewModel::cancelDrivePasswordRequest,
+            onConfirm = { password -> viewModel.restoreDriveBackup(fileId, password) }
+        )
+    }
+
     pendingPasswordAction?.let { action ->
-        val isAutoBackup = action is PendingPasswordAction.SetAutoBackup || action is PendingPasswordAction.ChangeAutoBackupPassword
-        val isSettingPassword = action is PendingPasswordAction.BackupLocal || action is PendingPasswordAction.BackupDrive || isAutoBackup
+        val isAutoBackup = action is PendingPasswordAction.EnableEncryption || action is PendingPasswordAction.ChangeBackupPassword
+        val isSettingPassword = action is PendingPasswordAction.BackupLocal || isAutoBackup
         BackupPasswordDialog(
             isSettingPassword = isSettingPassword,
             descriptionRes = if (isAutoBackup) R.string.auto_backup_password_desc else R.string.backup_password_set_desc,
@@ -445,15 +434,8 @@ fun BackupScreen(
                         pendingImportUri?.let { uri -> viewModel.importDataFromUri(context, uri, password) }
                         pendingImportUri = null
                     }
-                    PendingPasswordAction.BackupDrive -> {
-                        withDriveAccess(DriveOperation.Backup(password))
-                    }
-                    PendingPasswordAction.RestoreDrive -> {
-                        selectedDriveBackupId?.let { viewModel.restoreDriveBackup(it, password) }
-                        selectedDriveBackupId = null
-                    }
-                    PendingPasswordAction.SetAutoBackup -> viewModel.enableAutoBackup(password)
-                    PendingPasswordAction.ChangeAutoBackupPassword -> viewModel.changeAutoBackupPassword(password)
+                    PendingPasswordAction.EnableEncryption -> viewModel.enableEncryption(password)
+                    PendingPasswordAction.ChangeBackupPassword -> viewModel.changeBackupPassword(password)
                 }
                 pendingPasswordAction = null
             }
@@ -464,10 +446,8 @@ fun BackupScreen(
 private sealed class PendingPasswordAction {
     data object BackupLocal : PendingPasswordAction()
     data object RestoreLocal : PendingPasswordAction()
-    data object BackupDrive : PendingPasswordAction()
-    data object RestoreDrive : PendingPasswordAction()
-    data object SetAutoBackup : PendingPasswordAction()
-    data object ChangeAutoBackupPassword : PendingPasswordAction()
+    data object EnableEncryption : PendingPasswordAction()
+    data object ChangeBackupPassword : PendingPasswordAction()
 }
 
 @Composable
@@ -541,25 +521,25 @@ private fun BackupPasswordDialog(
 /** Drive izni alındıktan sonra yapılacak işlem. */
 private sealed class DriveOperation {
     data object Connect : DriveOperation()
-    data class Backup(val password: String) : DriveOperation()
-    /** Geri yükleme için Drive'daki yedekleri listele; kullanıcı birini seçince parola sorulur. */
+    data object Backup : DriveOperation()
+    /** Geri yükleme için Drive'daki yedekleri listele; kullanıcı birini seçer, gerekirse şifre sorulur. */
     data object ListForRestore : DriveOperation()
 }
 
 private const val GOOGLE_ACCOUNT_TYPE = "com.google"
 
 /**
- * Otomatik yedek (ADR-011): günde bir, seçilen klasöre, saklanan parolayla şifreli; en yeni
- * 30 kopya. Satırın tamamı açma-kapama öğesidir (ekran okuyucu kuralı, bkz. accessibility.md).
+ * Otomatik yedek (ADR-013): günde bir, yalnızca Google Drive'a; en yeni 30 kopya. Yalnızca Drive
+ * bağlıyken açılabilir. "Yedeği şifrele" isteğe bağlıdır. Satırların tamamı açma-kapama öğesidir
+ * (ekran okuyucu kuralı, bkz. accessibility.md).
  */
 @Composable
 private fun AutoBackupCard(
     state: AutoBackupState,
     onToggle: (Boolean) -> Unit,
-    onChangeFolder: () -> Unit,
+    onEncryptToggle: (Boolean) -> Unit,
     onChangePassword: () -> Unit,
-    onBackupNow: () -> Unit,
-    onDriveToggle: (Boolean) -> Unit
+    onBackupNow: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -571,22 +551,24 @@ private fun AutoBackupCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
+            // Kapalıyken açmak için Drive bağlantısı gerekir; açıksa her zaman kapatılabilir.
+            val canToggle = state.enabled || state.driveConnected
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .toggleable(value = state.enabled, role = Role.Switch, onValueChange = onToggle),
+                    .toggleable(value = state.enabled, enabled = canToggle, role = Role.Switch, onValueChange = onToggle),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(stringResource(R.string.auto_backup_toggle_title), style = MaterialTheme.typography.bodyLarge)
-                    Text(stringResource(R.string.auto_backup_toggle_desc), style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        stringResource(if (state.driveConnected) R.string.auto_backup_toggle_desc else R.string.auto_backup_drive_not_connected),
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
-                Switch(checked = state.enabled, onCheckedChange = null)
+                Switch(checked = state.enabled, onCheckedChange = null, enabled = canToggle)
             }
             if (state.enabled) {
-                state.folderName?.let {
-                    Text(stringResource(R.string.auto_backup_folder, it), style = MaterialTheme.typography.bodyMedium)
-                }
                 val dateFormat = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT) }
                 Text(
                     text = if (state.lastSuccessAt > 0) {
@@ -603,54 +585,29 @@ private fun AutoBackupCard(
                         color = MaterialTheme.colorScheme.error
                     )
                 }
-                // Drive'a da gönderme: ayrı onay (ADR-011); yalnızca Drive bağlıyken açılabilir.
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .toggleable(
-                            value = state.driveEnabled,
-                            enabled = state.driveConnected,
-                            role = Role.Switch,
-                            onValueChange = onDriveToggle
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.auto_backup_drive_title), style = MaterialTheme.typography.bodyLarge)
-                        Text(
-                            stringResource(
-                                if (state.driveConnected) R.string.auto_backup_drive_desc else R.string.auto_backup_drive_not_connected
-                            ),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                    Switch(checked = state.driveEnabled, onCheckedChange = null, enabled = state.driveConnected)
-                }
-                if (state.driveEnabled) {
-                    Text(
-                        text = if (state.driveLastSuccessAt > 0) {
-                            stringResource(R.string.auto_backup_drive_last, dateFormat.format(Date(state.driveLastSuccessAt)))
-                        } else {
-                            stringResource(R.string.auto_backup_drive_never)
-                        },
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    state.driveLastFailure?.let {
-                        Text(
-                            stringResource(autoBackupFailureMessage(it)),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
                 Button(onClick = onBackupNow, enabled = !state.running, modifier = Modifier.fillMaxWidth()) {
                     Text(stringResource(R.string.auto_backup_now))
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    OutlinedButton(onClick = onChangeFolder, modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.auto_backup_change_folder))
+            }
+            // "Yedeği şifrele": elle Drive yedeğini de etkiler; otomatik yedek kapalıyken de görünür.
+            if (state.enabled || state.driveConnected) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(value = state.encryptEnabled, role = Role.Switch, onValueChange = onEncryptToggle),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.auto_backup_encrypt_title), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            stringResource(if (state.encryptEnabled) R.string.auto_backup_encrypt_on_desc else R.string.auto_backup_encrypt_off_desc),
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
-                    OutlinedButton(onClick = onChangePassword, modifier = Modifier.weight(1f)) {
+                    Switch(checked = state.encryptEnabled, onCheckedChange = null)
+                }
+                if (state.encryptEnabled) {
+                    OutlinedButton(onClick = onChangePassword, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.auto_backup_change_password))
                     }
                 }

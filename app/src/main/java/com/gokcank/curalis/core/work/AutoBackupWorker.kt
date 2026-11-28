@@ -16,7 +16,7 @@ import dagger.assisted.AssistedInject
 import java.util.concurrent.TimeUnit
 
 /**
- * Günde bir otomatik yedek (ADR-011). Yedek alınamazsa bir bildirim gösterilir; yedekler
+ * Günde bir otomatik yedek, yalnızca Google Drive'a (ADR-011, ADR-013). Yedek alınamazsa bir bildirim gösterilir; yedekler
  * sessizce başarısız olmaz. Ertesi gün yeniden denenir, bu yüzden hata tekrar sırası açmaz.
  */
 @HiltWorker
@@ -28,24 +28,19 @@ class AutoBackupWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        val report = try {
+        val outcome = try {
             runner.run(force = false)
         } catch (e: Exception) {
             Log.e(TAG, "Otomatik yedek alınamadı", e)
             notificationHelper.showAutoBackupFailedNotification()
             return Result.success()
         }
-        val local = report.local
-        if (local is AutoBackupRunner.Outcome.Failed && local.reason != AutoBackupRunner.Failure.NOT_CONFIGURED) {
-            notificationHelper.showAutoBackupFailedNotification()
-        }
-        val drive = report.drive
-        if (drive is AutoBackupRunner.Outcome.Failed) {
-            when (drive.reason) {
-                // Ağ yoksa bildirim yerine biraz sonra yeniden denenir; klasör yedeği zaten alınmıştır.
-                AutoBackupRunner.Failure.DRIVE_UNAVAILABLE -> if (runAttemptCount < MAX_DRIVE_RETRIES) return Result.retry()
-                AutoBackupRunner.Failure.NO_PASSWORD -> Unit // klasör tarafı zaten bildirdi
-                else -> notificationHelper.showDriveBackupFailedNotification()
+        if (outcome is AutoBackupRunner.Outcome.Failed) {
+            when (outcome.reason) {
+                AutoBackupRunner.Failure.NOT_CONFIGURED -> Unit
+                // Ağ yoksa bildirim yerine biraz sonra yeniden denenir; durum yedekleme ekranında yazar.
+                AutoBackupRunner.Failure.DRIVE_UNAVAILABLE -> if (runAttemptCount < MAX_RETRIES) return Result.retry()
+                else -> notificationHelper.showAutoBackupFailedNotification()
             }
         }
         return Result.success()
@@ -54,7 +49,7 @@ class AutoBackupWorker @AssistedInject constructor(
     companion object {
         private const val TAG = "AutoBackupWorker"
         private const val UNIQUE_WORK_NAME = "auto_backup_daily"
-        private const val MAX_DRIVE_RETRIES = 3
+        private const val MAX_RETRIES = 3
 
         /** Açıksa günlük işi kurar; zaten kuruluysa dokunmaz. */
         fun scheduleIfEnabled(context: Context, preferences: AutoBackupPreferences) {

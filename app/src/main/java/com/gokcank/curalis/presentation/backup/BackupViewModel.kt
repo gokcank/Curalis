@@ -1,10 +1,7 @@
 package com.gokcank.curalis.presentation.backup
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import androidx.core.net.toUri
-import android.provider.DocumentsContract
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gokcank.curalis.R
@@ -25,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import com.gokcank.curalis.data.backup.DriveBackupCodec
 import com.gokcank.curalis.data.backup.DriveBackupNames
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -51,23 +49,17 @@ class BackupViewModel @Inject constructor(
 
     private val _autoBackup = MutableStateFlow(readAutoBackupState())
 
-    /** Otomatik yedek bölümünün durumu (bkz. ADR-011). */
+    /** Otomatik yedek bölümünün durumu (bkz. ADR-011, ADR-013). */
     val autoBackup: StateFlow<AutoBackupState> = _autoBackup.asStateFlow()
 
     private fun readAutoBackupState() = AutoBackupState(
         enabled = autoBackupPreferences.enabled,
-        folderName = autoBackupPreferences.folderName,
-        hasFolder = autoBackupPreferences.folderUri != null,
+        encryptEnabled = autoBackupPreferences.encryptEnabled,
         lastSuccessAt = autoBackupPreferences.lastSuccessAt,
         lastFailure = autoBackupPreferences.lastFailure?.let { name ->
             AutoBackupRunner.Failure.entries.find { it.name == name }
         },
-        driveConnected = driveAccountPreferences.connectedEmail != null,
-        driveEnabled = autoBackupPreferences.driveEnabled,
-        driveLastSuccessAt = autoBackupPreferences.driveLastSuccessAt,
-        driveLastFailure = autoBackupPreferences.driveLastFailure?.let { name ->
-            AutoBackupRunner.Failure.entries.find { it.name == name }
-        }
+        driveConnected = driveAccountPreferences.connectedEmail != null
     )
 
     /**
@@ -82,80 +74,62 @@ class BackupViewModel @Inject constructor(
         _autoBackup.value = readAutoBackupState().copy(running = running)
     }
 
-    /**
-     * Telefonun klasör seçicisinden dönen klasör. İzin kalıcı alınır ki günlük iş uygulama
-     * kapalıyken de yazabilsin; önceki klasörün izni bırakılır.
-     */
-    fun onAutoBackupFolderChosen(uri: Uri) {
-        val resolver = appContext.contentResolver
-        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-        resolver.takePersistableUriPermission(uri, flags)
-        autoBackupPreferences.folderUri?.takeIf { it != uri.toString() }?.let { previous ->
-            runCatching { resolver.releasePersistableUriPermission(previous.toUri(), flags) }
-        }
-        autoBackupPreferences.folderUri = uri.toString()
-        autoBackupPreferences.folderName = folderDisplayName(uri)
-        refreshAutoBackup()
-        // Klasör değiştiyse yeni klasöre hemen bir kopya alınır.
-        if (autoBackupPreferences.enabled) backupNow()
-    }
-
-    private fun folderDisplayName(treeUri: Uri): String? = runCatching {
-        val documentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, DocumentsContract.getTreeDocumentId(treeUri))
-        appContext.contentResolver.query(
-            documentUri, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME), null, null, null
-        )?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
-    }.getOrNull()
-
-    /** Klasör seçildikten ve parola girildikten sonra otomatik yedeği açar ve ilk yedeği alır. */
-    fun enableAutoBackup(password: String) {
-        backupPasswordStore.save(password)
+    /** Otomatik yedeği açar ve ilk yedeği hemen alır; yalnızca Drive bağlıyken (ADR-013). */
+    fun enableAutoBackup() {
+        if (driveAccountPreferences.connectedEmail == null) return
         autoBackupPreferences.enabled = true
         AutoBackupWorker.scheduleIfEnabled(appContext, autoBackupPreferences)
         backupNow()
     }
 
-    fun changeAutoBackupPassword(password: String) {
-        backupPasswordStore.save(password)
-        backupNow()
-    }
-
-    /** Kapatınca saklanan parola da silinir; klasör izni yeniden açmak için kalır. */
     fun disableAutoBackup() {
         autoBackupPreferences.enabled = false
         autoBackupPreferences.lastFailure = null
-        backupPasswordStore.clear()
         AutoBackupWorker.cancel(appContext)
         refreshAutoBackup()
+    }
+
+    /** "Yedeği şifrele"yi açar: şifre bir kez saklanır, sonraki Drive yedekleri onunla şifrelenir. */
+    fun enableEncryption(password: String) {
+        backupPasswordStore.save(password)
+        autoBackupPreferences.encryptEnabled = true
+        afterEncryptionChange()
+    }
+
+    /** Sonraki yedekler şifresiz alınır; saklanan şifre eski şifreli yedekleri açmak için kalır. */
+    fun disableEncryption() {
+        autoBackupPreferences.encryptEnabled = false
+        afterEncryptionChange()
+    }
+
+    fun changeBackupPassword(password: String) {
+        backupPasswordStore.save(password)
+        afterEncryptionChange()
+    }
+
+    /** Şifreleme değiştiyse Drive'daki en yeni yedek hemen yeni biçimde alınır. */
+    private fun afterEncryptionChange() {
+        if (autoBackupPreferences.lastFailure == AutoBackupRunner.Failure.NO_PASSWORD.name) {
+            autoBackupPreferences.lastFailure = null
+        }
+        if (autoBackupPreferences.enabled) backupNow() else refreshAutoBackup()
     }
 
     fun backupNow() {
         refreshAutoBackup(running = true)
         viewModelScope.launch {
-            val report = try {
+            val outcome = try {
                 autoBackupRunner.run(force = true)
             } catch (e: Exception) {
-                AutoBackupRunner.Report(AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.FOLDER_UNAVAILABLE), null)
+                AutoBackupRunner.Outcome.Failed(AutoBackupRunner.Failure.DRIVE_UNAVAILABLE)
             }
             refreshAutoBackup()
-            // Önce hata varsa o gösterilir; ikisi de başarılıysa klasördeki dosya adı.
-            val failure = (report.local as? AutoBackupRunner.Outcome.Failed)?.reason
-                ?: (report.drive as? AutoBackupRunner.Outcome.Failed)?.reason
-            val done = report.local as? AutoBackupRunner.Outcome.Done
-            _uiState.value = when {
-                failure != null -> BackupUiState.Error(str(autoBackupFailureMessage(failure)))
-                done != null -> BackupUiState.Success(str(R.string.auto_backup_done, done.fileName))
-                else -> BackupUiState.Idle
+            _uiState.value = when (outcome) {
+                is AutoBackupRunner.Outcome.Failed -> BackupUiState.Error(str(autoBackupFailureMessage(outcome.reason)))
+                is AutoBackupRunner.Outcome.Done -> BackupUiState.Success(str(R.string.auto_backup_done, outcome.fileName))
+                AutoBackupRunner.Outcome.Unchanged -> BackupUiState.Idle
             }
         }
-    }
-
-    /** Otomatik yedeğin Drive'a da gitmesi; açılınca hemen bir kopya gönderilir. */
-    fun setDriveAutoBackup(enabled: Boolean) {
-        autoBackupPreferences.driveEnabled = enabled
-        if (!enabled) autoBackupPreferences.driveLastFailure = null
-        refreshAutoBackup()
-        if (enabled) backupNow()
     }
 
     /** Kullanıcı Drive iznini verdikten sonra, iznin hangi hesaba verildiğini öğrenip saklar. */
@@ -175,10 +149,8 @@ class BackupViewModel @Inject constructor(
     fun disconnectDrive() {
         driveAccountPreferences.connectedEmail = null
         _driveAccountEmail.value = null
-        // Bağlantı kesilince otomatik Drive yedeği de kapanır; yeniden bağlanınca ayrıca açılır.
-        autoBackupPreferences.driveEnabled = false
-        autoBackupPreferences.driveLastFailure = null
-        refreshAutoBackup()
+        // Otomatik yedek yalnızca Drive'a gider; bağlantı kesilince kapanır (ADR-013).
+        disableAutoBackup()
     }
 
     private fun str(resId: Int, vararg args: Any): String = appContext.getString(resId, *args)
@@ -265,16 +237,24 @@ class BackupViewModel @Inject constructor(
         }
     }
 
-    fun uploadToGoogleDrive(accessToken: String, password: String) {
+    /** Elle Drive yedeği: şifre sorulmaz; "Yedeği şifrele" açıksa saklanan şifreyle şifrelenir (ADR-013). */
+    fun uploadToGoogleDrive(accessToken: String) {
+        val password = if (autoBackupPreferences.encryptEnabled) {
+            backupPasswordStore.load() ?: run {
+                _uiState.value = BackupUiState.Error(str(R.string.auto_backup_error_password))
+                return
+            }
+        } else {
+            null
+        }
         viewModelScope.launch {
             _uiState.value = BackupUiState.Loading(str(R.string.backup_uploading_to_drive))
             try {
-                val jsonString = backupManager.exportData()
-                val encrypted = BackupCrypto.encrypt(jsonString, password)
+                val content = DriveBackupCodec.encode(backupManager.exportData(), password)
                 val driveManager = googleDriveManagerFactory.create(accessToken)
                 // Her elle yedek ayrı, tarihli bir dosyadır; önceki yedeğin üzerine yazmaz.
                 withContext(Dispatchers.IO) {
-                    driveManager.createAppFile(DriveBackupNames.manualName(System.currentTimeMillis()), encrypted)
+                    driveManager.createAppFile(DriveBackupNames.manualName(System.currentTimeMillis()), content)
                 }
                 _uiState.value = BackupUiState.Success(str(R.string.backup_drive_upload_success))
             } catch (e: Exception) {
@@ -316,8 +296,23 @@ class BackupViewModel @Inject constructor(
         _driveBackups.value = null
     }
 
-    fun restoreDriveBackup(fileId: String, password: String) {
+    private val _drivePasswordRequest = MutableStateFlow<String?>(null)
+
+    /** Şifreli bir Drive yedeği için şifre gerekiyorsa o yedeğin kimliği; pencere açıkken dolu. */
+    val drivePasswordRequest: StateFlow<String?> = _drivePasswordRequest.asStateFlow()
+
+    fun cancelDrivePasswordRequest() {
+        _drivePasswordRequest.value = null
+    }
+
+    /**
+     * Seçilen Drive yedeğini geri yükler. Şifresiz yedek doğrudan açılır; şifreli yedekte önce
+     * telefonda saklanan şifre denenir, yoksa ya da açmıyorsa şifre sorulur ([typedPassword]).
+     * Doğru şifre saklanır ve "Yedeği şifrele" açılır: kullanıcı şifreli yedeği seçmişti (ADR-013).
+     */
+    fun restoreDriveBackup(fileId: String, typedPassword: String? = null) {
         val token = driveRestoreToken ?: return
+        _drivePasswordRequest.value = null
         viewModelScope.launch {
             _uiState.value = BackupUiState.Loading(str(R.string.backup_downloading_from_drive))
             try {
@@ -328,17 +323,28 @@ class BackupViewModel @Inject constructor(
                     _uiState.value = BackupUiState.Error(str(R.string.backup_drive_no_backup_found))
                     return@launch
                 }
-                val jsonString = if (BackupCrypto.isEncrypted(fileContent)) {
-                    try {
-                        BackupCrypto.decrypt(fileContent, password)
-                    } catch (e: Exception) {
-                        _uiState.value = BackupUiState.Error(str(R.string.backup_wrong_password))
+                val jsonString = when (val decoded = DriveBackupCodec.decode(fileContent, backupPasswordStore.load(), typedPassword)) {
+                    is DriveBackupCodec.Decoded.Opened -> {
+                        decoded.passwordToStore?.let { password ->
+                            backupPasswordStore.save(password)
+                            autoBackupPreferences.encryptEnabled = true
+                        }
+                        decoded.json
+                    }
+                    DriveBackupCodec.Decoded.NeedsPassword -> {
+                        _uiState.value = BackupUiState.Idle
+                        _drivePasswordRequest.value = fileId
                         return@launch
                     }
-                } else {
-                    fileContent
+                    DriveBackupCodec.Decoded.WrongPassword -> {
+                        // Yedeği yeniden seçtirmeden şifre yeniden sorulur.
+                        _uiState.value = BackupUiState.Error(str(R.string.backup_wrong_password))
+                        _drivePasswordRequest.value = fileId
+                        return@launch
+                    }
                 }
                 val recordCount = restoreAndRescheduleAlarms(jsonString)
+                refreshAutoBackup()
                 _uiState.value = if (recordCount != null) {
                     BackupUiState.Success(str(R.string.backup_drive_restore_success, recordCount))
                 } else {
@@ -354,21 +360,16 @@ class BackupViewModel @Inject constructor(
 
 data class AutoBackupState(
     val enabled: Boolean = false,
-    val folderName: String? = null,
-    val hasFolder: Boolean = false,
+    val encryptEnabled: Boolean = false,
     val lastSuccessAt: Long = 0L,
     val lastFailure: AutoBackupRunner.Failure? = null,
     val driveConnected: Boolean = false,
-    val driveEnabled: Boolean = false,
-    val driveLastSuccessAt: Long = 0L,
-    val driveLastFailure: AutoBackupRunner.Failure? = null,
     val running: Boolean = false
 )
 
 fun autoBackupFailureMessage(reason: AutoBackupRunner.Failure): Int = when (reason) {
     AutoBackupRunner.Failure.NO_PASSWORD -> R.string.auto_backup_error_password
-    AutoBackupRunner.Failure.FOLDER_UNAVAILABLE, AutoBackupRunner.Failure.NOT_CONFIGURED -> R.string.auto_backup_error_folder
-    AutoBackupRunner.Failure.DRIVE_NEEDS_PERMISSION -> R.string.auto_backup_error_drive_permission
+    AutoBackupRunner.Failure.NOT_CONFIGURED, AutoBackupRunner.Failure.DRIVE_NEEDS_PERMISSION -> R.string.auto_backup_error_drive_permission
     AutoBackupRunner.Failure.DRIVE_UNAVAILABLE -> R.string.auto_backup_error_drive_unavailable
 }
 
