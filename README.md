@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/gokcank/Curalis/releases/latest"><img src="https://img.shields.io/badge/Release-v1.8.0-blue?style=for-the-badge" alt="Latest release" /></a>
+  <a href="https://github.com/gokcank/Curalis/releases/latest"><img src="https://img.shields.io/badge/Release-v1.9.0-blue?style=for-the-badge" alt="Latest release" /></a>
   <img src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android 8.0+" />
   <img src="https://img.shields.io/badge/Kotlin-B125EA?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" />
@@ -50,8 +50,9 @@ Curalis is distributed as an APK on GitHub; it is not on Google Play.
 2. Open the file and allow installing apps from this source when Android asks.
 3. Updates: install the new APK over the old one. Your data is kept.
 
-After the first start, turn on **automatic backup** in *Settings → Backup & Restore* and write down the backup
-password. You need it to open your backups on a new phone.
+After the first start, connect Google Drive in *Settings → Backup & Restore* and turn on **automatic backup**.
+Backups are not encrypted unless you turn on "Encrypt backups"; if you do, write the password down: a new phone asks
+for it once.
 
 ---
 
@@ -83,8 +84,10 @@ password. You need it to open your backups on a new phone.
 **Privacy and data safety**
 - Data stays on the phone. No account, no ads, no analytics or tracking libraries.
 - Optional app lock with a PIN or biometrics; a forgotten PIN can be reset with the phone's own screen lock.
-- Encrypted backups (password-protected): manual export, daily automatic backup to a folder you choose, and optional
-  Google Drive backup to a hidden app folder. The 30 newest automatic backups are kept.
+- Daily automatic backup to a hidden app folder in your Google Drive (the 30 newest are kept) and manual Drive backups,
+  with no password to type. Optional "Encrypt backups": a password set once, stored on the phone, asked only on a new
+  phone. Without it, Drive backups are protected by your Google account but readable on Google's servers.
+- Manual export to a file, always encrypted with a password you enter.
 - If the database file is ever damaged, a copy is kept before anything is deleted.
 
 See [CHANGELOG.md](CHANGELOG.md) for the changes in each release.
@@ -104,13 +107,13 @@ Use cases (framework-independent business logic)
       │
 Repositories
  ┌────┴───────────────┬──────────────────────┐
-Room database   TİTCK dictionary (SQLite)   Backup targets (folder, Google Drive)
+Room database   TİTCK dictionary (SQLite)   Backups (Google Drive, file export)
 ```
 
 - **Language:** Kotlin, Coroutines, Flow
 - **UI:** Jetpack Compose, Material 3, Glance (widget)
 - **Dependency injection:** Hilt
-- **Storage:** Room; Android Keystore for the stored backup password
+- **Storage:** Room; Android Keystore for the optional stored backup password
 - **Scheduling:** AlarmManager (exact alarms), WorkManager
 - **PDF:** Android `PdfDocument`
 - **Barcode:** Google Play services code scanner (no camera permission)

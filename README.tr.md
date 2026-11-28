@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/gokcank/Curalis/releases/latest"><img src="https://img.shields.io/badge/S%C3%BCr%C3%BCm-v1.8.0-blue?style=for-the-badge" alt="Son sürüm" /></a>
+  <a href="https://github.com/gokcank/Curalis/releases/latest"><img src="https://img.shields.io/badge/S%C3%BCr%C3%BCm-v1.9.0-blue?style=for-the-badge" alt="Son sürüm" /></a>
   <img src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android 8.0+" />
   <img src="https://img.shields.io/badge/Kotlin-B125EA?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" />
@@ -50,8 +50,9 @@ Curalis, GitHub üzerinden APK olarak dağıtılır; Google Play'de yoktur.
 2. Dosyayı açın; Android sorarsa bu kaynaktan uygulama yüklemeye izin verin.
 3. Güncelleme: Yeni APK'yı eskisinin üzerine kurun. Verileriniz korunur.
 
-İlk açılıştan sonra *Ayarlar → Yedekleme & Geri Yükleme* bölümünden **otomatik yedeği açın** ve yedekleme şifresini
-bir yere not edin. Yedeklerinizi yeni bir telefonda açmak için bu şifre gerekir.
+İlk açılıştan sonra *Ayarlar → Yedekleme & Geri Yükleme* bölümünden Google Drive'a bağlanın ve **otomatik yedeği
+açın**. "Yedeği şifrele"yi açmadığınız sürece yedekler şifresizdir; açarsanız şifreyi bir yere not edin, yeni bir
+telefonda bir kez sorulur.
 
 ---
 
@@ -83,8 +84,10 @@ bir yere not edin. Yedeklerinizi yeni bir telefonda açmak için bu şifre gerek
 **Gizlilik ve veri güvenliği**
 - Veriler telefonda kalır. Hesap yok, reklam yok, analiz ya da izleme kütüphanesi yok.
 - İsteğe bağlı PIN ya da biyometrik uygulama kilidi; unutulan PIN telefonun kendi ekran kilidiyle sıfırlanabilir.
-- Şifreli yedekler (parolayla korunan): elle dışa aktarma, seçtiğiniz klasöre günlük otomatik yedek ve isteğe bağlı
-  olarak Google Drive'daki gizli uygulama klasörüne yedek. En yeni 30 otomatik yedek saklanır.
+- Google Drive'daki gizli uygulama klasörüne günlük otomatik yedek (en yeni 30 yedek saklanır) ve elle Drive yedeği;
+  şifre yazmak gerekmez. İsteğe bağlı "Yedeği şifrele": şifre bir kez belirlenir, telefonda saklanır, yalnızca yeni
+  telefonda sorulur. Kapalıyken Drive yedekleri Google hesabınızla korunur ama Google'ın sunucusunda okunabilir.
+- Dosyaya elle dışa aktarma; her zaman girdiğiniz şifreyle şifrelenir.
 - Veri dosyası bir gün bozulursa, hiçbir şey silinmeden önce bir kopyası saklanır.
 
 Her sürümdeki değişiklikler için [CHANGELOG.md](CHANGELOG.md) dosyasına bakın (İngilizce).
@@ -104,13 +107,13 @@ Kullanım senaryoları (Android'den bağımsız iş mantığı)
       │
 Depolar (repository)
  ┌────┴──────────────────┬──────────────────────┐
-Room veritabanı   TİTCK sözlüğü (SQLite)   Yedek hedefleri (klasör, Google Drive)
+Room veritabanı   TİTCK sözlüğü (SQLite)   Yedekler (Google Drive, dosyaya aktarma)
 ```
 
 - **Dil:** Kotlin, Coroutines, Flow
 - **Arayüz:** Jetpack Compose, Material 3, Glance (widget)
 - **Bağımlılık enjeksiyonu:** Hilt
-- **Depolama:** Room; saklanan yedekleme şifresi için Android Keystore
+- **Depolama:** Room; isteğe bağlı saklanan yedekleme şifresi için Android Keystore
 - **Zamanlama:** AlarmManager (kesin alarmlar), WorkManager
 - **PDF:** Android `PdfDocument`
 - **Barkod:** Google Play hizmetleri kod tarayıcısı (kamera izni gerekmez)

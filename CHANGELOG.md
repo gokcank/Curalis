@@ -2,6 +2,23 @@
 
 All notable changes to Curalis are documented in this file.
 
+## [1.9.0] — versionCode 17
+
+Simpler backups (ADR-013).
+
+- **Automatic backup goes to Google Drive only.** Connect Drive and turn it on; no folder and no password are
+  asked. One backup a day goes to Curalis's hidden folder in your Drive and the 30 newest are kept. The phone folder
+  option is gone; disconnecting Drive turns automatic backup off.
+- **No more password prompts for Drive.** Drive backups are unencrypted by default (protected by your Google account,
+  but readable on Google's servers; the app says so). The new "Encrypt backups" option encrypts them with a password
+  set once and stored on the phone; it is asked only when restoring on a phone that does not have it.
+- **Restoring from Drive** opens unencrypted backups directly and encrypted ones with the stored password; otherwise
+  the password is asked once (again after a wrong one) and kept.
+- Upgrading from 1.8.0: an automatic backup that also went to Drive continues there, encrypted; a folder-only one is
+  turned off. Backup files already in the folder are left alone.
+- Help texts and the welcome message no longer promise encrypted backups.
+- The manual file export still asks for a password and is always encrypted.
+
 ## [1.8.0] — versionCode 16
 
 Data safety for everyday use (ADR-011).
